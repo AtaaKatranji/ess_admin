@@ -9,9 +9,10 @@ import 'react-calendar/dist/Calendar.css';
 import MyCalendar from '@/app/components/Calendar';
 
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
-
 interface NotificationsProps {
-  institutionId: string;
+  params: {
+    slug: string; // Assuming slug is a string parameter from the URL
+  };
 }
 // Define the Notification interface
 interface Notification {
@@ -22,7 +23,8 @@ interface Notification {
 
 
 
-const Notifications: React.FC<NotificationsProps> = ({ institutionId }) => {
+const Notifications: React.FC<NotificationsProps> = ({ params }) => {
+  const institutionId = params.slug;
   const [announcement, setAnnouncement] = useState('');
   const [notifications, setNotifications] = useState<Notification[]>([]); 
   const [isModalOpen, setIsModalOpen] = useState(false);

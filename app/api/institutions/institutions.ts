@@ -38,7 +38,7 @@ export const copyToClipboard = async (text: string): Promise<void> => {
           autoClose: 2500 // duration in milliseconds
         }); // Log success message
     } catch (err) {
-        toast.error('Failed to copy!'); // Log error
+        toast.error(`Failed to copy! ${err} `); // Log error
         throw new Error('Failed to copy!');
          // Optionally throw an error
     }

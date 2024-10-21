@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Calendar, momentLocalizer } from 'react-big-calendar';
 import moment from 'moment';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
@@ -9,15 +9,7 @@ const localizer = momentLocalizer(moment);
 const MyCalendar: React.FC = () => {
   const [date, setDate] = useState(new Date());
   // here I will have Call API to fetch events from Back
-  useEffect(() => {
-    // Fetch past notifications from API or local storage
-    // Simulating fetched notifications
-    const fetchedNotifications = [
-      { id: '1', date: new Date('2024-10-01'), content: 'First Announcement' },
-      { id: '2', date: new Date('2024-10-02'), content: 'Second Announcement' },
-    ];
-    
-  }, []);
+
   const events = [
     {
       title: 'Sample Event',

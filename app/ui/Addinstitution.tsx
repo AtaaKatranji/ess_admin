@@ -140,11 +140,9 @@ useEffect(() => {
     
   }
   console.log("token: ",token);
-}, []);
+}, [token]);
 
-useEffect(() => {
-  
-}, [name]);
+
 
   return (
     <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>

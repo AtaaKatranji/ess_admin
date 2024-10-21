@@ -5,7 +5,7 @@ import { useParams,useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 import EmployeeDetails from './detials/page';
 import EmployeeTasks from './tasks/page';
-import { ListCollapse, Menu, ArrowLeft, Lamp  } from 'lucide-react';
+import { ListCollapse, Menu, ArrowLeft, ClipboardEdit  } from 'lucide-react';
 
 import { ToastContainer } from 'react-toastify';
 //import { LogoutIcon } from '@heroicons/react/outline';
@@ -79,7 +79,7 @@ const EmployeeDashboard = () => {
           </Link>
           <Link href="#" legacyBehavior>
             <a onClick={() => handleNavigation('tasks')} className={`flex items-center py-2 px-4 ${activeSection === 'tasks' ? 'bg-blue-600 rounded' : ''}`}>
-              <Lamp className="mr-2 h-5 w-5" />
+              <ClipboardEdit className="mr-2 h-5 w-5" />
               Tasks
             </a>
           </Link>

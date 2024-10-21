@@ -1,7 +1,7 @@
 // components/Navbar.tsx
 'in Client'
-import React, { SetStateAction, useState } from 'react';
-import { AppBar, Avatar, Box, IconButton, Menu, MenuItem,ThemeProvider, Toolbar, Typography } from '@mui/material';
+
+import { AppBar, Avatar, Box, IconButton, Menu, MenuItem, Toolbar, Typography } from '@mui/material';
 
 type NavbarProps = {
   onMenuOpen: (event: React.MouseEvent<HTMLButtonElement>) => void;

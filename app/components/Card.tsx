@@ -3,6 +3,7 @@ import React from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, Box, Typography, IconButton } from '@mui/material';
 import { Edit, Delete } from 'lucide-react';
+import Image from 'next/image';
 
 
 interface Institution {
@@ -34,7 +35,7 @@ const InstitutionCard: React.FC<{ institution: Institution }> = ({ institution }
         >
           {/* First Column: Image */}
           <Box sx={{ mr: 2 }}>
-            <img
+            <Image
               src={institution.image}
               alt={institution.name}
               style={{ width: '100px', height: '100px', objectFit: 'cover' }}

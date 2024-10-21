@@ -10,22 +10,18 @@ interface Employee {
   position: string;
 }
 
-interface EmployeeListProps {
-  children?: React.ReactNode; // Allow children if needed
-}
-
-const EmployeeList: React.FC<EmployeeListProps> = () => {
+const EmployeeList: React.FC = () => {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const params = useParams();
-  const slug = params?.slug;
+  const slug = Array.isArray(params?.slug) ? params.slug[0] : params?.slug;
 
   const fetchData = async () => {
     try {
       setLoading(true);
-      const dataIns = await fetchInstitution(Array.isArray(slug) ? slug[0] : slug)!;
+      const dataIns = await fetchInstitution(slug);
 
       const data = await fetchEmployees(dataIns.uniqueKey);
       console.log("users ", data);
@@ -42,19 +38,9 @@ const EmployeeList: React.FC<EmployeeListProps> = () => {
     fetchData();
   }, []);
 
-  // Filter employees based on the search term
-  // const filteredEmployees = employees.filter((employee) =>
-  //   employee.name.toLowerCase().includes(searchTerm.toLowerCase())
-  // );
-
   const handleViewDetails = (employeeId: string) => {
     router.push(`/dashboard/institution/${slug}/employees/${employeeId}`);
   };
-
-  // const removeEmployee = (id: string): void => {
-  //   // Implement the logic to remove the employee (e.g., API call)
-  //   setEmployees((prev) => prev.filter((employee) => employee._id !== id));
-  // };
 
   if (loading) {
     return <p>Loading...</p>;

@@ -1,6 +1,6 @@
 
 const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
-const token = localStorage.getItem('token')
+
 
 
 export const fetchEmployees = async (institutionKey: string) => {

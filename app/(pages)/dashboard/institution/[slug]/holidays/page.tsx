@@ -1,12 +1,13 @@
 "use client"
 
 import { useState, useMemo } from 'react'
-import { Calendar, momentLocalizer, NavigateAction, ToolbarProps } from 'react-big-calendar'
+import { Calendar, momentLocalizer} from 'react-big-calendar'
 import moment from 'moment'
 import { Edit2, Trash2, IceCream, Circle } from 'lucide-react'
 import { Button } from '@mui/material';
 import { Input } from '@mui/material';
 import { Card, CardContent, CardHeader } from '@mui/material';
+//import { newDate } from 'react-datepicker/dist/date_utils'
 //import CustomToolbar from '@/app/components/CustomToolbar'; // Updated casing
 
 
@@ -31,48 +32,61 @@ const localizer = momentLocalizer(moment)
 interface Holiday {
   id: number
   name: string
-  date: string
+  start: Date // Assuming start is of type Date
+  end: Date  // Assuming end is of type Date
+  allDay: boolean
   color: string
   createdAt: number 
 }
 
 export default function HolidayCalendar() {
   const [holidays, setHolidays] = useState<Holiday[]>([
-    { id: 1, name: "New Year's Day", date: "2024-01-01", color: "#FF0000", createdAt: Date.now() - 1000 },
-    { id: 2, name: "Independence Day", date: "2024-07-04", color: "#0000FF", createdAt: Date.now() - 2000 },
+    { id: 1, name: "New Year's Day", start: new Date('2023-01-01'),
+      end: new Date('2023-01-01'),
+      allDay: true, color: "#FF0000", createdAt: Date.now() - 1000 },
+    { id: 2, name: "Independence Day", start: new Date('2023-12-25'),
+      end: new Date('2023-12-25'),
+      allDay: true, color: "#0000FF", createdAt: Date.now() - 2000 },
   ])
-  const [newHoliday, setNewHoliday] = useState({ name: '', date: '', color: '#000000' })
+  const [newHoliday, setNewHoliday] = useState({id: Date.now(),name: "", start: new Date(),
+    end: new Date(),
+    allDay: true, color: "#000000",createdAt: Date.now(),})
   const [editingId, setEditingId] = useState<number | null>(null)
   const [date, setDate] = useState(new Date());
 
 
   const addHoliday = () => {
-    if (newHoliday.name && newHoliday.date) {
-      const newHolidayEntry = {
-        ...newHoliday,
-        id: Date.now(),
-        createdAt: Date.now() // Set the creation time
-      }
-      setHolidays([newHolidayEntry, ...holidays]) // Add new holiday at the beginning
-      setNewHoliday({ name: '', date: '', color: '#000000' })
+    if (newHoliday.name && newHoliday.start) {
+      const newHolidayEntry: Holiday = {
+        id: Date.now(), // Unique ID based on current timestamp
+        name: newHoliday.name, // Name from newHoliday state
+        start: new Date(newHoliday.start), // Convert string to Date object
+        end: new Date(newHoliday.end || newHoliday.start),
+        allDay: true, // Default end to start if not provided
+        createdAt: Date.now(), // Set creation time
+        color: newHoliday.color || '#000000' // Default color if not provided
+      };
+  
+      setHolidays([newHolidayEntry, ...holidays]); // Add new holiday at the beginning
+      setNewHoliday({id: Date.now(), name: '', start: new Date(), end: new Date(),allDay:true, color: '#000000',createdAt: Date.now(), }); // Reset form fields
     }
-  }
+  };
 
   const startEditing = (id: number) => {
     setEditingId(id)
     const holiday = holidays.find(h => h.id === id)
     if (holiday) {
-      setNewHoliday({ name: holiday.name, date: holiday.date, color: holiday.color })
+      setNewHoliday({id: Date.now(), name: holiday.name, start: holiday.start,end: holiday.start,allDay:true, color: holiday.color,createdAt: Date.now(), })
     }
   }
 
   const saveEdit = () => {
-    if (editingId && newHoliday.name && newHoliday.date) {
+    if (editingId && newHoliday.name && newHoliday.start) {
       setHolidays(holidays.map(h => 
-        h.id === editingId ? { ...h, name: newHoliday.name, date: newHoliday.date, color: newHoliday.color } : h
+        h.id === editingId ? { ...h, name: newHoliday.name, date: newHoliday.start, color: newHoliday.color } : h
       ).sort((a, b) => b.createdAt - a.createdAt)) // Re-sort after editing
       setEditingId(null)
-      setNewHoliday({ name: '', date: '', color: '#000000' })
+      setNewHoliday({id: Date.now(), name: '', start: new Date(), end: new Date(),allDay:true, color: '#000000',createdAt: Date.now(), });
     }
   }
 
@@ -94,15 +108,17 @@ export default function HolidayCalendar() {
 
   
   const events = useMemo(() => sortedHolidays.map(holiday => ({
-    title: holiday.name,
-    start: new Date(holiday.date),
-    end: new Date(holiday.date),
+    id:holiday.id,
+    name: holiday.name,
+    start: new Date(holiday.start),
+    end: new Date(holiday.end),
     allDay: true,
     color: holiday.color, 
+    createdAt:holiday.createdAt,
     icon: IceCream,
   })), [sortedHolidays])
   // Custom Event Style Getter
-  const eventStyleGetter = (event: any) => {
+  const eventStyleGetter = (event: Holiday) => {
     const backgroundColor = event.color;
     return {
       style: {
@@ -133,8 +149,8 @@ export default function HolidayCalendar() {
               />
               <Input
                 type="date"
-                value={newHoliday.date}
-                onChange={(e) => setNewHoliday({ ...newHoliday, date: e.target.value })}
+                value={newHoliday.start}
+                onChange={(e) => setNewHoliday({ ...newHoliday, start: new Date(e.target.value) })}
                 className="flex-grow"
               />
               <Input
@@ -152,7 +168,7 @@ export default function HolidayCalendar() {
                 <li key={holiday.id} className="flex items-center justify-between p-2 bg-gray-100 rounded">
                   <div className="space-x-2 flex items-center">
                     <Circle  style={{ color: holiday.color , fontSize: '15px'}} />
-                    <span>{holiday.name} - {new Date(holiday.date).toLocaleDateString()}</span>
+                    <span>{holiday.name} - {new Date(holiday.start).toLocaleDateString()}</span>
                   </div>
                   <div className="space-x-2">
                     <Button variant="outlined" size="small" onClick={() => startEditing(holiday.id)}>

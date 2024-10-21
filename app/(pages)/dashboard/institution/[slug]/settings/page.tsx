@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from 'react';
-import { Edit, Save, Trash2, PlusCircle, RefreshCw, X } from 'lucide-react';
+import { Edit, Save, Trash2, PlusCircle, RefreshCw } from 'lucide-react';
 import { checkNameExists, deleteInstitutionInfo, fetchInstitution, updatedInstitutionInfo } from '@/app/api/institutions/institutions';
 import { useParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -78,8 +78,8 @@ const SettingsPage: React.FC = () => {
         toast.error(`Failed to update institution: ${data}`);
         setErrorName(data); // Show error to the user
       }
-    } catch (error: any) {
-      console.error('Error updating institution:', error.message);
+    } catch (error) {
+      console.error('Error updating institution:', (error as Error).message);
       setErrorName('An error occurred while saving. Please try again.');
     } finally {
       setLoading(false); // Hide loading indicator
@@ -117,8 +117,8 @@ const SettingsPage: React.FC = () => {
           toast.error(`Failed to update institution.`);
           setErrorName('Failed to update institution.');
         }
-      } catch (error: any) {
-        console.error('Error updating institution:', error.message);
+      } catch (error) {
+        console.error('Error updating institution:', (error as Error).message );
         setErrorName('An error occurred while saving. Please try again.');
       }
   
@@ -160,8 +160,8 @@ const SettingsPage: React.FC = () => {
         toast.error("Failed to update institution.");
         setErrorName("Failed to update institution.");
       }
-    } catch (error: any) {
-      console.error('Error updating institution:', error.message);
+    } catch (error) {
+      console.error('Error updating institution:', (error as Error).message);
       setErrorName('An error occurred while saving. Please try again.');
     }
   };

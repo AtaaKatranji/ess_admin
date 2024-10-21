@@ -8,7 +8,6 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import Cookies from 'js-cookie';
 import { useRouter } from 'next/navigation';
 
 
@@ -20,7 +19,7 @@ export default function AdminLogin() {
   const [showPassword, setShowPassword] = useState(false)
   const [phoneNumber, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [token1, setToken1] = useState('');
+
   const [error, setError] = useState('');
   const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
 
