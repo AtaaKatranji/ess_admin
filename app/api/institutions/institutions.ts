@@ -1,0 +1,213 @@
+import { extractAdminId } from "@/app/utils/extractId";
+import { toast } from "react-toastify";
+
+//Generate New Key 
+const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
+const token = localStorage.getItem('token')
+console.log('token in institutions api file: '+token)
+const adminId = extractAdminId(token!);
+
+
+interface SSIDInfo {
+  
+  wifiName: string;
+  macAddress: string;
+
+}
+
+type InstitutionInfo = {
+  name: string;
+  address: string;
+  uniqueKey: string;
+  macAddresses: SSIDInfo[];
+}
+
+
+export function GenerateKey(){
+    try {
+        return Math.random().toString(36).substr(2, 9).toUpperCase();
+    }
+    catch {
+
+    }
+}
+export const copyToClipboard = async (text: string): Promise<void> => {
+    try {
+        await navigator.clipboard.writeText(text); // Copy text to clipboard
+        toast.info('Copied to clipboard!', {
+          autoClose: 2500 // duration in milliseconds
+        }); // Log success message
+    } catch (err) {
+        toast.error('Failed to copy!'); // Log error
+        throw new Error('Failed to copy!');
+         // Optionally throw an error
+    }
+};
+export const fetchInstitutionById = async (id: string) => {
+  console.log(token)
+    const response = await fetch(`${BaseUrl}/ins/institutions/${id}`, { // Include the ID in the URL
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`, // Include token if needed
+        'Content-Type': 'application/json',
+      },
+    });
+    console.log(response)
+    if (!response.ok) {
+      throw new Error('Failed to fetch institution');
+    }
+  
+    const data = await response.json();
+    return data; // Return the fetched institution data
+  };
+export const fetchInstitutions = async () => {
+  try {
+    const response = await fetch(`${BaseUrl}/ins/institutions`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`, // Include token if needed
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch institutions');
+    }
+
+    const data = await response.json();
+    return(data); // Set the fetched institutions
+    
+  } catch (error) {
+    toast.error(`Error fetching institutions: ${error}` );
+  }
+};
+export const fetchInstitutionsById = async () => {
+
+    const response = await fetch(`${BaseUrl}/ins/institutionsAdmin/${adminId}`, { // Include the ID in the URL
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`, // Include token if needed
+        'Content-Type': 'application/json',
+      },
+    });
+    console.log(response)
+    if (!response.ok) {
+      throw new Error('Failed to fetch institution');
+    }
+  
+    const data = await response.json();
+    return data; // Return the fetched institution data
+  };
+export  const fetchInstitution = async (slug: string) => {
+  try {
+    console.log("fetching...\n")
+    const response = await fetch(`${BaseUrl}/ins/institutions/slug/${slug}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`, // Include token if needed
+        'Content-Type': 'application/json',
+      },
+    });
+    if (!response.ok) {
+      throw new Error('Failed to fetch institution');
+    }
+
+    const data = await response.json();
+    return(data);
+      // Set institution data
+  } catch (error) {
+    toast.error(`Error fetching institution: ${error}` );
+  } 
+};
+export const updatedInstitutionInfo = async (institutionInfo: InstitutionInfo,slug: string ) => {
+  // Create the data to send
+  const institutionData = {
+    name: institutionInfo.name,
+    address: institutionInfo.address,
+    adminId: adminId, // assuming you have this field in institutionInfo
+    keyNumber: institutionInfo.uniqueKey,
+    macAddresses: institutionInfo.macAddresses,
+    slug: slug // array of MAC addresses
+
+  };
+  console.log(institutionData)
+  try {
+    const response = await fetch(`${BaseUrl}/ins/institutions/${slug}`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        // Include any necessary authentication headers here
+      },
+      body: JSON.stringify(institutionData), // Send the updated institution info
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to update institution');
+    }
+
+    const updatedInstitution = await response.json();
+    console.log('Updated Institution:', updatedInstitution);
+    return updatedInstitution;
+    // Exit editing mode after successful update
+  } catch (error) {
+    console.error('Error updating institution info:', error);
+  }
+}
+export const deleteInstitutionInfo = async (slug: string ) => {
+  
+  try {
+    const response = await fetch(`${BaseUrl}/ins/institutions/${slug}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        // Include any necessary authentication headers here
+      },
+      
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to update institution');
+    }
+    const res = await response.json()
+    return await res.message;
+     
+    // Exit editing mode after successful update
+  } catch (error) {
+    console.error('Error updating institution info:', error);
+  }
+}
+
+export const checkNameExists = async (name: string) => {
+    
+    if (!name || !adminId) {
+      return("Please Add Name.")
+    }
+
+  
+  try {
+    // Replace this URL with your actual API endpoint
+    const insData = {name,adminId}
+    const response = await fetch(`${BaseUrl}/ins/check-name`, {
+      method: 'post',
+      headers: {
+        'Authorization': `Bearer ${token}`, // Include token if needed
+        'Content-Type': 'application/json',
+      },
+      body:JSON.stringify(insData),
+      
+    });
+    // Assume the API returns a boolean indicating if the name exists
+    const data = await  response.json()
+    console.log(data)
+    console.log(data.exists)
+    if (data.exists == true) {
+      return(true); // name is taken
+    } else {
+      return(false); // name is available
+    }
+  } catch (error) {
+    console.error('Error checking name:', error);
+  }
+};
