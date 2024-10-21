@@ -3,12 +3,12 @@
 import { useState, useMemo } from 'react'
 import { Calendar, momentLocalizer, NavigateAction, ToolbarProps } from 'react-big-calendar'
 import moment from 'moment'
-import { Edit2, Trash2, IceCream } from 'lucide-react'
+import { Edit2, Trash2, IceCream, Circle } from 'lucide-react'
 import { Button } from '@mui/material';
 import { Input } from '@mui/material';
 import { Card, CardContent, CardHeader } from '@mui/material';
 //import CustomToolbar from '@/app/components/CustomToolbar'; // Updated casing
-import { CircleRounded } from '@mui/icons-material'
+
 
 // type CustomToolbarProps = ToolbarProps<{ title: string; start: Date; end: Date; allDay: boolean; color: string; }, object>;
 // const CustomToolbarComponent: React.FC<CustomToolbarProps> = ({ onNavigate, ...props }) => {
@@ -151,7 +151,7 @@ export default function HolidayCalendar() {
               {sortedHolidays.map((holiday) => (
                 <li key={holiday.id} className="flex items-center justify-between p-2 bg-gray-100 rounded">
                   <div className="space-x-2 flex items-center">
-                    <CircleRounded  style={{ color: holiday.color , fontSize: '15px'}} />
+                    <Circle  style={{ color: holiday.color , fontSize: '15px'}} />
                     <span>{holiday.name} - {new Date(holiday.date).toLocaleDateString()}</span>
                   </div>
                   <div className="space-x-2">

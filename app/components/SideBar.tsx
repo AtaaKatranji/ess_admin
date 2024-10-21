@@ -2,7 +2,7 @@
 import React from 'react';
 import { Drawer, List, ListItemIcon, ListItemText, Box } from '@mui/material';
 import ListItem from '@mui/material/ListItem';
-import { Home, Dashboard, Settings } from '@mui/icons-material';
+import { Home, PanelsLeftRight, Settings }  from 'lucide-react';
 
 interface SidebarProps {
   open: boolean;
@@ -31,7 +31,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
             <ListItemText primary="Home" />
           </ListItem>
           <ListItem component="li">
-            <ListItemIcon><Dashboard /></ListItemIcon>
+            <ListItemIcon><PanelsLeftRight /></ListItemIcon>
             <ListItemText primary="Dashboard" />
           </ListItem>
           <ListItem component="li">

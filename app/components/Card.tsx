@@ -2,7 +2,8 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, Box, Typography, IconButton } from '@mui/material';
-import { Edit, Delete } from '@mui/icons-material';
+import { Edit, Delete } from 'lucide-react';
+
 
 interface Institution {
     id: number; 

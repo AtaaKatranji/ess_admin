@@ -2,7 +2,7 @@
 'in Client'
 import React, { SetStateAction, useState } from 'react';
 import { AppBar, Avatar, Box, IconButton, Menu, MenuItem,ThemeProvider, Toolbar, Typography } from '@mui/material';
-import { Apps, List } from '@mui/icons-material';
+
 type NavbarProps = {
   onMenuOpen: (event: React.MouseEvent<HTMLButtonElement>) => void;
   anchorEl: HTMLElement | null;

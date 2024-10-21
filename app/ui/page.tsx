@@ -4,7 +4,7 @@ import { AppBar, Box, IconButton, Toolbar, Typography } from '@mui/material';
 import React, { Children, useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Sidebar from '@/app/components/SideBar';
-import MenuIcon from '@mui/icons-material/Menu';
+import {MenuIcon} from 'lucide-react';
 
 const InstitutionDashboard = () => {
 
