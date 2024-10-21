@@ -5,12 +5,12 @@ import { useParams,useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 import EmployeeDetails from './detials/page';
 import EmployeeTasks from './tasks/page';
-import { CirclePlus, ListCollapse, Menu, SquareCheckBig } from 'lucide-react';
-import { ArrowBack, ArrowBackOutlined, Task } from '@mui/icons-material';
+import { ListCollapse, Menu } from 'lucide-react';
+import { ArrowBack, Task } from '@mui/icons-material';
 import { ToastContainer } from 'react-toastify';
 //import { LogoutIcon } from '@heroicons/react/outline';
 
-const EmployeeDashboard = ({ children }: { children: React.ReactNode }) => {
+const EmployeeDashboard = () => {
   const params = useParams();
   const router = useRouter();
   const { slug, employeeId } = params;// Retrieve the institution ID from the URL

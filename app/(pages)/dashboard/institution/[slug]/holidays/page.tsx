@@ -3,27 +3,27 @@
 import { useState, useMemo } from 'react'
 import { Calendar, momentLocalizer, NavigateAction, ToolbarProps } from 'react-big-calendar'
 import moment from 'moment'
-import { PlusCircle, Edit2, Trash2, CircleIcon, IceCream } from 'lucide-react'
+import { Edit2, Trash2, IceCream } from 'lucide-react'
 import { Button } from '@mui/material';
 import { Input } from '@mui/material';
 import { Card, CardContent, CardHeader } from '@mui/material';
-import CustomToolbar from '@/app/components/CustomToolbar'; // Updated casing
+//import CustomToolbar from '@/app/components/CustomToolbar'; // Updated casing
 import { CircleRounded } from '@mui/icons-material'
 
-type CustomToolbarProps = ToolbarProps<{ title: string; start: Date; end: Date; allDay: boolean; color: string; }, object>;
-const CustomToolbarComponent: React.FC<CustomToolbarProps> = ({ onNavigate, ...props }) => {
-    const handleNavigate = (direction: string) => {
-        // Implement navigation logic here
-        onNavigate(direction as NavigateAction); // Ensure correct type
-    };
+// type CustomToolbarProps = ToolbarProps<{ title: string; start: Date; end: Date; allDay: boolean; color: string; }, object>;
+// const CustomToolbarComponent: React.FC<CustomToolbarProps> = ({ onNavigate, ...props }) => {
+//     const handleNavigate = (direction: string) => {
+//         // Implement navigation logic here
+//         onNavigate(direction as NavigateAction); // Ensure correct type
+//     };
 
-    return (
-        // ... your toolbar JSX ...
-        <CustomToolbar onNavigate={function (direction: string): void {
-        throw new Error('Function not implemented.')
-      } } />
-    );
-};
+//     return (
+//         // ... your toolbar JSX ...
+//         <CustomToolbar onNavigate={function (direction: string): void {
+//         throw new Error('Function not implemented.')
+//       } } />
+//     );
+// };
 
 
 const localizer = momentLocalizer(moment)
@@ -44,7 +44,7 @@ export default function HolidayCalendar() {
   const [newHoliday, setNewHoliday] = useState({ name: '', date: '', color: '#000000' })
   const [editingId, setEditingId] = useState<number | null>(null)
   const [date, setDate] = useState(new Date());
-  const [view, setView] = useState('month');
+
 
   const addHoliday = () => {
     if (newHoliday.name && newHoliday.date) {
@@ -91,9 +91,7 @@ export default function HolidayCalendar() {
   const onNavigate = (newDate: Date) => {
     setDate(newDate);
   }
-  const onView = (view: String) => {
-    setView(view.toString);
-  }
+
   
   const events = useMemo(() => sortedHolidays.map(holiday => ({
     title: holiday.name,

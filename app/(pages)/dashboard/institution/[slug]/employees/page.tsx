@@ -4,60 +4,57 @@ import { useParams, useRouter } from 'next/navigation';
 import { fetchEmployees } from '@/app/api/employees/employeeId'; // Update import path
 import { fetchInstitution } from '@/app/api/institutions/institutions';
 
-const EmployeeList = () => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [employees, setEmployees] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true); // To handle loading state
+interface Employee {
+  _id: string;
+  name: string;
+  position: string;
+}
+
+interface EmployeeListProps {
+  children?: React.ReactNode; // Allow children if needed
+}
+
+const EmployeeList: React.FC<EmployeeListProps> = () => {
+  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [key,setKey]=useState('')
-  const [institutionId,setInstitutionId]=useState('')
   const router = useRouter();
   const params = useParams();
-  const slug = params?.slug; // Get institution ID from URL parameters
+  const slug = params?.slug;
 
-  const  fetchins = async () => {
-    
-    
-  
-    
-  }
   const fetchData = async () => {
     try {
       setLoading(true);
-      const dataIns =  await fetchInstitution(Array.isArray(slug) ? slug[0] : slug)!
-    setKey(dataIns.uniqueKey);
-    setInstitutionId(dataIns._id);
-      const data = await fetchEmployees(dataIns.uniqueKey); // Fetch employees by institutionKey
-      console.log("users ",data)
-      setEmployees(data); // Set the employees fetched from backend
-      setLoading(false);
+      const dataIns = await fetchInstitution(Array.isArray(slug) ? slug[0] : slug)!;
+
+      const data = await fetchEmployees(dataIns.uniqueKey);
+      console.log("users ", data);
+      setEmployees(data);
     } catch (error) {
       console.error('Error fetching employees:', error);
       setError('Failed to fetch employees.');
-      setLoading(false);
+    } finally {
+      setLoading(false); // Ensure loading is false in both success and error cases
     }
   };
 
   useEffect(() => {
-    
-    // Assuming institutionKey is the same as institutionId, update if needed
-    
     fetchData();
   }, []);
 
   // Filter employees based on the search term
-  const filteredEmployees = employees.filter((employee) =>
-    employee.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // const filteredEmployees = employees.filter((employee) =>
+  //   employee.name.toLowerCase().includes(searchTerm.toLowerCase())
+  // );
 
   const handleViewDetails = (employeeId: string) => {
     router.push(`/dashboard/institution/${slug}/employees/${employeeId}`);
   };
 
-  const removeEmployee = (id: number): void => {
-    // Implement the logic to remove the employee (e.g., API call)
-    setEmployees((prev) => prev.filter((employee) => employee._id !== id));
-  };
+  // const removeEmployee = (id: string): void => {
+  //   // Implement the logic to remove the employee (e.g., API call)
+  //   setEmployees((prev) => prev.filter((employee) => employee._id !== id));
+  // };
 
   if (loading) {
     return <p>Loading...</p>;
@@ -71,7 +68,7 @@ const EmployeeList = () => {
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Employees List</h1>
       <ul className="space-y-4">
-        {filteredEmployees.map((employee) => (
+        {employees.map((employee) => (
           <li key={employee._id} className="bg-white shadow rounded-lg p-4 flex justify-between items-center">
             <div>
               <h2 className="text-lg font-semibold">{employee.name}</h2>

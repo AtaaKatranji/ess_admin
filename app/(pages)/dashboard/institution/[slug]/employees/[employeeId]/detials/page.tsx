@@ -43,7 +43,7 @@ const EmployeeDetails = () => {
   const [totalHours, setTotalHours] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [selectedRecord, setSelectedRecord] = useState<History | null>(null);
+  // const [selectedRecord, setSelectedRecord] = useState<History | null>(null);
   const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
 
   const params = useParams();
@@ -99,17 +99,17 @@ const EmployeeDetails = () => {
       toast.error("Failed to fetch total hours. Please try again.");
     }
   };
-  const updateHistoryWithFetchedData = async (data: { id: any; checkDate?: string; checkInTime?: string; checkOutTime?: string | null; }) => {
-    try {
-      // Fetch the monthly history
-      const fetchedHistory = await fetchMonthlyHistory();
+  // const updateHistoryWithFetchedData = async (data: { id: any; checkDate?: string; checkInTime?: string; checkOutTime?: string | null; }) => {
+  //   try {
+  //     // Fetch the monthly history
+  //     const fetchedHistory = await fetchMonthlyHistory();
   
-      // Update the record in the state
-      fetchMonthlyHistory();
-    } catch (error) {
-      console.error("Error fetching monthly history:", error);
-    }
-  };
+  //     // Update the record in the state
+  //     fetchMonthlyHistory();
+  //   } catch (error) {
+  //     console.error("Error fetching monthly history:", error);
+  //   }
+  // };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -123,7 +123,7 @@ const EmployeeDetails = () => {
 
   const openEditDialog = (record: History) => {
     // Set the selected record and reset the form with the selected record's values
-    setSelectedRecord(record);
+    // setSelectedRecord(record);
     form.reset(record);
     setIsDialogOpen(true);
   };

@@ -1,3 +1,4 @@
+"use client";
 import { fetchInstitution } from "@/app/api/institutions/institutions";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
