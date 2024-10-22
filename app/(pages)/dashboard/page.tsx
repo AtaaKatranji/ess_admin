@@ -10,6 +10,7 @@ import AddInstitutionDialog from '@/app/ui/Addinstitution';
 import { useRouter } from 'next/navigation';
 import { Circles } from 'react-loader-spinner'; // For loader
 import { motion } from 'framer-motion'; // For animations
+import { parseCookies, setCookie } from 'nookies';
 
 export default function DashboardPage() {
   const navigate = useRouter();
@@ -34,8 +35,9 @@ export default function DashboardPage() {
     setInstitutions(data || []);
     setLoading(false); // Stop loading once data is fetched
   }
+  const cookies = parseCookies();
   useEffect(() => {
-    const savedView = localStorage.getItem('preferredView');
+    const savedView = cookies.preferredView;
     if (savedView) {
       setView(savedView as 'list' | 'grid');
     }
@@ -49,7 +51,13 @@ export default function DashboardPage() {
   
   const handleViewChange = (newView: 'list' | 'grid') => {
     setView(newView);
-    localStorage.setItem('preferredView', newView);
+     // Store the preferred view in a cookie
+    setCookie(null, 'preferredView', newView, {
+      maxAge: 30 * 24 * 60 * 60, // 30 days expiration
+      path: '/', // Make the cookie accessible throughout the site
+      secure: process.env.NODE_ENV === 'production', // Only set cookies over HTTPS in production
+    });
+    
   };
 
   const handleCardClick = async (slug: string) => {

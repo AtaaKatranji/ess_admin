@@ -7,6 +7,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { GenerateKey, checkNameExists, copyToClipboard } from '../api/institutions/institutions';
 import { extractAdminId } from '../utils/extractId';
+import { parseCookies } from 'nookies';
 const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
 
 type MacAddressEntry = {
@@ -33,6 +34,8 @@ const AddInstitutionDialog: React.FC<AddInstitutionDialogProps> = ({ onSuccess }
   const [token, setToken] = useState('');
   const [isNameTaken, setIsNameTaken] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(false);
+  const cookies = parseCookies(); 
+  
  
 
   // Usage
@@ -134,12 +137,8 @@ const AddInstitutionDialog: React.FC<AddInstitutionDialogProps> = ({ onSuccess }
   }
 
 useEffect(() => {
-  if(typeof window != undefined ){
-    const storedToken = localStorage.getItem('token')!
-    setToken(storedToken)
-    
-  }
-  console.log("token: ",token);
+    setToken( cookies.token )
+    console.log("token: ",token);
 }, [token]);
 
 
