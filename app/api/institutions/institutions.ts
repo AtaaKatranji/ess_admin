@@ -1,11 +1,24 @@
+import { parseCookies } from 'nookies'; // Import nookies for parsing cookies
 import { extractAdminId } from "@/app/utils/extractId";
 import { toast } from "react-toastify";
 
-//Generate New Key 
+// Generate New Key
 const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
-const token = localStorage.getItem('token')
-console.log('token in institutions api file: '+token)
-const adminId = extractAdminId(token!);
+
+// Parse cookies to get the token
+const cookies = parseCookies(); 
+const token = cookies.token; // Retrieve token from cookies
+var  adminId: string;
+console.log('token in institutions api file: ' + token);
+
+// Extract adminId from the token
+if (token) {
+  adminId = extractAdminId(token)!;
+  console.log('adminId: ', adminId);
+} else {
+  toast.error('Token not found, please log in.');
+}
+
 
 
 interface SSIDInfo {

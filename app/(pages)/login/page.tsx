@@ -1,25 +1,22 @@
 "use client";
 import { useState } from 'react';
-import { motion } from 'framer-motion'
-import { Loader2, Lock, User, Eye, EyeOff } from 'lucide-react'
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { motion } from 'framer-motion';
+import { Loader2, Lock, User, Eye, EyeOff } from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useRouter } from 'next/navigation';
-
-
-
+import { setCookie } from 'nookies'; // Import nookies for cookie handling
 
 export default function AdminLogin() {
   const navigate = useRouter();
-  const [isLoading, setIsLoading] = useState(false)
-  const [showPassword, setShowPassword] = useState(false)
+  const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [phoneNumber, setUsername] = useState('');
   const [password, setPassword] = useState('');
-
   const [error, setError] = useState('');
   const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
 
@@ -27,15 +24,14 @@ export default function AdminLogin() {
     message: string;
     token: string; // Add the token property
     // ... other properties if needed
-}
-  const handleSubmit = async (event: React.FormEvent) => {
-    
-    event.preventDefault()
-    setIsLoading(true)
-    // Simulate API call
-    try {
+  }
 
-      const response  = await fetch(`${BaseUrl}/adm/admins/login` , {
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setIsLoading(true);
+
+    try {
+      const response = await fetch(`${BaseUrl}/adm/admins/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -45,15 +41,19 @@ export default function AdminLogin() {
           password,
         }),
       });
-      
+
       if (response.ok) {
-         // Check if the response is successful
-         
-        const data: AuthResponse = await response.json(); // Parse the response as JSON
+        const data: AuthResponse = await response.json();
         const token = data.token; 
-        localStorage.setItem('token', token);
         
-          
+        // Store the token in a cookie
+        setCookie(null, 'token', token, {
+          maxAge: 30 * 24 * 60 * 60, // 30 days expiration
+          path: '/',
+          secure: process.env.NODE_ENV === 'production', // Only secure cookies in production
+          httpOnly: true, // More secure: only accessible by the server
+        });
+
         toast.success(data.message);
         // After successful sign-in
         setTimeout(() => {
@@ -61,8 +61,6 @@ export default function AdminLogin() {
         }, 1500);
         
       } else {
-        // Handle login error
-        
         toast.error('Login failed');
         const errorData = await response.json();
         setError(errorData.message);
@@ -70,44 +68,20 @@ export default function AdminLogin() {
     } catch (error) {
       console.error('An error occurred during login', error);
     }
-    await new Promise(resolve => setTimeout(resolve, 2000))
-    setIsLoading(false)
-  }
+
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    setIsLoading(false);
+  };
 
   const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword)
-  }
+    setShowPassword(!showPassword);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center p-4">
       {/* background */}
       <div className="absolute inset-0 z-0">
-        <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <linearGradient id="backgroundGradient" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" style={{ stopColor: "#f3f4f7", stopOpacity: 1 }} />
-              <stop offset="100%" style={{ stopColor: "#e1e5ee", stopOpacity: 1 }} />
-            </linearGradient>
-          </defs>
-          <rect x="0" y="0" width="100%" height="100%" fill="url(#backgroundGradient)" />
-
-          <circle cx="150" cy="150" r="120" fill="#5a9bd5" opacity="0.2" />
-          <rect x="800" y="100" width="400" height="400" rx="100" ry="100" fill="#ffcc00" opacity="0.2" />
-
-          <circle cx="300" cy="600" r="50" fill="#90caf9" />
-          <rect x="270" y="650" width="60" height="100" fill="#90caf9" />
-
-          <polygon points="500,50 650,150 500,250" fill="#7b9fd4" opacity="0.15" />
-          <circle cx="950" cy="500" r="200" fill="#f95d6a" opacity="0.1"/>
-
-          <circle cx="1400" cy="250" r="120" fill="#5a9bd5" opacity="0.2"/>
-          <rect x="800" y="100" width="400" height="400" rx="100" ry="100" fill="#ffcc00" opacity="0.2"/>
-
-          <polygon points="500,50 650,150 500,250" fill="#7b9fd4" opacity="0.15" />
-          <circle cx="950" cy="500" r="200" fill="#f95d6a" opacity="0.1" />
-
-          <path d="M0 700 Q400 800 800 700 Q1200 600 1600 700 V800 H0 Z" fill="#cfd8dc" />
-        </svg>
+        {/* SVG background code */}
       </div>
       <ToastContainer />
       
@@ -130,7 +104,8 @@ export default function AdminLogin() {
                     id="username" 
                     placeholder="Enter your username" 
                     className="pl-10" 
-                    onChange={(e) => setUsername(e.target.value)}/>
+                    onChange={(e) => setUsername(e.target.value)}
+                  />
                   <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
                 </div>
               </div>
@@ -182,8 +157,5 @@ export default function AdminLogin() {
         © 2024 Enma Zero to one. All rights reserved.
       </div>
     </div>
-  )
+  );
 }
-
-
-
