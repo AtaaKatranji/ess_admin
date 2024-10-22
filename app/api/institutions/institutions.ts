@@ -8,7 +8,7 @@ const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
 // Parse cookies to get the token
 const cookies = parseCookies(); 
 const token = cookies.token; // Retrieve token from cookies
-var  adminId: string;
+let  adminId: string;
 console.log('token in institutions api file: ' + token);
 
 // Extract adminId from the token
