@@ -7,7 +7,7 @@ const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
 
 
 // Get the token from cookies (works on both client and server)
-let token = getCookie('token'); // 'token' is the cookie name where the token is stored
+const token = getCookie('token'); // 'token' is the cookie name where the token is stored
 
 let  adminId: string;
 if(token){
