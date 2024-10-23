@@ -24,6 +24,7 @@ if(token){
   adminId = extractAdminId(token)!;
   console.log('adminId: ', adminId);
 }else {
+  console.error("not token ")
   toast.error('Token not found, please log in.');
 }
 
