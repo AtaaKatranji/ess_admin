@@ -16,7 +16,7 @@ export default function DashboardPage() {
   const navigate = useRouter();
   
   const [loading, setLoading] = useState(true); // Loading state
-
+  const [token, setToken] = useState<string | null>(null);
   type InstitutionData = {
     _id: string;
     name: string;
@@ -31,7 +31,7 @@ export default function DashboardPage() {
   const [institutions, setInstitutions] = useState<InstitutionData[]>([]);
   
   const fetchData = async () => {
-    const data = await fetchInstitutionsById();
+    const data = await fetchInstitutionsById(token!);
     setInstitutions(data || []);
     setLoading(false); // Stop loading once data is fetched
   }
@@ -42,7 +42,19 @@ export default function DashboardPage() {
       setView(savedView as 'list' | 'grid');
     }
 
-    
+    const getTokenFromCookies = () => {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; token=`);
+      if (parts.length === 2) return parts.pop()?.split(';').shift();
+      return null;
+    };
+
+    const token = getTokenFromCookies();
+    setToken(token!);
+
+    if (!token) {
+      console.log('Token not found');
+    }
     
     setTimeout(() => {
     fetchData();

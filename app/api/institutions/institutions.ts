@@ -1,29 +1,20 @@
 import { getCookie } from 'cookies-next';
 import { extractAdminId } from "@/app/utils/extractId";
 import { toast } from "react-toastify";
-const getTokenFromCookies = () => {
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; token=`);
-  if (parts.length === 2) return parts.pop()?.split(';').shift();
-};
+
 // Generate New Key
 const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
 
 
 // Get the token from cookies (works on both client and server)
 let token = getCookie('token'); // 'token' is the cookie name where the token is stored
-const token1 = getTokenFromCookies();
+
 let  adminId: string;
 if(token){
   console.log('token in institutions api file: ' + token);
   adminId = extractAdminId(token)!;
   console.log('adminId: ', adminId);
-} else if(token1) {
-  token = token1;
-  console.log('token1 in institutions api file: ' + token);
-  adminId = extractAdminId(token)!;
-  console.log('adminId: ', adminId);
-}else {
+} else {
   console.error("not token ")
   toast.error('Token not found, please log in.');
 }
@@ -103,7 +94,7 @@ export const fetchInstitutions = async () => {
     toast.error(`Error fetching institutions: ${error}` );
   }
 };
-export const fetchInstitutionsById = async () => {
+export const fetchInstitutionsById = async (token: string) => {
 
     const response = await fetch(`${BaseUrl}/ins/institutionsAdmin/${adminId}`, { // Include the ID in the URL
       method: 'GET',
