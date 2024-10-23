@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useRouter } from 'next/navigation';
-import { setCookie } from 'nookies'; // Import nookies for cookie handling
+//import { setCookie } from 'nookies'; // Import nookies for cookie handling
 
 export default function AdminLogin() {
   const navigate = useRouter();
@@ -40,19 +40,12 @@ export default function AdminLogin() {
           phoneNumber,
           password,
         }),
+        credentials: 'include',
       });
 
       if (response.ok) {
         const data: AuthResponse = await response.json();
-        const token = data.token; 
         
-        // Store the token in a cookie
-        setCookie(null, 'token', token, {
-          maxAge: 30 * 24 * 60 * 60, // 30 days expiration
-          path: '/',
-          secure: process.env.NODE_ENV === 'production', // Only secure cookies in production
-          httpOnly: true, // More secure: only accessible by the server
-        });
 
         toast.success(data.message);
         // After successful sign-in
