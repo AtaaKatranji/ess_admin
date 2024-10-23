@@ -103,12 +103,12 @@ export const fetchInstitutions = async () => {
     toast.error(`Error fetching institutions: ${error}` );
   }
 };
-export const fetchInstitutionsById = async () => {
+export const fetchInstitutionsByAdmin = async () => {
 
-    const response = await fetch(`${BaseUrl}/ins/institutionsAdmin/${adminId}`, { // Include the ID in the URL
+    const response = await fetch(`${BaseUrl}/ins/institutionsAdmin`, { // Include the ID in the URL
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${token}`, // Include token if needed
+         // Include token if needed
         'Content-Type': 'application/json',
       },
       credentials: 'include', 

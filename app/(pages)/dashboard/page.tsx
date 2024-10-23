@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { List, Grid, Building2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import InstitutionCard from '@/app/components/InstitutionCard';
-import {  fetchInstitutions } from '../../api/institutions/institutions';
+import {  fetchInstitutionsByAdmin } from '../../api/institutions/institutions';
 import { toast, ToastContainer } from 'react-toastify';
 import AddInstitutionDialog from '@/app/ui/Addinstitution';
 import { useRouter } from 'next/navigation';
@@ -31,7 +31,7 @@ export default function DashboardPage() {
   const [institutions, setInstitutions] = useState<InstitutionData[]>([]);
   
   const fetchData = async () => {
-    const data = await fetchInstitutions();
+    const data = await fetchInstitutionsByAdmin();
     setInstitutions(data || []);
     setLoading(false); // Stop loading once data is fetched
   }
