@@ -57,10 +57,12 @@ export default function DashboardPage() {
     };
 
     const token = getTokenFromCookies();
-    setToken(token!);
-
-    if (!token) {
-      console.log('Token not found');
+    if (token) {
+      setToken(token);
+      console.log('Token found:', token);
+    } else {
+      console.error('Token not found');
+      toast.error('Token not found, please log in.');
     }
     
     setTimeout(() => {
