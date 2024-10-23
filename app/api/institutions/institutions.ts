@@ -9,6 +9,7 @@ const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
 // Get the token from cookies (works on both client and server)
 const token = getCookie('token'); // 'token' is the cookie name where the token is stored
 
+
 let  adminId: string;
 if(token){
   console.log('token in institutions api file: ' + token);
@@ -57,30 +58,38 @@ export const copyToClipboard = async (text: string): Promise<void> => {
     }
 };
 export const fetchInstitutionById = async (id: string) => {
-  console.log(token)
-    const response = await fetch(`${BaseUrl}/ins/institutions/${id}`, { // Include the ID in the URL
+  try {
+    const response = await fetch(`${BaseUrl}/ins/institutions/${id}`, {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${token}`, // Include token if needed
         'Content-Type': 'application/json',
       },
+      credentials: 'include', // Ensure cookies (including the token) are sent
     });
-    console.log(response)
+
+    // Check if the response was successful
     if (!response.ok) {
       throw new Error('Failed to fetch institution');
     }
-  
+
+    // Parse the response data
     const data = await response.json();
     return data; // Return the fetched institution data
-  };
+  } catch (error) {
+    console.error('Error fetching institution:', error);
+    throw error; // Rethrow the error to be handled by the caller
+  }
+};
+
 export const fetchInstitutions = async () => {
   try {
     const response = await fetch(`${BaseUrl}/ins/institutions`, {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${token}`, // Include token if needed
+         // Include token if needed
         'Content-Type': 'application/json',
       },
+      credentials: 'include',
     });
 
     if (!response.ok) {
