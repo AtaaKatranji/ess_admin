@@ -1,13 +1,14 @@
-import { parseCookies } from 'nookies'; // Import nookies for parsing cookies
+import { getCookie } from 'cookies-next';
 import { extractAdminId } from "@/app/utils/extractId";
 import { toast } from "react-toastify";
 
 // Generate New Key
 const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
 
-// Parse cookies to get the token
-const cookies = parseCookies(); 
-const token = cookies.token; // Retrieve token from cookies
+
+// Get the token from cookies (works on both client and server)
+const token = getCookie('token'); // 'token' is the cookie name where the token is stored
+
 let  adminId: string;
 console.log('token in institutions api file: ' + token);
 
@@ -102,6 +103,7 @@ export const fetchInstitutionsById = async () => {
         'Authorization': `Bearer ${token}`, // Include token if needed
         'Content-Type': 'application/json',
       },
+      credentials: 'include', 
     });
     console.log(response)
     if (!response.ok) {
