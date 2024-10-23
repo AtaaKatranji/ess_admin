@@ -1,22 +1,29 @@
 import { getCookie } from 'cookies-next';
 import { extractAdminId } from "@/app/utils/extractId";
 import { toast } from "react-toastify";
-
+const getTokenFromCookies = () => {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; token=`);
+  if (parts.length === 2) return parts.pop()?.split(';').shift();
+};
 // Generate New Key
 const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
 
 
 // Get the token from cookies (works on both client and server)
-const token = getCookie('token'); // 'token' is the cookie name where the token is stored
-
+let token = getCookie('token'); // 'token' is the cookie name where the token is stored
+const token1 = getTokenFromCookies();
 let  adminId: string;
-console.log('token in institutions api file: ' + token);
-
-// Extract adminId from the token
-if (token) {
+if(token){
+  console.log('token in institutions api file: ' + token);
   adminId = extractAdminId(token)!;
   console.log('adminId: ', adminId);
-} else {
+} else if(token1) {
+  token = token1;
+  console.log('token1 in institutions api file: ' + token);
+  adminId = extractAdminId(token)!;
+  console.log('adminId: ', adminId);
+}else {
   toast.error('Token not found, please log in.');
 }
 
