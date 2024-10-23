@@ -92,16 +92,15 @@ export const fetchInstitutions = async () => {
   }
 };
 export const fetchInstitutionsByAdmin = async () => {
-
+    console.log("hey fucker")
     const response = await fetch(`${BaseUrl}/ins/institutionsAdmin`, { // Include the ID in the URL
       method: 'GET',
       headers: {
-         // Include token if needed
         'Content-Type': 'application/json',
       },
       credentials: 'include', 
     });
-    console.log(response)
+    console.log("5: ",response)
     if (!response.ok) {
       throw new Error('Failed to fetch institution');
     }
