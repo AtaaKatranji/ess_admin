@@ -49,14 +49,14 @@ export default function DashboardPage() {
       console.error('Token not found');
       toast.error('Token not found, please log in.');
     }
-    const getTokenFromCookies = () => {
-      const value = `; ${document.cookie}`;
-      const parts = value.split(`; token=`);
-      if (parts.length === 2) return parts.pop()?.split(';').shift();
-      return null;
-    };
+    // const getTokenFromCookies = () => {
+    //   const value = `; ${document.cookie}`;
+    //   const parts = value.split(`; token=`);
+    //   if (parts.length === 2) return parts.pop()?.split(';').shift();
+    //   return null;
+    // };
 
-    const token = getTokenFromCookies();
+    // const token = getTokenFromCookies();
     if (token) {
       setToken(token);
       console.log('Token found:', token);
