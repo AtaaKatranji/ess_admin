@@ -11,12 +11,12 @@ import { useRouter } from 'next/navigation';
 import { Circles } from 'react-loader-spinner'; // For loader
 import { motion } from 'framer-motion'; // For animations
 import { parseCookies, setCookie } from 'nookies';
-import { getCookie } from 'cookies-next';
+
 
 export default function DashboardPage() {
   const navigate = useRouter();
   const [loading, setLoading] = useState(true); // Loading state
-  const [token, setToken] = useState<string | null>(null);
+
   type InstitutionData = {
     _id: string;
     name: string;
@@ -41,15 +41,6 @@ export default function DashboardPage() {
     if (savedView) {
       setView(savedView as 'list' | 'grid');
     }
-    const tokenFromCookie = getCookie('token') as string | null;
-    console.log('Token 5 found:', tokenFromCookie);
-    if (tokenFromCookie) {
-      setToken(tokenFromCookie);
-      console.log('Token found:', tokenFromCookie);
-    } else {
-      console.error('Token not found');
-      toast.error('Token not found, please log in.');
-    }
     // const getTokenFromCookies = () => {
     //   const value = `; ${document.cookie}`;
     //   const parts = value.split(`; token=`);
@@ -57,14 +48,7 @@ export default function DashboardPage() {
     //   return null;
     // };
 
-    // const token = getTokenFromCookies();
-    if (token) {
-      setToken(token);
-      console.log('Token found:', token);
-    } else {
-      console.error('Token not found');
-      toast.error('Token not found, please log in.');
-    }
+
     
     setTimeout(() => {
     fetchData();

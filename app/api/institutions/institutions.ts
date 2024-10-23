@@ -1,24 +1,12 @@
-import { getCookie } from 'cookies-next';
-import { extractAdminId } from "@/app/utils/extractId";
+
 import { toast } from "react-toastify";
 
 // Generate New Key
 const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
 
 
-// Get the token from cookies (works on both client and server)
-const token = getCookie('token'); // 'token' is the cookie name where the token is stored
-
 
 let  adminId: string;
-if(token){
-  console.log('token in institutions api file: ' + token);
-  adminId = extractAdminId(token)!;
-  console.log('adminId: ', adminId);
-} else {
-  console.error("not token ")
-  toast.error('Token not found, please log in.');
-}
 
 
 
@@ -127,9 +115,10 @@ export  const fetchInstitution = async (slug: string) => {
     const response = await fetch(`${BaseUrl}/ins/institutions/slug/${slug}`, {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${token}`, // Include token if needed
+         // Include token if needed
         'Content-Type': 'application/json',
       },
+      credentials: 'include', 
     });
     if (!response.ok) {
       throw new Error('Failed to fetch institution');
@@ -158,11 +147,13 @@ export const updatedInstitutionInfo = async (institutionInfo: InstitutionInfo,sl
     const response = await fetch(`${BaseUrl}/ins/institutions/${slug}`, {
       method: 'PUT',
       headers: {
-        'Authorization': `Bearer ${token}`,
+        
         'Content-Type': 'application/json',
         // Include any necessary authentication headers here
       },
-      body: JSON.stringify(institutionData), // Send the updated institution info
+      
+      body: JSON.stringify(institutionData), 
+      credentials: 'include', // Send the updated institution info
     });
 
     if (!response.ok) {
@@ -183,11 +174,11 @@ export const deleteInstitutionInfo = async (slug: string ) => {
     const response = await fetch(`${BaseUrl}/ins/institutions/${slug}`, {
       method: 'DELETE',
       headers: {
-        'Authorization': `Bearer ${token}`,
+        
         'Content-Type': 'application/json',
         // Include any necessary authentication headers here
       },
-      
+      credentials: 'include', 
     });
 
     if (!response.ok) {
@@ -215,11 +206,10 @@ export const checkNameExists = async (name: string) => {
     const response = await fetch(`${BaseUrl}/ins/check-name`, {
       method: 'post',
       headers: {
-        'Authorization': `Bearer ${token}`, // Include token if needed
         'Content-Type': 'application/json',
       },
       body:JSON.stringify(insData),
-      
+      credentials: 'include', 
     });
     // Assume the API returns a boolean indicating if the name exists
     const data = await  response.json()
