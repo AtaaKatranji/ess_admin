@@ -40,7 +40,7 @@ export default function AdminLogin() {
           phoneNumber,
           password,
         }),
-        
+        credentials:'include'
       });
 
       if (response.ok) {
