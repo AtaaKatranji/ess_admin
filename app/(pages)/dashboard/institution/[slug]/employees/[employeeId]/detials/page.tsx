@@ -235,7 +235,7 @@ const EmployeeDetails = () => {
                             variant={"outline"}
                             className={`w-full pl-3 text-left font-normal ${!field.value && "text-muted-foreground"}`}
                           >
-                            {field.value ? format(new Date(field.value + 'T00:00:00'), "PPP") : <span>Pick a date</span>}
+                            {field.value ? format(new Date(field.value ), "ymmdd") : <span>Pick a date</span>}
                             <CalendarXIcon className="ml-auto h-4 w-4 opacity-50" />
                           </Button>
                         </FormControl>
