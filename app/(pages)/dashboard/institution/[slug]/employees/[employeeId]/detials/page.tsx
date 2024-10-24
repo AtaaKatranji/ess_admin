@@ -246,9 +246,8 @@ const EmployeeDetails = () => {
                           selected={field.value ? new Date(field.value) : undefined}
                           onSelect={(date) => {
                             if (date) {
-                              // Set time to midnight to avoid timezone issues
-                              const dateOnly = new Date(date.setHours(0, 0, 0, 0)); 
-                              field.onChange(dateOnly.toISOString());
+                              const localISOTime = new Date(date.getTime() - (date.getTimezoneOffset() * 60000)).toISOString().slice(0, -1); // Remove 'Z' at the end
+                              field.onChange(localISOTime);
                             }
                           }}
                           disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
