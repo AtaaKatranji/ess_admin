@@ -146,7 +146,7 @@ const EmployeeDetails = () => {
       // Update the local history state
       fetchMonthlyHistory();
 
-      toast.success("Upadted Succ")
+      toast.success("Upadted")
 
       setIsDialogOpen(false);
       
@@ -244,7 +244,13 @@ const EmployeeDetails = () => {
                         <Calendar
                           mode="single"
                           selected={field.value ? new Date(field.value) : undefined}
-                          onSelect={(date) => field.onChange(date?.toISOString())}
+                          onSelect={(date) => {
+                            if (date) {
+                              // Set time to midnight to avoid timezone issues
+                              const dateOnly = new Date(date.setHours(0, 0, 0, 0)); 
+                              field.onChange(dateOnly.toISOString());
+                            }
+                          }}
                           disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
                           initialFocus
                         />
