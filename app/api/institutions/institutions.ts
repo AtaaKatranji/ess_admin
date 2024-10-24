@@ -4,12 +4,6 @@ import { toast } from "react-toastify";
 // Generate New Key
 const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
 
-
-
-let  adminId: string;
-
-
-
 interface SSIDInfo {
   
   wifiName: string;
@@ -135,7 +129,6 @@ export const updatedInstitutionInfo = async (institutionInfo: InstitutionInfo,sl
   const institutionData = {
     name: institutionInfo.name,
     address: institutionInfo.address,
-    adminId: adminId, // assuming you have this field in institutionInfo
     keyNumber: institutionInfo.uniqueKey,
     macAddresses: institutionInfo.macAddresses,
     slug: slug // array of MAC addresses
@@ -193,15 +186,9 @@ export const deleteInstitutionInfo = async (slug: string ) => {
 }
 
 export const checkNameExists = async (name: string) => {
-    
-    if (!name || !adminId) {
-      return("Please Add Name.")
-    }
-
-  
   try {
     // Replace this URL with your actual API endpoint
-    const insData = {name,adminId}
+    const insData = {name}
     const response = await fetch(`${BaseUrl}/ins/check-name`, {
       method: 'post',
       headers: {

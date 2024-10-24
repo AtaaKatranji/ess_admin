@@ -235,7 +235,7 @@ const EmployeeDetails = () => {
                             variant={"outline"}
                             className={`w-full pl-3 text-left font-normal ${!field.value && "text-muted-foreground"}`}
                           >
-                            {field.value ? format(new Date(field.value), "PPP") : <span>Pick a date</span>}
+                            {field.value ? format(new Date(field.value + 'T00:00:00'), "PPP") : <span>Pick a date</span>}
                             <CalendarXIcon className="ml-auto h-4 w-4 opacity-50" />
                           </Button>
                         </FormControl>
@@ -334,7 +334,7 @@ const EmployeeDetails = () => {
               />
               <DialogFooter>
                 <Button type="submit">Save</Button>
-                <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
+                <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
               </DialogFooter>
             </form>
           </Form>
