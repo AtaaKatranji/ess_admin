@@ -41,6 +41,8 @@ type History = {
 const EmployeeDetails = () => {
   const [history, setHistory] = useState<History[]>([]);
   const [totalHours, setTotalHours] = useState<number | null>(null);
+  const [totalLateHours, setTotalLateHours] = useState<number | null>(null);
+  const [totalExtraHours, setTotalExtraHours] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   // const [selectedRecord, setSelectedRecord] = useState<History | null>(null);
@@ -79,13 +81,16 @@ const EmployeeDetails = () => {
   };
 
   const fetchTotalHours = async () => {
+    const date = new Date(); // Get the current date
+    const month = date.toLocaleString('default', { month: 'long' }); // Get full month name (e.g., "October")
+    const year = date.getFullYear(); // Get the current year (e.g., 2024)
     try {
       const response = await fetch(`${BaseUrl}/checks/calculate-hours`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ userId: employeeId, month: 'October', year: 2024 }),
+        body: JSON.stringify({ userId: employeeId, month: month, year: year }),
       });
 
       if (!response.ok) {
@@ -99,6 +104,33 @@ const EmployeeDetails = () => {
       toast.error("Failed to fetch total hours. Please try again.");
     }
   };
+
+  const  fetchTotalLates = async () => {
+    const date = new Date(); // Get the current date
+    const month = date.toLocaleString('default', { month: 'long' }); // Get full month name (e.g., "October")
+    const year = date.getFullYear(); // Get the current year (e.g., 2024)
+    try {
+      const response = await fetch(`${BaseUrl}/checks/calculate-lateHours`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId: employeeId, month: month, year: year }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch total hours');
+      }
+
+      const data = await response.json();
+      setTotalLateHours(data.totalLate);
+      setTotalExtraHours(data.totalLate);
+
+    } catch (error) {
+      console.error('Error fetching total hours:', error);
+      toast.error("Failed to fetch total hours. Please try again.");
+    }
+  }
   // const updateHistoryWithFetchedData = async (data: { id: any; checkDate?: string; checkInTime?: string; checkOutTime?: string | null; }) => {
   //   try {
   //     // Fetch the monthly history
@@ -114,7 +146,7 @@ const EmployeeDetails = () => {
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
-      await Promise.all([fetchTotalHours(), fetchMonthlyHistory()]);
+      await Promise.all([fetchTotalHours(), fetchMonthlyHistory(), fetchTotalLates()]);
       setIsLoading(false);
     };
 
@@ -182,6 +214,31 @@ const EmployeeDetails = () => {
               </div>
               <div className="flex flex-col items-center">
                 <span className="text-green-600 block md:inline mt-1 md:mt-0">{totalHours}</span>
+                <span className="text-green-600 block md:inline mt-1 md:mt-0">hours</span>
+              </div>
+            </h2>
+          </div>
+          <div className="bg-white shadow-md rounded-lg p-4 mb-4 w-full md:w-1/2 lg:w-1/4">
+            <h2 className="text-base md:text-lg font-semibold flex items-center justify-between">
+              <Clock10 className="h-8 w-8" />
+              <div className="flex flex-col justify-end items-start">
+                <p>Total Hours This</p>
+                <p>Month:</p>
+              </div>
+              <div className="flex flex-col items-center">
+                <span className="text-red-600 block md:inline mt-1 md:mt-0">{totalLateHours}</span>
+                <span className="text-red-600 block md:inline mt-1 md:mt-0">hours</span>
+              </div>
+            </h2>
+          </div><div className="bg-white shadow-md rounded-lg p-4 mb-4 w-full md:w-1/2 lg:w-1/4">
+            <h2 className="text-base md:text-lg font-semibold flex items-center justify-between">
+              <Clock10 className="h-8 w-8" />
+              <div className="flex flex-col justify-end items-start">
+                <p>Total Hours This</p>
+                <p>Month:</p>
+              </div>
+              <div className="flex flex-col items-center">
+                <span className="text-green-600 block md:inline mt-1 md:mt-0">{totalExtraHours}</span>
                 <span className="text-green-600 block md:inline mt-1 md:mt-0">hours</span>
               </div>
             </h2>
