@@ -124,7 +124,7 @@ const EmployeeDetails = () => {
 
       const data = await response.json();
       setTotalLateHours(data.totalLate);
-      setTotalExtraHours(data.totalLate);
+      setTotalExtraHours(data.totalExtr);
 
     } catch (error) {
       console.error('Error fetching total hours:', error);
