@@ -1,4 +1,5 @@
 "use client";
+import { fetchEmployees } from "@/app/api/employees/employeeId";
 import { fetchInstitution } from "@/app/api/institutions/institutions";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -8,13 +9,19 @@ import { useEffect, useState } from "react";
 const OverviewPage = () => {
     const params = useParams();
     const slug = params?.slug; 
+    const [totalEmployees,setTotalEmployees] =useState()
     const [data, setData] = useState({
         name: '',
         totalEmployees: 0,
         activeRequests: 0,
         recentActivities: [],
       });
-    
+const getEmployeeCount = async () => {
+  const dataIns = await fetchInstitution(slug.toString());
+
+  const employees = await fetchEmployees(dataIns.uniqueKey);
+  return employees.length;
+}    
       useEffect(() => {
         // Fetch data from your backend API for the specific institution
         const fetchData = async () => {
@@ -23,6 +30,7 @@ const OverviewPage = () => {
             const data = await fetchInstitution(slug.toString());
             
             setData(data);
+            setTotalEmployees(await getEmployeeCount());
           } catch (error) {
             console.error('Error fetching institution data:', error);
           }
@@ -42,7 +50,7 @@ const OverviewPage = () => {
     {/* Summary Cards */}
     <div className="bg-white rounded shadow-md p-4">
       <h3 className="text-lg font-bold">Total Employees</h3>
-      <p className="text-3xl mt-2">{data.totalEmployees}</p>
+      <p className="text-3xl mt-2">{totalEmployees}</p>
     </div>
     <div className="bg-white rounded shadow-md p-4">
       <h3 className="text-lg font-bold">Active Requests</h3>

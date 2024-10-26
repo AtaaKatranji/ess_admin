@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
-import { Home, Users, FileText, Bell, Settings, Menu, SquareArrowLeftIcon } from 'lucide-react';
+import { Home, Users, FileText, Bell, Settings, Menu, SquareArrowLeftIcon, Table } from 'lucide-react';
 import OverviewPage from './overviwe/page';
 import EmployeeRequests from './requests/page';
 import SettingsPage from './settings/page';
@@ -134,8 +134,8 @@ const InstitutionDashboard: React.FC = () => {
               onClick={() => handleNavigation('shifts')}
               className={`flex items-center py-2 px-4 ${activeSection === 'shifts' ? 'bg-blue-600 rounded' : ''}`}
             >
-              <FileText className="mr-2 h-5 w-5" />
-              Requests
+              <Table className="mr-2 h-5 w-5" />
+              Shifts
             </a>
           </Link>
           <Link href="#" legacyBehavior>
