@@ -240,9 +240,9 @@ export default function AttendanceSystem() {
             {employees.map((employee) => (
               <TableRow key={employee.id}>
                 <TableCell>{employee.name}</TableCell>
-                <TableCell>${employee.hourlyRate.toFixed(2)}</TableCell>
-                <TableCell>{employee.payroll ? employee.payroll.totalHours : 'N/A'}</TableCell>
-                <TableCell>${employee.payroll ? employee.payroll.totalPay.toFixed(2) : 'N/A'}</TableCell>
+                <TableCell>${employee.hourlyRate !== undefined ? employee.hourlyRate.toFixed(2) : 'N/A'}</TableCell>
+                <TableCell>{employee.payroll && employee.payroll.totalHours !== undefined ? employee.payroll.totalHours.toFixed(2) : 'N/A'}</TableCell>
+                <TableCell>${employee.payroll && employee.payroll.totalPay !== undefined ? employee.payroll.totalPay.toFixed(2) : 'N/A'}</TableCell>
               </TableRow>
             ))}
           </TableBody>
