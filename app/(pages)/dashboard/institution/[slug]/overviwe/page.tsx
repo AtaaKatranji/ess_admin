@@ -99,11 +99,11 @@ export default function AttendanceSystem() {
   )
 
   const getEmployeeStatus = (employee: Employee, date: string): string => {
-    const check = employee.checks.find(c => c.date.startsWith(date))
+    const check = employee.checks.find(c => c.date && c.date.startsWith(date));
     if (check) {
       return "present"
     }
-    const leave = employee.leaves.find(l => l.date.startsWith(date))
+    const leave = employee.leaves.find(l => l.date && l.date.startsWith(date));
     if (leave) {
       return leave.type
     }
