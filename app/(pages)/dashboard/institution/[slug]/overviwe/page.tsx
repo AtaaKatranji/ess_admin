@@ -89,7 +89,8 @@ export default function AttendanceSystem() {
     setCurrentPage(1)
   }, [selectedDate, searchQuery, employees])
 
-  const uniqueDates = ["all", ...Array.from(new Set(employees.flatMap(e => e.checks.map(check => check.date))))].sort()
+  const uniqueDates = ["all", ...Array.from(new Set(employees.flatMap(e => e.checks.map(check.date ? check.date.split('T')[0] : '')
+)))].filter(Boolean).sort();
 
   const totalPages = Math.ceil(filteredEmployees.length / itemsPerPage)
 
@@ -159,7 +160,7 @@ export default function AttendanceSystem() {
           <TableBody>
             {paginatedEmployees.map((employee) => (
               employee.checks.map((check) => (
-                <TableRow key={`${employee.id}-${check.date}`}>
+                <TableRow key={`${employee.id}-${check.date || "Unkown"} `}>
                   <TableCell>{employee.name}</TableCell>
                   <TableCell>
                     <StatusCircle status={getEmployeeStatus(employee, check.date)} />
@@ -182,7 +183,7 @@ export default function AttendanceSystem() {
                   <TableCell>
                     {((new Date(check.checkOut).getTime() - new Date(check.checkIn).getTime()) / 3600000).toFixed(2)}
                   </TableCell>
-                  <TableCell>{check.date.split('T')[0]}</TableCell>
+                  <TableCell>{check.date ? check.date.split('T')[0] : 'N/A'}</TableCell>
                 </TableRow>
               ))
             ))}
