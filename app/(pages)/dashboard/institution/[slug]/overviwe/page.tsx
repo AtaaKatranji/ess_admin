@@ -89,7 +89,7 @@ export default function AttendanceSystem() {
     setCurrentPage(1)
   }, [selectedDate, searchQuery, employees])
 
-  const uniqueDates = ["all", ...Array.from(new Set(employees.flatMap(e => e.checks.map(check => check.date[0]))))].sort()
+  const uniqueDates = ["all", ...Array.from(new Set(employees.flatMap(e => e.checks.map(check => check.date))))].sort()
 
   const totalPages = Math.ceil(filteredEmployees.length / itemsPerPage)
 
