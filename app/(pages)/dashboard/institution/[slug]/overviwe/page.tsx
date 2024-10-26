@@ -69,7 +69,7 @@ export default function AttendanceSystem() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response =  await fetch(`${BaseURL}/api/attendance?startDate=${startDate}&endDate=${startDate}`);
+        const response =  await fetch(`${BaseURL}/attendance/overView?startDate=${startDate}&endDate=${startDate}`);
         const data: Employee[] = await response.json()
         setEmployees(data)
       } catch (error) {
