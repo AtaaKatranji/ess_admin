@@ -14,6 +14,7 @@ import { CalendarDaysIcon } from '@heroicons/react/16/solid';
 import { fetchInstitution } from '@/app/api/institutions/institutions';
 import { Circles } from 'react-loader-spinner';
 import { toast, ToastContainer } from 'react-toastify';
+import ShiftsPage from './shifts/page';
 
 const InstitutionDashboard: React.FC = () => {
   const params = useParams();
@@ -52,6 +53,8 @@ const InstitutionDashboard: React.FC = () => {
         return <OverviewPage />;
       case 'employees':
         return <EmployeeList />;
+      case 'shifts':
+        return <ShiftsPage />;
       case 'requests':
         return <EmployeeRequests />;
       case 'notifications':
@@ -124,6 +127,15 @@ const InstitutionDashboard: React.FC = () => {
             >
               <Users className="mr-2 h-5 w-5" />
               Employees
+            </a>
+          </Link>
+          <Link href="#" legacyBehavior>
+            <a
+              onClick={() => handleNavigation('shifts')}
+              className={`flex items-center py-2 px-4 ${activeSection === 'shifts' ? 'bg-blue-600 rounded' : ''}`}
+            >
+              <FileText className="mr-2 h-5 w-5" />
+              Requests
             </a>
           </Link>
           <Link href="#" legacyBehavior>
