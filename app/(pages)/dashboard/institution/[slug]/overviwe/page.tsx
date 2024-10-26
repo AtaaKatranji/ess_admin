@@ -65,11 +65,12 @@ export default function AttendanceSystem() {
   const [searchQuery, setSearchQuery] = useState("")
   const [filteredEmployees, setFilteredEmployees] = useState<Employee[]>([])
   const itemsPerPage = 10
-  const startDate = new Date()
+  const startDate = new Date("2024-10-24")
+  const endDate = new Date("2024-10-26")
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response =  await fetch(`${BaseURL}/attendance/overView?startDate=${startDate}&endDate=${startDate}`);
+        const response =  await fetch(`${BaseURL}/attendance/overView?startDate=${startDate}&endDate=${endDate}`);
         const data: Employee[] = await response.json()
         setEmployees(data)
       } catch (error) {
@@ -114,7 +115,7 @@ export default function AttendanceSystem() {
   }
 
   return (
-    <Tabs defaultValue="overview" className="w-full max-w-4xl mx-auto">
+    <Tabs defaultValue="overview" className="w-full">
       <TabsList className="grid w-full grid-cols-2">
         <TabsTrigger value="overview">Overview</TabsTrigger>
         <TabsTrigger value="payroll">Payroll</TabsTrigger>
