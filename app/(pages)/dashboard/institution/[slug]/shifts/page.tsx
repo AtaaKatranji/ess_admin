@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Label } from '@/components/ui/label'
+import { fetchEmployees } from '@/app/api/employees/employeeId'
 const BaseURL = process.env.NEXT_PUBLIC_API_URL;
 type Employee = {
   id: string
@@ -23,8 +24,11 @@ type Shift = {
 }
 
 const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+interface ShiftsPageProps {
+  institutionKey: string; // Define institutionKey as a string
+}
 
-export default function ShiftsPage() {
+const ShiftsPage: React.FC<ShiftsPageProps> = ({ institutionKey }) => {
   const [shifts, setShifts] = useState<Shift[]>([])
   const [newShift, setNewShift] = useState<Omit<Shift, 'id' | 'employees'>>({
     name: '',
@@ -41,11 +45,17 @@ export default function ShiftsPage() {
   // Fetch shifts from the API
   useEffect(() => {
     const fetchShifts = async () => {
-      const response = await fetch(`${BaseURL}/shift`)
+      const response = await fetch(`${BaseURL}/shift/`)
       const data = await response.json()
       setShifts(data)
     }
     fetchShifts()
+    const fetchEmp = async () => {
+      const response = await fetchEmployees(institutionKey)
+      const data = await response.json()
+      setEmployees(data)
+    }
+    fetchEmp()
   }, [])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -205,7 +215,7 @@ export default function ShiftsPage() {
           </DialogFooter>
         </form>
       </DialogContent>
-    </Dialog>
+      </Dialog>
       <div className="mb-8">
         <h2 className="text-xl font-semibold mb-4">Manage Employees</h2>
         <div className="flex gap-2 mb-4">
@@ -217,6 +227,7 @@ export default function ShiftsPage() {
           <Button onClick={addEmployee}>Add Employee</Button>
         </div>
         <div className="flex gap-2">
+          {/* select employee */}
           <Select onValueChange={setSelectedEmployee}>
             <SelectTrigger className="w-[200px]">
               <SelectValue placeholder="Select employee" />
@@ -227,6 +238,7 @@ export default function ShiftsPage() {
               ))}
             </SelectContent>
           </Select>
+          {/* select shift */}
           <Select onValueChange={setSelectedShift}>
             <SelectTrigger className="w-[200px]">
               <SelectValue placeholder="Select shift" />
@@ -324,4 +336,6 @@ export default function ShiftsPage() {
       </div>
     </div>
   )
-}
+
+};
+export default ShiftsPage;

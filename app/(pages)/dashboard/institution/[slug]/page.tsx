@@ -72,7 +72,7 @@ const InstitutionDashboard: React.FC = () => {
       case 'employees':
         return <EmployeeList />;
       case 'shifts':
-        return <ShiftsPage />;
+        return <ShiftsPage institutionKey={institution.uniqueKey}  />;
       case 'requests':
         return <EmployeeRequests />;
       case 'notifications':
