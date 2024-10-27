@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Label } from '@/components/ui/label'
 const BaseURL = process.env.NEXT_PUBLIC_API_URL;
 type Employee = {
   id: string
@@ -21,7 +22,7 @@ type Shift = {
   employees: Employee[]
 }
 
-//const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 
 export default function ShiftsPage() {
   const [shifts, setShifts] = useState<Shift[]>([])
@@ -47,18 +48,18 @@ export default function ShiftsPage() {
     fetchShifts()
   }, [])
 
-  // const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   setNewShift({ ...newShift, [e.target.name]: e.target.value })
-  // }
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNewShift({ ...newShift, [e.target.name]: e.target.value })
+  }
 
-  // const handleDayToggle = (day: string) => {
-  //   setNewShift(prev => ({
-  //     ...prev,
-  //     days: prev.days.includes(day)
-  //       ? prev.days.filter(d => d !== day)
-  //       : [...prev.days, day],
-  //   }))
-  // }
+  const handleDayToggle = (day: string) => {
+    setNewShift(prev => ({
+      ...prev,
+      days: prev.days.includes(day)
+        ? prev.days.filter(d => d !== day)
+        : [...prev.days, day],
+    }))
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -137,25 +138,74 @@ export default function ShiftsPage() {
       </Button>
       </div>
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="p-6 bg-gray-100 rounded-lg">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-semibold">Add New Shift</DialogTitle>
-          </DialogHeader>
-          <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Input fields and day selection code remain unchanged */}
-            <DialogFooter className="mt-6 md:col-span-2">
-              <Button type="button" variant="secondary" onClick={() => setIsOpen(false)} className="mr-4">
-                Cancel
-              </Button>
-              <Button type="submit">
-                <PlusCircle className="mr-2 h-4 w-4" />
-                Add Shift
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
+      <DialogContent className="p-6 bg-gray-100 rounded-lg">
+        <DialogHeader>
+          <DialogTitle className="text-xl font-semibold">Add New Shift</DialogTitle>
+        </DialogHeader>
+        
+        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <Label htmlFor="name">Shift Name</Label>
+            <Input
+              id="name"
+              name="name"
+              value={newShift.name}
+              onChange={handleInputChange}
+              placeholder="e.g., Morning Shift"
+              required
+            />
+          </div>
+          <div>
+            <Label htmlFor="startTime">Start Time</Label>
+            <Input
+              id="startTime"
+              name="startTime"
+              type="time"
+              value={newShift.startTime}
+              onChange={handleInputChange}
+              required
+            />
+          </div>
+          <div>
+            <Label htmlFor="endTime">End Time</Label>
+            <Input
+              id="endTime"
+              name="endTime"
+              type="time"
+              value={newShift.endTime}
+              onChange={handleInputChange}
+              required
+            />
+          </div>
 
+          <fieldset className="mt-4 md:col-span-2">
+            <legend className="text-sm font-medium text-gray-700">Days of Week</legend>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {daysOfWeek.map((day) => (
+                <Button
+                  key={day}
+                  type="button"
+                  variant={newShift.days.includes(day) ? "default" : "outline"}
+                  onClick={() => handleDayToggle(day)}
+                >
+                  {day.slice(0, 3)}
+                </Button>
+              ))}
+            </div>
+          </fieldset>
+          
+          <DialogFooter className="mt-6 md:col-span-2">
+            <Button type="button" variant="secondary" onClick={() => setIsOpen(false)} className="mr-4">
+              Cancel
+            </Button>
+            <Button type="submit">
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Add Shift
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
       <div className="mb-8">
         <h2 className="text-xl font-semibold mb-4">Manage Employees</h2>
         <div className="flex gap-2 mb-4">
