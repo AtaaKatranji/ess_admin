@@ -15,7 +15,19 @@ import { fetchInstitution } from '@/app/api/institutions/institutions';
 import { Circles } from 'react-loader-spinner';
 import { toast, ToastContainer } from 'react-toastify';
 import ShiftsPage from './shifts/page';
+interface SSIDInfo {
+  
+  wifiName: string;
+  macAddress: string;
 
+}
+interface Institution {
+  name: string;
+  address: string;
+  uniqueKey: string;
+  macAddresses: SSIDInfo[];
+  slug: string;
+}
 const InstitutionDashboard: React.FC = () => {
   const params = useParams();
   const router = useRouter();
@@ -24,7 +36,13 @@ const InstitutionDashboard: React.FC = () => {
   const [activeSection, setActiveSection] = useState('overview');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [institution, setInstitution] = useState(null);
+  const [institution, setInstitution] = useState<Institution>({
+    name: '',
+    address: '',
+    uniqueKey: '',
+    macAddresses: [],
+    slug: '',
+  });
 
   const handleNavigation = (section: string) => {
     setActiveSection(section);
@@ -91,7 +109,7 @@ const InstitutionDashboard: React.FC = () => {
     <div className="flex flex-col md:flex-row h-screen bg-gray-100">
       {/* Mobile header */}
       <header className="md:hidden bg-gray-800 text-white p-4 flex justify-between items-center">
-        <h1 className="text-xl font-bold">Institution Dashboard</h1>
+        <h1 className="text-xl font-bold">{institution.name}</h1>
         <button onClick={toggleSidebar} className="text-white focus:outline-none">
           <Menu className="h-6 w-6" />
         </button>

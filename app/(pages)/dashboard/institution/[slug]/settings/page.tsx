@@ -24,6 +24,10 @@ interface InstitutionInfo {
 }
 
 const SettingsPage: React.FC = () => {
+  const params = useParams();
+  const slug = params?.slug;
+  const router = useRouter();
+
   const [institutionInfo, setInstitutionInfo] = useState<InstitutionInfo>({
     name: '',
     address: '',
@@ -31,11 +35,6 @@ const SettingsPage: React.FC = () => {
     macAddresses: [],
     slug: '',
   });
-  const params = useParams();
-
-  const slug = params?.slug;
-  const router = useRouter();
-
   const [isEditing, setIsEditing] = useState(false);
   const [newSSID, setNewSSID] = useState('');
   const [newMacAddress, setNewMacAddress] = useState('');
@@ -381,40 +380,39 @@ const SettingsPage: React.FC = () => {
           <h4 className="text-xl font-semibold ">{institutionInfo.name}</h4>
           {isDelete === true && (
             <Dialog open={isDelete} onOpenChange={setIsDelete}>
-    
             {/* Dialog Content */}
             <DialogContent className="p-4">
-      <DialogHeader>
-        <DialogTitle className="text-2xl font-semibold my-4">Confirm Deletion</DialogTitle>
-        <DialogDescription className="text-xl my-4">
-          Are you sure you want to delete <strong>{institutionInfo.name}</strong>? This action cannot be undone.
-          <Input 
-            className="mt-4" 
-            placeholder="Enter institution name to confirm" 
-            value={inputName} 
-            onChange={(e) => setInputName(e.target.value)} 
-          />
-        </DialogDescription>
-      </DialogHeader>
+              <DialogHeader>
+                <DialogTitle className="text-2xl font-semibold my-4">Confirm Deletion</DialogTitle>
+                <DialogDescription className="text-xl my-4">
+                  Are you sure you want to delete <strong>{institutionInfo.name}</strong>? This action cannot be undone.
+                  <Input 
+                    className="mt-4" 
+                    placeholder="Enter institution name to confirm" 
+                    value={inputName} 
+                    onChange={(e) => setInputName(e.target.value)} 
+                  />
+                </DialogDescription>
+              </DialogHeader>
 
-      <DialogFooter className="space-x-2">
-        <Button
-          variant="destructive"
-          className="fill-secondary text-white font-bold hover:bg-red-700 transition duration-200"
-          onClick={confirmDeletion}
-          disabled={inputName !== institutionInfo.name} // Only enable if name matches
-        >
-          Yes
-        </Button>
-        <Button
-          variant="secondary"
-          className="bg-gray-800 text-white font-bold hover:bg-gray-500 transition duration-200"
-          onClick={() => setIsDelete(false)}
-        >
-          No
-        </Button>
-      </DialogFooter>
-    </DialogContent>
+              <DialogFooter className="space-x-2">
+                <Button
+                  variant="destructive"
+                  className="fill-secondary text-white font-bold hover:bg-red-700 transition duration-200"
+                  onClick={confirmDeletion}
+                  disabled={inputName !== institutionInfo.name} // Only enable if name matches
+                >
+                  Yes
+                </Button>
+                <Button
+                  variant="secondary"
+                  className="bg-gray-800 text-white font-bold hover:bg-gray-500 transition duration-200"
+                  onClick={() => setIsDelete(false)}
+                >
+                  No
+                </Button>
+              </DialogFooter>
+            </DialogContent>
           </Dialog>
           )}
           {isDelete === false && (

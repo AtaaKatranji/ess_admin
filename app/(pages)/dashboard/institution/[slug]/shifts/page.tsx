@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 
 type Employee = {
   id: string
@@ -40,6 +40,7 @@ export default function ShiftsPage() {
   const [newEmployee, setNewEmployee] = useState('')
   const [selectedEmployee, setSelectedEmployee] = useState('')
   const [selectedShift, setSelectedShift] = useState('')
+  const [isOpen, setIsOpen] = useState(false)
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setNewShift({ ...newShift, [e.target.name]: e.target.value })
@@ -116,10 +117,17 @@ export default function ShiftsPage() {
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Shift Management</h1>
-      
-      <form onSubmit={handleSubmit} className="mb-8 p-4 bg-gray-100 rounded-lg">
-        <h2 className="text-xl font-semibold mb-4">Add New Shift</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <Button type="button" onClick={()=>{setIsOpen(true)}}>
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Add Shift
+            </Button>
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogContent className="p-6 bg-gray-100 rounded-lg">
+        <DialogHeader>
+          <DialogTitle className="text-xl font-semibold">Add New Shift</DialogTitle>
+        </DialogHeader>
+        
+        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <Label htmlFor="name">Shift Name</Label>
             <Input
@@ -153,27 +161,35 @@ export default function ShiftsPage() {
               required
             />
           </div>
-        </div>
-        <fieldset className="mt-4">
-          <legend className="text-sm font-medium text-gray-700">Days of Week</legend>
-          <div className="mt-2 flex flex-wrap gap-2">
-            {daysOfWeek.map(day => (
-              <Button
-                key={day}
-                type="button"
-                variant={newShift.days.includes(day) ? "default" : "outline"}
-                onClick={() => handleDayToggle(day)}
-              >
-                {day.slice(0, 3)}
-              </Button>
-            ))}
-          </div>
-        </fieldset>
-        <Button type="submit" className="mt-4">
-          <PlusCircle className="mr-2 h-4 w-4" />
-          Add Shift
-        </Button>
-      </form>
+
+          <fieldset className="mt-4 md:col-span-2">
+            <legend className="text-sm font-medium text-gray-700">Days of Week</legend>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {daysOfWeek.map((day) => (
+                <Button
+                  key={day}
+                  type="button"
+                  variant={newShift.days.includes(day) ? "default" : "outline"}
+                  onClick={() => handleDayToggle(day)}
+                >
+                  {day.slice(0, 3)}
+                </Button>
+              ))}
+            </div>
+          </fieldset>
+          
+          <DialogFooter className="mt-6 md:col-span-2">
+            <Button type="button" variant="secondary" onClick={() => setIsOpen(false)} className="mr-4">
+              Cancel
+            </Button>
+            <Button type="submit">
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Add Shift
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
 
       <div className="mb-8">
         <h2 className="text-xl font-semibold mb-4">Manage Employees</h2>
