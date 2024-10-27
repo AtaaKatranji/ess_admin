@@ -25,10 +25,12 @@ type Shift = {
 
 const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 interface ShiftsPageProps {
-  institutionKey: string; // Define institutionKey as a string
+  params: {
+    institutionKey: string;
+  } // Define institutionKey as a string
 }
 
-const ShiftsPage: React.FC<ShiftsPageProps> = ({ institutionKey }) => {
+const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
   const [shifts, setShifts] = useState<Shift[]>([])
   const [newShift, setNewShift] = useState<Omit<Shift, 'id' | 'employees'>>({
     name: '',
@@ -51,7 +53,7 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({ institutionKey }) => {
     }
     fetchShifts()
     const fetchEmp = async () => {
-      const response = await fetchEmployees(institutionKey)
+      const response = await fetchEmployees(params.institutionKey)
       const data = await response.json()
       setEmployees(data)
     }

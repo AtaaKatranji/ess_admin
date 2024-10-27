@@ -43,6 +43,7 @@ const InstitutionDashboard: React.FC = () => {
     macAddresses: [],
     slug: '',
   });
+  const [institutionKey, setInstitutionKey] = useState('')
 
   const handleNavigation = (section: string) => {
     setActiveSection(section);
@@ -62,6 +63,7 @@ const InstitutionDashboard: React.FC = () => {
   const fetchData = async () => {
     const data = await fetchInstitution(slug.toString());
     setInstitution(data || []);
+    setInstitutionKey(data.uniqueKey);
     setLoading(false); // Stop loading once data is fetched
   };
 
@@ -72,7 +74,7 @@ const InstitutionDashboard: React.FC = () => {
       case 'employees':
         return <EmployeeList />;
       case 'shifts':
-        return <ShiftsPage institutionKey={institution.uniqueKey}  />;
+        return <ShiftsPage params={{institutionKey}} />;
       case 'requests':
         return <EmployeeRequests />;
       case 'notifications':
