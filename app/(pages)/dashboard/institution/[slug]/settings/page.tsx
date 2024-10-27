@@ -45,11 +45,7 @@ const SettingsPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [initialName, setInitialName] = useState('');
   const [inputName, setInputName] = useState('');
-  interface DeleteDialogProps {
-    institutionName: string;
-    handleDelete: () => void;
-    setIsDelete: (value: boolean) => void;
-  }
+ 
   useEffect(() => {
     // Fetch data from your backend API for the specific institution
     const fetchData = async () => {
