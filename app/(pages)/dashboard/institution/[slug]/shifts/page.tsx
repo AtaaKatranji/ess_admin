@@ -41,7 +41,7 @@ export default function ShiftsPage() {
   // Fetch shifts from the API
   useEffect(() => {
     const fetchShifts = async () => {
-      const response = await fetch(`${BaseURL}/shifts`)
+      const response = await fetch(`${BaseURL}/shift`)
       const data = await response.json()
       setShifts(data)
     }
@@ -64,7 +64,7 @@ export default function ShiftsPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (newShift.name && newShift.startTime && newShift.endTime && newShift.days.length > 0) {
-      const response = await fetch(`${BaseURL}/shifts`, {
+      const response = await fetch(`${BaseURL}/shift/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...newShift, employees: [] }),
@@ -77,7 +77,7 @@ export default function ShiftsPage() {
   }
 
   const deleteShift = async (id: string) => {
-    await fetch(`${BaseURL}/shifts/${id}`, { method: 'DELETE' })
+    await fetch(`${BaseURL}/shift/${id}`, { method: 'DELETE' })
     setShifts(shifts.filter(shift => shift.id !== id))
   }
 
@@ -96,7 +96,7 @@ export default function ShiftsPage() {
 
   const assignEmployee = async () => {
     if (selectedEmployee && selectedShift) {
-      const response = await fetch(`${BaseURL}/shifts/${selectedShift}/assign`, {
+      const response = await fetch(`${BaseURL}/shift/${selectedShift}/assign`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ employeeId: selectedEmployee }),
@@ -109,7 +109,7 @@ export default function ShiftsPage() {
   }
 
   const removeEmployeeFromShift = async (shiftId: string, employeeId: string) => {
-    const response = await fetch(`${BaseURL}/shifts/${shiftId}/remove`, {
+    const response = await fetch(`${BaseURL}/shift/${shiftId}/remove`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ employeeId }),
@@ -119,7 +119,7 @@ export default function ShiftsPage() {
   }
 
   const moveEmployee = async (fromShiftId: string, toShiftId: string, employeeId: string) => {
-    const response = await fetch(`${BaseURL}/shifts/${fromShiftId}/move`, {
+    const response = await fetch(`${BaseURL}/shift/${fromShiftId}/move`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ toShiftId, employeeId }),
