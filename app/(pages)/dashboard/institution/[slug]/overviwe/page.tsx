@@ -65,8 +65,8 @@ export default function AttendanceSystem() {
   const [searchQuery, setSearchQuery] = useState("")
   const [filteredEmployees, setFilteredEmployees] = useState<Employee[]>([])
   const itemsPerPage = 10
-  const startDate = new Date("2024-10-24")
-  const endDate = new Date("2024-10-26")
+  const startDate = new Date()
+  const endDate = new Date()
   console.log(startDate,endDate);
   useEffect(() => {
     const fetchData = async () => {

@@ -222,7 +222,7 @@ const EmployeeDetails = () => {
             <h2 className="text-base md:text-lg font-semibold flex items-center justify-between">
               <Clock10 className="h-8 w-8" />
               <div className="flex flex-col justify-end items-start">
-                <p>Total Hours This</p>
+                <p>Late Hours This</p>
                 <p>Month:</p>
               </div>
               <div className="flex flex-col items-center">
@@ -234,7 +234,7 @@ const EmployeeDetails = () => {
             <h2 className="text-base md:text-lg font-semibold flex items-center justify-between">
               <Clock10 className="h-8 w-8" />
               <div className="flex flex-col justify-end items-start">
-                <p>Total Hours This</p>
+                <p>Extra Hours This</p>
                 <p>Month:</p>
               </div>
               <div className="flex flex-col items-center">

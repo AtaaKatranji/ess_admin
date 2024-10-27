@@ -6,6 +6,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { toast, ToastContainer } from 'react-toastify';
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Input } from '@/components/ui/input';
 
 interface SSIDInfo {
   
@@ -43,6 +44,12 @@ const SettingsPage: React.FC = () => {
   const [isNameTaken, setIsNameTaken] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(false);
   const [initialName, setInitialName] = useState('');
+  const [inputName, setInputName] = useState('');
+  interface DeleteDialogProps {
+    institutionName: string;
+    handleDelete: () => void;
+    setIsDelete: (value: boolean) => void;
+  }
   useEffect(() => {
     // Fetch data from your backend API for the specific institution
     const fetchData = async () => {
@@ -176,7 +183,7 @@ const SettingsPage: React.FC = () => {
   };
 
   const handleDelete = async () => {
-
+      
     console.log("deleted slug: ", institutionInfo.slug);
     const res = await deleteInstitutionInfo(institutionInfo.slug);
     try{
@@ -220,7 +227,13 @@ const SettingsPage: React.FC = () => {
       setIsNameTaken(null);
     }
   };
-
+  const confirmDeletion = () => {
+      if (inputName === institutionInfo.name) {
+        handleDelete();
+      } else {
+        alert('Name does not match. Please enter the correct name to confirm deletion.');
+      }
+    };
   return (
     <div className="w-full max-w-screen mx-auto p-3 rounded-lg ">
       <h1 className="text-3xl font-bold mb-6">Settings</h1>
@@ -374,39 +387,47 @@ const SettingsPage: React.FC = () => {
             <Dialog open={isDelete} onOpenChange={setIsDelete}>
     
             {/* Dialog Content */}
-            <DialogContent className='p-4'>
-              <DialogHeader>
-                <DialogTitle className="text-2xl font-semibold my-4">Confirm Deletion</DialogTitle>
-                <DialogDescription className='text-xl my-4'>
-                  Are you sure you want to delete this item? This action cannot be undone.
-                </DialogDescription>
-                
-              </DialogHeader>
-    
-              <DialogFooter className='space-x-2'>
-                <Button
-                  variant='destructive'
-                  className='fill-secondary text-white font-bold hover:bg-red-700 transition duration-200'
-                  onClick={handleDelete}
-                >
-                  Yes
-                </Button>
-                <Button
-                  variant='secondary'
-                  className='bg-gray-800 text-white font-bold hover:bg-gray-500 transition duration-200'
-                  onClick={() => setIsDelete(false)}
-                >
-                  No
-                </Button>
-              </DialogFooter>
-            </DialogContent>
+            <DialogContent className="p-4">
+      <DialogHeader>
+        <DialogTitle className="text-2xl font-semibold my-4">Confirm Deletion</DialogTitle>
+        <DialogDescription className="text-xl my-4">
+          Are you sure you want to delete <strong>{institutionInfo.name}</strong>? This action cannot be undone.
+          <Input 
+            className="mt-4" 
+            placeholder="Enter institution name to confirm" 
+            value={inputName} 
+            onChange={(e) => setInputName(e.target.value)} 
+          />
+        </DialogDescription>
+      </DialogHeader>
+
+      <DialogFooter className="space-x-2">
+        <Button
+          variant="destructive"
+          className="fill-secondary text-white font-bold hover:bg-red-700 transition duration-200"
+          onClick={confirmDeletion}
+          disabled={inputName !== institutionInfo.name} // Only enable if name matches
+        >
+          Yes
+        </Button>
+        <Button
+          variant="secondary"
+          className="bg-gray-800 text-white font-bold hover:bg-gray-500 transition duration-200"
+          onClick={() => setIsDelete(false)}
+        >
+          No
+        </Button>
+      </DialogFooter>
+    </DialogContent>
           </Dialog>
           )}
           {isDelete === false && (
             // <Button variant='destructive' type="button" className='bg-blue-800 text-white font-bold' onClick={() => setIsDelete(true)}>Delete</Button>
-            <Dialog><DialogTrigger asChild>
-            <Button variant='destructive' onClick={() => setIsDelete(true)}>Delete</Button>
-          </DialogTrigger></Dialog>
+            <Dialog>
+              <DialogTrigger asChild>
+                 <Button variant='destructive' onClick={() => setIsDelete(true)}>Delete</Button>
+              </DialogTrigger>
+            </Dialog>
             
           )}
         </div>
