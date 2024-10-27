@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import { PlusCircle, Trash2, UserPlus, ArrowRightLeft } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 const BaseURL = process.env.NEXT_PUBLIC_API_URL;
@@ -22,7 +21,7 @@ type Shift = {
   employees: Employee[]
 }
 
-const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+//const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 
 export default function ShiftsPage() {
   const [shifts, setShifts] = useState<Shift[]>([])
@@ -48,18 +47,18 @@ export default function ShiftsPage() {
     fetchShifts()
   }, [])
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setNewShift({ ...newShift, [e.target.name]: e.target.value })
-  }
+  // const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   setNewShift({ ...newShift, [e.target.name]: e.target.value })
+  // }
 
-  const handleDayToggle = (day: string) => {
-    setNewShift(prev => ({
-      ...prev,
-      days: prev.days.includes(day)
-        ? prev.days.filter(d => d !== day)
-        : [...prev.days, day],
-    }))
-  }
+  // const handleDayToggle = (day: string) => {
+  //   setNewShift(prev => ({
+  //     ...prev,
+  //     days: prev.days.includes(day)
+  //       ? prev.days.filter(d => d !== day)
+  //       : [...prev.days, day],
+  //   }))
+  // }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
