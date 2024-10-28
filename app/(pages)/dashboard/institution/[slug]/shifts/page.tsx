@@ -45,10 +45,12 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
   const [isOpen, setIsOpen] = useState(false)
 
   // Fetch shifts from the API
-  useEffect(() => {
+  useEffect(() => { 
+    console.log("Key: ",params.institutionKey);
     const fetchShifts = async () => {
       const response = await fetch(`${BaseURL}/shift/`)
       const data = await response.json()
+      console.log(data)
       setShifts(data)
     }
     fetchShifts()
@@ -220,34 +222,40 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
       </Dialog>
       <div className="mb-8">
         <h2 className="text-xl font-semibold mb-4">Manage Employees</h2>
-        <div className="flex gap-2 mb-4">
+        {/* <div className="flex gap-2 mb-4">
           <Input
             placeholder="New employee name"
             value={newEmployee}
             onChange={(e) => setNewEmployee(e.target.value)}
           />
           <Button onClick={addEmployee}>Add Employee</Button>
-        </div>
+        </div> */}
         <div className="flex gap-2">
           {/* select employee */}
-          <Select onValueChange={setSelectedEmployee}>
+          <Select value={selectedEmployee} onValueChange={setSelectedEmployee}>
             <SelectTrigger className="w-[200px]">
-              <SelectValue placeholder="Select employee" />
+              <SelectValue>
+                {selectedEmployee ? employees.find(employee => employee.id === selectedEmployee)?.name : "Select employee"}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               {employees.map(employee => (
-                <SelectItem key={employee.id} value={employee.id}>{employee.name}</SelectItem>
+                <SelectItem key={employee.id} value={employee.id}>
+                  {employee.name}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
           {/* select shift */}
-          <Select onValueChange={setSelectedShift}>
+          <Select value={selectedShift} onValueChange={setSelectedShift}>
             <SelectTrigger className="w-[200px]">
-              <SelectValue placeholder="Select shift" />
+              <SelectValue>{selectedShift ? shifts.find(shift => shift.id === selectedShift)?.name : "Select shift"}</SelectValue>
             </SelectTrigger>
             <SelectContent>
               {shifts.map(shift => (
-                <SelectItem key={shift.id} value={shift.id}>{shift.name}</SelectItem>
+                <SelectItem key={shift.id} value={shift.id}>
+                  {shift.name}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
