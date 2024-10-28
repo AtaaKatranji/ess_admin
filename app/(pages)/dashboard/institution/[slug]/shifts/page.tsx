@@ -33,6 +33,7 @@ interface ShiftsPageProps {
 const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
   const [shifts, setShifts] = useState<Shift[]>([])
   const [newShift, setNewShift] = useState<Omit<Shift, 'id' | 'employees'>>({
+    
     name: '',
     startTime: '',
     endTime: '',
@@ -51,6 +52,7 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
       const response = await fetch(`${BaseURL}/shift/`)
       const data = await response.json()
       console.log(data)
+      console.log(data.id)
       setShifts(data)
     }
     fetchShifts()
@@ -252,11 +254,9 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
               <SelectValue>{selectedShift ? shifts.find(shift => shift.id === selectedShift)?.name : "Select shift"}</SelectValue>
             </SelectTrigger>
             <SelectContent>
-              {shifts.map(shift => (
-                <SelectItem key={shift.id} value={shift.id}>
-                  {shift.name}
-                </SelectItem>
-              ))}
+              <SelectItem value='d'>55</SelectItem>
+              <SelectItem value='e'>56</SelectItem>
+              <SelectItem value='f'>57</SelectItem>
             </SelectContent>
           </Select>
           <Button onClick={assignEmployee}>
