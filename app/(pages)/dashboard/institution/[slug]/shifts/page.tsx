@@ -95,18 +95,18 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
     setShifts(shifts.filter(shift => shift.id !== id))
   }
 
-  const addEmployee = async () => {
-    if (newEmployee) {
-      const response = await fetch('/api/employees', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: newEmployee }),
-      })
-      const data = await response.json()
-      setEmployees([...employees, data])
-      setNewEmployee('')
-    }
-  }
+  // const addEmployee = async () => {
+  //   if (newEmployee) {
+  //     const response = await fetch('/api/employees', {
+  //       method: 'POST',
+  //       headers: { 'Content-Type': 'application/json' },
+  //       body: JSON.stringify({ name: newEmployee }),
+  //     })
+  //     const data = await response.json()
+  //     setEmployees([...employees, data])
+  //     setNewEmployee('')
+  //   }
+  // }
 
   const assignEmployee = async () => {
     if (selectedEmployee && selectedShift) {
