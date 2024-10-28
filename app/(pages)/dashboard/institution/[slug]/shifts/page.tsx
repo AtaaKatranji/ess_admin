@@ -39,7 +39,7 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
     days: [],
   })
   const [employees, setEmployees] = useState<Employee[]>([])
-  const [newEmployee, setNewEmployee] = useState('')
+  // const [newEmployee, setNewEmployee] = useState('')
   const [selectedEmployee, setSelectedEmployee] = useState('')
   const [selectedShift, setSelectedShift] = useState('')
   const [isOpen, setIsOpen] = useState(false)
