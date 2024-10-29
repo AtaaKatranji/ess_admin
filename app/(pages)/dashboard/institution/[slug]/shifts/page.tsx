@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, AwaitedReactNode, JSXElementConstructor, Key, ReactElement, ReactNode, ReactPortal } from 'react'
 import { PlusCircle, Trash2, UserPlus, ArrowRightLeft } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -52,7 +52,11 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
       const response = await fetch(`${BaseURL}/shift/`)
       const data = await response.json()
       console.log(data)
-      console.log(data._id)
+      {data.map((shift: { _id: Key | null | undefined; name: string | number | bigint | boolean | ReactElement<any, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | Promise<AwaitedReactNode> | null | undefined }) => (
+        <p key={shift._id}>
+          {shift.name}
+        </p>
+      ))}
       setShifts(data)
     }
     fetchShifts()
@@ -254,9 +258,11 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
               <SelectValue>{selectedShift ? shifts.find(shift => shift._id === selectedShift)?.name : "Select shift"}</SelectValue>
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value='d'>55</SelectItem>
-              <SelectItem value='e'>56</SelectItem>
-              <SelectItem value='f'>57</SelectItem>
+              {shifts.map(shift => (
+                <SelectItem key={shift._id} value={shift._id}>
+                  {shift.name}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
           <Button onClick={assignEmployee}>
