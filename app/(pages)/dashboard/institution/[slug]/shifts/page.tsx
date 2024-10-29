@@ -52,7 +52,7 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
       const response = await fetch(`${BaseURL}/shift/`)
       const data = await response.json()
       console.log(data)
-      console.log(data.id)
+      console.log(data._id)
       setShifts(data)
     }
     fetchShifts()
@@ -131,7 +131,7 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
       body: JSON.stringify({ employeeId }),
     })
     const data = await response.json()
-    setShifts(shifts.map(shift => shift._id === data.id ? data : shift))
+    setShifts(shifts.map(shift => shift._id === data._id ? data : shift))
   }
 
   const moveEmployee = async (fromShiftId: string, toShiftId: string, employeeId: string) => {
@@ -141,7 +141,7 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
       body: JSON.stringify({ toShiftId, employeeId }),
     })
     const data = await response.json()
-    setShifts(shifts.map(shift => shift._id === data.id ? data : shift))
+    setShifts(shifts.map(shift => shift._id === data._id ? data : shift))
   }
 
   return (
