@@ -51,14 +51,12 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
     const fetchShifts = async () => {
       const response = await fetch(`${BaseURL}/shift/`)
       const data = await response.json()
-      console.log(data)
-      data.map((shift: Shift ) => console.log(`ID: ${shift._id}, Name: ${shift.name}`));
       setShifts(data)
     }
     fetchShifts()
     const fetchEmp = async () => {
-      const response = await fetchEmployees(params.institutionKey)
-      const data = await response.json()
+      const data = await fetchEmployees(params.institutionKey)
+      
       setEmployees(data)
     }
     fetchEmp()
