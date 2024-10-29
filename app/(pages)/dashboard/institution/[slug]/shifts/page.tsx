@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, AwaitedReactNode, JSXElementConstructor, Key, ReactElement, ReactNode, ReactPortal } from 'react'
+import { useState, useEffect} from 'react'
 import { PlusCircle, Trash2, UserPlus, ArrowRightLeft } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -52,11 +52,7 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
       const response = await fetch(`${BaseURL}/shift/`)
       const data = await response.json()
       console.log(data)
-      {data.map((shift: { _id: Key | null | undefined; name: string | number | bigint | boolean | ReactElement<any, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | Promise<AwaitedReactNode> | null | undefined }) => (
-        <p key={shift._id}>
-          {shift.name}
-        </p>
-      ))}
+      data.map((shift: Shift ) => console.log(`ID: ${shift._id}, Name: ${shift.name}`));
       setShifts(data)
     }
     fetchShifts()
