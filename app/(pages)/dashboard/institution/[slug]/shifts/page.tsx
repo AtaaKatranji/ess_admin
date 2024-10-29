@@ -21,6 +21,7 @@ type Shift = {
   startTime: string
   endTime: string
   days: string[]
+  institutionKey: string,
   employees: Employee[]
 }
 
@@ -37,6 +38,7 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
     name: '',
     startTime: '',
     endTime: '',
+    institutionKey:params.institutionKey,
     days: [],
   })
   const [employees, setEmployees] = useState<Employee[]>([])
@@ -83,7 +85,7 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
       })
       const data = await response.json()
       setShifts([...shifts, data])
-      setNewShift({ name: '', startTime: '', endTime: '', days: [] })
+      setNewShift({ name: '', startTime: '', endTime: '', days: [] , institutionKey:params.institutionKey })
       setIsOpen(false)
     }
   }
@@ -108,13 +110,17 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
 
   const assignEmployee = async () => {
     if (selectedEmployee && selectedShift) {
-      const response = await fetch(`${BaseURL}/shift/${selectedShift}/assign`, {
+      const id = selectedShift;
+      const response = await fetch(`${BaseURL}/shift/${id}/assign`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ employeeId: selectedEmployee }),
       })
       const data = await response.json()
+      
       setShifts(shifts.map(shift => shift._id === data._id ? data : shift))
+      shifts.map(shift => shift.employees.map(employee => console.log(employee.name))
+      )
       setSelectedEmployee('')
       setSelectedShift('')
     }
