@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Label } from '@/components/ui/label'
 import { fetchEmployees } from '@/app/api/employees/employeeId'
+import { fetchShifts } from '@/app/api/shifts/shifts'
 const BaseURL = process.env.NEXT_PUBLIC_API_URL;
 type Employee = {
   _id: string
@@ -33,7 +34,6 @@ interface ShiftsPageProps {
 const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
   const [shifts, setShifts] = useState<Shift[]>([])
   const [newShift, setNewShift] = useState<Omit<Shift, '_id' | 'employees'>>({
-    
     name: '',
     startTime: '',
     endTime: '',
@@ -48,15 +48,13 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
   // Fetch shifts from the API
   useEffect(() => { 
     console.log("Key: ",params.institutionKey);
-    const fetchShifts = async () => {
-      const response = await fetch(`${BaseURL}/shift/`)
-      const data = await response.json()
+    const fetchShi= async () => {
+      const data = await fetchShifts(params.institutionKey)
       setShifts(data)
     }
-    fetchShifts()
+    fetchShi()
     const fetchEmp = async () => {
       const data = await fetchEmployees(params.institutionKey)
-      
       setEmployees(data)
     }
     fetchEmp()
