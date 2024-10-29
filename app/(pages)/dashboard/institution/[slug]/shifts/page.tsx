@@ -58,9 +58,9 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
     const fetchEmp = async () => {
       const data = await fetchEmployees(params.institutionKey)
       setEmployees(data)
+      shifts.map(shift => shift.employees.map(employee => console.log(employee.name)))
     }
     fetchEmp()
-    shifts.map(shift => shift.employees.map(employee => console.log(employee.name)))
   }, [])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -128,12 +128,15 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
   }
 
   const removeEmployeeFromShift = async (shiftId: string, employeeId: string) => {
+    console.log(shiftId,employeeId);
     const response = await fetch(`${BaseURL}/shift/${shiftId}/remove`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ employeeId }),
     })
     const data = await response.json()
+    console.log(data);
+    
     setShifts(shifts.map(shift => shift._id === data._id ? data : shift))
   }
 
