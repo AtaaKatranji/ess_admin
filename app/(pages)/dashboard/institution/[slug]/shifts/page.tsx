@@ -239,7 +239,7 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
           <Select value={selectedEmployee} onValueChange={setSelectedEmployee}>
             <SelectTrigger className="w-[200px]">
               <SelectValue>
-                {selectedEmployee ? employees.find(employee => employee._id === selectedEmployee)?.name : "Select employee"}
+                {selectedEmployee ? employees.find(employee => employee._id === selectedEmployee)?.name : <span className="text-gray-500">Select employee</span>}
               </SelectValue>
             </SelectTrigger>
             <SelectContent>
