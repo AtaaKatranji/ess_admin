@@ -60,6 +60,7 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
       setEmployees(data)
     }
     fetchEmp()
+    shifts.map(shift => shift.employees.map(employee => console.log(employee.name)))
   }, [])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -121,8 +122,8 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
       setShifts(shifts.map(shift => shift._id === data._id ? data : shift))
       shifts.map(shift => shift.employees.map(employee => console.log(employee.name))
       )
-      setSelectedEmployee('')
-      setSelectedShift('')
+      setSelectedEmployee('Select employee')
+      setSelectedShift('Select shift')
     }
   }
 
