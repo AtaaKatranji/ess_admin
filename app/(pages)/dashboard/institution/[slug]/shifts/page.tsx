@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label'
 import { fetchEmployees } from '@/app/api/employees/employeeId'
 const BaseURL = process.env.NEXT_PUBLIC_API_URL;
 type Employee = {
-  id: string
+  _id: string
   name: string
 }
 
@@ -41,8 +41,8 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
   })
   const [employees, setEmployees] = useState<Employee[]>([])
   // const [newEmployee, setNewEmployee] = useState('')
-  const [selectedEmployee, setSelectedEmployee] = useState('')
-  const [selectedShift, setSelectedShift] = useState('')
+  const [selectedEmployee, setSelectedEmployee] = useState('Select employee')
+  const [selectedShift, setSelectedShift] = useState('Select shift')
   const [isOpen, setIsOpen] = useState(false)
 
   // Fetch shifts from the API
@@ -235,12 +235,12 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
           <Select value={selectedEmployee} onValueChange={setSelectedEmployee}>
             <SelectTrigger className="w-[200px]">
               <SelectValue>
-                {selectedEmployee ? employees.find(employee => employee.id === selectedEmployee)?.name : "Select employee"}
+                {selectedEmployee ? employees.find(employee => employee._id === selectedEmployee)?.name : "Select employee"}
               </SelectValue>
             </SelectTrigger>
             <SelectContent>
               {employees.map(employee => (
-                <SelectItem key={employee.id} value={employee.id}>
+                <SelectItem key={employee._id} value={employee._id}>
                   {employee.name}
                 </SelectItem>
               ))}
@@ -300,7 +300,7 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
                   ) : (
                     <ul className="space-y-2">
                       {shift.employees.map(employee => (
-                        <li key={employee.id} className="flex items-center justify-between bg-gray-100 p-2 rounded">
+                        <li key={employee._id} className="flex items-center justify-between bg-gray-100 p-2 rounded">
                           <span>{employee.name}</span>
                           <div className="flex gap-2">
                             <Dialog>
@@ -314,7 +314,7 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
                                 <DialogHeader>
                                   <DialogTitle>Move Employee to Another Shift</DialogTitle>
                                 </DialogHeader>
-                                <Select onValueChange={(value) => moveEmployee(shift._id, value, employee.id)}>
+                                <Select onValueChange={(value) => moveEmployee(shift._id, value, employee._id)}>
                                   <SelectTrigger className="w-full">
                                     <SelectValue placeholder="Select shift" />
                                   </SelectTrigger>
@@ -329,7 +329,7 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
                             <Button
                               variant="destructive"
                               size="sm"
-                              onClick={() => removeEmployeeFromShift(shift._id, employee.id)}
+                              onClick={() => removeEmployeeFromShift(shift._id, employee._id)}
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>
