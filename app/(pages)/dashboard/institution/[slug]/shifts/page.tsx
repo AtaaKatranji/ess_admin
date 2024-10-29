@@ -112,7 +112,7 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
     if (selectedEmployee && selectedShift) {
       const id = selectedShift;
       const response = await fetch(`${BaseURL}/shift/${id}/assign`, {
-        method: 'POST',
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ employeeId: selectedEmployee }),
       })
