@@ -239,7 +239,7 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
           <Select value={selectedEmployee} onValueChange={setSelectedEmployee}>
             <SelectTrigger className="w-[200px]">
               <SelectValue>
-                {selectedEmployee ? employees.find(employee => employee._id === selectedEmployee)?.name : <span className="text-gray-500">Select employee</span>}
+              {selectedEmployee === "Select employee" ? "Select employee" : employees.find(employee => employee._id === selectedEmployee)?.name  }
               </SelectValue>
             </SelectTrigger>
             <SelectContent>
@@ -253,7 +253,9 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
           {/* select shift */}
           <Select value={selectedShift} onValueChange={setSelectedShift}>
             <SelectTrigger className="w-[200px]">
-              <SelectValue>{selectedShift ? shifts.find(shift => shift._id === selectedShift)?.name : "Select shift"}</SelectValue>
+              <SelectValue>
+                {selectedShift != "Select shift" ? shifts.find(shift => shift._id === selectedShift)?.name : "Select shift"}
+                </SelectValue>
             </SelectTrigger>
             <SelectContent>
               {shifts.map(shift => (
