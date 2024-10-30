@@ -165,6 +165,7 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
   }
 
   const removeEmployeeFromShift = async (shiftId: string, employeeId: string) => {
+    console.log(employeeId)
     const response = await fetch(`${BaseURL}/shift/${shiftId}/remove`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
