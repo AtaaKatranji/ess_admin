@@ -47,7 +47,6 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
   const [selectedShift, setSelectedShift] = useState('Select shift')
   const [isOpen, setIsOpen] = useState(false)
   const [isEditing, setIsEditing] = useState(false);
-  const [currentShift,setCurrentShift] = useState<Shift>()
 
 
   const handleEditShift = (shift: Shift) => {
