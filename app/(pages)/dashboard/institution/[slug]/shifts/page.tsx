@@ -175,6 +175,7 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
   }
 
   const moveEmployee = async (fromShiftId: string, toShiftId: string, employeeId: string) => {
+    console.log(fromShiftId,toShiftId,employeeId)
     const response = await fetch(`${BaseURL}/shift/${fromShiftId}/move`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -384,6 +385,7 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
                                     ))}
                                   </SelectContent>
                                 </Select>
+                                
                               </DialogContent>
                             </Dialog>
                             <Button
