@@ -364,7 +364,7 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
                       {shift.employees!.map(employee => (
                         
                         <>
-                          {console.log("Employee inside map:", employee._id)}
+                          {console.log("Employee inside map:",employee.toString())}
                         <li key={employee._id} className="flex items-center justify-between bg-gray-100 p-2 rounded">
                           <span>{employee.name}</span>
                           <div className="flex gap-2">
@@ -379,7 +379,7 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
                                 <DialogHeader>
                                   <DialogTitle>Move Employee to Another Shift</DialogTitle>
                                 </DialogHeader>
-                                <Select onValueChange={(value) => moveEmployee(shift._id!, value, employee._id)}>
+                                <Select onValueChange={(value) => moveEmployee(shift._id!, value, employee)}>
                                   <SelectTrigger className="w-full">
                                     <SelectValue placeholder="Select shift" />
                                   </SelectTrigger>
