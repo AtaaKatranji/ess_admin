@@ -259,11 +259,11 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
             <Button type="submit">
             {isEditing ? <div>
               <SaveIcon className="mr-2 h-4 w-4"/>
-              "Save Changes"
+              Save Changes
             </div>
             : <div>
                <PlusCircle className="mr-2 h-4 w-4" />
-              "Add Shift"
+              Add Shift
               </div>}
             </Button>
           </DialogFooter>
@@ -360,7 +360,11 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
                     <p className="text-sm text-gray-500">No employees assigned</p>
                   ) : (
                     <ul className="space-y-2">
+                      
                       {shift.employees!.map(employee => (
+                        
+                        <>
+                          {console.log("Employee inside map:", employee)}
                         <li key={employee._id} className="flex items-center justify-between bg-gray-100 p-2 rounded">
                           <span>{employee.name}</span>
                           <div className="flex gap-2">
@@ -397,6 +401,8 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
                             </Button>
                           </div>
                         </li>
+                        </>
+                        
                       ))}
                     </ul>
                   )}
