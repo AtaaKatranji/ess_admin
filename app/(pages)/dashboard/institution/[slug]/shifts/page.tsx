@@ -380,7 +380,7 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
                                 <DialogHeader>
                                   <DialogTitle>Move Employee to Another Shift</DialogTitle>
                                 </DialogHeader>
-                                <Select onValueChange={(value) => moveEmployee(shift._id!, value, employee)}>
+                                <Select onValueChange={(value) => moveEmployee(shift._id!, value, employee._id)}>
                                   <SelectTrigger className="w-full">
                                     <SelectValue placeholder="Select shift" />
                                   </SelectTrigger>
