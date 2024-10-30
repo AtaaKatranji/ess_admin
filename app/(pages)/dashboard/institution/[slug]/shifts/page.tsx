@@ -16,13 +16,13 @@ type Employee = {
 }
 
 type Shift = {
-  _id: string
+  _id?: string
   name: string
   startTime: string
   endTime: string
   days: string[]
   institutionKey: string,
-  employees: Employee[]
+  employees?: Employee[]
 }
 
 const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
@@ -34,7 +34,7 @@ interface ShiftsPageProps {
 
 const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
   const [shifts, setShifts] = useState<Shift[]>([])
-  const [newShift, setNewShift] = useState<Omit<Shift, '_id' | 'employees'>>({
+  const [newShift, setNewShift] = useState<Shift>({
     name: '',
     startTime: '',
     endTime: '',
@@ -47,6 +47,7 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
   const [selectedShift, setSelectedShift] = useState('Select shift')
   const [isOpen, setIsOpen] = useState(false)
   const [isEditing, setIsEditing] = useState(false);
+  const [currentShift,setCurrentShift] = useState<Shift>()
 
 
   const handleEditShift = (shift: Shift) => {
@@ -65,7 +66,7 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
     const fetchEmp = async () => {
       const data = await fetchEmployees(params.institutionKey)
       setEmployees(data)
-      shifts.map(shift => shift.employees.map(employee => console.log(employee.name)))
+      shifts.map(shift => shift.employees!.map(employee => console.log(employee.name)))
     }
     fetchEmp()
   }, [])
@@ -98,7 +99,18 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
     }
   }
   const updateShift = async() =>{
-    console.log(newShift);
+    if (newShift.name && newShift.startTime && newShift.endTime && newShift.days.length > 0) {
+      setCurrentShift(newShift!);
+      const response = await fetch(`${BaseURL}/shift/${currentShift!._id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...newShift, employees: [] }),
+      })
+      const data = await response.json()
+      setShifts([...shifts, data])
+      setNewShift({ name: '', startTime: '', endTime: '', days: [] , institutionKey:params.institutionKey })
+      setIsOpen(false)
+    }
   }
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -144,7 +156,7 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
       const data = await response.json()
       
       setShifts(shifts.map(shift => shift._id === data._id ? data : shift))
-      shifts.map(shift => shift.employees.map(employee => console.log(employee.name))
+      shifts.map(shift => shift.employees!.map(employee => console.log(employee.name))
       )
       setSelectedEmployee('Select employee')
       setSelectedShift('Select shift')
@@ -158,6 +170,7 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
       body: JSON.stringify({ employeeId }),
     })
     const data = await response.json()
+    console.log("in remove employee: ",data)
     setShifts(shifts.map(shift => shift._id === data._id ? data : shift))
   }
 
@@ -291,7 +304,7 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
             </SelectTrigger>
             <SelectContent>
               {shifts.map(shift => (
-                <SelectItem key={shift._id} value={shift._id}>
+                <SelectItem key={shift._id} value={shift._id!}>
                   {shift.name}
                 </SelectItem>
               ))}
@@ -322,9 +335,9 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
                       {shift.days.join(', ')}
                     </p>
                   </div>
-                  <div>
+                  <div className='space-x-4'>
                   <Button
-                      variant="destructive"
+                      variant="default"
                       size="icon"
                       onClick={() => handleEditShift(shift)}
                     >
@@ -333,7 +346,7 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
                   <Button
                     variant="destructive"
                     size="icon"
-                    onClick={() => deleteShift(shift._id)}
+                    onClick={() => deleteShift(shift._id!)}
                     aria-label={`Delete ${shift.name}`}
                   >
                     <Trash2 className="h-4 w-4" />
@@ -342,11 +355,11 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
                 </div>
                 <div>
                   <h4 className="text-md font-medium mb-2">Assigned Employees:</h4>
-                  {shift.employees.length === 0 ? (
+                  {shift.employees!.length === 0 ? (
                     <p className="text-sm text-gray-500">No employees assigned</p>
                   ) : (
                     <ul className="space-y-2">
-                      {shift.employees.map(employee => (
+                      {shift.employees!.map(employee => (
                         <li key={employee._id} className="flex items-center justify-between bg-gray-100 p-2 rounded">
                           <span>{employee.name}</span>
                           <div className="flex gap-2">
@@ -361,13 +374,13 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
                                 <DialogHeader>
                                   <DialogTitle>Move Employee to Another Shift</DialogTitle>
                                 </DialogHeader>
-                                <Select onValueChange={(value) => moveEmployee(shift._id, value, employee._id)}>
+                                <Select onValueChange={(value) => moveEmployee(shift._id!, value, employee._id)}>
                                   <SelectTrigger className="w-full">
                                     <SelectValue placeholder="Select shift" />
                                   </SelectTrigger>
                                   <SelectContent>
                                     {shifts.filter(s => s._id !== shift._id).map(s => (
-                                      <SelectItem key={s._id} value={s._id}>{s.name}</SelectItem>
+                                      <SelectItem key={s._id} value={s._id!}>{s.name}</SelectItem>
                                     ))}
                                   </SelectContent>
                                 </Select>
@@ -376,7 +389,7 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
                             <Button
                               variant="destructive"
                               size="sm"
-                              onClick={() => removeEmployeeFromShift(shift._id, employee._id)}
+                              onClick={() => removeEmployeeFromShift(shift._id!, employee._id)}
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>
