@@ -104,12 +104,13 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
       const response = await fetch(`${BaseURL}/shift/${newShift._id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...newShift, employees: [] }),
+        body: JSON.stringify(newShift),
       })
       const data = await response.json()
       setShifts([...shifts, data])
       setNewShift({ name: '', startTime: '', endTime: '', days: [] , institutionKey:params.institutionKey })
       setIsOpen(false)
+      setIsEditing(false)
     }
   }
   const handleSubmit = (e: React.FormEvent) => {
@@ -199,7 +200,7 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
        <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent className="p-6 bg-gray-100 rounded-lg">
         <DialogHeader>
-          <DialogTitle className="text-xl font-semibold">Add New Shift</DialogTitle>
+          <DialogTitle className="text-xl font-semibold">{isEditing ? "Edit Current Shift":"Add New Shift"}</DialogTitle>
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -257,16 +258,20 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
             <Button type="button" variant="secondary" onClick={() => setIsOpen(false)} className="mr-4">
               Cancel
             </Button>
-            <Button type="submit">
-            {isEditing ? <div>
-              <SaveIcon className="mr-2 h-4 w-4"/>
-              Save Changes
-            </div>
+           
+            {isEditing ? 
+              <Button type='submit'>
+                    <SaveIcon className="mr-2 h-4 w-4"/>
+                    Save Changes
+              </Button>
+            
             : <div>
+               <Button type="submit">
                <PlusCircle className="mr-2 h-4 w-4" />
-              Add Shift
+               Add Shift
+               </Button>
               </div>}
-            </Button>
+            
           </DialogFooter>
         </form>
       </DialogContent>
