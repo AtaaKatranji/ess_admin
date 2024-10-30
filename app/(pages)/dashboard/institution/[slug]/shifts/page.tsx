@@ -107,7 +107,7 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
         body: JSON.stringify(newShift),
       })
       const data = await response.json()
-      setShifts([...shifts, data])
+      setShifts(shifts.map(shift => shift._id === data._id ? data : shift))
       setNewShift({ name: '', startTime: '', endTime: '', days: [] , institutionKey:params.institutionKey })
       setIsOpen(false)
       setIsEditing(false)
