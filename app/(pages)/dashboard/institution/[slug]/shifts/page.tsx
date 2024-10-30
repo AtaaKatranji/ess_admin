@@ -364,7 +364,7 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
                       {shift.employees!.map(employee => (
                         
                         <>
-                          {console.log("Employee inside map:", employee)}
+                          {console.log("Employee inside map:", employee._id)}
                         <li key={employee._id} className="flex items-center justify-between bg-gray-100 p-2 rounded">
                           <span>{employee.name}</span>
                           <div className="flex gap-2">
