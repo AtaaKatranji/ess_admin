@@ -102,7 +102,8 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
   const updateShift = async() =>{
     if (newShift.name && newShift.startTime && newShift.endTime && newShift.days.length > 0) {
       setCurrentShift(newShift!);
-      const response = await fetch(`${BaseURL}/shift/${currentShift!._id}`, {
+      console.log(currentShift?._id)
+      const response = await fetch(`${BaseURL}/shift/${currentShift?._id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...newShift, employees: [] }),
