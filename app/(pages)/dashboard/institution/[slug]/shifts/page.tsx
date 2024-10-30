@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect} from 'react'
-import { PlusCircle, Trash2, UserPlus, ArrowRightLeft } from 'lucide-react'
+import { PlusCircle, Trash2, UserPlus, ArrowRightLeft, Edit, SaveIcon } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -46,10 +46,17 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
   const [selectedEmployee, setSelectedEmployee] = useState('Select employee')
   const [selectedShift, setSelectedShift] = useState('Select shift')
   const [isOpen, setIsOpen] = useState(false)
+  const [isEditing, setIsEditing] = useState(false);
+
+
+  const handleEditShift = (shift: Shift) => {
+    setNewShift(shift);
+    setIsEditing(true);
+    setIsOpen(true);
+  };
 
   // Fetch shifts from the API
   useEffect(() => { 
-    console.log("Key: ",params.institutionKey);
     const fetchShi= async () => {
       const data = await fetchShifts(params.institutionKey)
       setShifts(data)
@@ -76,8 +83,8 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
     }))
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const addShift = async () => {
+   
     if (newShift.name && newShift.startTime && newShift.endTime && newShift.days.length > 0) {
       const response = await fetch(`${BaseURL}/shift/`, {
         method: 'POST',
@@ -90,6 +97,23 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
       setIsOpen(false)
     }
   }
+  const updateShift = async() =>{
+    console.log(newShift);
+  }
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (isEditing) {
+      // Call your update function here
+      updateShift();
+      
+    } else {
+      // Call your add function here
+      addShift();
+    }
+    setIsOpen(false);
+    setIsEditing(false);
+   
+  };
 
   const deleteShift = async (id: string) => {
     await fetch(`${BaseURL}/shift/${id}`, { method: 'DELETE' })
@@ -128,15 +152,12 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
   }
 
   const removeEmployeeFromShift = async (shiftId: string, employeeId: string) => {
-    console.log(shiftId,employeeId);
     const response = await fetch(`${BaseURL}/shift/${shiftId}/remove`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ employeeId }),
     })
     const data = await response.json()
-    console.log(data);
-    
     setShifts(shifts.map(shift => shift._id === data._id ? data : shift))
   }
 
@@ -159,7 +180,8 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
         Add Shift
       </Button>
       </div>
-      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+       {/* Dialog for Adding and Editing Shifts */}
+       <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent className="p-6 bg-gray-100 rounded-lg">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold">Add New Shift</DialogTitle>
@@ -221,8 +243,14 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
               Cancel
             </Button>
             <Button type="submit">
-              <PlusCircle className="mr-2 h-4 w-4" />
-              Add Shift
+            {isEditing ? <div>
+              <SaveIcon className="mr-2 h-4 w-4"/>
+              "Save Changes"
+            </div>
+            : <div>
+               <PlusCircle className="mr-2 h-4 w-4" />
+              "Add Shift"
+              </div>}
             </Button>
           </DialogFooter>
         </form>
@@ -294,6 +322,14 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
                       {shift.days.join(', ')}
                     </p>
                   </div>
+                  <div>
+                  <Button
+                      variant="destructive"
+                      size="icon"
+                      onClick={() => handleEditShift(shift)}
+                    >
+                     <Edit className="h-4 w-4" />
+                  </Button>
                   <Button
                     variant="destructive"
                     size="icon"
@@ -302,6 +338,7 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
+                  </div>
                 </div>
                 <div>
                   <h4 className="text-md font-medium mb-2">Assigned Employees:</h4>
