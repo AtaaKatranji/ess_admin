@@ -1,6 +1,6 @@
 "use client";
 
-import { CalendarXIcon, Clock10, Loader2 } from 'lucide-react';
+import { CalendarXIcon, Clock10, Loader2, LucideStars, Rabbit, Turtle } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Button } from "@/components/ui/button";
@@ -42,8 +42,10 @@ type History = {
 const EmployeeDetails = () => {
   const [history, setHistory] = useState<History[]>([]);
   const [totalHours, setTotalHours] = useState<number | null>(null);
-  const [totalLateHours, setTotalLateHours] = useState<number | null>(null);
-  const [totalExtraHours, setTotalExtraHours] = useState<number | null>(null);
+  const [lateHours, setLateHours] = useState<number | null>(null);
+  const [earlyLeaveHours, setEarlyLeaveHours] = useState<number | null>(null);
+  const [earlyArrivalHours, setEarlyArrivalHours] = useState<number | null>(null);
+  const [extraAttendanceHours, setExtraAttendanceHours] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   // const [selectedRecord, setSelectedRecord] = useState<History | null>(null);
@@ -153,8 +155,10 @@ const EmployeeDetails = () => {
 
       const data = await response.json();
       console.log(data)
-      setTotalExtraHours(5);
-      setTotalLateHours(5);
+      setExtraAttendanceHours(data.extraAttendanceHours);
+      setLateHours(data.lateHours);
+      setEarlyArrivalHours(data.earlyArrivalHours);
+      setEarlyLeaveHours(data.earlyLeaveHours);
 
     } catch (error) {
       console.error('Error fetching total hours:', error);
@@ -235,7 +239,7 @@ const EmployeeDetails = () => {
       <ToastContainer />
       <div className="p-4 md:p-5 bg-gray-50 rounded-lg shadow-md">
         <div className="flex flex-col md:flex-row md:space-x-4 mb-6">
-          <div className="bg-white shadow-md rounded-lg p-4 mb-4 w-full md:w-1/2 lg:w-1/4">
+          <div className="bg-white shadow-md rounded-lg p-4 mb-4 w-full md:w-1/2 lg:w-1/5">
             <h2 className="text-base md:text-lg font-semibold flex items-center justify-between">
               <Clock10 className="h-8 w-8" />
               <div className="flex flex-col justify-end items-start">
@@ -248,27 +252,54 @@ const EmployeeDetails = () => {
               </div>
             </h2>
           </div>
-          <div className="bg-white shadow-md rounded-lg p-4 mb-4 w-full md:w-1/2 lg:w-1/4">
+          <div className="bg-white shadow-md rounded-lg p-4 mb-4 w-full md:w-1/2 lg:w-1/5">
             <h2 className="text-base md:text-lg font-semibold flex items-center justify-between">
               <Clock10 className="h-8 w-8" />
+              <div className="flex flex-col justify-end items-start">
+                <p>Early Arrive This</p>
+                <p>Month:</p>
+              </div>
+              <div className="flex flex-col items-center">
+                <span className="text-green-600 block md:inline mt-1 md:mt-0">{earlyArrivalHours}</span>
+                <span className="text-green-600 block md:inline mt-1 md:mt-0">hours</span>
+              </div>
+            </h2>
+          </div>
+          <div className="bg-white shadow-md rounded-lg p-4 mb-4 w-full md:w-1/2 lg:w-1/5">
+            <h2 className="text-base md:text-lg font-semibold flex items-center justify-between">
+              <Turtle className="h-8 w-8" />
               <div className="flex flex-col justify-end items-start">
                 <p>Late Hours This</p>
                 <p>Month:</p>
               </div>
               <div className="flex flex-col items-center">
-                <span className="text-red-600 block md:inline mt-1 md:mt-0">{totalLateHours}</span>
+                <span className="text-red-600 block md:inline mt-1 md:mt-0">{lateHours}</span>
                 <span className="text-red-600 block md:inline mt-1 md:mt-0">hours</span>
               </div>
             </h2>
-          </div><div className="bg-white shadow-md rounded-lg p-4 mb-4 w-full md:w-1/2 lg:w-1/4">
+          </div>
+          <div className="bg-white shadow-md rounded-lg p-4 mb-4 w-full md:w-1/2 lg:w-1/5">
             <h2 className="text-base md:text-lg font-semibold flex items-center justify-between">
-              <Clock10 className="h-8 w-8" />
+              <Rabbit className="h-8 w-8" />
+              <div className="flex flex-col justify-end items-start">
+                <p>Early Leave This</p>
+                <p>Month:</p>
+              </div>
+              <div className="flex flex-col items-center">
+                <span className="text-red-600 block md:inline mt-1 md:mt-0">{earlyLeaveHours}</span>
+                <span className="text-red-600 block md:inline mt-1 md:mt-0">hours</span>
+              </div>
+            </h2>
+          </div>
+          <div className="bg-white shadow-md rounded-lg p-4 mb-4 w-full md:w-1/2 lg:w-1/5">
+            <h2 className="text-base md:text-lg font-semibold flex items-center justify-between">
+              <LucideStars className="h-8 w-8" />
               <div className="flex flex-col justify-end items-start">
                 <p>Extra Hours This</p>
                 <p>Month:</p>
               </div>
               <div className="flex flex-col items-center">
-                <span className="text-green-600 block md:inline mt-1 md:mt-0">{totalExtraHours}</span>
+                <span className="text-green-600 block md:inline mt-1 md:mt-0">{extraAttendanceHours}</span>
                 <span className="text-green-600 block md:inline mt-1 md:mt-0">hours</span>
               </div>
             </h2>
