@@ -154,12 +154,14 @@ const EmployeeDetails = () => {
   
   useEffect(() => {
     // Only make the API call when startTime and endTime have been updated
+    
     const postTimeShiftData = async () => {
       if (startTime && endTime) {
         const date = new Date();
         const month = date.toLocaleString('default', { month: 'long' });
         const year = date.getFullYear();
-  
+        console.log(startTime)
+        console.log(endTime)
         try {
           const response = await fetch(`${BaseUrl}/checks/timeShift`, {
             method: 'POST',
