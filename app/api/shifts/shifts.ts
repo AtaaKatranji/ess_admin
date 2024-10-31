@@ -1,7 +1,6 @@
 const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
 
 
-
 export const fetchShifts = async (institutionKey: string) => {
   try {
     const response = await fetch(`${BaseUrl}/shift/Ins`, {
@@ -21,5 +20,26 @@ export const fetchShifts = async (institutionKey: string) => {
   } catch (error) {
     console.error('Error fetching shifts:', error);
     throw error;
+  }
+};
+
+export const fetchTimeShifts = async (userId: string) => {
+  const response = await fetch(`/api/shifts/${userId}`);
+  const data = await response.json();
+
+  if (data.success) {
+    if (data.shifts.length === 1) {
+      // Return start and end time of the single shift
+      return {
+        startTime: data.shifts[0].startTime,
+        endTime: data.shifts[0].endTime,
+      };
+    } else {
+      // Return an array of start and end times for multiple shifts
+      return data.shifts.map((shift: { startTime: string; endTime: string; }) => ({
+        startTime: shift.startTime,
+        endTime: shift.endTime,
+      }));
+    }
   }
 };

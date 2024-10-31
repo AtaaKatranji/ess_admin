@@ -30,6 +30,7 @@ import { format } from 'date-fns';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Input } from '@/components/ui/input';
+import { fetchTimeShifts } from '@/app/api/shifts/shifts';
 
 type History = {
   id: string;
@@ -49,7 +50,7 @@ const EmployeeDetails = () => {
   const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
 
   const params = useParams();
-  const { employeeId } = params;
+  const employeeId = Array.isArray(params.employeeId) ? params.employeeId[0] : params.employeeId as string;
 
   const form = useForm<History>();
 
@@ -105,17 +106,45 @@ const EmployeeDetails = () => {
     }
   };
 
-  const  fetchTotalLates = async () => {
+  // const  fetchTotalLates = async () => {
+  //   const date = new Date(); // Get the current date
+  //   const month = date.toLocaleString('default', { month: 'long' }); // Get full month name (e.g., "October")
+  //   const year = date.getFullYear(); // Get the current year (e.g., 2024)
+  //   const [startTime,endTime] = await fetchTimeShifts(employeeId);
+  //   try {
+  //     const response = await fetch(`${BaseUrl}/checks/timeShift`, {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify({ userId: employeeId, month: month, year: year,startTime:startTime,endTime:endTime }),
+  //     });
+
+  //     if (!response.ok) {
+  //       throw new Error('Failed to fetch total hours');
+  //     }
+
+  //     const data = await response.json();
+  //     setTotalLateHours(data.totalLate);
+  //     setTotalExtraHours(data.totalExtr);
+
+  //   } catch (error) {
+  //     console.error('Error fetching total hours:', error);
+  //     toast.error("Failed to fetch total hours. Please try again.");
+  //   }
+  // }
+  const  fetchTimeShift = async () => {
     const date = new Date(); // Get the current date
     const month = date.toLocaleString('default', { month: 'long' }); // Get full month name (e.g., "October")
     const year = date.getFullYear(); // Get the current year (e.g., 2024)
+    const [startTime,endTime] = await fetchTimeShifts(employeeId);
     try {
-      const response = await fetch(`${BaseUrl}/checks/calculate-lateHours`, {
+      const response = await fetch(`${BaseUrl}/checks/timeShift`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ userId: employeeId, month: month, year: year }),
+        body: JSON.stringify({ userId: employeeId, month: month, year: year,startTime:startTime,endTime:endTime }),
       });
 
       if (!response.ok) {
@@ -123,8 +152,9 @@ const EmployeeDetails = () => {
       }
 
       const data = await response.json();
-      setTotalLateHours(data.totalLate);
-      setTotalExtraHours(data.totalExtr);
+      console.log(data)
+      setTotalExtraHours(5);
+      setTotalLateHours(5);
 
     } catch (error) {
       console.error('Error fetching total hours:', error);
@@ -146,7 +176,7 @@ const EmployeeDetails = () => {
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
-      await Promise.all([fetchTotalHours(), fetchMonthlyHistory(), fetchTotalLates()]);
+      await Promise.all([fetchTotalHours(), fetchMonthlyHistory(), fetchTimeShift()]);
       setIsLoading(false);
     };
 
