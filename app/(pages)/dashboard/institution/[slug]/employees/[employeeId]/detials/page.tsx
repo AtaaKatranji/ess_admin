@@ -188,11 +188,11 @@ const EmployeeDetails = () => {
           }
           console.log(response)
           const data = await response.json();
-          console.log(data)
-          setExtraAttendanceHours(data.extraAttendanceHours);
-          setLateHours(data.lateHours);
-          setEarlyArrivalHours(data.earlyArrivalHours);
-          setEarlyLeaveHours(data.earlyLeaveHours);
+          console.log(data.data)
+          setExtraAttendanceHours(data.data.extraAttendanceHours);
+          setLateHours(data.data.lateHours);
+          setEarlyArrivalHours(data.data.earlyArrivalHours);
+          setEarlyLeaveHours(data.data.earlyLeaveHours);
         } catch (error) {
           console.error('Error fetching total hours:', error);
           toast.error("Failed to fetch total hours. Please try again.");
