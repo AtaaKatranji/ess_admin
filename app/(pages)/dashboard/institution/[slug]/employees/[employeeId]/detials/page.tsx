@@ -186,7 +186,7 @@ const EmployeeDetails = () => {
           if (!response.ok) {
             throw new Error('Failed to fetch total hours');
           }
-  
+          console.log(response)
           const data = await response.json();
           setExtraAttendanceHours(data.extraAttendanceHours);
           setLateHours(data.lateHours);
