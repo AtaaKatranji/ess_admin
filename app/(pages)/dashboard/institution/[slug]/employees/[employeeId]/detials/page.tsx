@@ -188,6 +188,7 @@ const EmployeeDetails = () => {
           }
           console.log(response)
           const data = await response.json();
+          console.log(data)
           setExtraAttendanceHours(data.extraAttendanceHours);
           setLateHours(data.lateHours);
           setEarlyArrivalHours(data.earlyArrivalHours);
