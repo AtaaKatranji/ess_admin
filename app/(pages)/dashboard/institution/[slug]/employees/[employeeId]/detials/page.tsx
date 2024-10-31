@@ -140,6 +140,9 @@ const EmployeeDetails = () => {
     const month = date.toLocaleString('default', { month: 'long' }); // Get full month name (e.g., "October")
     const year = date.getFullYear(); // Get the current year (e.g., 2024)
     const [startTime,endTime] = await fetchTimeShifts(employeeId);
+    console.log(startTime,endTime);
+    console.log( JSON.stringify({ userId: employeeId, month: month, year: year,startTime:startTime,endTime:endTime }));
+    
     try {
       const response = await fetch(`${BaseUrl}/checks/timeShift`, {
         method: 'POST',
