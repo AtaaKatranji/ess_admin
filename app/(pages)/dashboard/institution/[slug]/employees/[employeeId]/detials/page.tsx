@@ -139,56 +139,60 @@ const EmployeeDetails = () => {
   //     toast.error("Failed to fetch total hours. Please try again.");
   //   }
   // }
-  const  fetchTimeShift = async () => {
-    const date = new Date(); // Get the current date
-    const month = date.toLocaleString('default', { month: 'long' }); // Get full month name (e.g., "October")
-    const year = date.getFullYear(); // Get the current year (e.g., 2024)
+  const fetchTimeShift = async () => { 
     const result = await fetchTimeShifts(employeeId);
+  
     if (Array.isArray(result)) {
-      // Multiple shifts
-      result.forEach((shift) => {
-        console.log("Start Time:", shift.startTime);
-        console.log("End Time:", shift.endTime);
-        setStartTime(shift.startTime)
-        setEndTime(shift.endTime)
-      });
+      const firstShift = result[0]; // Adjust to the first shift or any specific shift you need
+      setStartTime(firstShift.startTime);
+      setEndTime(firstShift.endTime);
     } else if (result) {
-      // Single shift
-      const { startTime, endTime } = result;
-      console.log("Start Time:", startTime);
-      console.log("End Time:", endTime);
-      setStartTime(startTime)
-        setEndTime(endTime)
+      setStartTime(result.startTime);
+      setEndTime(result.endTime);
     }
-    console.log("2",startTime,endTime);
-    //console.log( JSON.stringify({ userId: employeeId, month: month, year: year,startTime:startTime,endTime:endTime }));
-    if (startTime != '' && endTime !='') {
-    try {
-      const response = await fetch(`${BaseUrl}/checks/timeShift`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ userId: employeeId, month: month, year: year,startTime:startTime,endTime:endTime }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch total hours');
+  };
+  
+  useEffect(() => {
+    // Only make the API call when startTime and endTime have been updated
+    const postTimeShiftData = async () => {
+      if (startTime && endTime) {
+        const date = new Date();
+        const month = date.toLocaleString('default', { month: 'long' });
+        const year = date.getFullYear();
+  
+        try {
+          const response = await fetch(`${BaseUrl}/checks/timeShift`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              userId: employeeId,
+              month,
+              year,
+              startTime,
+              endTime,
+            }),
+          });
+  
+          if (!response.ok) {
+            throw new Error('Failed to fetch total hours');
+          }
+  
+          const data = await response.json();
+          setExtraAttendanceHours(data.extraAttendanceHours);
+          setLateHours(data.lateHours);
+          setEarlyArrivalHours(data.earlyArrivalHours);
+          setEarlyLeaveHours(data.earlyLeaveHours);
+        } catch (error) {
+          console.error('Error fetching total hours:', error);
+          toast.error("Failed to fetch total hours. Please try again.");
+        }
       }
-
-      const data = await response.json();
-      console.log(data)
-      setExtraAttendanceHours(data.extraAttendanceHours);
-      setLateHours(data.lateHours);
-      setEarlyArrivalHours(data.earlyArrivalHours);
-      setEarlyLeaveHours(data.earlyLeaveHours);
-
-    } catch (error) {
-      console.error('Error fetching total hours:', error);
-      toast.error("Failed to fetch total hours. Please try again.");
-    }
-  }
-  }
+    };
+  
+    postTimeShiftData();
+  }, [startTime, endTime]); 
   // const updateHistoryWithFetchedData = async (data: { id: any; checkDate?: string; checkInTime?: string; checkOutTime?: string | null; }) => {
   //   try {
   //     // Fetch the monthly history
