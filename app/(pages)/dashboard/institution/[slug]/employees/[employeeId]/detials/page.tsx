@@ -161,7 +161,13 @@ const EmployeeDetails = () => {
         const month = date.toLocaleString('default', { month: 'long' });
         const year = date.getFullYear();
         console.log(startTime)
-        console.log(endTime)
+        console.log(JSON.stringify({
+          userId: employeeId,
+          month,
+          year,
+          startTime,
+          endTime,
+        }),)
         try {
           const response = await fetch(`${BaseUrl}/checks/timeShift`, {
             method: 'POST',
