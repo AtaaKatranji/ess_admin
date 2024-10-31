@@ -162,7 +162,7 @@ const EmployeeDetails = () => {
     }
     console.log("2",startTime,endTime);
     //console.log( JSON.stringify({ userId: employeeId, month: month, year: year,startTime:startTime,endTime:endTime }));
-    if (startTime && endTime) {
+    if (startTime != '' && endTime !='') {
     try {
       const response = await fetch(`${BaseUrl}/checks/timeShift`, {
         method: 'POST',
