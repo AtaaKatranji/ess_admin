@@ -32,7 +32,7 @@ export const fetchTimeShifts = async (userId: string) => {
     body: JSON.stringify({ userId }), // Wrap in an object
   });
   const data = await response.json();
-
+  console.log(data)
   if (data.success) {
     if (data.shifts.length === 1) {
       // Return start and end time of the single shift
