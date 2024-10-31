@@ -23,13 +23,13 @@ export const fetchShifts = async (institutionKey: string) => {
   }
 };
 
-export const fetchTimeShifts = async (userId: string) => {
+export const fetchTimeShifts = async (employeeId: string) => {
   const response = await fetch(`${BaseUrl}/shift/time`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ userId }), // Wrap in an object
+    body: JSON.stringify({ employeeId }), // Wrap in an object
   });
   const data = await response.json();
   console.log(data)
