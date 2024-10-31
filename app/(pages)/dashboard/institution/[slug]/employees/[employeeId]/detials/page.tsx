@@ -87,6 +87,7 @@ const EmployeeDetails = () => {
     const date = new Date(); // Get the current date
     const month = date.toLocaleString('default', { month: 'long' }); // Get full month name (e.g., "October")
     const year = date.getFullYear(); // Get the current year (e.g., 2024)
+    console.log(year)
     try {
       const response = await fetch(`${BaseUrl}/checks/calculate-hours`, {
         method: 'POST',
@@ -101,6 +102,7 @@ const EmployeeDetails = () => {
       }
 
       const data = await response.json();
+      console.log(data)
       setTotalHours(data.total.totalHours);
     } catch (error) {
       console.error('Error fetching total hours:', error);
@@ -140,8 +142,8 @@ const EmployeeDetails = () => {
     const month = date.toLocaleString('default', { month: 'long' }); // Get full month name (e.g., "October")
     const year = date.getFullYear(); // Get the current year (e.g., 2024)
     const [startTime,endTime] = await fetchTimeShifts(employeeId);
-    console.log(startTime,endTime);
-    console.log( JSON.stringify({ userId: employeeId, month: month, year: year,startTime:startTime,endTime:endTime }));
+    console.log("2",startTime,endTime);
+    //console.log( JSON.stringify({ userId: employeeId, month: month, year: year,startTime:startTime,endTime:endTime }));
     
     try {
       const response = await fetch(`${BaseUrl}/checks/timeShift`, {
