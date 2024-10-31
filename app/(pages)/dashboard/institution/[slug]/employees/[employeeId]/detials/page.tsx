@@ -48,6 +48,8 @@ const EmployeeDetails = () => {
   const [extraAttendanceHours, setExtraAttendanceHours] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [startTime,setStartTime] = useState('');
+  const [endTime,setEndTime] = useState('');
   // const [selectedRecord, setSelectedRecord] = useState<History | null>(null);
   const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
 
@@ -87,7 +89,7 @@ const EmployeeDetails = () => {
     const date = new Date(); // Get the current date
     const month = date.toLocaleString('default', { month: 'long' }); // Get full month name (e.g., "October")
     const year = date.getFullYear(); // Get the current year (e.g., 2024)
-    console.log(year)
+    
     try {
       const response = await fetch(`${BaseUrl}/checks/calculate-hours`, {
         method: 'POST',
@@ -102,7 +104,7 @@ const EmployeeDetails = () => {
       }
 
       const data = await response.json();
-      console.log(data)
+      
       setTotalHours(data.total.totalHours);
     } catch (error) {
       console.error('Error fetching total hours:', error);
@@ -141,7 +143,21 @@ const EmployeeDetails = () => {
     const date = new Date(); // Get the current date
     const month = date.toLocaleString('default', { month: 'long' }); // Get full month name (e.g., "October")
     const year = date.getFullYear(); // Get the current year (e.g., 2024)
-    const [startTime,endTime] = await fetchTimeShifts(employeeId);
+    const result = await fetchTimeShifts(employeeId);
+    if (Array.isArray(result)) {
+      // Multiple shifts
+      result.forEach((shift) => {
+        console.log("Start Time:", shift.startTime);
+        console.log("End Time:", shift.endTime);
+        setStartTime(shift.startTime)
+        setEndTime(shift.endTime)
+      });
+    } else if (result) {
+      // Single shift
+      const { startTime, endTime } = result;
+      console.log("Start Time:", startTime);
+      console.log("End Time:", endTime);
+    }
     console.log("2",startTime,endTime);
     //console.log( JSON.stringify({ userId: employeeId, month: month, year: year,startTime:startTime,endTime:endTime }));
     
