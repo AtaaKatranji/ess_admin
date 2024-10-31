@@ -157,6 +157,8 @@ const EmployeeDetails = () => {
       const { startTime, endTime } = result;
       console.log("Start Time:", startTime);
       console.log("End Time:", endTime);
+      setStartTime(startTime)
+      setEndTime(endTime)
     }
     console.log("2",startTime,endTime);
     //console.log( JSON.stringify({ userId: employeeId, month: month, year: year,startTime:startTime,endTime:endTime }));
