@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form"
 import { format } from "date-fns"
 import { toast, ToastContainer } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
-import { CalendarIcon, Clock10Icon, LucideStars, Rabbit, Turtle, Search, Loader2 } from "lucide-react"
+import { CalendarIcon, Clock10Icon, LucideStars, Rabbit, Turtle, Search, Loader2, Sunrise } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
@@ -55,6 +55,7 @@ const EmployeeDetails = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [startTime, setStartTime] = useState("")
   const [endTime, setEndTime] = useState("")
+  const [searchTerm, setSearchTerm] = useState("") // Added searchTerm state
 
   const BaseUrl = process.env.NEXT_PUBLIC_API_URL
 
@@ -235,7 +236,7 @@ const EmployeeDetails = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Early Arrivals</CardTitle>
-            <Clock10Icon className="h-4 w-4 text-muted-foreground" />
+            <Sunrise className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{earlyArrivalHours} hours</div>
@@ -284,29 +285,44 @@ const EmployeeDetails = () => {
             <h2 className="text-xl font-semibold">Attendance Records</h2>
             <div className="relative">
               <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input placeholder="Search records" className="pl-8" />
+              <Input 
+                placeholder="Search records" 
+                className="pl-8"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
             </div>
           </div>
           <Card>
             <ScrollArea className="h-[400px]">
               <div className="p-4">
-                {history.map((record) => (
-                  <div
-                    key={record.id}
-                    className="flex justify-between items-center py-2 border-b last:border-b-0 cursor-pointer hover:bg-accent"
-                    onClick={() => openEditDialog(record)}
-                  >
-                    <div>
-                      <p className="font-medium">{format(new Date(record.checkDate), "MMMM d, yyyy")}</p>
-                      <p className="text-sm text-muted-foreground">
-                        Check-in: {record.checkInTime}, Check-out: {record.checkOutTime || "Not yet checked out"}
-                      </p>
+                {history
+                  .filter((record) => {
+                    const searchLower = searchTerm.toLowerCase()
+                    const date = format(new Date(record.checkDate), "MMMM d, yyyy").toLowerCase()
+                    const checkIn = record.checkInTime.toLowerCase()
+                    const checkOut = record.checkOutTime?.toLowerCase() || ""
+                    return date.includes(searchLower) || 
+                           checkIn.includes(searchLower) || 
+                           checkOut.includes(searchLower)
+                  })
+                  .map((record) => (
+                    <div
+                      key={record.id}
+                      className="flex justify-between items-center py-2 border-b last:border-b-0 cursor-pointer hover:bg-accent"
+                      onClick={() => openEditDialog(record)}
+                    >
+                      <div>
+                        <p className="font-medium">{format(new Date(record.checkDate), "MMMM d, yyyy")}</p>
+                        <p className="text-sm text-muted-foreground">
+                          Check-in: {record.checkInTime}, Check-out: {record.checkOutTime || "Not yet checked out"}
+                        </p>
+                      </div>
+                      <Button variant="ghost" size="sm">
+                        Edit
+                      </Button>
                     </div>
-                    <Button variant="ghost" size="sm">
-                      Edit
-                    </Button>
-                  </div>
-                ))}
+                  ))}
               </div>
             </ScrollArea>
           </Card>
