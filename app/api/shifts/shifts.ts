@@ -24,7 +24,13 @@ export const fetchShifts = async (institutionKey: string) => {
 };
 
 export const fetchTimeShifts = async (userId: string) => {
-  const response = await fetch(`/api/shifts/${userId}`);
+  const response = await fetch(`${BaseUrl}/shift/time`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ userId }), // Wrap in an object
+  });
   const data = await response.json();
 
   if (data.success) {
