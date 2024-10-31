@@ -160,8 +160,8 @@ const EmployeeDetails = () => {
       setStartTime(startTime)
       setEndTime(endTime)
     }
-    console.log("2",startTime,endTime);
-    //console.log( JSON.stringify({ userId: employeeId, month: month, year: year,startTime:startTime,endTime:endTime }));
+    console.log("9",startTime,endTime);
+    console.log( JSON.stringify({ userId: employeeId, month: month, year: year,startTime:startTime,endTime:endTime }));
     
     try {
       const response = await fetch(`${BaseUrl}/checks/timeShift`, {
