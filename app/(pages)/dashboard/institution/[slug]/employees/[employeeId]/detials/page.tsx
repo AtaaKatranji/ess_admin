@@ -158,11 +158,11 @@ const EmployeeDetails = () => {
       console.log("Start Time:", startTime);
       console.log("End Time:", endTime);
       setStartTime(startTime)
-      setEndTime(endTime)
+        setEndTime(endTime)
     }
-    console.log("9",startTime,endTime);
-    console.log( JSON.stringify({ userId: employeeId, month: month, year: year,startTime:startTime,endTime:endTime }));
-    
+    console.log("2",startTime,endTime);
+    //console.log( JSON.stringify({ userId: employeeId, month: month, year: year,startTime:startTime,endTime:endTime }));
+    if (startTime && endTime) {
     try {
       const response = await fetch(`${BaseUrl}/checks/timeShift`, {
         method: 'POST',
@@ -187,6 +187,7 @@ const EmployeeDetails = () => {
       console.error('Error fetching total hours:', error);
       toast.error("Failed to fetch total hours. Please try again.");
     }
+  }
   }
   // const updateHistoryWithFetchedData = async (data: { id: any; checkDate?: string; checkInTime?: string; checkOutTime?: string | null; }) => {
   //   try {
