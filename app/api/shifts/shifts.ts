@@ -36,13 +36,16 @@ export const fetchTimeShifts = async (userId: string) => {
   if (data.success) {
     if (data.shifts.length === 1) {
       // Return start and end time of the single shift
+      console.log(data.shifts[0].startTime,data.shifts[0].endTime)
       return {
         startTime: data.shifts[0].startTime,
         endTime: data.shifts[0].endTime,
       };
     } else {
       // Return an array of start and end times for multiple shifts
+      console.log(5)
       return data.shifts.map((shift: { startTime: string; endTime: string; }) => ({
+        
         startTime: shift.startTime,
         endTime: shift.endTime,
       }));
