@@ -3,11 +3,11 @@
 import { useState, useEffect } from "react"
 import { useParams } from "next/navigation"
 import { useForm } from "react-hook-form"
-import { format } from "date-fns"
+import { format, startOfMonth, endOfMonth, subMonths } from "date-fns"
 import { toast, ToastContainer } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
-import { CalendarIcon, Clock10Icon, LucideStars, Rabbit, Turtle, Search, Loader2, Sunrise } from "lucide-react"
-
+import { CalendarIcon, ClockIcon, Star, Rabbit, Turtle, Search, Loader2, Download } from "lucide-react"
+import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip } from "recharts";
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -34,6 +34,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+//import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 import { fetchTimeShifts } from "@/app/api/shifts/shifts"
 
@@ -44,8 +45,22 @@ type History = {
   checkOutTime: string | null
 }
 
+type MonthlySummary = {
+  month: string
+  totalAttendance: number
+  absences: number
+  tardies: number
+}
+type Comp = {
+  name: string
+  attendance: number
+  absences: number
+  tardies: number
+}
+
 const EmployeeDetails = () => {
   const [history, setHistory] = useState<History[]>([])
+  const [filteredHistory, setFilteredHistory] = useState<History[]>([])
   const [totalHours, setTotalHours] = useState<number | null>(null)
   const [lateHours, setLateHours] = useState<number | null>(null)
   const [earlyLeaveHours, setEarlyLeaveHours] = useState<number | null>(null)
@@ -55,23 +70,30 @@ const EmployeeDetails = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [startTime, setStartTime] = useState("")
   const [endTime, setEndTime] = useState("")
-  const [searchTerm, setSearchTerm] = useState("") // Added searchTerm state
+  const [searchTerm, setSearchTerm] = useState("")
+  const [selectedMonth, setSelectedMonth] = useState<Date>(new Date())
+  const [currentPage, setCurrentPage] = useState(1)
+  const [monthlySummary, setMonthlySummary] = useState<MonthlySummary[]>([])
+  const [comparisonData, setComparisonData] = useState<Comp[]>([])
 
   const BaseUrl = process.env.NEXT_PUBLIC_API_URL
+  const itemsPerPage = 10
 
   const params = useParams()
   const employeeId = Array.isArray(params.employeeId) ? params.employeeId[0] : params.employeeId as string
 
   const form = useForm<History>()
 
-  const fetchMonthlyHistory = async () => {
+  const fetchMonthlyHistory = async (date: Date) => {
+    const startDate = startOfMonth(date)
+    const endDate = endOfMonth(date)
     try {
-      const response = await fetch(`${BaseUrl}/checks/monthlyHistory`, {
+      const response = await fetch(`${BaseUrl}/checks/monthlyHistoryFront`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ employeeId: employeeId }),
+        body: JSON.stringify({ employeeId, startDate, endDate }),
       })
 
       if (!response.ok) {
@@ -85,14 +107,14 @@ const EmployeeDetails = () => {
       })
 
       setHistory(sortedHistory)
+      setFilteredHistory(sortedHistory)
     } catch (error) {
       console.error("Error fetching monthly history:", error)
       toast.error("Failed to fetch monthly history. Please try again.")
     }
   }
 
-  const fetchTotalHours = async () => {
-    const date = new Date()
+  const fetchTotalHours = async (date: Date) => {
     const month = date.toLocaleString("default", { month: "long" })
     const year = date.getFullYear()
 
@@ -102,7 +124,7 @@ const EmployeeDetails = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ userId: employeeId, month: month, year: year }),
+        body: JSON.stringify({ userId: employeeId, month, year }),
       })
 
       if (!response.ok) {
@@ -131,10 +153,32 @@ const EmployeeDetails = () => {
     }
   }
 
+  const fetchMonthlySummary = async () => {
+    // This would be an API call in a real application
+    // For now, we'll generate mock data
+    const summary = []
+    for (let i = 0; i < 6; i++) {
+      const date = subMonths(new Date(), i)
+      summary.push({
+        month: format(date, "MMMM yyyy"),
+        totalAttendance: Math.floor(Math.random() * 30) + 15,
+        absences: Math.floor(Math.random() * 5),
+        tardies: Math.floor(Math.random() * 10),
+      })
+    }
+    setMonthlySummary(summary)
+    setComparisonData(summary.map(s => ({
+      name: s.month,
+      attendance: s.totalAttendance,
+      absences: s.absences,
+      tardies: s.tardies,
+    })))
+  }
+
   useEffect(() => {
     const postTimeShiftData = async () => {
       if (startTime && endTime) {
-        const date = new Date()
+        const date = selectedMonth
         const month = date.toLocaleString("default", { month: "long" })
         const year = date.getFullYear()
 
@@ -170,17 +214,36 @@ const EmployeeDetails = () => {
     }
 
     postTimeShiftData()
-  }, [startTime, endTime])
+  }, [startTime, endTime, selectedMonth, employeeId])
 
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true)
-      await Promise.all([fetchTotalHours(), fetchMonthlyHistory(), fetchTimeShift()])
+      await Promise.all([
+        fetchTotalHours(selectedMonth),
+        fetchMonthlyHistory(selectedMonth),
+        fetchTimeShift(),
+        fetchMonthlySummary(),
+      ])
       setIsLoading(false)
     }
 
     fetchData()
-  }, [employeeId])
+  }, [employeeId, selectedMonth])
+
+  useEffect(() => {
+    const filtered = history.filter((record) => {
+      const searchLower = searchTerm.toLowerCase()
+      const date = format(new Date(record.checkDate), "MMMM d, yyyy").toLowerCase()
+      const checkIn = record.checkInTime.toLowerCase()
+      const checkOut = record.checkOutTime?.toLowerCase() || ""
+      return date.includes(searchLower) || 
+             checkIn.includes(searchLower) || 
+             checkOut.includes(searchLower)
+    })
+    setFilteredHistory(filtered)
+    setCurrentPage(1)
+  }, [searchTerm, history])
 
   const openEditDialog = (record: History) => {
     form.reset(record)
@@ -201,13 +264,19 @@ const EmployeeDetails = () => {
         throw new Error("Failed to update record")
       }
 
-      fetchMonthlyHistory()
+      fetchMonthlyHistory(selectedMonth)
       toast.success("Updated successfully")
       setIsDialogOpen(false)
     } catch (error) {
       console.error("Error updating record:", error)
       toast.error("Failed to update record. Please try again.")
     }
+  }
+
+  const exportMonthlyReport = () => {
+    // This would generate and download a report in a real application
+    // For now, we'll just show a toast message
+    toast.info("Exporting monthly report...")
   }
 
   if (isLoading) {
@@ -221,12 +290,36 @@ const EmployeeDetails = () => {
   return (
     <div className="container mx-auto p-4 space-y-4">
       <ToastContainer />
-      <h1 className="text-2xl font-bold">Employee Attendance Dashboard</h1>
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold">Employee Attendance Dashboard</h1>
+        <div className="flex items-center space-x-2">
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline">
+                {format(selectedMonth, "MMMM yyyy")}
+                <CalendarIcon className="ml-2 h-4 w-4" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="end">
+              <Calendar
+                mode="single"
+                selected={selectedMonth}
+                onSelect={(date) => date && setSelectedMonth(date)}
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
+          <Button onClick={exportMonthlyReport}>
+            <Download className="mr-2 h-4 w-4" />
+            Export Report
+          </Button>
+        </div>
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Hours</CardTitle>
-            <Clock10Icon className="h-4 w-4 text-muted-foreground" />
+            <ClockIcon className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{totalHours} hours</div>
@@ -236,7 +329,7 @@ const EmployeeDetails = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Early Arrivals</CardTitle>
-            <Sunrise className="h-4 w-4 text-muted-foreground" />
+            <ClockIcon className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{earlyArrivalHours} hours</div>
@@ -266,7 +359,7 @@ const EmployeeDetails = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Extra Hours</CardTitle>
-            <LucideStars className="h-4 w-4 text-muted-foreground" />
+            <Star className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{extraAttendanceHours} hours</div>
@@ -274,6 +367,54 @@ const EmployeeDetails = () => {
           </CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Attendance Comparison</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={comparisonData}>
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="attendance" fill="#8884d8" />
+              <Bar dataKey="absences" fill="#82ca9d" />
+              <Bar  dataKey="tardies" fill="#ffc658" />
+            </BarChart>
+          </ResponsiveContainer>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Monthly Summary</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ScrollArea className="h-[300px]">
+            <table className="w-full">
+              <thead>
+                <tr>
+                  <th className="text-left">Month</th>
+                  <th className="text-left">Total Attendance</th>
+                  <th className="text-left">Absences</th>
+                  <th className="text-left">Tardies</th>
+                </tr>
+              </thead>
+              <tbody>
+                {monthlySummary.map((summary, index) => (
+                  <tr key={index}>
+                    <td>{summary.month}</td>
+                    <td>{summary.totalAttendance}</td>
+                    <td>{summary.absences}</td>
+                    <td>{summary.tardies}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </ScrollArea>
+        </CardContent>
+      </Card>
 
       <Tabs defaultValue="attendance" className="space-y-4">
         <TabsList>
@@ -296,16 +437,8 @@ const EmployeeDetails = () => {
           <Card>
             <ScrollArea className="h-[400px]">
               <div className="p-4">
-                {history
-                  .filter((record) => {
-                    const searchLower = searchTerm.toLowerCase()
-                    const date = format(new Date(record.checkDate), "MMMM d, yyyy").toLowerCase()
-                    const checkIn = record.checkInTime.toLowerCase()
-                    const checkOut = record.checkOutTime?.toLowerCase() || ""
-                    return date.includes(searchLower) || 
-                           checkIn.includes(searchLower) || 
-                           checkOut.includes(searchLower)
-                  })
+                {filteredHistory
+                  .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
                   .map((record) => (
                     <div
                       key={record.id}
@@ -326,6 +459,21 @@ const EmployeeDetails = () => {
               </div>
             </ScrollArea>
           </Card>
+          <div className="flex justify-between items-center">
+            <Button
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+            >
+              Previous
+            </Button>
+            <span>Page {currentPage} of {Math.ceil(filteredHistory.length / itemsPerPage)}</span>
+            <Button
+              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, Math.ceil(filteredHistory.length / itemsPerPage)))}
+              disabled={currentPage === Math.ceil(filteredHistory.length / itemsPerPage)}
+            >
+              Next
+            </Button>
+          </div>
         </TabsContent>
         <TabsContent value="leave">
           <Card>
