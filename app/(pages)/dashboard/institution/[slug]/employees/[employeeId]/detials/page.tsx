@@ -105,7 +105,7 @@ const EmployeeDetails = () => {
 
       const data = await response.json()
 
-      const sortedHistory = data.tempA.sort((a: History, b: History) => {
+      const sortedHistory = data.sort((a: History, b: History) => {
         return new Date(b.checkDate).getTime() - new Date(a.checkDate).getTime()
       })
 
