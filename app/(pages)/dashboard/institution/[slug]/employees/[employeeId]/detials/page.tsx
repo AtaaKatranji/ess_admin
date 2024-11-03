@@ -105,12 +105,12 @@ const EmployeeDetails = () => {
 
       const data = await response.json()
 
-      const sortedHistory = data.sort((a: History, b: History) => {
-        return new Date(b.checkDate).getTime() - new Date(a.checkDate).getTime()
-      })
+      // const sortedHistory = data.sort((a: History, b: History) => {
+      //   return new Date(b.checkDate).getTime() - new Date(a.checkDate).getTime()
+      // })
 
-      setHistory(sortedHistory)
-      setFilteredHistory(sortedHistory)
+      setHistory(data)
+      setFilteredHistory(data)
     } catch (error) {
       console.error("Error fetching monthly history:", error)
       toast.error("Failed to fetch monthly history. Please try again.")
