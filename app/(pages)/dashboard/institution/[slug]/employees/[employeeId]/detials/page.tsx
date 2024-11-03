@@ -86,15 +86,16 @@ const EmployeeDetails = () => {
   const form = useForm<History>()
 
   const fetchMonthlyHistory = async (date: Date) => {
-    const startDate = startOfMonth(date)
-    const endDate = endOfMonth(date)
+    // const startDate = startOfMonth(date)
+    // const endDate = endOfMonth(date)
+    const month = date;
     try {
       const response = await fetch(`${BaseUrl}/checks/monthlyHistoryFront`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ employeeId, startDate, endDate }),
+        body: JSON.stringify({ employeeId, month }),
       })
 
       if (!response.ok) {
