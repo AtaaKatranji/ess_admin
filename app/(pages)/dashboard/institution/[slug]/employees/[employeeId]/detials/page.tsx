@@ -37,6 +37,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 //import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 import { fetchTimeShifts } from "@/app/api/shifts/shifts"
+import  exportMonthlyReportPDF  from "@/app/components/ExportPDF"
 
 type History = {
   id: string
@@ -147,6 +148,7 @@ const EmployeeDetails = () => {
       const firstShift = result[0]
       setStartTime(firstShift.startTime)
       setEndTime(firstShift.endTime)
+      
     } else if (result) {
       setStartTime(result.startTime)
       setEndTime(result.endTime)
@@ -273,8 +275,25 @@ const EmployeeDetails = () => {
     }
   }
 
-  const exportMonthlyReport = () => {
+  const exportMonthlyReport = async () => {
+    const response = await fetch(`${BaseUrl}/checks/summry`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        employeeId: employeeId,
+        date: selectedMonth
+      }),
+    })
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch employees');
+    }
+
+    const data = await response.json();
     // This would generate and download a report in a real application
+    exportMonthlyReportPDF(data);
     // For now, we'll just show a toast message
     toast.info("Exporting monthly report...")
   }
@@ -367,7 +386,7 @@ const EmployeeDetails = () => {
           </CardContent>
         </Card>
       </div>
-
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       <Card>
         <CardHeader>
           <CardTitle>Attendance Comparison</CardTitle>
@@ -415,7 +434,7 @@ const EmployeeDetails = () => {
           </ScrollArea>
         </CardContent>
       </Card>
-
+</div>
       <Tabs defaultValue="attendance" className="space-y-4">
         <TabsList>
           <TabsTrigger value="attendance">Attendance Records</TabsTrigger>
