@@ -276,6 +276,7 @@ const EmployeeDetails = () => {
   }
 
   const exportMonthlyReport = async () => {
+    console.log(selectedMonth)
     const response = await fetch(`${BaseUrl}/checks/summry`, {
       method: 'POST',
       headers: {
