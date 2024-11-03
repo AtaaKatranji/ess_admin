@@ -109,8 +109,8 @@ const EmployeeDetails = () => {
       //   return new Date(b.checkDate).getTime() - new Date(a.checkDate).getTime()
       // })
 
-      setHistory(data)
-      setFilteredHistory(data)
+      setHistory(data.data)
+      setFilteredHistory(data.data)
     } catch (error) {
       console.error("Error fetching monthly history:", error)
       toast.error("Failed to fetch monthly history. Please try again.")
