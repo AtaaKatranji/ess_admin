@@ -118,7 +118,7 @@ const EmployeeDetails = () => {
   }
 
   const fetchTotalHours = async (date: Date) => {
-    const month = date.toLocaleString("default", { month: "long" })
+    const month = date
 
     try {
       const response = await fetch(`${BaseUrl}/checks/calculate-hours`, {
