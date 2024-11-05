@@ -119,7 +119,6 @@ const EmployeeDetails = () => {
 
   const fetchTotalHours = async (date: Date) => {
     const month = date.toLocaleString("default", { month: "long" })
-    const year = date.getFullYear()
 
     try {
       const response = await fetch(`${BaseUrl}/checks/calculate-hours`, {
@@ -127,7 +126,7 @@ const EmployeeDetails = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ userId: employeeId, month, year }),
+        body: JSON.stringify({ userId: employeeId, month }),
       })
 
       if (!response.ok) {
