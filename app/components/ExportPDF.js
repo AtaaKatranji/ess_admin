@@ -26,13 +26,29 @@ const exportMonthlyReportPDF = (data) => {
   });
 
   // Adding details section for each day
-  const checkInOutData = data.details.map(entry => [
-    entry.date.slice(0, 10), // Extracting date in YYYY-MM-DD format
-    entry.checkIn,
-    entry.checkOut,
-    entry.dailyHours
-  ]);
-
+  const checkInOutData = data.details.map(entry => {
+    // Create a new Date object from the entry date
+    const date = new Date(entry.date);
+    
+    // Extract the year, month, and day
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1); // Months are zero-based
+    const day = String(date.getDate()); // Get the day of the month
+    
+    // Get the abbreviated day name (e.g., Mon, Tue)
+    const options = { weekday: 'short' };
+    const dayName = new Intl.DateTimeFormat('en-US', options).format(date);
+    
+    // Format the date as "YYYY-MM-D: Day"
+    const formattedDate = `${year}-${month}-${day}: ${dayName}`;
+    
+    return [
+        formattedDate,   // Use the formatted date
+        entry.checkIn,
+        entry.checkOut,
+        entry.dailyHours
+    ];
+});
   doc.autoTable({
     head: [["Date", "Check-In", "Check-Out", "Daily Hours"]],
     body: checkInOutData,
