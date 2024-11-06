@@ -169,7 +169,7 @@ interface MonthlyAttendanceResponse {
   const fetchMonthlySummary = async (employeeId: string) => {
     try {
         // Make an API call to fetch monthly attendance summary
-        const response = await fetch(`/summaryLastTwoMonth/${employeeId}`);
+        const response = await fetch(`${BaseUrl}/checks/summaryLastTwoMonth/${employeeId}`);
         
         // Check if the response is okay
         if (!response.ok) {
