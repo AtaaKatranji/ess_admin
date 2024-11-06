@@ -1,257 +1,205 @@
-"use client"
+'use client'
 
-import { useState, useEffect } from "react"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { useState } from 'react'
 import { Button } from "@/components/ui/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
-import { Turtle, Rabbit, Search } from "lucide-react"
+import { Label } from "@/components/ui/label"
+import { Switch } from "@/components/ui/switch"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { ChevronDown, Download, Search } from 'lucide-react'
 
-
-const BaseURL = process.env.NEXT_PUBLIC_API_URL
+// types/AttendanceRecord.ts
 interface Employee {
-  id: string;
+  id: number;
   name: string;
-  position: string;
-  hourlyRate: number;
-  checks: Check[];
-  leaves: Leave[];
-  payroll?: Payroll;
-}
-
-interface Check {
-  date: string;
+  loggedIn: boolean;
   checkIn: string;
   checkOut: string;
-}
-
-interface Leave {
-  date: string;
-  type: string;
-}
-
-interface Payroll {
   totalHours: number;
-  totalPay: number;
 }
 
-const statusColors: Record<string, string> = {
-  present: "bg-green-500",
-  absent: "bg-red-500",
-  "half-day": "bg-yellow-500",
-  "week-off": "bg-gray-500",
-  holiday: "bg-blue-500",
-  "paid-leave": "bg-green-700",
-  "unpaid-leave": "bg-purple-500",
-}
+// Mock data
+const shifts = ['Morning Shift', 'Afternoon Shift', 'Night Shift']
+const employees = [
+  { id: 1, name: 'John Doe', loggedIn: true, checkIn: '09:00', checkOut: '17:00', totalHours: 8 },
+  { id: 2, name: 'Jane Smith', loggedIn: false, checkIn: '09:15', checkOut: '17:15', totalHours: 8 },
+  { id: 3, name: 'Alice Johnson', loggedIn: true, checkIn: '08:55', checkOut: '17:05', totalHours: 8.17 },
+  // Add more employees as needed
+]
 
-const StatusCircle = ({ status }: { status: string }) => (
-  <div className={`w-3 h-3 rounded-full ${statusColors[status]} inline-block mr-2`}></div>
-)
-
-const CheckTime = ({ time, isLate, isEarly }: { time: string; isLate: boolean; isEarly: boolean }) => (
-  <div className="flex items-center">
-    {isLate && <Turtle className="w-4 h-4 mr-1 text-orange-500" />}
-    {isEarly && <Rabbit className="w-4 h-4 mr-1 text-blue-500" />}
-    {time}
-  </div>
-)
-
-export default function AttendanceSystem() {
-  const [employees, setEmployees] = useState<Employee[]>([])
-  const [currentPage, setCurrentPage] = useState(1)
-  const [selectedDate, setSelectedDate] = useState("all")
-  const [searchQuery, setSearchQuery] = useState("")
-  const [filteredEmployees, setFilteredEmployees] = useState<Employee[]>([])
-  const itemsPerPage = 10
-  const startDate = new Date()
-  const endDate = new Date()
-  console.log(startDate,endDate);
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response =  await fetch(`${BaseURL}/attendance/overView?startDate=${startDate}&endDate=${endDate}`);
-        const data: Employee[] = await response.json()
-        setEmployees(data)
-      } catch (error) {
-        console.error('Error fetching data:', error)
-      }
-    }
-    fetchData()
-  }, [])
-
-  useEffect(() => {
-    const filtered = employees.filter(e => 
-      (selectedDate === "all" || e.checks.some(check => check.date.startsWith(selectedDate))) &&
-      e.name.toLowerCase().includes(searchQuery.toLowerCase())
-    )
-    setFilteredEmployees(filtered)
-    setCurrentPage(1)
-  }, [selectedDate, searchQuery, employees])
-
-  const uniqueDates = ["all", ...Array.from(new Set(employees.flatMap(e => 
-    e.checks.map(check => check.date ? check.date.split('T')[0] : '')
-  )))].filter(Boolean).sort();
-
-  const totalPages = Math.ceil(filteredEmployees.length / itemsPerPage)
-
-  const paginatedEmployees = filteredEmployees.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  )
-
-  const getEmployeeStatus = (employee: Employee, date: string): string => {
-    const check = employee.checks.find(c => c.date && c.date.startsWith(date));
-    if (check) {
-      return "present"
-    }
-    const leave = employee.leaves.find(l => l.date && l.date.startsWith(date));
-    if (leave) {
-      return leave.type
-    }
-    return "absent"
-  }
-
-  const formatTime = (dateString: string): string => {
-    return new Date(dateString).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-  }
+export default function Component() {
+  const [selectedShift, setSelectedShift] = useState(shifts[0])
+  const [viewMode, setViewMode] = useState('daily')
 
   return (
-    <Tabs defaultValue="overview" className="w-full">
-      <TabsList className="grid w-full grid-cols-2">
-        <TabsTrigger value="overview">Overview</TabsTrigger>
-        <TabsTrigger value="payroll">Payroll</TabsTrigger>
-      </TabsList>
-      <TabsContent value="overview">
-        <div className="flex justify-between items-center mb-4">
-          <Select value={selectedDate} onValueChange={setSelectedDate}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Select a date" />
-            </SelectTrigger>
-            <SelectContent>
-              {uniqueDates.map((date) => (
-                <SelectItem key={date} value={date}>
-                  {date === "all" ? "All Dates" : date}
-                </SelectItem>
+    <div className="container mx-auto p-4">
+      <header className="mb-6">
+        <h1 className="text-2xl font-bold mb-4">Institution Dashboard - Overview</h1>
+        <div className="flex justify-between items-center">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline">
+                {selectedShift} <ChevronDown className="ml-2 h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              {shifts.map((shift) => (
+                <DropdownMenuItem key={shift} onSelect={() => setSelectedShift(shift)}>
+                  {shift}
+                </DropdownMenuItem>
               ))}
-            </SelectContent>
-          </Select>
-          <div className="relative">
-            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="text"
-              placeholder="Search employees..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-8 w-[250px]"
-            />
-          </div>
-        </div>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Employee</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Check In</TableHead>
-              <TableHead>Check Out</TableHead>
-              <TableHead>Working Hours</TableHead>
-              <TableHead>Date</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {paginatedEmployees.map((employee) => (
-              employee.checks.map((check) => (
-                <TableRow key={`${employee.id}-${check.date || "Unkown"} `}>
-                  <TableCell>{employee.name}</TableCell>
-                  <TableCell>
-                    <StatusCircle status={getEmployeeStatus(employee, check.date)} />
-                    {getEmployeeStatus(employee, check.date)}
-                  </TableCell>
-                  <TableCell>
-                    <CheckTime
-                      time={formatTime(check.checkIn)}
-                      isLate={new Date(check.checkIn).getHours() >= 9 && new Date(check.checkIn).getMinutes() > 0}
-                      isEarly={false}
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <CheckTime
-                      time={formatTime(check.checkOut)}
-                      isLate={false}
-                      isEarly={new Date(check.checkOut).getHours() < 17}
-                    />
-                  </TableCell>
-                  <TableCell>
-                    {((new Date(check.checkOut).getTime() - new Date(check.checkIn).getTime()) / 3600000).toFixed(2)}
-                  </TableCell>
-                  <TableCell>{check.date ? check.date.split('T')[0] : 'N/A'}</TableCell>
-                </TableRow>
-              ))
-            ))}
-          </TableBody>
-        </Table>
-        <div className="flex justify-between items-center mt-4">
-          <div className="flex space-x-2">
-            <Button
-              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
-            >
-              Previous
-            </Button>
-            <Button
-              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-              disabled={currentPage === totalPages}
-            >
-              Next
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2">
+              <Switch id="view-mode" onCheckedChange={(checked) => setViewMode(checked ? 'weekly' : 'daily')} />
+              <Label htmlFor="view-mode">Weekly View</Label>
+            </div>
+            <Button variant="outline">
+              <Download className="mr-2 h-4 w-4" /> Export
             </Button>
           </div>
-          <div className="text-sm">
-            Page {currentPage} of {totalPages}
-          </div>
         </div>
-        <div className="mt-4 text-sm">
-          <h3 className="font-semibold mb-2">Legend:</h3>
-          <div className="grid grid-cols-2 gap-2">
-            {Object.entries(statusColors).map(([status, color]) => (
-              <div key={status} className="flex items-center">
-                <div className={`w-3 h-3 rounded-full ${color} mr-2`}></div>
-                {status}
+      </header>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Card className="md:col-span-1">
+          <CardHeader>
+            <CardTitle>Attendance Status</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <AttendanceStatus employees={employees} />
+          </CardContent>
+        </Card>
+
+        <Card className="md:col-span-2">
+          <CardHeader>
+            <CardTitle>Time Sheet</CardTitle>
+            <div className="flex items-center space-x-2">
+              <Search className="h-4 w-4 text-muted-foreground" />
+              <Input placeholder="Search employees..." className="max-w-sm" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <Tabs defaultValue="daily" value={viewMode}>
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="daily">Daily View</TabsTrigger>
+                <TabsTrigger value="weekly">Weekly View</TabsTrigger>
+              </TabsList>
+              <TabsContent value="daily">
+                <DailyTimeSheet employees={employees} />
+              </TabsContent>
+              <TabsContent value="weekly">
+                <WeeklyTimeSheet employees={employees} />
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  )
+}
+
+function AttendanceStatus({ employees }: { employees: Employee[] }) {
+  const loggedInEmployees = employees.filter(e => e.loggedIn)
+  const notLoggedInEmployees = employees.filter(e => !e.loggedIn)
+
+  return (
+    <div className="space-y-4">
+      <div>
+        <h3 className="font-semibold mb-2">Logged In</h3>
+        <ul className="space-y-2">
+          {loggedInEmployees.map(employee => (
+            <li key={employee.id} className="flex items-center space-x-2">
+              <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center relative">
+                <span className="text-xs font-semibold">{employee.name.charAt(0)}</span>
+                <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></span>
               </div>
+              <span>{employee.name}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div>
+        <h3 className="font-semibold mb-2">Not Logged In</h3>
+        <ul className="space-y-2">
+          {notLoggedInEmployees.map(employee => (
+            <li key={employee.id} className="flex items-center space-x-2">
+              <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center relative">
+                <span className="text-xs font-semibold">{employee.name.charAt(0)}</span>
+                <span className="absolute bottom-0 right-0 w-3 h-3 bg-gray-400 rounded-full border-2 border-white"></span>
+              </div>
+              <span>{employee.name}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  )
+}
+
+function DailyTimeSheet({ employees }: { employees: Employee[] }) {
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full">
+        <thead>
+          <tr className="border-b">
+            <th className="text-left py-2">Employee</th>
+            <th className="text-left py-2">Check-in</th>
+            <th className="text-left py-2">Check-out</th>
+            <th className="text-left py-2">Total Hours</th>
+          </tr>
+        </thead>
+        <tbody>
+          {employees.map(employee => (
+            <tr key={employee.id} className="border-b">
+              <td className="py-2">{employee.name}</td>
+              <td className="py-2">{employee.checkIn}</td>
+              <td className="py-2">{employee.checkOut}</td>
+              <td className="py-2">{employee.totalHours}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
+function WeeklyTimeSheet({ employees }: { employees: Employee[] }) {
+  const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full">
+        <thead>
+          <tr className="border-b">
+            <th className="text-left py-2">Employee</th>
+            {days.map(day => (
+              <th key={day} className="text-left py-2">{day}</th>
             ))}
-            <div className="flex items-center">
-              <Turtle className="w-4 h-4 mr-2 text-orange-500" />
-              Late arrival
-            </div>
-            <div className="flex items-center">
-              <Rabbit className="w-4 h-4 mr-2 text-blue-500" />
-              Early departure
-            </div>
-          </div>
-        </div>
-      </TabsContent>
-      <TabsContent value="payroll">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Employee</TableHead>
-              <TableHead>Hourly Rate</TableHead>
-              <TableHead>Total Hours</TableHead>
-              <TableHead>Total Payroll</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {employees.map((employee) => (
-              <TableRow key={employee.id}>
-                <TableCell>{employee.name}</TableCell>
-                <TableCell>${employee.hourlyRate !== undefined ? employee.hourlyRate.toFixed(2) : 'N/A'}</TableCell>
-                <TableCell>{employee.payroll && employee.payroll.totalHours !== undefined ? employee.payroll.totalHours.toFixed(2) : 'N/A'}</TableCell>
-                <TableCell>${employee.payroll && employee.payroll.totalPay !== undefined ? employee.payroll.totalPay.toFixed(2) : 'N/A'}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TabsContent>
-    </Tabs>
+          </tr>
+        </thead>
+        <tbody>
+          {employees.map(employee => (
+            <tr key={employee.id} className="border-b">
+              <td className="py-2">{employee.name}</td>
+              {days.map(day => (
+                <td key={day} className="py-2">
+                  <div className="text-xs">{employee.checkIn} - {employee.checkOut}</div>
+                  <div className="font-semibold">{employee.totalHours}h</div>
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   )
 }
