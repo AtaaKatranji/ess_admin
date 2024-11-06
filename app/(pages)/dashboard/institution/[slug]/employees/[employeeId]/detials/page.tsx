@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { useParams } from "next/navigation"
 import { useForm } from "react-hook-form"
-import { format, subMonths } from "date-fns"
+import { format } from "date-fns"
 // startOfMonth, endOfMonth,
 import { toast, ToastContainer } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
@@ -155,28 +155,51 @@ const EmployeeDetails = () => {
       setEndTime(result.endTime)
     }
   }
+  interface MonthlyAttendanceStats {
+    totalAttendance: number;
+    absences: number;
+    tardies: number;
+}
 
-  const fetchMonthlySummary = async () => {
-    // This would be an API call in a real application
-    // For now, we'll generate mock data
-    const summary = []
-    for (let i = 0; i < 6; i++) {
-      const date = subMonths(new Date(), i)
-      summary.push({
-        month: format(date, "MMMM yyyy"),
-        totalAttendance: Math.floor(Math.random() * 30) + 15,
-        absences: Math.floor(Math.random() * 5),
-        tardies: Math.floor(Math.random() * 10),
-      })
+// Define an interface for the response structure
+interface MonthlyAttendanceResponse {
+    employeeId: string;
+    monthlyAttendance: Record<string, MonthlyAttendanceStats>;
+}
+  const fetchMonthlySummary = async (employeeId: string) => {
+    try {
+        // Make an API call to fetch monthly attendance summary
+        const response = await fetch(`/summaryLastTwoMonth/${employeeId}`);
+        
+        // Check if the response is okay
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        
+        const data: MonthlyAttendanceResponse = await response.json();
+
+        // Map over the monthly attendance data
+        const summary = Object.entries(data.monthlyAttendance).map(([month, stats]) => ({
+            month,
+            totalAttendance: stats.totalAttendance,
+            absences: stats.absences,
+            tardies: stats.tardies,
+        }));
+        // Set the state with the fetched summary
+        setMonthlySummary(summary);
+        
+        // Prepare comparison data for chart or other use
+        setComparisonData(summary.map(s => ({
+            name: s.month,
+            attendance: s.totalAttendance,
+            absences: s.absences,
+            tardies: s.tardies,
+        })));
+    } catch (error) {
+        console.error('Error fetching monthly summary:', error);
     }
-    setMonthlySummary(summary)
-    setComparisonData(summary.map(s => ({
-      name: s.month,
-      attendance: s.totalAttendance,
-      absences: s.absences,
-      tardies: s.tardies,
-    })))
-  }
+};
 
   useEffect(() => {
     const postTimeShiftData = async () => {
@@ -226,7 +249,7 @@ const EmployeeDetails = () => {
         fetchTotalHours(selectedMonth),
         fetchMonthlyHistory(selectedMonth),
         fetchTimeShift(),
-        fetchMonthlySummary(),
+        fetchMonthlySummary(employeeId),
       ])
       setIsLoading(false)
     }
@@ -330,7 +353,7 @@ const EmployeeDetails = () => {
               />
             </PopoverContent>
           </Popover>
-          <Button onClick={exportMonthlyReport}>
+          <Button onClick={exportMonthlyReport} className="bg-primary text-foreground">
             <Download className="mr-2 h-4 w-4" />
             Export Report
           </Button>
