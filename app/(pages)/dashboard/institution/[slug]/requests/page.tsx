@@ -1,52 +1,85 @@
 "use client"
 
-import React, { useState } from 'react'
+import { useState, useEffect } from 'react';
+import useSocket from '@/hooks/useSocket';
+
 import { Check, X, ChevronDown, ChevronUp } from 'lucide-react'
 
-type RequestType = {
-  id: number;
-  employeeName: string;
-  requestType: string;
+// type RequestType = {
+//   id: number;
+//   employeeName: string;
+//   requestType: string;
+//   startDate: string;
+//   endDate: string;
+//   status: string;
+//   reason?: string; // Added reason property
+// };
+// Mock data for employee requests
+// const mockRequests: RequestType[] = [
+//   { id: 1, employeeName: 'John Doe', requestType: 'Vacation', startDate: '2024-07-01', endDate: '2024-07-05', status: 'Pending' },
+//   { id: 2, employeeName: 'Jane Smith', requestType: 'Sick Leave', startDate: '2024-06-15', endDate: '2024-06-16', status: 'Pending' },
+//   { id: 3, employeeName: 'Mike Johnson', requestType: 'Work from Home', startDate: '2024-06-20', endDate: '2024-06-22', status: 'Pending' },
+// ]
+interface LeaveRequest {
+  _id: string;
+  employeeId: string;
   startDate: string;
   endDate: string;
+  type: string;
   status: string;
-  reason?: string; // Added reason property
-};
-// Mock data for employee requests
-const mockRequests: RequestType[] = [
-  { id: 1, employeeName: 'John Doe', requestType: 'Vacation', startDate: '2024-07-01', endDate: '2024-07-05', status: 'Pending' },
-  { id: 2, employeeName: 'Jane Smith', requestType: 'Sick Leave', startDate: '2024-06-15', endDate: '2024-06-16', status: 'Pending' },
-  { id: 3, employeeName: 'Mike Johnson', requestType: 'Work from Home', startDate: '2024-06-20', endDate: '2024-06-22', status: 'Pending' },
-]
+  reason: string;
+}
 
-export default function EmployeeRequests() {
-  const [requests, setRequests] = useState(mockRequests)
-  const [selectedRequest, setSelectedRequest] = useState<number | null>(null); // Allow number or null
+
+const LeaveRequestsPage: React.FC = () =>{
+
+  const [selectedRequest, setSelectedRequest] = useState<string | null>(null); // Allow number or null
   const [rejectReason, setRejectReason] = useState('')
   const [showRejectModal, setShowRejectModal] = useState(false)
-  const [expandedRequest, setExpandedRequest] = useState<number | null>(null);
+  const [expandedRequest, setExpandedRequest] = useState<string | null>(null);
+  const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>([]);
+  const BaseUrl = process.env.NEXT_PUBLIC_API_URL
+  // Function to handle a new leave request
+  const handleNewLeaveRequest = (leaveRequest: LeaveRequest) => {
+    setLeaveRequests((prevRequests) => [leaveRequest, ...prevRequests]);
+  };
+  // Connect to the Socket.IO server
+  useSocket(`${BaseUrl}`, handleNewLeaveRequest);
 
-  const handleApprove = (id: number) => {
-    setRequests(requests.map(req => 
-      req.id === id ? { ...req, status: 'Approved' } : req
+  useEffect(() => {
+    const fetchLeaveRequests = async () => {
+      try {
+        const response = await fetch(`${BaseUrl}/leaves`);
+        const data: LeaveRequest[] = await response.json();
+        setLeaveRequests(data);
+      } catch (error) {
+        console.error('Error fetching leave requests:', error);
+      }
+    };
+
+    fetchLeaveRequests();
+  }, []);
+  const handleApprove = (id: string) => {
+    setLeaveRequests(leaveRequests.map(req => 
+      req._id === id ? { ...req, status: 'Approved' } : req
     ))
   }
 
-  const handleReject = (id: number) => {
+  const handleReject = (id: string) => {
     setSelectedRequest(id)
     setShowRejectModal(true)
   }
 
   const submitReject = () => {
-    setRequests(requests.map(req => 
-      req.id === selectedRequest ? { ...req, status: 'Rejected', reason: rejectReason } : req
+    setLeaveRequests(leaveRequests.map(req => 
+      req._id === selectedRequest ? { ...req, status: 'Rejected', reason: rejectReason } : req
     ))
     setShowRejectModal(false)
     setRejectReason('')
     setSelectedRequest(null)
   }
 
-  const toggleExpand = (id: number) => {
+  const toggleExpand = (id: string) => {
     setExpandedRequest(expandedRequest === id ? null : id)
   }
 
@@ -54,12 +87,12 @@ export default function EmployeeRequests() {
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Employee Requests</h1>
       <div className="space-y-4">
-        {requests.map((request) => (
-          <div key={request.id} className="bg-white shadow-md rounded-lg p-4">
+        {leaveRequests.map((request) => (
+          <div key={request._id} className="bg-white shadow-md rounded-lg p-4">
             <div className="flex justify-between items-center">
               <div>
-                <h2 className="text-lg font-semibold">{request.employeeName}</h2>
-                <p className="text-sm text-gray-600">{request.requestType}</p>
+                <h2 className="text-lg font-semibold">{request.employeeId}</h2>
+                <p className="text-sm text-gray-600">{request.type}</p>
               </div>
               <div className="flex items-center space-x-2">
                 <span className={`px-2 py-1 rounded-full text-xs ${
@@ -70,27 +103,27 @@ export default function EmployeeRequests() {
                   {request.status}
                 </span>
                 <button
-                  onClick={() => toggleExpand(request.id)}
+                  onClick={() => toggleExpand(request._id)}
                   className="text-gray-500 hover:text-gray-700 hover:bg-gray-50 bg-transparent"
                 >
-                  {expandedRequest === request.id ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                  {expandedRequest === request._id ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
                 </button>
               </div>
             </div>
-            {expandedRequest === request.id && (
+            {expandedRequest === request._id && (
               <div className="mt-4 space-y-2">
                 <p><span className="font-semibold">Start Date:</span> {request.startDate}</p>
                 <p><span className="font-semibold">End Date:</span> {request.endDate}</p>
                 {request.status === 'Pending' && (
                   <div className="flex space-x-2 mt-2">
                     <button
-                      onClick={() => handleApprove(request.id)}
+                      onClick={() => handleApprove(request._id)}
                       className="bg-green-500 text-white px-3 py-1 rounded-md hover:bg-green-600 flex items-center"
                     >
                       <Check size={16} className="mr-1" /> Approve
                     </button>
                     <button
-                      onClick={() => handleReject(request.id)}
+                      onClick={() => handleReject(request._id)}
                       className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600 flex items-center"
                     >
                       <X size={16} className="mr-1" /> Reject
@@ -137,3 +170,4 @@ export default function EmployeeRequests() {
     </div>
   )
 }
+export default LeaveRequestsPage;
