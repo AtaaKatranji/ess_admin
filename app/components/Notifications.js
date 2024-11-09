@@ -1,6 +1,6 @@
 "use client";
 import { useEffect } from 'react';
-PUBLICK_VAPID_KEY = BF_1HacDiNE-HX7VqeSwIjgfIgXSFW5ZYJuwnZ1ngRSy9kftD1QssgilOp7nV3WJVdxCgTJAxh_FeqIeALiPzhU
+
 
 const Notifications = () => {
     useEffect(() => {
@@ -12,7 +12,7 @@ const Notifications = () => {
                 })
                 .then(async subscription => {
                     if (!subscription) {
-                        const publicKey = `${process.eenv.PUBLICK_VAPID_KEY}`;
+                        const publicKey = process.env.NEXT_PUBLICK_VAPID_KEY;
                         const convertedVapidKey = urlBase64ToUint8Array(publicKey);
                         const newSubscription = await registration.pushManager.subscribe({
                             userVisibleOnly: true,
