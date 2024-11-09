@@ -18,7 +18,7 @@ const Notifications = () => {
                             userVisibleOnly: true,
                             applicationServerKey: convertedVapidKey
                         });
-
+                        console.log(newSubscription)
                         // Send the subscription to your server to save it
                         await fetch(`${process.env.NEXT_PUBLIC_API_URL}/Noti/save-subscription`, {
                             method: 'POST',
