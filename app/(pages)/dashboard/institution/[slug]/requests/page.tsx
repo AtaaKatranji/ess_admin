@@ -51,6 +51,7 @@ const LeaveRequestsPage: React.FC = () =>{
       try {
         const response = await fetch(`${BaseUrl}/leaves`);
         const data: LeaveRequest[] = await response.json();
+        console.log(data)
         setLeaveRequests(data);
       } catch (error) {
         console.error('Error fetching leave requests:', error);
