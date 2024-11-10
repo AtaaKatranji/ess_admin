@@ -41,9 +41,9 @@ const LeaveRequestsPage: React.FC = () =>{
   const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>([]);
   const BaseUrl = process.env.NEXT_PUBLIC_API_URL
   // Function to handle a new leave request
-  const handleNewLeaveRequest = (leaveRequest: LeaveRequest) => {
-    setLeaveRequests((prevRequests) => [leaveRequest, ...prevRequests]);
-  };
+  // const handleNewLeaveRequest = (leaveRequest: LeaveRequest) => {
+  //   setLeaveRequests((prevRequests) => [leaveRequest, ...prevRequests]);
+  // };
 
 
   useEffect(() => {
