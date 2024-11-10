@@ -363,8 +363,8 @@ interface MonthlyAttendanceResponse {
     <div className="container mx-auto p-4 space-y-4">
       <ToastContainer />
       <div className="flex justify-between items-center">
-        <h1 className="lg:text-2xl text-xl font-bold">Employee Attendance Dashboard</h1>
-        <div className="flex lg:flex-col items-center space-x-2 sm:space-y-2">
+        <h1 className="md:hidden lg:text-2xl text-xl font-bold">Employee Attendance Dashboard</h1>
+        <div className="flex lg:flex-row flex-col items-center space-x-2 sm:space-y-2">
           <Popover>
             <PopoverTrigger asChild>
               <Button variant="outline">
