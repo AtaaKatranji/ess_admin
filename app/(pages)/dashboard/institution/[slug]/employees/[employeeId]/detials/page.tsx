@@ -7,7 +7,7 @@ import { format } from "date-fns"
 // startOfMonth, endOfMonth,
 import { toast, ToastContainer } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
-import { CalendarIcon, ClockIcon, Star, Rabbit, Turtle, Search, Loader2, Download } from "lucide-react"
+import { CalendarIcon, ClockIcon, Star, Rabbit, Turtle, Search, Loader2, Download, LucideArchiveRestore } from "lucide-react"
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip } from "recharts";
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
@@ -408,6 +408,21 @@ interface MonthlyAttendanceResponse {
           <CardContent>
             <div className="text-2xl font-bold">{extraAttendanceHours} hours</div>
             <p className="text-xs text-muted-foreground">This month</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Leaves Days</CardTitle>
+            <LucideArchiveRestore className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="flex ">
+            <div className="text-lg font-bold">{extraAttendanceHours} Days</div>
+            |
+            <p className="text-xs text-muted-foreground">This month</p>
+            <div className="text-lg font-bold">{extraAttendanceHours} Days</div>
+            <p className="text-xs text-muted-foreground">This month</p>
+            </div>
           </CardContent>
         </Card>
       </div>
