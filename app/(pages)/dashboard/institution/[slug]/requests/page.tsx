@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from 'react';
-import useSocket from '@/hooks/useSocket';
+
 
 import { Check, X, ChevronDown, ChevronUp } from 'lucide-react'
 
@@ -44,8 +44,7 @@ const LeaveRequestsPage: React.FC = () =>{
   const handleNewLeaveRequest = (leaveRequest: LeaveRequest) => {
     setLeaveRequests((prevRequests) => [leaveRequest, ...prevRequests]);
   };
-  // Connect to the Socket.IO server
-  useSocket(`${BaseUrl}`, handleNewLeaveRequest);
+
 
   useEffect(() => {
     const fetchLeaveRequests = async () => {
