@@ -349,7 +349,7 @@ interface MonthlyAttendanceResponse {
     // This would generate and download a report in a real application
     exportMonthlyReportPDF(data);
     // For now, we'll just show a toast message
-    toast.info("Exporting monthly report...")
+    
   }
 
   if (isLoading) {
