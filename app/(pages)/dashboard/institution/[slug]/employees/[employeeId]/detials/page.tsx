@@ -155,9 +155,8 @@ const EmployeeDetails = () => {
         },
         body: JSON.stringify({ userId: employeeId, month }),
       })
-
       if (!response.ok) {
-        throw new Error("Failed to fetch total hours")
+        throw new Error("Failed to fetch leaves")
       }
 
       const data = await response.json()
@@ -364,8 +363,8 @@ interface MonthlyAttendanceResponse {
     <div className="container mx-auto p-4 space-y-4">
       <ToastContainer />
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Employee Attendance Dashboard</h1>
-        <div className="flex items-center space-x-2">
+        <h1 className="lg:text-2xl text-xl font-bold">Employee Attendance Dashboard</h1>
+        <div className="flex sm:flex-col items-center space-x-2 sm:space-y-2">
           <Popover>
             <PopoverTrigger asChild>
               <Button variant="outline">
