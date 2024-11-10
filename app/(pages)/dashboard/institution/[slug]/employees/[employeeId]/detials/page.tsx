@@ -448,14 +448,14 @@ interface MonthlyAttendanceResponse {
             <div className="flex justify-between">
               {/* Paid Leave Column */}
               <div className="flex flex-col items-start">
-                <div className="text-lg font-bold">{paidLeaves} Days</div>
+                <div className="text-lg font-bold justify-center">{paidLeaves}</div>
                 <p className="text-xs text-muted-foreground">Paid Leave</p>
               </div>
               {/* Divider */}
               <div className="px-2 text-muted-foreground">|</div>
               {/* Unpaid Leave Column */}
               <div className="flex flex-col items-start">
-                <div className="text-lg font-bold">{unpaidLeaves} Days</div>
+                <div className="text-lg font-bold justify-center">{unpaidLeaves}</div>
                 <p className="text-xs text-muted-foreground">Unpaid Leave</p>
               </div>
             </div>
