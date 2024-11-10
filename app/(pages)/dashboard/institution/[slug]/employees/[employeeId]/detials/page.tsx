@@ -77,6 +77,8 @@ const EmployeeDetails = () => {
   const [currentPage, setCurrentPage] = useState(1)
   const [monthlySummary, setMonthlySummary] = useState<MonthlySummary[]>([])
   const [comparisonData, setComparisonData] = useState<Comp[]>([])
+  const [paidLeaves, setPaidLeaves] = useState<number | null>(null)
+  const [unpaidLeaves, setUnpaidLeaves] = useState<number | null>(null)
 
   const BaseUrl = process.env.NEXT_PUBLIC_API_URL
   const itemsPerPage = 10
@@ -136,6 +138,32 @@ const EmployeeDetails = () => {
       const data = await response.json()
 
       setTotalHours(data.total.totalHours)
+    } catch (error) {
+      console.error("Error fetching total hours:", error)
+      toast.error("Failed to fetch total hours. Please try again.")
+    }
+  }
+
+  const fetchLeaves = async (date: Date) => {
+    const month = date
+
+    try {
+      const response = await fetch(`${BaseUrl}/leaves/month`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ userId: employeeId, month }),
+      })
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch total hours")
+      }
+
+      const data = await response.json()
+      
+      setPaidLeaves(data.paidLeaves);
+      setUnpaidLeaves(data.unpaidLeaves);
     } catch (error) {
       console.error("Error fetching total hours:", error)
       toast.error("Failed to fetch total hours. Please try again.")
@@ -248,6 +276,7 @@ interface MonthlyAttendanceResponse {
       await Promise.all([
         fetchTotalHours(selectedMonth),
         fetchMonthlyHistory(selectedMonth),
+        fetchLeaves(selectedMonth),
         fetchTimeShift(),
         fetchMonthlySummary(employeeId),
       ])
@@ -359,7 +388,7 @@ interface MonthlyAttendanceResponse {
           </Button>
         </div>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Hours</CardTitle>
@@ -419,14 +448,14 @@ interface MonthlyAttendanceResponse {
             <div className="flex justify-between">
               {/* Paid Leave Column */}
               <div className="flex flex-col items-start">
-                <div className="text-lg font-bold">00 Days</div>
+                <div className="text-lg font-bold">{paidLeaves} Days</div>
                 <p className="text-xs text-muted-foreground">Paid Leave</p>
               </div>
               {/* Divider */}
               <div className="px-2 text-muted-foreground">|</div>
               {/* Unpaid Leave Column */}
               <div className="flex flex-col items-start">
-                <div className="text-lg font-bold">00 Days</div>
+                <div className="text-lg font-bold">{unpaidLeaves} Days</div>
                 <p className="text-xs text-muted-foreground">Unpaid Leave</p>
               </div>
             </div>
