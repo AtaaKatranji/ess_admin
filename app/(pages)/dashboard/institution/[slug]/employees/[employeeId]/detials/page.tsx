@@ -411,17 +411,24 @@ interface MonthlyAttendanceResponse {
           </CardContent>
         </Card>
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Leaves Days</CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium">Leave Days</CardTitle>
             <LucideArchiveRestore className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="flex ">
-            <div className="text-lg font-bold">{extraAttendanceHours} Days</div>
-            |
-            <p className="text-xs text-muted-foreground">This month</p>
-            <div className="text-lg font-bold">{extraAttendanceHours} Days</div>
-            <p className="text-xs text-muted-foreground">This month</p>
+            <div className="flex justify-between">
+              {/* Paid Leave Column */}
+              <div className="flex flex-col items-start">
+                <div className="text-lg font-bold">00 Days</div>
+                <p className="text-xs text-muted-foreground">Paid Leave</p>
+              </div>
+              {/* Divider */}
+              <div className="px-2 text-muted-foreground">|</div>
+              {/* Unpaid Leave Column */}
+              <div className="flex flex-col items-start">
+                <div className="text-lg font-bold">00 Days</div>
+                <p className="text-xs text-muted-foreground">Unpaid Leave</p>
+              </div>
             </div>
           </CardContent>
         </Card>
