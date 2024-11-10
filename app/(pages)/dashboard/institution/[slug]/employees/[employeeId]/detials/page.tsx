@@ -130,7 +130,7 @@ const EmployeeDetails = () => {
         },
         body: JSON.stringify({ userId: employeeId, month }),
       })
-
+      console.log(response)
       if (!response.ok) {
         throw new Error("Failed to fetch total hours")
       }
