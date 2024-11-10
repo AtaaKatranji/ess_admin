@@ -16,7 +16,9 @@ const exportMonthlyReportPDF = (data) => {
     ["Early Leave Hours", data.summary.earlyLeaveHours],
     ["Early Arrival Hours", data.summary.earlyArrivalHours],
     ["Extra Attendance Hours", data.summary.extraAttendanceHours],
-    ["Total Days", data.summary.totalDays],
+    ["Total Days Attendanced", data.summary.totalDays],
+    ["Paid Leaves", data.summary.paidLeaves],
+    ["Unpaid Leaves", data.summary.unpaidLeaves],
   ];
 
   doc.autoTable({
