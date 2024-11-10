@@ -28,14 +28,15 @@ interface LeaveRequest {
   type: string;
   status: string;
   reason: string;
+  employeeName: string;
 }
 
 
 const LeaveRequestsPage: React.FC = () =>{
 
-  const [selectedRequest, setSelectedRequest] = useState<string | null>(null); // Allow number or null
-  const [rejectReason, setRejectReason] = useState('')
-  const [showRejectModal, setShowRejectModal] = useState(false)
+  // const [selectedRequest, setSelectedRequest] = useState<string | null>(null); // Allow number or null
+  // const [rejectReason, setRejectReason] = useState('')
+  // const [showRejectModal, setShowRejectModal] = useState(false)
   const [expandedRequest, setExpandedRequest] = useState<string | null>(null);
   const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>([]);
   const BaseUrl = process.env.NEXT_PUBLIC_API_URL
@@ -58,26 +59,68 @@ const LeaveRequestsPage: React.FC = () =>{
     };
 
     fetchLeaveRequests();
+
   }, []);
-  const handleApprove = (id: string) => {
-    setLeaveRequests(leaveRequests.map(req => 
-      req._id === id ? { ...req, status: 'Approved' } : req
-    ))
-  }
+  const handleApprove = async (id: string) => {
+    try {
+      // Call the API to approve the leave request
+      const response = await fetch(`${BaseUrl}/leaves/${id}/approve`, {
+          method: 'PATCH',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+      });
 
-  const handleReject = (id: string) => {
-    setSelectedRequest(id)
-    setShowRejectModal(true)
-  }
+      // Check if the response is successful
+      if (!response.ok) {
+          throw new Error('Failed to approve leave request');
+      }
 
-  const submitReject = () => {
-    setLeaveRequests(leaveRequests.map(req => 
-      req._id === selectedRequest ? { ...req, status: 'Rejected', reason: rejectReason } : req
-    ))
-    setShowRejectModal(false)
-    setRejectReason('')
-    setSelectedRequest(null)
+      // Update local state after successful API call
+      const updatedLeaveRequest = await response.json();
+      
+      setLeaveRequests(leaveRequests.map(req => 
+          req._id === id ? { ...req, status: updatedLeaveRequest.leaveRequest.status } : req
+      ));
+  } catch (error) {
+      console.error('Error approving leave request:', error);
   }
+};
+
+  const handleReject = async (id: string) => {
+    try {
+      // Call the API to approve the leave request
+      const response = await fetch(`${BaseUrl}/leaves/${id}/reject`, {
+          method: 'PATCH',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+      });
+
+      // Check if the response is successful
+      if (!response.ok) {
+          throw new Error('Failed to reject leave request');
+      }
+
+      // Update local state after successful API call
+      const updatedLeaveRequest = await response.json();
+      
+      setLeaveRequests(leaveRequests.map(req => 
+          req._id === id ? { ...req, status: updatedLeaveRequest.leaveRequest.status } : req
+      ));
+  } catch (error) {
+      console.error('Error rejecting leave request:', error);
+  }
+};
+
+  // const submitReject = () => {
+  //   setLeaveRequests(leaveRequests.map(req => 
+  //     req._id === selectedRequest ? { ...req, status: 'Rejected', reason: rejectReason } : req
+  //   ))
+  //   setShowRejectModal(false)
+  //   setRejectReason('')
+  //   setSelectedRequest(null)
+  // }
 
   const toggleExpand = (id: string) => {
     setExpandedRequest(expandedRequest === id ? null : id)
@@ -91,7 +134,7 @@ const LeaveRequestsPage: React.FC = () =>{
           <div key={request._id} className="bg-white shadow-md rounded-lg p-4">
             <div className="flex justify-between items-center">
               <div>
-                <h2 className="text-lg font-semibold">{request.employeeId}</h2>
+                <h2 className="text-lg font-semibold">{request.employeeName}</h2>
                 <p className="text-sm text-gray-600">{request.type}</p>
               </div>
               <div className="flex items-center space-x-2">
@@ -139,7 +182,7 @@ const LeaveRequestsPage: React.FC = () =>{
         ))}
       </div>
 
-      {showRejectModal && (
+      {/* {showRejectModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-lg p-6 w-full max-w-md">
             <h2 className="text-xl font-bold mb-4">Reject Request</h2>
@@ -166,7 +209,7 @@ const LeaveRequestsPage: React.FC = () =>{
             </div>
           </div>
         </div>
-      )}
+      )} */}
     </div>
   )
 }
