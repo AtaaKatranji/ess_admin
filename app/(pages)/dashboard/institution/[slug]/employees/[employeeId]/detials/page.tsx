@@ -600,9 +600,7 @@ interface MonthlyAttendanceResponse {
           <Card>
             <ScrollArea className="h-[400px]">
               <div className="p-4">
-                {leaves
-                  .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
-                  .map((record) => (
+                {leaves.map((record) => (
                     <div
                       key={record.id}
                       className="flex justify-between items-center py-2 border-b last:border-b-0 cursor-pointer hover:bg-accent"
