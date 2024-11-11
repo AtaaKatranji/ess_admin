@@ -599,25 +599,29 @@ interface MonthlyAttendanceResponse {
           </div>
           <Card>
             <ScrollArea className="h-[400px]">
-              <div className="p-4">
-                {leaves.map((record) => (
-                    <div
-                      key={record.id}
-                      className="flex justify-between items-center py-2 border-b last:border-b-0 cursor-pointer hover:bg-accent"
-                      onClick={() => {}}
-                    >
-                      <div>
-                        <p className="font-medium">{format(new Date(record.reason), "MMMM d, yyyy")}</p>
-                        <p className="text-sm text-muted-foreground">
-                          Start: {record.startDate}, End: {record.endDate}
-                        </p>
+            <div className="p-4">
+              {leaves && leaves.length > 0 ? (
+                  leaves.map((record) => (
+                      <div
+                          key={record.id}
+                          className="flex justify-between items-center py-2 border-b last:border-b-0 cursor-pointer hover:bg-accent"
+                          onClick={() => {}}
+                      >
+                          <div>
+                              <p className="font-medium">{format(new Date(record.startDate), "MMMM d, yyyy")}</p>
+                              <p className="text-sm text-muted-foreground">
+                                  Start: {record.startDate}, End: {record.endDate}
+                              </p>
+                          </div>
+                          <Button variant="ghost" size="sm">
+                              Edit
+                          </Button>
                       </div>
-                      <Button variant="ghost" size="sm">
-                        Edit
-                      </Button>
-                    </div>
-                  ))}
-              </div>
+                  ))
+              ) : (
+                  <p>No leave records available.</p> // Optional: Message when there are no records
+              )}
+          </div>
             </ScrollArea>
           </Card>
         </TabsContent>
