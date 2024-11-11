@@ -363,8 +363,8 @@ interface MonthlyAttendanceResponse {
     <div className="container mx-auto p-4 space-y-4">
       <ToastContainer />
       <div className="flex justify-between items-center">
-        <h1 className="md:hidden lg:text-2xl text-xl font-bold">Employee Attendance Dashboard</h1>
-        <div className="flex lg:flex-row flex-col items-center space-x-2 sm:space-y-2">
+        <h1 className="hidden md:block text-xl md:text-2xl font-bold">Employee Attendance Dashboard</h1>
+        <div className="flex items-center space-x-2">
           <Popover>
             <PopoverTrigger asChild>
               <Button variant="outline">
@@ -388,6 +388,7 @@ interface MonthlyAttendanceResponse {
         </div>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
+        {/* total hours */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Hours</CardTitle>
@@ -398,16 +399,7 @@ interface MonthlyAttendanceResponse {
             <p className="text-xs text-muted-foreground">This month</p>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Early Arrivals</CardTitle>
-            <ClockIcon className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{earlyArrivalHours} hours</div>
-            <p className="text-xs text-muted-foreground">This month</p>
-          </CardContent>
-        </Card>
+        {/* late hours */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Late Hours</CardTitle>
@@ -418,6 +410,7 @@ interface MonthlyAttendanceResponse {
             <p className="text-xs text-muted-foreground">This month</p>
           </CardContent>
         </Card>
+        {/* early leave */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Early Leaves</CardTitle>
@@ -428,6 +421,18 @@ interface MonthlyAttendanceResponse {
             <p className="text-xs text-muted-foreground">This month</p>
           </CardContent>
         </Card>
+         {/* early arrive */}
+         <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Early Arrivals</CardTitle>
+            <ClockIcon className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{earlyArrivalHours} hours</div>
+            <p className="text-xs text-muted-foreground">This month</p>
+          </CardContent>
+        </Card>
+        {/* extra hours */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Extra Hours</CardTitle>
@@ -438,6 +443,7 @@ interface MonthlyAttendanceResponse {
             <p className="text-xs text-muted-foreground">This month</p>
           </CardContent>
         </Card>
+        {/* leave days */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Leave Days</CardTitle>
