@@ -167,7 +167,7 @@ const EmployeeDetails = () => {
       }
 
       const data = await response.json()
-      
+      console.log(data.leaves)
       setPaidLeaves(data.paidLeaves);
       setUnpaidLeaves(data.unpaidLeaves);
       setLeaves(data.leaves);
