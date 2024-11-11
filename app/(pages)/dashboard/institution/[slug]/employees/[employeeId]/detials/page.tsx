@@ -51,6 +51,7 @@ type Leave = {
   startDate: string
   endDate: string 
   reason: string
+  
 }
 
 type MonthlySummary = {
@@ -167,7 +168,7 @@ const EmployeeDetails = () => {
       }
 
       const data = await response.json()
-      console.log(data.leaves)
+      console.log("lol: ",data.leaves)
       setPaidLeaves(data.paidLeaves);
       setUnpaidLeaves(data.unpaidLeaves);
       setLeaves(data.leaves);
@@ -358,7 +359,6 @@ interface MonthlyAttendanceResponse {
     // For now, we'll just show a toast message
     
   }
-
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -584,7 +584,7 @@ interface MonthlyAttendanceResponse {
             </Button>
           </div>
         </TabsContent>
-        <TabsContent value="leave">
+        <TabsContent value="leave"  className="space-y-4">
         <div className="flex justify-between items-center">
             <h2 className="text-xl font-semibold">Leave Requests</h2>
             {/* <div className="relative">
@@ -610,8 +610,10 @@ interface MonthlyAttendanceResponse {
                           <div>
                               <p className="font-medium">{format(new Date(record.startDate), "MMMM d, yyyy")}</p>
                               <p className="text-sm text-muted-foreground">
-                                  Start: {record.startDate}, End: {record.endDate}
+                                  Start: {format(new Date(record.startDate), "yyyy MMMM d ")}, End: {format(new Date(record.endDate), "yyyy MMMM d")}
                               </p>
+                              <p>for: {record.reason}</p>
+                              
                           </div>
                           <Button variant="ghost" size="sm">
                               Edit
