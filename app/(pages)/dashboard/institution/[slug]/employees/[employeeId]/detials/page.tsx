@@ -46,6 +46,12 @@ type History = {
   checkInTime: string
   checkOutTime: string | null
 }
+type Leave = {
+  id: string
+  startDate: string
+  endDate: string 
+  reason: string
+}
 
 type MonthlySummary = {
   month: string
@@ -79,6 +85,7 @@ const EmployeeDetails = () => {
   const [comparisonData, setComparisonData] = useState<Comp[]>([])
   const [paidLeaves, setPaidLeaves] = useState<number | null>(null)
   const [unpaidLeaves, setUnpaidLeaves] = useState<number | null>(null)
+  const [leaves, setLeaves] = useState<Leave[]>([])
 
   const BaseUrl = process.env.NEXT_PUBLIC_API_URL
   const itemsPerPage = 10
@@ -163,6 +170,7 @@ const EmployeeDetails = () => {
       
       setPaidLeaves(data.paidLeaves);
       setUnpaidLeaves(data.unpaidLeaves);
+      setLeaves(data.leaves);
     } catch (error) {
       console.error("Error fetching total hours:", error)
       toast.error("Failed to fetch total hours. Please try again.")
@@ -363,7 +371,7 @@ interface MonthlyAttendanceResponse {
     <div className="container mx-auto p-4 space-y-4">
       <ToastContainer />
       <div className="flex justify-between items-center">
-        <h1 className="hidden md:block text-xl md:text-2xl font-bold">Employee Attendance Dashboard</h1>
+        <h1 className="hidden md:block lg:hidden xl:block text-xl md:text-2xl font-bold">Employee Attendance Dashboard</h1>
         <div className="flex items-center space-x-2">
           <Popover>
             <PopoverTrigger asChild>
@@ -381,7 +389,7 @@ interface MonthlyAttendanceResponse {
               />
             </PopoverContent>
           </Popover>
-          <Button onClick={exportMonthlyReport} className="bg-primary text-foreground">
+          <Button onClick={exportMonthlyReport} className="bg-cyan-900 text-white">
             <Download className="mr-2 h-4 w-4" />
             Export Report
           </Button>
@@ -468,6 +476,7 @@ interface MonthlyAttendanceResponse {
         </Card>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* monthy summry char */}
       <Card>
         <CardHeader>
           <CardTitle>Attendance Comparison</CardTitle>
@@ -485,7 +494,7 @@ interface MonthlyAttendanceResponse {
           </ResponsiveContainer>
         </CardContent>
       </Card>
-
+      {/* monthly summry table*/}
       <Card>
         <CardHeader>
           <CardTitle>Monthly Summary</CardTitle>
@@ -576,13 +585,42 @@ interface MonthlyAttendanceResponse {
           </div>
         </TabsContent>
         <TabsContent value="leave">
+        <div className="flex justify-between items-center">
+            <h2 className="text-xl font-semibold">Leave Requests</h2>
+            {/* <div className="relative">
+              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input 
+                placeholder="Search records" 
+                className="pl-8"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div> */}
+          </div>
           <Card>
-            <CardHeader>
-              <CardTitle>Leave Requests</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p>No leave requests found.</p>
-            </CardContent>
+            <ScrollArea className="h-[400px]">
+              <div className="p-4">
+                {leaves
+                  .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+                  .map((record) => (
+                    <div
+                      key={record.id}
+                      className="flex justify-between items-center py-2 border-b last:border-b-0 cursor-pointer hover:bg-accent"
+                      onClick={() => {}}
+                    >
+                      <div>
+                        <p className="font-medium">{format(new Date(record.reason), "MMMM d, yyyy")}</p>
+                        <p className="text-sm text-muted-foreground">
+                          Start: {record.startDate}, End: {record.endDate}
+                        </p>
+                      </div>
+                      <Button variant="ghost" size="sm">
+                        Edit
+                      </Button>
+                    </div>
+                  ))}
+              </div>
+            </ScrollArea>
           </Card>
         </TabsContent>
       </Tabs>
