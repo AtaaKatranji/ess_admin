@@ -51,6 +51,7 @@ type Leave = {
   startDate: string
   endDate: string 
   reason: string
+  durationInDays: number
   
 }
 
@@ -169,8 +170,8 @@ const EmployeeDetails = () => {
 
       const data = await response.json()
       console.log("lol: ",data.leaves)
-      setPaidLeaves(data.paidLeaves);
-      setUnpaidLeaves(data.unpaidLeaves);
+      setPaidLeaves(data.totalPaidLeaveDays);
+      setUnpaidLeaves(data.totalUnpaidLeaveDays);
       setLeaves(data.leaves);
     } catch (error) {
       console.error("Error fetching total hours:", error)
@@ -610,14 +611,12 @@ interface MonthlyAttendanceResponse {
                           <div>
                               <p className="font-medium">{format(new Date(record.startDate), "MMMM d, yyyy")}</p>
                               <p className="text-sm text-muted-foreground">
-                                  Start: {format(new Date(record.startDate), "yyyy MMMM d ")}, End: {format(new Date(record.endDate), "yyyy MMMM d")}
+                                  Start: {format(new Date(record.startDate), "yyyy MM dd ")}, End: {format(new Date(record.endDate), "yyyy MM dd")}
                               </p>
                               <p>for: {record.reason}</p>
                               
                           </div>
-                          <Button variant="ghost" size="sm">
-                              Edit
-                          </Button>
+                          <p>No.days: {record.durationInDays}</p>
                       </div>
                   ))
               ) : (
