@@ -339,7 +339,7 @@ interface MonthlyAttendanceResponse {
 
   const exportMonthlyReport = async () => {
     console.log(selectedMonth)
-    const response = await fetch(`${BaseUrl}/checks/summry`, {
+    const response = await fetch(`${BaseUrl}/checks/summry2`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
