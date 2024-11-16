@@ -40,7 +40,7 @@ const exportMonthlyReportPDF = (data) => {
     
     // Determine how to format the date
     let formattedDate;
-    if (entry.type !== "attendance") {
+    if (entry.type !== "Attendance") {
       const longDayName = new Intl.DateTimeFormat('en-US', longOptions).format(date);
       formattedDate = `${year}-${month}-${day}: ${longDayName} (${entry.type})`;
     } else {
@@ -49,7 +49,7 @@ const exportMonthlyReportPDF = (data) => {
     }
 
     // Return the row based on the type
-    if (entry.type !== "attendance") {
+    if (entry.type !== "Attendance") {
       return [formattedDate, "-", "-", "-"]; // Display type with no check-in/out details
     } else {
       return [
