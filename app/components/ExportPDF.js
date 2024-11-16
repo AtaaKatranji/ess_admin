@@ -29,28 +29,38 @@ const exportMonthlyReportPDF = (data) => {
 
   // Adding details section for each day
   const checkInOutData = data.details.map(entry => {
-    // Create a new Date object from the entry date
     const date = new Date(entry.date);
-    
-    // Extract the year, month, and day
     const year = date.getFullYear();
-    const month = String(date.getMonth() + 1); // Months are zero-based
-    const day = String(date.getDate()); // Get the day of the month
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Ensure month is two-digit
+    const day = String(date.getDate()).padStart(2, '0'); // Ensure day is two-digit
+
+    // Format options
+    const shortOptions = { weekday: 'short' };
+    const longOptions = { weekday: 'long' };
     
-    // Get the abbreviated day name (e.g., Mon, Tue)
-    const options = { weekday: 'short' };
-    const dayName = new Intl.DateTimeFormat('en-US', options).format(date);
-    
-    // Format the date as "YYYY-MM-D: Day"
-    const formattedDate = `${year}-${month}-${day}: ${dayName}`;
-    
-    return [
-        formattedDate,   // Use the formatted date
-        entry.checkIn,
-        entry.checkOut,
-        entry.dailyHours
-    ];
-});
+    // Determine how to format the date
+    let formattedDate;
+    if (entry.type !== "attendance") {
+      const longDayName = new Intl.DateTimeFormat('en-US', longOptions).format(date);
+      formattedDate = `${year}-${month}-${day}: ${longDayName} (${entry.type})`;
+    } else {
+      const shortDayName = new Intl.DateTimeFormat('en-US', shortOptions).format(date);
+      formattedDate = `${year}-${month}-${day}: ${shortDayName}`;
+    }
+
+    // Return the row based on the type
+    if (entry.type !== "attendance") {
+      return [formattedDate, "-", "-", "-"]; // Display type with no check-in/out details
+    } else {
+      return [
+        formattedDate,
+        entry.checkIn || "-", // Display "-" if no check-in
+        entry.checkOut || "-", // Display "-" if no check-out
+        entry.dailyHours || "-" // Display "-" if no daily hours
+      ];
+    }
+  });
+
   doc.autoTable({
     head: [["Date", "Check-In", "Check-Out", "Daily Hours"]],
     body: checkInOutData,
