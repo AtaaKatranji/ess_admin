@@ -42,7 +42,7 @@ const exportMonthlyReportPDF = (data) => {
     let formattedDate;
     if (entry.type !== "Attendance") {
       const longDayName = new Intl.DateTimeFormat('en-US', longOptions).format(date);
-      formattedDate = `${year}-${month}-${day}: ${longDayName} (${entry.type})`;
+      formattedDate = `${year}-${month}-${day}: ${longDayName}    ${entry.type}`;
     } else {
       const shortDayName = new Intl.DateTimeFormat('en-US', shortOptions).format(date);
       formattedDate = `${year}-${month}-${day}: ${shortDayName}`;
@@ -67,7 +67,7 @@ const exportMonthlyReportPDF = (data) => {
     startY: doc.lastAutoTable.finalY + 10, // Start after the summary table
   });
 
-  doc.save("Monthly_Attendance_Report.pdf");
+  doc.save(`Monthly_Attendance_Report_${data.summary.employeeName}.pdf`);
   toast.info("Monthly report exported as PDF!");
 };
 
