@@ -541,8 +541,10 @@ interface MonthlyAttendanceResponse {
         <TabsContent value="attendance" className="space-y-4">
           <div className="flex justify-between items-center">
             <h2 className="text-xl font-semibold">Attendance Records</h2>
+            <div className="flex space-x-2 ">
+            <Button className="h-4 w-4" onClick={openAddDialog}><PlusCircle /></Button>
             <div className="relative">
-              <Button className="h-4 w-4" onClick={openAddDialog}><PlusCircle /></Button>
+             
               <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input 
                 placeholder="Search records" 
@@ -550,6 +552,7 @@ interface MonthlyAttendanceResponse {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
+            </div>
             </div>
           </div>
           <Card>
