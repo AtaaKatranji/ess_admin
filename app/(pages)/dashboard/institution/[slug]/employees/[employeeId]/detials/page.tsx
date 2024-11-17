@@ -7,7 +7,7 @@ import { format } from "date-fns"
 // startOfMonth, endOfMonth,
 import { toast, ToastContainer } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
-import { CalendarIcon, ClockIcon, Star, Rabbit, Turtle, Search, Loader2, Download, LucideArchiveRestore } from "lucide-react"
+import { PlusCircle, CalendarIcon, ClockIcon, Star, Rabbit, Turtle, Search, Loader2, Download, LucideArchiveRestore } from "lucide-react"
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip } from "recharts";
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
@@ -78,6 +78,7 @@ const EmployeeDetails = () => {
   const [extraAttendanceHours, setExtraAttendanceHours] = useState<number | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [isEditing, setIsEditing] = useState(false)
   const [startTime, setStartTime] = useState("")
   const [endTime, setEndTime] = useState("")
   const [searchTerm, setSearchTerm] = useState("")
@@ -198,6 +199,7 @@ const EmployeeDetails = () => {
     tardies: number;
 }
 
+
 // Define an interface for the response structure
 interface MonthlyAttendanceResponse {
     employeeId: string;
@@ -310,10 +312,15 @@ interface MonthlyAttendanceResponse {
   }, [searchTerm, history])
 
   const openEditDialog = (record: History) => {
+    setIsEditing(true);
     form.reset(record)
     setIsDialogOpen(true)
   }
-
+  const openAddDialog = () => {
+    setIsEditing(false); // Set to add mode
+    form.reset(); // Reset form data for new record
+    setIsDialogOpen(true);
+  };
   const onSubmit = async (data: History) => {
     try {
       const response = await fetch(`${BaseUrl}/checks/update`, {
@@ -535,6 +542,7 @@ interface MonthlyAttendanceResponse {
           <div className="flex justify-between items-center">
             <h2 className="text-xl font-semibold">Attendance Records</h2>
             <div className="relative">
+              <Button className="h-4 w-4" onClick={openAddDialog}><PlusCircle /></Button>
               <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input 
                 placeholder="Search records" 
@@ -631,7 +639,7 @@ interface MonthlyAttendanceResponse {
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Edit Check-in Record</DialogTitle>
+          <DialogTitle>{isEditing ? 'Edit Check-in Record' : 'Add New Check-in Record'}</DialogTitle>
           </DialogHeader>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -713,7 +721,7 @@ interface MonthlyAttendanceResponse {
                 )}
               />
               <DialogFooter>
-                <Button type="submit">Save changes</Button>
+                <Button type="submit">Save</Button>
               </DialogFooter>
             </form>
           </Form>
