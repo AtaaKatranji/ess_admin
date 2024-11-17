@@ -13,6 +13,7 @@ interface SSIDInfo {
 
 type InstitutionInfo = {
   name: string;
+  adminId: string;
   address: string;
   uniqueKey: string;
   macAddresses: SSIDInfo[];
@@ -128,6 +129,7 @@ export const updatedInstitutionInfo = async (institutionInfo: InstitutionInfo,sl
   // Create the data to send
   const institutionData = {
     name: institutionInfo.name,
+    adminId: institutionInfo.adminId,
     address: institutionInfo.address,
     keyNumber: institutionInfo.uniqueKey,
     macAddresses: institutionInfo.macAddresses,

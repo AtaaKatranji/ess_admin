@@ -8,6 +8,7 @@ const exportMonthlyReportPDF = (data) => {
 
   const doc = new jsPDF();
   doc.text("Monthly Attendance Report", 14, 10);
+  doc.text(`Employee: ${data.summary.employeeName}`, 10, 6);
 
   // Adding summary section
   const summaryData = [
@@ -67,7 +68,7 @@ const exportMonthlyReportPDF = (data) => {
     startY: doc.lastAutoTable.finalY + 10, // Start after the summary table
   });
 
-  doc.save(`Monthly_Attendance_Report_${data.summary.employeeName}.pdf`);
+  doc.save(`${month}_Attendance_Report_${data.summary.employeeName}.pdf`);
   toast.info("Monthly report exported as PDF!");
 };
 

@@ -17,6 +17,7 @@ interface SSIDInfo {
 
 interface InstitutionInfo {
   name: string;
+  adminId:string,
   address: string;
   uniqueKey: string;
   macAddresses: SSIDInfo[];
@@ -30,6 +31,7 @@ const SettingsPage: React.FC = () => {
 
   const [institutionInfo, setInstitutionInfo] = useState<InstitutionInfo>({
     name: '',
+    adminId:'',
     address: '',
     uniqueKey: '',
     macAddresses: [],
