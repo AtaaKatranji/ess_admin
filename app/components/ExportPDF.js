@@ -68,7 +68,7 @@ const exportMonthlyReportPDF = (data) => {
     startY: doc.lastAutoTable.finalY + 10, // Start after the summary table
   });
 
-  doc.save(`${month}_Attendance_Report_${data.summary.employeeName}.pdf`);
+  doc.save(`${data.summry.monthName}_Attendance_Report_${data.summary.employeeName}.pdf`);
   toast.info("Monthly report exported as PDF!");
 };
 
