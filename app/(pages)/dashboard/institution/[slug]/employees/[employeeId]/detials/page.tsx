@@ -7,7 +7,7 @@ import { format } from "date-fns"
 // startOfMonth, endOfMonth,
 import { toast, ToastContainer } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
-import { PlusCircle, CalendarIcon, ClockIcon, Star, Rabbit, Turtle, Search, Loader2, Download, LucideArchiveRestore } from "lucide-react"
+import { Plus, CalendarIcon, ClockIcon, Star, Rabbit, Turtle, Search, Loader2, Download, LucideArchiveRestore } from "lucide-react"
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip } from "recharts";
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
@@ -323,26 +323,68 @@ interface MonthlyAttendanceResponse {
   };
   const onSubmit = async (data: History) => {
     try {
-      const response = await fetch(`${BaseUrl}/checks/update`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      })
-
-      if (!response.ok) {
-        throw new Error("Failed to update record")
+      let response;
+  
+      // Step 1: Check if we are in edit mode
+      if (isEditing) {
+        // If editing, proceed with the update
+        response = await fetch(`${BaseUrl}/checks/update`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        });
+      } else {
+        // Step 2: Check if a record already exists for the selected date when adding
+        const existingRecordsResponse = await fetch(`${BaseUrl}/checks?date=${data.checkDate}&employeeId=${employeeId}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+  
+        if (!existingRecordsResponse.ok) {
+          throw new Error("Failed to check existing records");
+        }
+  
+        const existingRecords = await existingRecordsResponse.json();
+  
+        // Step 3: Check if there are any records for that date
+        if (existingRecords.length > 0) {
+          toast.error("A record for this date already exists. Please choose another date.");
+          return; // Exit the function early to prevent adding a duplicate
+        }
+        const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        const requestData = {
+          ...data, // Spread existing History fields
+          timeZone, // Add timeZone field
+          employeeId, // Add employeeId field
+        };
+        // Step 4: Proceed with adding the new record
+        response = await fetch(`${BaseUrl}/checks/add`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(requestData),
+        });
       }
-
-      fetchMonthlyHistory(selectedMonth)
-      toast.success("Updated successfully")
-      setIsDialogOpen(false)
+  
+      // Step 5: Check if the response is ok
+      if (!response.ok) {
+        throw new Error("Failed to save record");
+      }
+  
+      // Fetch monthly history after successful operation
+      fetchMonthlyHistory(selectedMonth);
+      toast.success(isEditing ? "Updated successfully" : "Added successfully");
+      setIsDialogOpen(false);
     } catch (error) {
-      console.error("Error updating record:", error)
-      toast.error("Failed to update record. Please try again.")
+      console.error("Error saving record:", error);
+      toast.error("Failed to save record. Please try again.");
     }
-  }
+  };
 
   const exportMonthlyReport = async () => {
     console.log(selectedMonth)
@@ -542,7 +584,10 @@ interface MonthlyAttendanceResponse {
           <div className="flex justify-between items-center">
             <h2 className="text-xl font-semibold">Attendance Records</h2>
             <div className="flex space-x-2 ">
-            <Button className="h-4 w-4" onClick={openAddDialog}><PlusCircle /></Button>
+            <Button variant="outline" className="h-10 w-10  p-0" onClick={openAddDialog}>
+              <Plus className="h-10 w-10" />
+              <span className="sr-only">Add item</span>
+            </Button>
             <div className="relative">
              
               <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
