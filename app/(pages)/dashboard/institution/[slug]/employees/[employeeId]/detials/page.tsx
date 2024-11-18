@@ -361,6 +361,7 @@ interface MonthlyAttendanceResponse {
           timeZone, // Add timeZone field
           employeeId, // Add employeeId field
         };
+        console.log(JSON.stringify(requestData))
         // Step 4: Proceed with adding the new record
         response = await fetch(`${BaseUrl}/checks/add`, {
           method: "POST",
