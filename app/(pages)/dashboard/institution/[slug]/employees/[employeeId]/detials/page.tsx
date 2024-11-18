@@ -310,7 +310,11 @@ interface MonthlyAttendanceResponse {
     setFilteredHistory(filtered)
     setCurrentPage(1)
   }, [searchTerm, history])
-
+// Function to reset form fields (implement according to your form management)
+  const resetForm = () => {
+    // Assuming you are using React Hook Form or similar library:
+    form.reset(); // Reset all fields in your form
+  };
   const openEditDialog = (record: History) => {
     setIsEditing(true);
     form.reset(record)
@@ -318,7 +322,7 @@ interface MonthlyAttendanceResponse {
   }
   const openAddDialog = () => {
     setIsEditing(false); // Set to add mode
-    form.reset(); // Reset form data for new record
+    resetForm();// Reset form data for new record
     setIsDialogOpen(true);
   };
   const onSubmit = async (data: History) => {
@@ -380,6 +384,7 @@ interface MonthlyAttendanceResponse {
       // Fetch monthly history after successful operation
       fetchMonthlyHistory(selectedMonth);
       toast.success(isEditing ? "Updated successfully" : "Added successfully");
+      resetForm();
       setIsDialogOpen(false);
     } catch (error) {
       console.error("Error saving record:", error);
