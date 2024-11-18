@@ -322,7 +322,8 @@ interface MonthlyAttendanceResponse {
   }
   const openAddDialog = () => {
     setIsEditing(false); // Set to add mode
-    resetForm();// Reset form data for new record
+    resetForm();
+    form.reset();// Reset form data for new record
     setIsDialogOpen(true);
   };
   const onSubmit = async (data: History) => {
@@ -339,6 +340,7 @@ interface MonthlyAttendanceResponse {
           },
           body: JSON.stringify(data),
         });
+        form.reset();
       } else {
         // Step 2: Check if a record already exists for the selected date when adding
         const existingRecordsResponse = await fetch(`${BaseUrl}/checks/checks?date=${data.checkDate}&employeeId=${employeeId}`, {
