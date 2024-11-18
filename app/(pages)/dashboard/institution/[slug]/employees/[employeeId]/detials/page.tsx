@@ -337,7 +337,7 @@ interface MonthlyAttendanceResponse {
         });
       } else {
         // Step 2: Check if a record already exists for the selected date when adding
-        const existingRecordsResponse = await fetch(`${BaseUrl}/checks?date=${data.checkDate}&employeeId=${employeeId}`, {
+        const existingRecordsResponse = await fetch(`${BaseUrl}/checks/checks?date=${data.checkDate}&employeeId=${employeeId}`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
