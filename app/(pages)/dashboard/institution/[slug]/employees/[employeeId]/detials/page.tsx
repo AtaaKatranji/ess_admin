@@ -89,10 +89,12 @@ const EmployeeDetails = () => {
   const [paidLeaves, setPaidLeaves] = useState<number | null>(null)
   const [unpaidLeaves, setUnpaidLeaves] = useState<number | null>(null)
   const [leaves, setLeaves] = useState<Leave[]>([])
+  const [shiftDays, setShiftDays] = useState<string []>([])
 
   const BaseUrl = process.env.NEXT_PUBLIC_API_URL
   const itemsPerPage = 10
-
+  const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  
   const params = useParams()
   const employeeId = Array.isArray(params.employeeId) ? params.employeeId[0] : params.employeeId as string
 
@@ -187,10 +189,11 @@ const EmployeeDetails = () => {
       const firstShift = result[0]
       setStartTime(firstShift.startTime)
       setEndTime(firstShift.endTime)
-      
+      setShiftDays(firstShift.days)
     } else if (result) {
       setStartTime(result.startTime)
       setEndTime(result.endTime)
+      setShiftDays(result.days)
     }
   }
   interface MonthlyAttendanceStats {
@@ -242,6 +245,7 @@ interface MonthlyAttendanceResponse {
 
   useEffect(() => {
     const postTimeShiftData = async () => {
+      
       if (startTime && endTime) {
         const date = selectedMonth
         const month = date.toLocaleString("default", { month: "long" })
@@ -719,22 +723,38 @@ interface MonthlyAttendanceResponse {
                           </Button>
                         </FormControl>
                       </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={field.value ? new Date(field.value) : undefined}
-                          onSelect={(date) => {
-                            if (date) {
-                              const localISOTime = new Date(date.getTime() - date.getTimezoneOffset() * 60000)
-                                .toISOString()
-                                .slice(0, -1)
-                              field.onChange(localISOTime)
-                            }
-                          }}
-                          disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
-                          initialFocus
-                        />
-                      </PopoverContent>
+
+
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={field.value ? new Date(field.value) : undefined}
+                            onSelect={(date) => {
+                              if (date) {
+                                const dayName = days[date.getDay()];
+                                console.log(dayName);
+                                if (shiftDays.includes(dayName)) {
+                                  // Date is within the shift days
+                                  const localISOTime = new Date(
+                                    date.getTime() - date.getTimezoneOffset() * 60000
+                                  )
+                                    .toISOString()
+                                    .slice(0, -1);
+                                  field.onChange(localISOTime);
+                                } else {
+                                  // Date is not within the shift days
+                                  alert("The selected date is not part of the shift days.");
+                                }
+                              }
+                            }}
+                            disabled={(date) => {
+                              const dayName = days[date.getDay()];
+                              // Disable dates that are not in shiftDays or out of range
+                              return !shiftDays.includes(dayName) || date > new Date() || date < new Date("1900-01-01");
+                            }}
+                            initialFocus
+                          />
+                        </PopoverContent>
                     </Popover>
                     <FormMessage />
                   </FormItem>

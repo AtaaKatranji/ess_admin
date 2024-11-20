@@ -8,7 +8,7 @@ const exportMonthlyReportPDF = (data) => {
 
   const doc = new jsPDF();
   doc.text("Monthly Attendance Report", 14, 10);
-  doc.text(`Employee: ${data.summary.employeeName}`, 10, 6);
+  doc.text(`Employee: ${data.summary.employeeName}`,18, 10);
 
   // Adding summary section
   const summaryData = [
