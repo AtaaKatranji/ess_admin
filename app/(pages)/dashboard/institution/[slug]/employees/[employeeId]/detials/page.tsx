@@ -417,7 +417,7 @@ interface MonthlyAttendanceResponse {
     }
 
     const data = await response.json();
-    setEmployeeName(data.employeeName);
+    setEmployeeName(await data.employeeName);
     // This would generate and download a report in a real application
     exportMonthlyReportPDF(data);
     // For now, we'll just show a toast message
