@@ -7,8 +7,8 @@ const exportMonthlyReportPDF = (data) => {
   if (typeof window === 'undefined') return; // Check if window is available for Next.js
 
   const doc = new jsPDF();
-  doc.text("Monthly Attendance Report", 14, 10);
-  doc.text(`Employee: ${data.summary.employeeName}`,18, 10);
+  doc.text(`${data.summary.monthName} Attendance Report`, 14, 10);
+  doc.text(`Employee: ${data.summary.employeeName}`,14, 20);
 
   // Adding summary section
   const summaryData = [

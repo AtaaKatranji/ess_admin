@@ -90,6 +90,7 @@ const EmployeeDetails = () => {
   const [unpaidLeaves, setUnpaidLeaves] = useState<number | null>(null)
   const [leaves, setLeaves] = useState<Leave[]>([])
   const [shiftDays, setShiftDays] = useState<string []>([])
+  const [employeeName, setEmployeeName] = useState<string []>([])
 
   const BaseUrl = process.env.NEXT_PUBLIC_API_URL
   const itemsPerPage = 10
@@ -416,6 +417,7 @@ interface MonthlyAttendanceResponse {
     }
 
     const data = await response.json();
+    setEmployeeName(data.employeeName);
     // This would generate and download a report in a real application
     exportMonthlyReportPDF(data);
     // For now, we'll just show a toast message
@@ -433,7 +435,7 @@ interface MonthlyAttendanceResponse {
     <div className="container mx-auto p-4 space-y-4">
       <ToastContainer />
       <div className="flex justify-between items-center">
-        <h1 className="hidden md:block lg:hidden xl:block text-xl md:text-2xl font-bold">Employee Attendance Dashboard</h1>
+        <h1 className="hidden md:block lg:hidden xl:block text-xl md:text-2xl font-bold">{employeeName}'s Attendance Dashboard</h1>
         <div className="flex items-center space-x-2">
           <Popover>
             <PopoverTrigger asChild>
