@@ -159,25 +159,36 @@ const EmployeeDetails = () => {
 
   const fetchLeaves = async (date: Date) => {
     const month = date
-
-    try {
-      const response = await fetch(`${BaseUrl}/leaves/month`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ userId: employeeId, month }),
-      })
-      if (!response.ok) {
-        throw new Error("Failed to fetch leaves")
-      }
-
-      const data = await response.json()
-      console.log("lol: ",data.leaves)
-      setPaidLeaves(data.totalPaidLeaveDays);
-      setUnpaidLeaves(data.totalUnpaidLeaveDays);
-      setLeaves(data.leaves);
-    } catch (error) {
+    try{
+    const response = await fetch(`${BaseUrl}/leaves/month`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ userId: employeeId, month }),
+    });
+    
+    if (!response.ok) {
+      throw new Error("Failed to fetch leaves");
+    }
+    
+    const data = await response.json();
+    
+    // Access the nested structure
+    const leaveRequests = data.leaves?.leaves || []; // Safely access the nested 'leaves'
+    const totalPaidLeaveDays = data.leaveDays?.totalPaidLeaveDays || 0;
+    const totalUnpaidLeaveDays = data.leaveDays?.totalUnpaidLeaveDays || 0;
+    
+    // Log for debugging
+    console.log("Leave Requests: ", leaveRequests);
+    console.log("Total Paid Leave Days: ", totalPaidLeaveDays);
+    console.log("Total Unpaid Leave Days: ", totalUnpaidLeaveDays);
+    
+    // Update state
+    setPaidLeaves(totalPaidLeaveDays);
+    setUnpaidLeaves(totalUnpaidLeaveDays);
+    setLeaves(leaveRequests);
+    }catch (error) {
       console.error("Error fetching total hours:", error)
       toast.error("Failed to fetch total hours. Please try again.")
     }
@@ -417,7 +428,7 @@ interface MonthlyAttendanceResponse {
     }
 
     const data = await response.json();
-    setEmployeeName(await data.employeeName);
+    setEmployeeName(await data.summary.employeeName);
     // This would generate and download a report in a real application
     exportMonthlyReportPDF(data);
     // For now, we'll just show a toast message
