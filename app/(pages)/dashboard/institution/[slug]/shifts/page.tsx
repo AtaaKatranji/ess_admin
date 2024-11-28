@@ -22,7 +22,12 @@ type Shift = {
   endTime: string
   days: string[]
   institutionKey: string,
-  employees?: Employee[]
+  employees?: Employee[],
+  lateLimit: number,
+  lateMultiplier: number,
+  extraLimit: number,
+  extraMultiplier: number,
+
 }
 
 const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
@@ -40,6 +45,10 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
     endTime: '',
     institutionKey:params.institutionKey,
     days: [],
+    lateLimit: 1,
+    lateMultiplier: 1,
+    extraLimit: 1,
+    extraMultiplier: 1,
   })
   const [employees, setEmployees] = useState<Employee[]>([])
   // const [newEmployee, setNewEmployee] = useState('')
@@ -94,7 +103,10 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
       })
       const data = await response.json()
       setShifts([...shifts, data])
-      setNewShift({ name: '', startTime: '', endTime: '', days: [] , institutionKey:params.institutionKey })
+      setNewShift({ name: '', startTime: '', endTime: '', days: [] , institutionKey:params.institutionKey, lateLimit: 1,
+        lateMultiplier: 1,
+        extraLimit: 1,
+        extraMultiplier: 1, })
       setIsOpen(false)
     }
   }
@@ -108,7 +120,10 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
       })
       const data = await response.json()
       setShifts(shifts.map(shift => shift._id === data._id ? data : shift))
-      setNewShift({ name: '', startTime: '', endTime: '', days: [] , institutionKey:params.institutionKey })
+      setNewShift({ name: '', startTime: '', endTime: '', days: [] , institutionKey:params.institutionKey, lateLimit: 1,
+        lateMultiplier: 1,
+        extraLimit: 1,
+        extraMultiplier: 1, })
       setIsOpen(false)
       setIsEditing(false)
     }
@@ -204,7 +219,8 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
+          {/* First row with single column */}
+          <div className="md:col-span-2">
             <Label htmlFor="name">Shift Name</Label>
             <Input
               id="name"
@@ -215,6 +231,8 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
               required
             />
           </div>
+
+          {/* Second row with two columns */}
           <div>
             <Label htmlFor="startTime">Start Time</Label>
             <Input
@@ -238,6 +256,52 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
             />
           </div>
 
+          {/* Next rows */}
+          <div>
+            <Label htmlFor="lateMultiplier">Late Multiplier</Label>
+            <Input
+              id="lateMultiplier"
+              name="lateMultiplier"
+              type="number"
+              value={newShift.lateMultiplier}
+              onChange={handleInputChange}
+              required
+            />
+          </div>
+          <div>
+            <Label htmlFor="extraMultiplier">Extra Multiplier</Label>
+            <Input
+              id="extraMultiplier"
+              name="extraMultiplier"
+              type="number"
+              value={newShift.extraMultiplier}
+              onChange={handleInputChange}
+              required
+            />
+          </div>
+          <div>
+            <Label htmlFor="lateLimit">Late Limit</Label>
+            <Input
+              id="lateLimit"
+              name="lateLimit"
+              type="number"
+              value={newShift.lateLimit}
+              onChange={handleInputChange}
+              required
+            />
+          </div>
+          <div>
+            <Label htmlFor="extraLimit">Extra Threshold</Label>
+            <Input
+              id="extraLimit"
+              name="extraLimit"
+              type="number"
+              value={newShift.extraLimit}
+              onChange={handleInputChange}
+              required
+            />
+          </div>
+
           <fieldset className="mt-4 md:col-span-2">
             <legend className="text-sm font-medium text-gray-700">Days of Week</legend>
             <div className="mt-2 flex flex-wrap gap-2">
@@ -253,27 +317,28 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
               ))}
             </div>
           </fieldset>
-          
+
           <DialogFooter className="mt-6 md:col-span-2">
             <Button type="button" variant="secondary" onClick={() => setIsOpen(false)} className="mr-4">
               Cancel
             </Button>
-           
-            {isEditing ? 
-              <Button type='submit'>
-                    <SaveIcon className="mr-2 h-4 w-4"/>
-                    Save Changes
+
+            {isEditing ? (
+              <Button type="submit">
+                <SaveIcon className="mr-2 h-4 w-4" />
+                Save Changes
               </Button>
-            
-            : <div>
-               <Button type="submit">
-               <PlusCircle className="mr-2 h-4 w-4" />
-               Add Shift
-               </Button>
-              </div>}
-            
+            ) : (
+              <div>
+                <Button type="submit">
+                  <PlusCircle className="mr-2 h-4 w-4" />
+                  Add Shift
+                </Button>
+              </div>
+            )}
           </DialogFooter>
         </form>
+
       </DialogContent>
       </Dialog>
       <div className="mb-8">
@@ -341,6 +406,7 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
                     <p className="text-sm text-gray-500">
                       {shift.days.join(', ')}
                     </p>
+                    
                   </div>
                   <div className='space-x-4'>
                   <Button
