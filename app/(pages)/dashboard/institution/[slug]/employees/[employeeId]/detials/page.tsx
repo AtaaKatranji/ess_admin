@@ -425,12 +425,13 @@ interface MonthlyAttendanceResponse {
         date: selectedMonth
       }),
     })
-    console.log(response)
-    if (!response.ok) {
-      throw new Error('Failed to fetch employees');
+    console.log(response.body)
+    if (!response) {
+      throw new Error('Failed to fetch');
     }
 
     const data = await response.json();
+    console.log(data)
     setEmployeeName(await data.summary.employeeName);
     // This would generate and download a report in a real application
     exportMonthlyReportPDF(data);
