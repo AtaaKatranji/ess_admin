@@ -39,6 +39,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 import { fetchTimeShifts } from "@/app/api/shifts/shifts"
 import  exportMonthlyReportPDF  from "@/app/components/ExportPDF"
+import AbsentTab from "@/app/components/AbsentTab"
 
 type History = {
   id: string
@@ -50,6 +51,8 @@ type Leave = {
   id: string
   startDate: string
   endDate: string 
+  type: "Paid" | "Unpaid"
+  status: string
   reason: string
   durationInDays: number
   
@@ -422,7 +425,7 @@ interface MonthlyAttendanceResponse {
         date: selectedMonth
       }),
     })
-
+    console.log(response)
     if (!response.ok) {
       throw new Error('Failed to fetch employees');
     }
@@ -604,6 +607,9 @@ interface MonthlyAttendanceResponse {
         <TabsList>
           <TabsTrigger value="attendance">Attendance Records</TabsTrigger>
           <TabsTrigger value="leave">Leave Requests</TabsTrigger>
+          <TabsTrigger value="absent">Absences</TabsTrigger>
+
+
         </TabsList>
         <TabsContent value="attendance" className="space-y-4">
           <div className="flex justify-between items-center">
@@ -666,47 +672,85 @@ interface MonthlyAttendanceResponse {
             </Button>
           </div>
         </TabsContent>
-        <TabsContent value="leave"  className="space-y-4">
+        <TabsContent value="leave" className="space-y-4">
         <div className="flex justify-between items-center">
-            <h2 className="text-xl font-semibold">Leave Requests</h2>
-            {/* <div className="relative">
-              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input 
-                placeholder="Search records" 
-                className="pl-8"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div> */}
+          <h2 className="text-xl font-semibold">Leave Requests</h2>
+          {/* Uncomment for search functionality */}
+          <div className="relative">
+            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input 
+              placeholder="Search records" 
+              className="pl-8"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
           </div>
-          <Card>
-            <ScrollArea className="h-[400px]">
-            <div className="p-4">
-              {leaves && leaves.length > 0 ? (
-                  leaves.map((record) => (
+        </div>
+
+        <Card>
+          <ScrollArea className="h-[400px]">
+            <div className="p-4 space-y-8">
+              {/* Paid Leaves Section */}
+              <div>
+                <h3 className="text-lg font-medium">Paid Leaves</h3>
+                {leaves && leaves.filter((record) => record.type = "Paid").length > 0 ? (
+                  leaves
+                    .filter((record) => record.type = "Paid")
+                    .map((record) => (
                       <div
-                          key={record.id}
-                          className="flex justify-between items-center py-2 border-b last:border-b-0 cursor-pointer hover:bg-accent"
-                          onClick={() => {}}
+                        key={record.id}
+                        className="flex justify-between items-center py-2 border-b last:border-b-0 cursor-pointer hover:bg-accent"
+                        onClick={() => {}}
                       >
-                          <div>
-                              <p className="font-medium">{format(new Date(record.startDate), "MMMM d, yyyy")}</p>
-                              <p className="text-sm text-muted-foreground">
-                                  Start: {format(new Date(record.startDate), "yyyy MM dd ")}, End: {format(new Date(record.endDate), "yyyy MM dd")}
-                              </p>
-                              <p>for: {record.reason}</p>
-                              
-                          </div>
-                          <p>No.days: {record.durationInDays}</p>
+                        <div>
+                          <p className="font-medium">{format(new Date(record.startDate), "MMMM d, yyyy")}</p>
+                          <p className="text-sm text-muted-foreground">
+                            Start: {format(new Date(record.startDate), "yyyy MM dd")}, End: {format(new Date(record.endDate), "yyyy MM dd")}
+                          </p>
+                          <p>For: {record.reason}</p>
+                        </div>
+                        <p>No. of days: {record.durationInDays}</p>
                       </div>
-                  ))
-              ) : (
-                  <p>No leave records available.</p> // Optional: Message when there are no records
-              )}
-          </div>
-            </ScrollArea>
-          </Card>
+                    ))
+                ) : (
+                  <p className="text-sm text-muted-foreground">No paid leave records available.</p>
+                )}
+              </div>
+
+              {/* Unpaid Leaves Section */}
+              <div>
+                <h3 className="text-lg font-medium">Unpaid Leaves</h3>
+                {leaves && leaves.filter((record) => record.type == "Unpaid" ).length > 0 ? (
+                  leaves
+                    .filter((record) => record.type == "Unpaid")
+                    .map((record) => (
+                      <div
+                        key={record.id}
+                        className="flex justify-between items-center py-2 border-b last:border-b-0 cursor-pointer hover:bg-accent"
+                        onClick={() => {}}
+                      >
+                        <div>
+                          <p className="font-medium">{format(new Date(record.startDate), "MMMM d, yyyy")}</p>
+                          <p className="text-sm text-muted-foreground">
+                            Start: {format(new Date(record.startDate), "yyyy MM dd")}, End: {format(new Date(record.endDate), "yyyy MM dd")}
+                          </p>
+                          <p>For: {record.reason}</p>
+                        </div>
+                        <p>No. of days: {record.durationInDays}</p>
+                      </div>
+                    ))
+                ) : (
+                  <p className="text-sm text-muted-foreground">No unpaid leave records available.</p>
+                )}
+              </div>
+            </div>
+          </ScrollArea>
+        </Card>
         </TabsContent>
+        <TabsContent value="absent">
+          <AbsentTab employeeId={employeeId} />
+        </TabsContent>
+
       </Tabs>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>

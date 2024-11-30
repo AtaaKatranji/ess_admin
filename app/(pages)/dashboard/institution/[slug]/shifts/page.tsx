@@ -95,7 +95,7 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
 
   const addShift = async () => {
    
-    if (newShift.name && newShift.startTime && newShift.endTime && newShift.days.length > 0) {
+    if (newShift.name && newShift.startTime && newShift.endTime && newShift.days.length > 0 && newShift.extraLimit >= 1 && newShift.extraLimit >= 1 && newShift.lateLimit >= 1 && newShift.lateMultiplier >= 1) {
       const response = await fetch(`${BaseURL}/shift/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
