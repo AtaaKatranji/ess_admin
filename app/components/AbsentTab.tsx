@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Card } from "@/components/ui/card"
 import { ScrollArea } from "@/components/ui/scroll-area"
-
+import { Search } from 'lucide-react';
+import { Input } from "@/components/ui/input"
 
 const AbsentTab = ({ employeeId }: { employeeId: string }) => {
   const [absentDays, setAbsentDays] = useState([]);
   const [loading, setLoading] = useState(true);
-
+  const [searchTerm, setSearchTerm] = useState("")
   useEffect(() => {
     const fetchAbsences = async () => {
       try {
@@ -32,8 +33,22 @@ const AbsentTab = ({ employeeId }: { employeeId: string }) => {
   }
 
   return (
+    <div className="flex-col">
     <div className="flex justify-between items-center">
-    <h3 className="text-lg font-medium">Absences</h3>
+            <h2 className="text-xl font-semibold">Attendance Records</h2>
+            <div className="flex space-x-2 ">
+            <div className="relative">
+             
+              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input 
+                placeholder="Search records" 
+                className="pl-8"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+            </div>
+          </div>
     <Card>
           <ScrollArea className="h-[400px]">
             <div className="p-4 space-y-8">
