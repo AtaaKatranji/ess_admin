@@ -34,6 +34,8 @@ const exportMonthlyReportPDF = (data) => {
     const year = date.getUTCFullYear();
     const month = String(date.getUTCMonth() +1 ).padStart(2, '0'); // Ensure month is two-digit
     const day = String(date.getUTCDate()).padStart(2, '0'); // Ensure day is two-digit
+    console.log(month)
+    console.log(day)
     console.log("1",entry.date)
     console.log("2",date)
     // Format options
