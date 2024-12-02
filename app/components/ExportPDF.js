@@ -49,7 +49,7 @@ const exportMonthlyReportPDF = (data) => {
       const shortDayName = new Intl.DateTimeFormat('en-US', shortOptions).format(date);
       formattedDate = `${year}-${month}-${day}: ${shortDayName}`;
     }
-
+    console.log(formattedDate)
     // Return the row based on the type
     if (entry.type !== "Attendance") {
       return [formattedDate, "-", "-", "-"]; // Display type with no check-in/out details
