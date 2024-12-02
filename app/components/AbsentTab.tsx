@@ -32,12 +32,14 @@ const AbsentTab = ({ employeeId }: { employeeId: string }) => {
   }
 
   return (
+    <div className="flex justify-between items-center">
+    <h3 className="text-lg font-medium">Absences</h3>
     <Card>
           <ScrollArea className="h-[400px]">
             <div className="p-4 space-y-8">
               {/* Paid Leaves Section */}
               <div>
-                <h3 className="text-lg font-medium">Paid Leaves</h3>
+                
                 {absentDays.length > 0 ? (
                   absentDays
                    
@@ -49,6 +51,7 @@ const AbsentTab = ({ employeeId }: { employeeId: string }) => {
             </div>
           </ScrollArea>
         </Card>
+        </div>
   );
 };
 
