@@ -49,6 +49,19 @@ const AttendanceTab = ({ employeeId, selectedMonth }: { employeeId: string; sele
 
     const form = useForm<History>()
     const itemsPerPage = 10
+    
+  const fetchTimeShift = async () => {
+    const result = await fetchTimeShifts(employeeId)
+
+    if (Array.isArray(result)) {
+      const firstShift = result[0]
+
+      setShiftDays(firstShift.days)
+    } else if (result) {
+
+      setShiftDays(result.days)
+    }
+  }
     const openEditDialog = (record: History) => {
         setIsEditing(true);
         form.reset(record)
@@ -199,18 +212,6 @@ const AttendanceTab = ({ employeeId, selectedMonth }: { employeeId: string; sele
     return <p>No Attendace recorded.</p>;
   }
 
-  const fetchTimeShift = async () => {
-    const result = await fetchTimeShifts(employeeId)
-
-    if (Array.isArray(result)) {
-      const firstShift = result[0]
-
-      setShiftDays(firstShift.days)
-    } else if (result) {
-
-      setShiftDays(result.days)
-    }
-  }
   return (
     <div className="flex-col space-y-4">
     <div className="flex justify-between items-center">
