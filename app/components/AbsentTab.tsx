@@ -1,4 +1,7 @@
 import { useState, useEffect } from 'react';
+import { Card } from "@/components/ui/card"
+import { ScrollArea } from "@/components/ui/scroll-area"
+
 
 const AbsentTab = ({ employeeId }: { employeeId: string }) => {
   const [absentDays, setAbsentDays] = useState([]);
@@ -29,11 +32,23 @@ const AbsentTab = ({ employeeId }: { employeeId: string }) => {
   }
 
   return (
-    <ul>
-      {absentDays.map((date) => (
-        <li key={date}>{new Date(date).toLocaleDateString()}</li>
-      ))}
-    </ul>
+    <Card>
+          <ScrollArea className="h-[400px]">
+            <div className="p-4 space-y-8">
+              {/* Paid Leaves Section */}
+              <div>
+                <h3 className="text-lg font-medium">Paid Leaves</h3>
+                {absentDays.length > 0 ? (
+                  absentDays
+                   
+                ) : (
+                  <p className="text-sm text-muted-foreground">No Abssent.</p>
+                )}
+              </div>
+              
+            </div>
+          </ScrollArea>
+        </Card>
   );
 };
 
