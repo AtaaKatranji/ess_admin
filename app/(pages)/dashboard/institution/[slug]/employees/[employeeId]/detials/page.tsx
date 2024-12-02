@@ -206,6 +206,48 @@ interface MonthlyAttendanceResponse {
         console.error('Error fetching monthly summary:', error);
     }
 };
+const exportMonthlyReport = async () => {
+  console.log(selectedMonth)
+  const response = await fetch(`${BaseUrl}/checks/summry2`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      employeeId: employeeId,
+      date: selectedMonth
+    }),
+  })
+  console.log("res: ",response.body)
+  if (!response) {
+    throw new Error('Failed to fetch');
+  }
+
+  const data = await response.json();
+  console.log(data)
+  setEmployeeName(await data.summary.employeeName);
+  // This would generate and download a report in a real application
+  exportMonthlyReportPDF(data);
+  // For now, we'll just show a toast message
+  
+}
+
+
+useEffect(() => {
+  const fetchData = async () => {
+    setIsLoading(true)
+    await Promise.all([
+      fetchTotalHours(selectedMonth),
+      fetchLeaves(selectedMonth),
+      fetchTimeShift(),
+      fetchMonthlySummary(employeeId),
+    ])
+    setIsLoading(false)
+  }
+
+   fetchData()
+}, [employeeId, selectedMonth])
+
 
   useEffect(() => {
     const postTimeShiftData = async () => {
@@ -231,7 +273,7 @@ interface MonthlyAttendanceResponse {
           })
 
           if (!response.ok) {
-            throw new Error("Failed to fetch total hours")
+            throw new Error("Failed to fetch time shift")
           }
 
           const data = await response.json()
@@ -249,49 +291,9 @@ interface MonthlyAttendanceResponse {
     postTimeShiftData()
   }, [startTime, endTime, selectedMonth, employeeId])
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setIsLoading(true)
-      await Promise.all([
-        fetchTotalHours(selectedMonth),
-        fetchLeaves(selectedMonth),
-        fetchTimeShift(),
-        fetchMonthlySummary(employeeId),
-      ])
-      setIsLoading(false)
-    }
-
-    fetchData()
-  }, [employeeId, selectedMonth])
 
 
-
-
-  const exportMonthlyReport = async () => {
-    console.log(selectedMonth)
-    const response = await fetch(`${BaseUrl}/checks/summry2`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        employeeId: employeeId,
-        date: selectedMonth
-      }),
-    })
-    console.log("res: ",response.body)
-    if (!response) {
-      throw new Error('Failed to fetch');
-    }
-
-    const data = await response.json();
-    console.log(data)
-    setEmployeeName(await data.summary.employeeName);
-    // This would generate and download a report in a real application
-    exportMonthlyReportPDF(data);
-    // For now, we'll just show a toast message
-    
-  }
+  
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen">
