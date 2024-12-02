@@ -33,7 +33,7 @@ const AbsentTab = ({ employeeId }: { employeeId: string }) => {
   }
 
   return (
-    <div className="flex-col">
+    <div className="flex-col space-y-4">
     <div className="flex justify-between items-center">
             <h2 className="text-xl font-semibold">Attendance Records</h2>
             <div className="flex space-x-2 ">
