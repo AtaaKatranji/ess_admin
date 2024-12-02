@@ -425,7 +425,7 @@ interface MonthlyAttendanceResponse {
         date: selectedMonth
       }),
     })
-    console.log(response.body)
+    console.log("res: ",response.body)
     if (!response) {
       throw new Error('Failed to fetch');
     }
