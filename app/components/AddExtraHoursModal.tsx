@@ -37,7 +37,7 @@ const AddExtraHoursModal = ({ isOpen, onClose, employeeId }: AddExtraHoursModalP
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await fetch('/api/extra-hours-adjustments', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/extraHours/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -58,7 +58,7 @@ const AddExtraHoursModal = ({ isOpen, onClose, employeeId }: AddExtraHoursModalP
 
   return (
     isOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 w-[65%]">
         <Tabs defaultValue="handel" className="space-y-4">
         <TabsList>
           <TabsTrigger value="handel">Add Extra Hours</TabsTrigger>
