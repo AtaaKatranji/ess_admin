@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Card } from "@/components/ui/card"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Search } from 'lucide-react';
+import { format } from "date-fns"
 import { Input } from "@/components/ui/input"
 
 const AbsentTab = ({ employeeId }: { employeeId: string }) => {
@@ -60,7 +61,7 @@ const AbsentTab = ({ employeeId }: { employeeId: string }) => {
               key={index}
               className="flex justify-between items-center py-2 border-b last:border-b-0 cursor-pointer hover:bg-accent"
             >
-              <span>{new Date(date).toLocaleDateString()}</span>
+              <span>{format(new Date(date), "MMMM d, yyyy")}</span>
             </div>
           ))
         ) : (
