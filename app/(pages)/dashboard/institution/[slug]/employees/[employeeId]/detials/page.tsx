@@ -309,20 +309,20 @@ useEffect(() => {
       <div className="flex justify-between items-center">
         <h1 className="hidden md:block lg:hidden xl:block text-xl md:text-2xl font-bold">{employeeName}'s Attendance Dashboard</h1>
         <div className="flex items-center space-x-2">
-          <div className="p-6">
-            <button
-              className="bg-green-500 text-white px-4 py-2 rounded"
+          
+            <Button
+              className="bg-cyan-900 text-white px-4 py-2 rounded"
               onClick={() => setIsModalOpen(true)}
             >
               Add Extra Hours
-            </button>
+            </Button>
 
             <AddExtraHoursModal
               isOpen={isModalOpen}
               onClose={() => setIsModalOpen(false)}
               employeeId={employeeId}
             />
-          </div>
+          
           <Popover>
             <PopoverTrigger asChild>
               <Button variant="outline">
