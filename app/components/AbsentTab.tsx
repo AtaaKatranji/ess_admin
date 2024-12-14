@@ -35,7 +35,7 @@ const AbsentTab = ({ employeeId }: { employeeId: string }) => {
   return (
     <div className="flex-col space-y-4">
     <div className="flex justify-between items-center">
-            <h2 className="text-xl font-semibold">Attendance Records</h2>
+            <h2 className="text-xl font-semibold">Absences Records</h2>
             <div className="flex space-x-2 ">
             <div className="relative">
              
@@ -56,7 +56,9 @@ const AbsentTab = ({ employeeId }: { employeeId: string }) => {
               <div>
                 
                 {absentDays.length > 0 ? (
-                  absentDays
+                  <div className='flex justify-between items-center py-2 border-b last:border-b-0 cursor-pointer hover:bg-accent'>
+                    {absentDays}
+                  </div>
                    
                 ) : (
                   <p className="text-sm text-muted-foreground">No Abssent.</p>
