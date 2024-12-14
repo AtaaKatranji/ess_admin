@@ -49,25 +49,28 @@ const AbsentTab = ({ employeeId }: { employeeId: string }) => {
             </div>
             </div>
           </div>
-    <Card>
-          <ScrollArea className="h-[400px]">
-            <div className="p-4 space-y-8">
-              {/* Paid Leaves Section */}
-              <div>
-                
-                {absentDays.length > 0 ? (
-                  <div className='flex justify-between items-center py-2 border-b last:border-b-0 cursor-pointer hover:bg-accent'>
-                    {absentDays}
-                  </div>
-                   
-                ) : (
-                  <p className="text-sm text-muted-foreground">No Abssent.</p>
-                )}
-              </div>
-              
+          <Card>
+  <ScrollArea className="h-[400px]">
+    <div className="p-4 space-y-8">
+      {/* Paid Leaves Section */}
+      <div>
+        {absentDays?.length > 0 ? (
+          absentDays.map((date, index) => (
+            <div
+              key={index}
+              className="flex justify-between items-center py-2 border-b last:border-b-0 cursor-pointer hover:bg-accent"
+            >
+              <span>{new Date(date).toLocaleDateString()}</span>
             </div>
-          </ScrollArea>
-        </Card>
+          ))
+        ) : (
+          <p className="text-sm text-muted-foreground">No Absences.</p>
+        )}
+      </div>
+    </div>
+  </ScrollArea>
+</Card>
+
         </div>
   );
 };
