@@ -58,7 +58,7 @@ const AddExtraHoursModal = ({ isOpen, onClose, employeeId }: AddExtraHoursModalP
 
   return (
     isOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 w-[65%]">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <Tabs defaultValue="handel" className="space-y-4">
         <TabsList>
           <TabsTrigger value="handel">Add Extra Hours</TabsTrigger>
@@ -66,7 +66,7 @@ const AddExtraHoursModal = ({ isOpen, onClose, employeeId }: AddExtraHoursModalP
         </TabsList>
         <TabsContent value="handel" className="space-y-4">
         
-        <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
+        <div className="bg-white p-6 rounded-lg shadow-lg">
           <h2 className="text-lg font-bold mb-4">Add Extra Hours</h2>
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
