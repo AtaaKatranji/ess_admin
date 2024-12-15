@@ -1,6 +1,9 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Input } from "@/components/ui/input"
-import { Select } from "@/components/ui/select"
+import { Select,SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue, } from "@/components/ui/select"
 import {
   Form,
   FormField,
@@ -159,6 +162,8 @@ const AddExtraHoursModal = ({ isOpen, onClose, employeeId, monthIndex }: AddExtr
                 <FormItem>
                     <FormLabel>Month</FormLabel>
                     <FormControl>
+                    
+  
                     <Select
                         name={field.name}
                         value={field.value}
@@ -166,14 +171,18 @@ const AddExtraHoursModal = ({ isOpen, onClose, employeeId, monthIndex }: AddExtr
                         
                         required
                       >
-                        <option value="" disabled>
-                          Select a month
-                        </option>
+                        <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Month" />
+                    </SelectTrigger>
+
+                      <SelectContent>
                         {months.map((month) => (
-                          <option key={month.value} value={month.value}>
+                          <SelectItem key={month.value} value={String(month.value)}>
                             {month.name}
-                          </option>
-                        ))}
+                          </SelectItem>
+                           ))}
+                        </SelectContent>
+                       
                       </Select>
                     </FormControl>
                     <FormMessage />
