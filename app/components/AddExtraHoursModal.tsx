@@ -16,7 +16,7 @@ type AddExtraHoursModalProps = {
   isOpen: boolean;
   onClose: () => void;
   employeeId: string;
-  month: Date; 
+  monthIndex: Date; 
 };
 type ExtraHours = {
   _id: string,
@@ -26,7 +26,7 @@ type ExtraHours = {
   reason: string,
 }
 
-const AddExtraHoursModal = ({ isOpen, onClose, employeeId, month }: AddExtraHoursModalProps) => {
+const AddExtraHoursModal = ({ isOpen, onClose, employeeId, monthIndex }: AddExtraHoursModalProps) => {
   const [adjustments, setAdjustments] = useState<ExtraHours[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -69,9 +69,9 @@ const AddExtraHoursModal = ({ isOpen, onClose, employeeId, month }: AddExtraHour
 
 
   useEffect(() => {
-    if (!employeeId || !month) return;
-    const date = new Date(month);
-    const monthIndex = date.getMonth()+1;
+    if (!employeeId || !monthIndex) return;
+    const date = new Date(monthIndex);
+    const month = date.getMonth()+1;
     // Fetch adjustments from the API
     const fetchAdjustments = async () => {
       try {
@@ -80,7 +80,7 @@ const AddExtraHoursModal = ({ isOpen, onClose, employeeId, month }: AddExtraHour
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ employeeId, monthIndex }),
+        body: JSON.stringify({ employeeId, month }),
       });
         if (!response.ok) {
           throw new Error("Failed to fetch adjustments");
@@ -95,7 +95,7 @@ const AddExtraHoursModal = ({ isOpen, onClose, employeeId, month }: AddExtraHour
     };
 
     fetchAdjustments();
-  }, [employeeId, month]);
+  }, [employeeId, monthIndex]);
   return (
     isOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
