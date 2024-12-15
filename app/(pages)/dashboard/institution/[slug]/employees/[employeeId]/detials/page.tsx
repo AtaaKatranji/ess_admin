@@ -322,6 +322,7 @@ useEffect(() => {
               isOpen={isModalOpen}
               onClose={() => setIsModalOpen(false)}
               employeeId={employeeId}
+              month={selectedMonth}
             />
           
           <Popover>

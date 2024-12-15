@@ -9,20 +9,26 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { useForm } from 'react-hook-form';
+import { Button } from '@/components/ui/button';
+import { useEffect, useState } from "react";
 type AddExtraHoursModalProps = {
   isOpen: boolean;
   onClose: () => void;
-  employeeId: string; // Pass employeeId from the parent
+  employeeId: string;
+  month: Date; 
 };
 type ExtraHours = {
+  _id: string,
   addedHours: number,
   addedAt: Date, // Default to today
   month: number, // Default to current month (1-based index)
   reason: string,
 }
 
-const AddExtraHoursModal = ({ isOpen, onClose, employeeId }: AddExtraHoursModalProps) => {
-
+const AddExtraHoursModal = ({ isOpen, onClose, employeeId, month }: AddExtraHoursModalProps) => {
+  const [adjustments, setAdjustments] = useState<ExtraHours[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const form = useForm<ExtraHours>()
   const months = [
     { name: 'January', value: 1 },
@@ -60,6 +66,30 @@ const AddExtraHoursModal = ({ isOpen, onClose, employeeId }: AddExtraHoursModalP
     }
   };
 
+
+  useEffect(() => {
+    if (!employeeId || !month) return;
+
+    // Fetch adjustments from the API
+    const fetchAdjustments = async () => {
+      try {
+        const response = await fetch(
+          `/api/getAdjustmentsByEmployeeAndMonth?employeeId=${employeeId}&month=${month}`
+        );
+        if (!response.ok) {
+          throw new Error("Failed to fetch adjustments");
+        }
+        const data = await response.json();
+        setAdjustments(data);
+      } catch (error ) {
+       setError("Not working")
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAdjustments();
+  }, [employeeId, month]);
   return (
     isOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -166,26 +196,43 @@ const AddExtraHoursModal = ({ isOpen, onClose, employeeId }: AddExtraHoursModalP
     </div>
 
     <div className="flex justify-end space-x-4 mt-4">
-        <button
+        <Button
             type="button"
             onClick={onClose}
             className="bg-gray-500 text-white px-4 py-2 rounded"
         >
             Cancel
-        </button>
-        <button
+        </Button>
+        <Button
             type="submit"
             className="bg-blue-900 text-white px-4 py-2 rounded"
         >
             Add Hours
-        </button>
+        </Button>
     </div>
     </form>
 </Form>
         </div>
          </TabsContent>
         <TabsContent value="listAdded" className="space-y-4">
-        
+        {loading ? (
+        <p>Loading adjustments...</p>
+      ) : error ? (
+        <p className="text-red-500">Error: {error}</p>
+      ) : adjustments.length === 0 ? (
+        <p>No adjustments found for this month.</p>
+      ) : (
+        <ul className="list-disc pl-5 space-y-2">
+          {adjustments.map((adjustment) => (
+            <li key={adjustment._id}>
+              <strong>For Month: </strong> {adjustment.month}
+              <strong> Hours: </strong> {adjustment.addedHours} <br />
+              <strong>Reason:</strong> {adjustment.reason} <br />
+              <span>added at: {new Date(adjustment.addedAt).toLocaleDateString()}</span>
+            </li>
+          ))}
+        </ul>
+      )}
         </TabsContent>
         
       </Tabs>
