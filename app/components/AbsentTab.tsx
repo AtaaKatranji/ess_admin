@@ -12,7 +12,7 @@ const AbsentTab = ({ employeeId, selectedMonth }: { employeeId: string, selected
   useEffect(() => {
     const fetchAbsences = async () => {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/checks/absences?employeeId=${employeeId}&month={selectedMonth}`);
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/checks/absences?employeeId=${employeeId}&month=${selectedMonth}`);
         const data = await response.json();
         setAbsentDays(data.absentDates || []);
       } catch (error) {
