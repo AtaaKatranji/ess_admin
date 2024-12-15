@@ -103,7 +103,7 @@ const AddExtraHoursModal = ({ isOpen, onClose, employeeId, monthIndex }: AddExtr
   }, [employeeId, monthIndex]);
   return (
     isOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <Card className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <Tabs defaultValue="handel" className="space-y-4">
         <TabsList>
           <TabsTrigger value="handel">Add Extra Hours</TabsTrigger>
@@ -121,7 +121,7 @@ const AddExtraHoursModal = ({ isOpen, onClose, employeeId, monthIndex }: AddExtr
                 <FormItem className="mb-4">
                     <FormLabel>Added Hours</FormLabel>
                     <FormControl>
-                        <input
+                        <Input
                             type="number"
                             name={field.name}
                             value={field.value}
@@ -143,7 +143,7 @@ const AddExtraHoursModal = ({ isOpen, onClose, employeeId, monthIndex }: AddExtr
                 <FormItem>
                     <FormLabel>Added At</FormLabel>
                     <FormControl>
-                        <input
+                        <Input
                             type="date"
                             name={field.name}
                             value={field.value}
@@ -159,21 +159,18 @@ const AddExtraHoursModal = ({ isOpen, onClose, employeeId, monthIndex }: AddExtr
             )} />
 
             <FormField name="month" render={({ field }) => (
-                <FormItem>
-                    <FormLabel>Month</FormLabel>
-                    <FormControl>
-                    
-  
+              <FormItem>
+                  <FormLabel>Month</FormLabel>
+                  <FormControl>
                     <Select
                         name={field.name}
                         value={field.value}
                         onValueChange={field.onChange}
-                        
                         required
                       >
-                        <SelectTrigger className="w-[180px]">
-                      <SelectValue placeholder="Month" />
-                    </SelectTrigger>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Month" />
+                        </SelectTrigger>
 
                       <SelectContent>
                         {months.map((month) => (
@@ -184,8 +181,8 @@ const AddExtraHoursModal = ({ isOpen, onClose, employeeId, monthIndex }: AddExtr
                         </SelectContent>
                        
                       </Select>
-                    </FormControl>
-                    <FormMessage />
+                  </FormControl>
+                  <FormMessage />
                 </FormItem>
             )} />
         </div>
@@ -193,20 +190,20 @@ const AddExtraHoursModal = ({ isOpen, onClose, employeeId, monthIndex }: AddExtr
         <div className="col-span-1">
         <FormField name="reason" render={({ field }) => (
                 <FormItem>
-                    <FormLabel>Reason</FormLabel>
-                    <FormControl>
-                        <Input
-                           
-                            name={field.name}
-                            value={field.value}
-                            onChange={field.onChange}
-                            onBlur={field.onBlur}
-                            ref={field.ref}
-                            className="w-full border rounded px-3 py-2"
-                            required
-                        />
-                    </FormControl>
-                    <FormMessage />
+                  <FormLabel>Reason</FormLabel>
+                  <FormControl>
+                      <Input
+                          
+                          name={field.name}
+                          value={field.value}
+                          onChange={field.onChange}
+                          onBlur={field.onBlur}
+                          ref={field.ref}
+                          className="w-full border rounded px-3 py-2"
+                          required
+                      />
+                  </FormControl>
+                  <FormMessage />
                 </FormItem>
            )} />
         </div>
@@ -260,7 +257,7 @@ const AddExtraHoursModal = ({ isOpen, onClose, employeeId, monthIndex }: AddExtr
         
       </Tabs>
 
-      </div>
+      </Card>
       
     )
   );
