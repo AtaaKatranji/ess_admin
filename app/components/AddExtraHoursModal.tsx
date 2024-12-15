@@ -1,5 +1,6 @@
-
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Input } from "@/components/ui/input"
+import { Select } from "@/components/ui/select"
 import {
   Form,
   FormField,
@@ -101,79 +102,154 @@ const AddExtraHoursModal = ({ isOpen, onClose, employeeId, monthIndex }: AddExtr
     isOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <Tabs defaultValue="handel" className="space-y-4">
-          <TabsList>
-            <TabsTrigger value="handel">Add Extra Hours</TabsTrigger>
-            <TabsTrigger value="listAdded">List Added</TabsTrigger>
-          </TabsList>
-          
-          {/* Add Extra Hours Tab */}
-          <TabsContent value="handel" className="space-y-4">
-            <Card className="p-6 rounded-lg shadow-lg">
-              <h2 className="text-lg font-bold mb-4">Add Extra Hours</h2>
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(handleSubmit)}>
-                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                    <div className="col-span-1">
-                      <FormField name="addedHours" render={({ field }) => (
-                        <FormItem className="mb-4">
-                          <FormLabel>Added Hours</FormLabel>
-                          <FormControl>
-                            <input
-                              type="number"
-                              name={field.name}
-                              value={field.value}
-                              onChange={field.onChange}
-                              onBlur={field.onBlur}
-                              ref={field.ref}
-                              className="w-full border rounded px-3 py-2"
-                              required
-                              min="0"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )} />
-                    </div>
-                    <div className="col-span-2 grid grid-cols-2 gap-4">
-                      {/* Additional Fields */}
-                    </div>
-                    <div className="col-span-1">
-                      {/* Reason Field */}
-                    </div>
-                  </div>
-                  <div className="flex justify-end space-x-4 mt-4">
-                    <Button type="button" onClick={onClose} className="bg-gray-500 text-white px-4 py-2 rounded">Cancel</Button>
-                    <Button type="submit" className="bg-blue-900 text-white px-4 py-2 rounded">Add Hours</Button>
-                  </div>
-                </form>
-              </Form>
-            </Card>
-          </TabsContent>
+        <TabsList>
+          <TabsTrigger value="handel">Add Extra Hours</TabsTrigger>
+          <TabsTrigger value="listAdded">List Added</TabsTrigger>
+        </TabsList>
+        <TabsContent value="handel" className="space-y-4">
+        
+        <Card className="bg-white p-6 rounded-lg shadow-lg">
+          <h2 className="text-lg font-bold mb-4">Add Extra Hours</h2>
+          <Form {...form}>
+          <form onSubmit={form.handleSubmit(handleSubmit)}>
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div className="col-span-1">
+            <FormField name="addedHours" render={({ field }) => (
+                <FormItem className="mb-4">
+                    <FormLabel>Added Hours</FormLabel>
+                    <FormControl>
+                        <input
+                            type="number"
+                            name={field.name}
+                            value={field.value}
+                            onChange={field.onChange}
+                            onBlur={field.onBlur}
+                            ref={field.ref}
+                            className="w-full border rounded px-3 py-2"
+                            required
+                            min="0"
+                        />
+                    </FormControl>
+                    <FormMessage />
+                </FormItem>
+             )} />
+        </div>
 
-          {/* List Added Tab */}
-          <TabsContent value="listAdded" className="space-y-4">
-            <Card className="p-6 rounded-lg shadow-lg">
-              {loading ? (
-                <p>Loading adjustments...</p>
-              ) : error ? (
-                <p className="text-red-500">Error: {error}</p>
-              ) : adjustments.length === 0 ? (
-                <p>No adjustments found for this month.</p>
-              ) : (
-                <ul className="list-disc pl-5 space-y-2">
-                  {adjustments.map((adjustment) => (
-                    <li key={adjustment._id}>
-                      <strong>For Month: </strong> {adjustment.month}
-                      <strong> Hours: </strong> {adjustment.addedHours} <br />
-                      <strong>Reason:</strong> {adjustment.reason} <br />
-                      <span>added at: {new Date(adjustment.addedAt).toLocaleDateString()}</span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </Card>
-          </TabsContent>
-        </Tabs>
+        <div className="col-span-2 grid grid-cols-2 gap-4">
+            <FormField name="addedAt" render={({ field }) => (
+                <FormItem>
+                    <FormLabel>Added At</FormLabel>
+                    <FormControl>
+                        <input
+                            type="date"
+                            name={field.name}
+                            value={field.value}
+                            onChange={field.onChange}
+                            onBlur={field.onBlur}
+                            ref={field.ref}
+                            className="w-full border rounded px-3 py-2"
+                            required
+                        />
+                    </FormControl>
+                    <FormMessage />
+                </FormItem>
+            )} />
+
+            <FormField name="month" render={({ field }) => (
+                <FormItem>
+                    <FormLabel>Month</FormLabel>
+                    <FormControl>
+                    <Select
+                        name={field.name}
+                        value={field.value}
+                        onValueChange={field.onChange}
+                        
+                        required
+                      >
+                        <option value="" disabled>
+                          Select a month
+                        </option>
+                        {months.map((month) => (
+                          <option key={month.value} value={month.value}>
+                            {month.name}
+                          </option>
+                        ))}
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                </FormItem>
+            )} />
+        </div>
+
+        <div className="col-span-1">
+        <FormField name="reason" render={({ field }) => (
+                <FormItem>
+                    <FormLabel>Reason</FormLabel>
+                    <FormControl>
+                        <Input
+                           
+                            name={field.name}
+                            value={field.value}
+                            onChange={field.onChange}
+                            onBlur={field.onBlur}
+                            ref={field.ref}
+                            className="w-full border rounded px-3 py-2"
+                            required
+                        />
+                    </FormControl>
+                    <FormMessage />
+                </FormItem>
+           )} />
+        </div>
+    </div>
+
+    <div className="flex justify-end space-x-4 mt-4">
+        <Button
+            type="button"
+            onClick={onClose}
+            className="bg-gray-500 text-white px-4 py-2 rounded"
+        >
+            Cancel
+        </Button>
+        <Button
+            type="submit"
+            className="bg-blue-900 text-white px-4 py-2 rounded"
+        >
+            Add Hours
+        </Button>
+    </div>
+    </form>
+</Form>
+        </Card>
+         </TabsContent>
+        <TabsContent value="listAdded" className="space-y-4">
+        <Card>
+        {loading ? (
+        <p>Loading adjustments...</p>
+      ) : error ? (
+        <p className="text-red-500">Error: {error}</p>
+      ) : adjustments.length === 0 ? (
+        <Card>
+          <p>No adjustments found for this month.</p>
+        </Card>
+      ) : (
+        <Card>
+          <ul className="list-disc pl-5 space-y-2">
+          {adjustments.map((adjustment) => (
+            <li key={adjustment._id}>
+              <strong>For Month: </strong> {adjustment.month}
+              <strong> Hours: </strong> {adjustment.addedHours} <br />
+              <strong>Reason:</strong> {adjustment.reason} <br />
+              <span>added at: {new Date(adjustment.addedAt).toLocaleDateString()}</span>
+            </li>
+          ))}
+        </ul>
+        </Card>
+      )}
+        </Card>
+        </TabsContent>
+        
+      </Tabs>
 
       </div>
       
