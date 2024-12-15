@@ -104,7 +104,7 @@ const AddExtraHoursModal = ({ isOpen, onClose, employeeId, monthIndex }: AddExtr
   return (
     isOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <Card>
+        <Card className="p-4 w-[65%] h-[50%] ">
         <Tabs defaultValue="handel" className="space-y-4">
         <TabsList>
           <TabsTrigger value="handel">Add Extra Hours</TabsTrigger>
