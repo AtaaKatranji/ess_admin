@@ -82,7 +82,7 @@ const AddExtraHoursModal = ({ isOpen, onClose, employeeId, month }: AddExtraHour
         const data = await response.json();
         setAdjustments(data);
       } catch (error ) {
-       setError("Not working")
+       setError(`Not working ${error}`)
       } finally {
         setLoading(false);
       }
