@@ -11,7 +11,7 @@ import {
 import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import { useEffect, useState } from "react";
-import { METHODS } from "http";
+
 type AddExtraHoursModalProps = {
   isOpen: boolean;
   onClose: () => void;
