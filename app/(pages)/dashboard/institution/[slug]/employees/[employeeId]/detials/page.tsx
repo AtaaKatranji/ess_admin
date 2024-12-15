@@ -565,7 +565,7 @@ useEffect(() => {
         </Card>
         </TabsContent>
         <TabsContent value="absent">
-          <AbsentTab employeeId={employeeId} />
+          <AbsentTab employeeId={employeeId} selectedMonth={selectedMonth} />
         </TabsContent>
 
       </Tabs>

@@ -5,14 +5,14 @@ import { Search } from 'lucide-react';
 import { format } from "date-fns"
 import { Input } from "@/components/ui/input"
 
-const AbsentTab = ({ employeeId }: { employeeId: string }) => {
+const AbsentTab = ({ employeeId, selectedMonth }: { employeeId: string, selectedMonth:Date }) => {
   const [absentDays, setAbsentDays] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("")
   useEffect(() => {
     const fetchAbsences = async () => {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/checks/absences?employeeId=${employeeId}`);
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/checks/absences?employeeId=${employeeId}&month={selectedMonth}`);
         const data = await response.json();
         setAbsentDays(data.absentDates || []);
       } catch (error) {
