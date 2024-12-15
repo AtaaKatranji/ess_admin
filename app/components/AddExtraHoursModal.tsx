@@ -11,6 +11,7 @@ import {
 import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import { useEffect, useState } from "react";
+import { METHODS } from "http";
 type AddExtraHoursModalProps = {
   isOpen: boolean;
   onClose: () => void;
@@ -69,13 +70,18 @@ const AddExtraHoursModal = ({ isOpen, onClose, employeeId, month }: AddExtraHour
 
   useEffect(() => {
     if (!employeeId || !month) return;
-
+    const date = new Date(month);
+    const monthIndex = date.getMonth()+1;
     // Fetch adjustments from the API
     const fetchAdjustments = async () => {
       try {
-        const response = await fetch(
-          `/api/getAdjustmentsByEmployeeAndMonth?employeeId=${employeeId}&month=${month}`
-        );
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/extraHours/adjustments/`,{
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ employeeId, monthIndex }),
+      });
         if (!response.ok) {
           throw new Error("Failed to fetch adjustments");
         }
