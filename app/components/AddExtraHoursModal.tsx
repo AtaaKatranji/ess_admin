@@ -11,6 +11,7 @@ import {
 import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import { useEffect, useState } from "react";
+import { Card } from "@mui/material";
 
 type AddExtraHoursModalProps = {
   isOpen: boolean;
@@ -226,9 +227,12 @@ const AddExtraHoursModal = ({ isOpen, onClose, employeeId, monthIndex }: AddExtr
       ) : error ? (
         <p className="text-red-500">Error: {error}</p>
       ) : adjustments.length === 0 ? (
-        <p>No adjustments found for this month.</p>
+        <Card>
+          <p>No adjustments found for this month.</p>
+        </Card>
       ) : (
-        <ul className="list-disc pl-5 space-y-2">
+        <Card>
+          <ul className="list-disc pl-5 space-y-2">
           {adjustments.map((adjustment) => (
             <li key={adjustment._id}>
               <strong>For Month: </strong> {adjustment.month}
@@ -238,6 +242,7 @@ const AddExtraHoursModal = ({ isOpen, onClose, employeeId, monthIndex }: AddExtr
             </li>
           ))}
         </ul>
+        </Card>
       )}
         </TabsContent>
         
