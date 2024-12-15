@@ -237,6 +237,7 @@ const exportMonthlyReport = async () => {
 useEffect(() => {
   const fetchData = async () => {
     setIsLoading(true)
+    console.log(selectedMonth),
     await Promise.all([
       fetchTotalHours(selectedMonth),
       fetchLeaves(selectedMonth),
