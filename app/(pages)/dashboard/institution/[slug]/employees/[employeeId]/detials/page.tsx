@@ -330,7 +330,7 @@ useEffect(() => {
                 <CalendarIcon className="ml-2 h-4 w-4" />
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="end">
+            <PopoverContent className="w-auto p-0 font-bold" align="end">
               <Calendar
                 mode="single"
                 selected={selectedMonth}
@@ -502,10 +502,10 @@ useEffect(() => {
         </div>
 
         <Card>
-          <ScrollArea className="h-[400px]">
-            <div className="p-4 space-y-8">
+            <div className="flex p-4 space-x-8">
               {/* Paid Leaves Section */}
               <div>
+               <ScrollArea className="h-[400px]">
                 <h3 className="text-lg font-medium">Paid Leaves</h3>
                 {leaves && leaves.filter((record) => record.type = "Paid").length > 0 ? (
                   leaves
@@ -529,10 +529,12 @@ useEffect(() => {
                 ) : (
                   <p className="text-sm text-muted-foreground">No paid leave records available.</p>
                 )}
+               </ScrollArea>
               </div>
 
               {/* Unpaid Leaves Section */}
               <div>
+              <ScrollArea className="h-[400px]">
                 <h3 className="text-lg font-medium">Unpaid Leaves</h3>
                 {leaves && leaves.filter((record) => record.type == "Unpaid" ).length > 0 ? (
                   leaves
@@ -556,9 +558,10 @@ useEffect(() => {
                 ) : (
                   <p className="text-sm text-muted-foreground">No unpaid leave records available.</p>
                 )}
+                </ScrollArea>
               </div>
             </div>
-          </ScrollArea>
+          
         </Card>
         </TabsContent>
         <TabsContent value="absent">
