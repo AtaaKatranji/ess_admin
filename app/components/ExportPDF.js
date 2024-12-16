@@ -9,10 +9,11 @@ const exportMonthlyReportPDF = (data) => {
   const doc = new jsPDF();
   doc.text(`${data.summary.monthName} Attendance Report`, 14, 10);
   doc.text(`Employee: ${data.summary.employeeName}`,14, 16);
-  let totalHours = data.summary.totalHours
+  let totalHours = Number(data.summary.totalHours) || 0;
   if (Number(data.summary.extraAdjusmentHours) > 0) {
     totalHours += Number(data.summary.extraAdjusmentHours) || 0;
   }
+  
   // Adding summary section
   const summaryData = [
     ["Total Hours", totalHours],
