@@ -1,7 +1,7 @@
 // components/ExportPDF.js
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
-import { toast } from 'react-toastify';
+
 
 const exportMonthlyReportPDF = (data) => {
   if (typeof window === 'undefined') return; // Check if window is available for Next.js
@@ -11,7 +11,7 @@ const exportMonthlyReportPDF = (data) => {
   doc.text(`Employee: ${data.summary.employeeName}`,14, 16);
   let totalHours = data.summary.totalHours
   if(data.summary.extraAdjusmentHours > 0){
-    totalHours = totalHours+data.summary.extraAdjusmentHours
+    totalHours = (Number(totalHours) || 0) + (Number(data.summary.extraAdjusmentHours) || 0) 
   }
   // Adding summary section
   const summaryData = [
@@ -78,7 +78,7 @@ const exportMonthlyReportPDF = (data) => {
   });
 
   doc.save(`${data.summary.monthName}_Attendance_Report_${data.summary.employeeName}.pdf`);
-  toast.info("Monthly report exported as PDF!");
+ 
 };
 
 export default exportMonthlyReportPDF;

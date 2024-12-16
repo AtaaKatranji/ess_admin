@@ -6,8 +6,9 @@ import { useParams } from "next/navigation"
 import { format } from "date-fns"
 // startOfMonth, endOfMonth,
 import { toast, ToastContainer } from "react-toastify"
+
 import "react-toastify/dist/ReactToastify.css"
-import { CalendarIcon, ClockIcon, Star, Rabbit, Turtle, Search, Loader2, Download, LucideArchiveRestore } from "lucide-react"
+import { CalendarIcon, ClockIcon, Star, Rabbit, Turtle, Search, Loader2, Download, LucideArchiveRestore, Loader } from "lucide-react"
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip } from "recharts";
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
@@ -63,6 +64,7 @@ const EmployeeDetails = () => {
   const [extraAttendanceHours, setExtraAttendanceHours] = useState<number | null>(null)
   const [addedHours, setAddedHours] = useState<number | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [isLoadingPdf, setIsLoadingPdf] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [startTime, setStartTime] = useState("")
@@ -210,6 +212,8 @@ interface MonthlyAttendanceResponse {
 };
 const exportMonthlyReport = async () => {
   console.log(selectedMonth)
+  try {
+    setIsLoadingPdf(true);
   const response = await fetch(`${BaseUrl}/checks/summry2`, {
     method: 'POST',
     headers: {
@@ -230,6 +234,13 @@ const exportMonthlyReport = async () => {
   setEmployeeName(await data.summary.employeeName);
   // This would generate and download a report in a real application
   exportMonthlyReportPDF(data);
+  toast.info("Monthly report exported as PDF!");
+  } catch (error) {
+    toast.warning(error as string);
+  } finally {
+    setIsLoadingPdf(false);
+  }
+  
   // For now, we'll just show a toast message
   
 }
@@ -344,8 +355,12 @@ useEffect(() => {
             </PopoverContent>
           </Popover>
           <Button onClick={exportMonthlyReport} className="bg-cyan-900 text-white">
-            <Download className="mr-2 h-4 w-4" />
-            Export Report
+          {isLoadingPdf ? (
+              <Loader className="mr-2 h-4 w-4 animate-spin" /> // Show loader with animation
+            ) : (
+              <Download className="mr-2 h-4 w-4" /> // Show default icon
+            )}
+            {isLoading ? "Exporting..." : "Export Report"}
           </Button>
         </div>
       </div>
