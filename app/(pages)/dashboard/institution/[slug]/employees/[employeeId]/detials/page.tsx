@@ -362,7 +362,7 @@ useEffect(() => {
             <p className="text-xs text-muted-foreground">This month</p>
           </CardContent>
           ):(<CardContent>
-            <div className="text-2xl font-bold">{totalHours!+addedHours!} hours</div>
+            <div className="text-2xl font-bold">{(Number(totalHours) || 0) + (Number(addedHours) || 0)} hours</div>
             <p className="text-xs text-muted-foreground">This month</p>
           </CardContent>)}
         </Card>
