@@ -61,6 +61,7 @@ const EmployeeDetails = () => {
   const [earlyLeaveHours, setEarlyLeaveHours] = useState<number | null>(null)
   const [earlyArrivalHours, setEarlyArrivalHours] = useState<number | null>(null)
   const [extraAttendanceHours, setExtraAttendanceHours] = useState<number | null>(null)
+  const [addedHours, setAddedHours] = useState<number | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -283,6 +284,7 @@ useEffect(() => {
           setLateHours(data.data.lateHours)
           setEarlyArrivalHours(data.data.earlyArrivalHours)
           setEarlyLeaveHours(data.data.earlyLeaveHours)
+          setAddedHours(data.data.extraAdjusmentHours)
         } catch (error) {
           console.error("Error fetching total hours:", error)
           toast.error("Failed to fetch total hours. Please try again.")
@@ -354,10 +356,15 @@ useEffect(() => {
             <CardTitle className="text-sm font-medium">Total Hours</CardTitle>
             <ClockIcon className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
+          {addedHours == 0 ? (
+            <CardContent>
             <div className="text-2xl font-bold">{totalHours} hours</div>
             <p className="text-xs text-muted-foreground">This month</p>
           </CardContent>
+          ):(<CardContent>
+            <div className="text-2xl font-bold">{totalHours!+addedHours!} hours</div>
+            <p className="text-xs text-muted-foreground">This month</p>
+          </CardContent>)}
         </Card>
         {/* late hours */}
         <Card>
@@ -398,10 +405,18 @@ useEffect(() => {
             <CardTitle className="text-sm font-medium">Extra Hours</CardTitle>
             <Star className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{extraAttendanceHours} hours</div>
-            <p className="text-xs text-muted-foreground">This month</p>
-          </CardContent>
+          
+            {addedHours == 0 ? (
+              <CardContent>
+              <div className="text-2xl font-bold">{extraAttendanceHours} hours</div>
+              <p className="text-xs text-muted-foreground">This month</p>
+              </CardContent>
+            ) : ( 
+              <CardContent>
+                <div className="text-2xl font-bold">{extraAttendanceHours} + <span className="text-cyan-800">{addedHours}</span></div>
+              </CardContent>
+             ) }
+          
         </Card>
         {/* leave days */}
         <Card>

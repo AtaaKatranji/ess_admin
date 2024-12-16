@@ -9,10 +9,13 @@ const exportMonthlyReportPDF = (data) => {
   const doc = new jsPDF();
   doc.text(`${data.summary.monthName} Attendance Report`, 14, 10);
   doc.text(`Employee: ${data.summary.employeeName}`,14, 16);
-
+  const totalHours = data.summary.totalHours
+  if(data.summary.extraAdjusmentHours > 0){
+    totalHours = totalHours+data.summary.extraAdjusmentHours
+  }
   // Adding summary section
   const summaryData = [
-    ["Total Hours", data.summary.totalHours],
+    ["Total Hours", totalHours],
     ["Late Hours", data.summary.lateHours],
     ["Early Leave Hours", data.summary.earlyLeaveHours],
     ["Early Arrival Hours", data.summary.earlyArrivalHours],
@@ -20,6 +23,7 @@ const exportMonthlyReportPDF = (data) => {
     ["Total Days Attendanced", data.summary.totalDays],
     ["Paid Leaves", data.summary.totalPaidLeaveDays],
     ["Unpaid Leaves", data.summary.totalUnpaidLeaveDays],
+    ["Extra Added Hours", data.summary.extraAdjusmentHours],
   ];
 
   doc.autoTable({
