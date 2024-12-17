@@ -99,7 +99,7 @@ const OverviewPage: React.FC<InstitutionProps> = ({ params }) => {
         </DropdownMenuTrigger>
         <DropdownMenuContent>
           {shifts.map((shift) => (
-            <DropdownMenuItem key={shift.id} onSelect={() => setSelectedShift(shift)}>
+            <DropdownMenuItem key={shift._id} onSelect={() => setSelectedShift(shift)}>
               {shift.name}
             </DropdownMenuItem>
             
