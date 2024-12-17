@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ChevronDown, Download, Search } from 'lucide-react'
+import { fetchShifts } from '@/app/api/shifts/shifts'
 
 // types/AttendanceRecord.ts
 interface Employee {
@@ -24,9 +25,20 @@ interface Employee {
   checkOut: string;
   totalHours: number;
 }
-
+interface Shift {
+  days: string[];
+  startTime: string;
+  endTime: string;
+  name: string;
+  employees: string[];
+  institutionKey: string;
+  lateMultiplier: number;
+  lateLimit: number;
+  extraMultiplier: number;
+  extraLimit: number;
+}
 // Mock data
-const shifts = ['Morning Shift', 'Afternoon Shift', 'Night Shift']
+
 const employees = [
   { id: 1, name: 'John Doe', loggedIn: true, checkIn: '09:00', checkOut: '17:00', totalHours: 8 },
   { id: 2, name: 'Jane Smith', loggedIn: false, checkIn: '09:15', checkOut: '17:15', totalHours: 8 },
@@ -34,10 +46,27 @@ const employees = [
   // Add more employees as needed
 ]
 
-export default function Component() {
-  const [selectedShift, setSelectedShift] = useState(shifts[0])
-  const [viewMode, setViewMode] = useState('daily')
+export default function Component({institutionKey}:{institutionKey : string}) {
+  const [shifts, setShifts] = useState<Shift[]>([]);
+  const [selectedShift, setSelectedShift] =  useState<string | undefined>(shifts[0].name);
+  const [viewMode, setViewMode] = useState('daily') 
+  // const [loading, setLoading] = useState(true); // For loading state
+  // const [error, setError] = useState<string | null>(null);
+  useEffect(() => {
+    const Shifts = async () => {
+      try {
+        const data = await fetchShifts(institutionKey)
+        setShifts(data); // Assuming the API returns an array of shifts
+      } catch (err) {
+        console.error("Error fetching shifts:", err);
+        //setError("Failed to fetch shifts.");
+      } finally {
+        // setLoading(false); // End loading state
+      }
+    };
 
+    Shifts();
+  }, []);
   return (
     <div className="container mx-auto p-4">
       <header className="mb-6">
@@ -51,8 +80,8 @@ export default function Component() {
             </DropdownMenuTrigger>
             <DropdownMenuContent>
               {shifts.map((shift) => (
-                <DropdownMenuItem key={shift} onSelect={() => setSelectedShift(shift)}>
-                  {shift}
+                <DropdownMenuItem key={shift.name} onSelect={() => setSelectedShift(shift.name)}>
+                  {shift.name}
                 </DropdownMenuItem>
               ))}
             </DropdownMenuContent>
