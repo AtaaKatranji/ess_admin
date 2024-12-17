@@ -45,28 +45,32 @@ const employees = [
   { id: 3, name: 'Alice Johnson', loggedIn: true, checkIn: '08:55', checkOut: '17:05', totalHours: 8.17 },
   // Add more employees as needed
 ]
-
-export default function Component({institutionKey}:{institutionKey : string}) {
+interface InstitutionProps {
+  params: {
+    institutionKey: string;
+  }
+}
+const OverviewPage: React.FC<InstitutionProps> = ({ params }) => {
   const [shifts, setShifts] = useState<Shift[]>([]);
-  const [selectedShift, setSelectedShift] =  useState<string | undefined>(shifts[0].name);
-  const [viewMode, setViewMode] = useState('daily') 
-  // const [loading, setLoading] = useState(true); // For loading state
-  // const [error, setError] = useState<string | null>(null);
+  const [selectedShift, setSelectedShift] = useState<string | undefined>(undefined); // Start as undefined
+  const [viewMode, setViewMode] = useState('daily');
+
   useEffect(() => {
-    const Shifts = async () => {
+    const fetchAndSetShifts = async () => {
       try {
-        const data = await fetchShifts(institutionKey)
-        setShifts(data); // Assuming the API returns an array of shifts
+        const data = await fetchShifts(params.institutionKey);
+        setShifts(data);
+        if (data.length > 0) {
+          setSelectedShift(data[0].name); // Set the first shift name as the default selectedShift
+        }
       } catch (err) {
         console.error("Error fetching shifts:", err);
-        //setError("Failed to fetch shifts.");
-      } finally {
-        // setLoading(false); // End loading state
       }
     };
 
-    Shifts();
-  }, []);
+    fetchAndSetShifts();
+  }, [params.institutionKey]);
+
   return (
     <div className="container mx-auto p-4">
       <header className="mb-6">
@@ -75,7 +79,7 @@ export default function Component({institutionKey}:{institutionKey : string}) {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline">
-                {selectedShift} <ChevronDown className="ml-2 h-4 w-4" />
+                {selectedShift || 'Select a Shift'} <ChevronDown className="ml-2 h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
@@ -133,8 +137,9 @@ export default function Component({institutionKey}:{institutionKey : string}) {
         </Card>
       </div>
     </div>
-  )
-}
+  );
+};
+
 
 function AttendanceStatus({ employees }: { employees: Employee[] }) {
   const loggedInEmployees = employees.filter(e => e.loggedIn)
@@ -232,3 +237,5 @@ function WeeklyTimeSheet({ employees }: { employees: Employee[] }) {
     </div>
   )
 }
+
+export default OverviewPage;

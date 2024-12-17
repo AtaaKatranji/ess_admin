@@ -70,7 +70,7 @@ const InstitutionDashboard: React.FC = () => {
   const renderContent = () => {
     switch (activeSection) {
       case 'overview':
-        return <OverviewPage institutionKey={institutionKey} />;
+        return <OverviewPage params={{institutionKey}} />;
       case 'employees':
         return <EmployeeList />;
       case 'shifts':
