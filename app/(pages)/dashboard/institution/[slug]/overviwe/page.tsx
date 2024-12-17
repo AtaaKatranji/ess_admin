@@ -27,7 +27,7 @@ interface Employee {
   totalHours: number;
 }
 interface Shift {
-  id: string;
+  _id: string;
   days: string[];
   startTime: string;
   endTime: string;
@@ -73,7 +73,7 @@ const OverviewPage: React.FC<InstitutionProps> = ({ params }) => {
       if (!selectedShift) return; // Ensure selectedShift is defined
       try {
         console.log(selectedShift)
-        const shiftId = selectedShift.id; // Get the actual shift ID
+        const shiftId = selectedShift._id; // Get the actual shift ID
         const data = await fetchCheckInOutData(shiftId);
         setEmployees(data);
       } catch (error) {
