@@ -88,20 +88,20 @@ const OverviewPage: React.FC<InstitutionProps> = ({ params }) => {
       <header className="mb-6">
         <h1 className="text-2xl font-bold mb-4">Institution Dashboard - Overview</h1>
         <div className="flex justify-between items-center">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline">
-                {selectedShift!.id || 'Select a Shift'} <ChevronDown className="ml-2 h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              {shifts.map((shift) => (
-                <DropdownMenuItem key={shift.id} onSelect={() => setSelectedShift(shift)}>
-                  {shift.name}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
+        <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="outline">
+            {selectedShift?.name || 'Select a Shift'} <ChevronDown className="ml-2 h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          {shifts.map((shift) => (
+            <DropdownMenuItem key={shift.id} onSelect={() => setSelectedShift(shift)}>
+              {shift.name}
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2">
               <Switch id="view-mode" onCheckedChange={(checked) => setViewMode(checked ? 'weekly' : 'daily')} />
