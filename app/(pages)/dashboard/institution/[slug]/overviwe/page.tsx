@@ -57,7 +57,8 @@ const OverviewPage: React.FC<InstitutionProps> = ({ params }) => {
         const data = await fetchShifts(params.institutionKey);
         setShifts(data);
         if (data.length > 0) {
-          setSelectedShift(data[0]); // Set the first shift name as the default selectedShift
+          setSelectedShift(data[0]);
+          console.log(selectedShift) // Set the first shift name as the default selectedShift
         }
       } catch (err) {
         console.error("Error fetching shifts:", err);
@@ -68,8 +69,10 @@ const OverviewPage: React.FC<InstitutionProps> = ({ params }) => {
   
   useEffect(() => {
     const fetchData = async () => {
+      console.log(selectedShift)
       if (!selectedShift) return; // Ensure selectedShift is defined
       try {
+        console.log(selectedShift)
         const shiftId = selectedShift.id; // Get the actual shift ID
         const data = await fetchCheckInOutData(shiftId);
         setEmployees(data);
@@ -99,6 +102,7 @@ const OverviewPage: React.FC<InstitutionProps> = ({ params }) => {
             <DropdownMenuItem key={shift.id} onSelect={() => setSelectedShift(shift)}>
               {shift.name}
             </DropdownMenuItem>
+            
           ))}
         </DropdownMenuContent>
       </DropdownMenu>
