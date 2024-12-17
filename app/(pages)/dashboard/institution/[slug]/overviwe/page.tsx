@@ -15,6 +15,7 @@ import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ChevronDown, Download, Search } from 'lucide-react'
 import { fetchShifts } from '@/app/api/shifts/shifts'
+import { fetchCheckInOutData } from '@/app/api/employees/employeeId'
 
 // types/AttendanceRecord.ts
 interface Employee {
@@ -37,14 +38,7 @@ interface Shift {
   extraMultiplier: number;
   extraLimit: number;
 }
-// Mock data
 
-const employees = [
-  { id: 1, name: 'John Doe', loggedIn: true, checkIn: '09:00', checkOut: '17:00', totalHours: 8 },
-  { id: 2, name: 'Jane Smith', loggedIn: false, checkIn: '09:15', checkOut: '17:15', totalHours: 8 },
-  { id: 3, name: 'Alice Johnson', loggedIn: true, checkIn: '08:55', checkOut: '17:05', totalHours: 8.17 },
-  // Add more employees as needed
-]
 interface InstitutionProps {
   params: {
     institutionKey: string;
@@ -52,9 +46,10 @@ interface InstitutionProps {
 }
 const OverviewPage: React.FC<InstitutionProps> = ({ params }) => {
   const [shifts, setShifts] = useState<Shift[]>([]);
-  const [selectedShift, setSelectedShift] = useState<string | undefined>(undefined); // Start as undefined
+  const [selectedShift, setSelectedShift] = useState<string>(); // Start as undefined
   const [viewMode, setViewMode] = useState('daily');
-
+  const [employees, setEmployees] = useState([]);
+  const [loading, setLoading] = useState(true);
   useEffect(() => {
     const fetchAndSetShifts = async () => {
       try {
@@ -67,8 +62,22 @@ const OverviewPage: React.FC<InstitutionProps> = ({ params }) => {
         console.error("Error fetching shifts:", err);
       }
     };
+    const fetchData = async () => {
+      try {
+        const shiftId = selectedShift; // Replace with your actual shift ID
+        const data = await fetchCheckInOutData(shiftId!);
+        setEmployees(data);
+      } catch (error) {
+        console.error('Error fetching check-in/out data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
     fetchAndSetShifts();
+    fetchData();
+
+    
   }, [params.institutionKey]);
 
   return (
@@ -108,7 +117,7 @@ const OverviewPage: React.FC<InstitutionProps> = ({ params }) => {
             <CardTitle>Attendance Status</CardTitle>
           </CardHeader>
           <CardContent>
-            <AttendanceStatus employees={employees} />
+            <AttendanceStatus employees={employees} loading={loading} />
           </CardContent>
         </Card>
 
@@ -141,7 +150,7 @@ const OverviewPage: React.FC<InstitutionProps> = ({ params }) => {
 };
 
 
-function AttendanceStatus({ employees }: { employees: Employee[] }) {
+function AttendanceStatus({ employees, loading }: { employees: Employee[],loading :boolean }) {
   const loggedInEmployees = employees.filter(e => e.loggedIn)
   const notLoggedInEmployees = employees.filter(e => !e.loggedIn)
 
@@ -149,18 +158,29 @@ function AttendanceStatus({ employees }: { employees: Employee[] }) {
     <div className="space-y-4">
       <div>
         <h3 className="font-semibold mb-2">Logged In</h3>
-        <ul className="space-y-2">
-          {loggedInEmployees.map(employee => (
-            <li key={employee.id} className="flex items-center space-x-2">
-              <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center relative">
-                <span className="text-xs font-semibold">{employee.name.charAt(0)}</span>
-                <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></span>
-              </div>
-              <span>{employee.name}</span>
-            </li>
-          ))}
-        </ul>
+        
+            <div>
+          {loading ? (
+            <div className="flex items-center justify-center h-40">
+              <div className="loader"></div> {/* Add your loader component or CSS */}
+              <p>Loading...</p>
+            </div>
+          ) : (
+            <ul className="space-y-2">
+              {loggedInEmployees.map(employee => (
+                <li key={employee.id} className="flex items-center space-x-2">
+                  <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center relative">
+                    <span className="text-xs font-semibold">{employee.name.charAt(0)}</span>
+                    <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></span>
+                  </div>
+                  <span>{employee.name}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       </div>
+ 
       <div>
         <h3 className="font-semibold mb-2">Not Logged In</h3>
         <ul className="space-y-2">

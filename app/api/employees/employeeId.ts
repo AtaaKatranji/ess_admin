@@ -25,3 +25,13 @@ export const fetchEmployees = async (institutionKey: string) => {
   }
 };
 
+export const fetchCheckInOutData = async (shiftId : string) => {
+  try {
+    const response = await fetch(`${BaseUrl}/checks/checkinout?shiftId=${shiftId}`);
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching check-in/out data:', error);
+    throw error; // Propagate the error for further handling
+  }
+};
