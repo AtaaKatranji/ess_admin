@@ -64,10 +64,14 @@ const OverviewPage: React.FC<InstitutionProps> = ({ params }) => {
       }
     };
     fetchAndSetShifts();
+  }, [params.institutionKey]);
+  
+  useEffect(() => {
     const fetchData = async () => {
+      if (!selectedShift) return; // Ensure selectedShift is defined
       try {
-        const shiftId = selectedShift!.id; // Replace with your actual shift ID
-        const data = await fetchCheckInOutData(shiftId!);
+        const shiftId = selectedShift.id; // Get the actual shift ID
+        const data = await fetchCheckInOutData(shiftId);
         setEmployees(data);
       } catch (error) {
         console.error('Error fetching check-in/out data:', error);
@@ -75,12 +79,9 @@ const OverviewPage: React.FC<InstitutionProps> = ({ params }) => {
         setLoading(false);
       }
     };
-
-    
+  
     fetchData();
-
-    
-  }, [params.institutionKey]);
+  }, [selectedShift]);
 
   return (
     <div className="container mx-auto p-4">
