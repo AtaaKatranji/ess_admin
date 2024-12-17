@@ -91,7 +91,7 @@ const OverviewPage: React.FC<InstitutionProps> = ({ params }) => {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline">
-                {selectedShift!.name || 'Select a Shift'} <ChevronDown className="ml-2 h-4 w-4" />
+                {selectedShift!.id || 'Select a Shift'} <ChevronDown className="ml-2 h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
