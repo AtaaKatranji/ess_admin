@@ -27,6 +27,7 @@ interface Employee {
   totalHours: number;
 }
 interface Shift {
+  id: string;
   days: string[];
   startTime: string;
   endTime: string;
@@ -46,7 +47,7 @@ interface InstitutionProps {
 }
 const OverviewPage: React.FC<InstitutionProps> = ({ params }) => {
   const [shifts, setShifts] = useState<Shift[]>([]);
-  const [selectedShift, setSelectedShift] = useState<string>(); // Start as undefined
+  const [selectedShift, setSelectedShift] = useState<Shift>(); // Start as undefined
   const [viewMode, setViewMode] = useState('daily');
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -56,15 +57,16 @@ const OverviewPage: React.FC<InstitutionProps> = ({ params }) => {
         const data = await fetchShifts(params.institutionKey);
         setShifts(data);
         if (data.length > 0) {
-          setSelectedShift(data[0].name); // Set the first shift name as the default selectedShift
+          setSelectedShift(data[0]); // Set the first shift name as the default selectedShift
         }
       } catch (err) {
         console.error("Error fetching shifts:", err);
       }
     };
+    fetchAndSetShifts();
     const fetchData = async () => {
       try {
-        const shiftId = selectedShift; // Replace with your actual shift ID
+        const shiftId = selectedShift!.id; // Replace with your actual shift ID
         const data = await fetchCheckInOutData(shiftId!);
         setEmployees(data);
       } catch (error) {
@@ -74,7 +76,7 @@ const OverviewPage: React.FC<InstitutionProps> = ({ params }) => {
       }
     };
 
-    fetchAndSetShifts();
+    
     fetchData();
 
     
@@ -88,12 +90,12 @@ const OverviewPage: React.FC<InstitutionProps> = ({ params }) => {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline">
-                {selectedShift || 'Select a Shift'} <ChevronDown className="ml-2 h-4 w-4" />
+                {selectedShift!.name || 'Select a Shift'} <ChevronDown className="ml-2 h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
               {shifts.map((shift) => (
-                <DropdownMenuItem key={shift.name} onSelect={() => setSelectedShift(shift.name)}>
+                <DropdownMenuItem key={shift.id} onSelect={() => setSelectedShift(shift)}>
                   {shift.name}
                 </DropdownMenuItem>
               ))}
