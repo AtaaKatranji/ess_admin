@@ -200,7 +200,13 @@ function AttendanceStatus({ employees, loading }: { employees: Employee[],loadin
         <ul className="space-y-2">
           {notLoggedInEmployees.map(employee => (
             <li key={employee.id} className="flex items-center space-x-2">
-              <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center relative">
+              <div
+                className={`w-8 h-8 rounded-full flex items-center justify-center relative ${
+                  employee.onLeave
+                    ? 'bg-blue-500 text-white'
+                    : 'bg-gray-200 text-black'
+                }`}
+              >
                 <span className="text-xs font-semibold">{employee.name.charAt(0)}</span>
                 <span className="absolute bottom-0 right-0 w-3 h-3 bg-gray-400 rounded-full border-2 border-white"></span>
               </div>
