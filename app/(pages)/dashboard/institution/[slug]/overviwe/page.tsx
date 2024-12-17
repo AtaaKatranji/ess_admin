@@ -160,7 +160,7 @@ const OverviewPage: React.FC<InstitutionProps> = ({ params }) => {
 function AttendanceStatus({ employees, loading }: { employees: Employee[],loading :boolean }) {
   const loggedInEmployees = employees.filter(e => e.loggedIn)
   const notLoggedInEmployees = employees.filter(e => !e.loggedIn)
-
+  console.log(employees)
   return (
     <div className="space-y-4">
       <div>
