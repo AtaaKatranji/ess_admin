@@ -12,10 +12,11 @@ import { useRouter, useSearchParams  } from 'next/navigation';
 import { Circles } from 'react-loader-spinner'; // For loader
 import { motion } from 'framer-motion'; // For animations
 import { parseCookies, setCookie } from 'nookies';
-import { listenForMessages } from "@/app/lib/firebase/listenForMessages";
+import  useFirebaseMessaging   from "@/app/lib/firebase/listenForMessages";
 import { requestPermission } from "@/app/lib/firebase/requestPermission";
 
 export default function DashboardPage() {
+
   const navigate = useRouter();
   const searchParams = useSearchParams(); // Access query parameters
   const adminId = searchParams.get('adminId'); // Extract adminId
@@ -63,9 +64,11 @@ export default function DashboardPage() {
   useEffect(() => {
      if (typeof window !== 'undefined') {
     requestPermission(adminId); 
-    listenForMessages();
+
     }
   }, []);
+  useFirebaseMessaging();
+ 
   const handleViewChange = (newView: 'list' | 'grid') => {
     setView(newView);
      // Store the preferred view in a cookie

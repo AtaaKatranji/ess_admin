@@ -1,12 +1,30 @@
-import { onMessage } from "firebase/messaging";
-import { messaging } from "./firebase";
+import { getMessaging, onMessage } from "firebase/messaging";
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+const useFirebaseMessaging = () => {
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const messaging = getMessaging();
 
-const listenForMessages = () => {
-  onMessage(messaging, (payload) => {
-    console.log("Message received. ", payload);
-    // You can customize how you display the message (e.g., using a modal or a toast)
-    alert(`Notification: ${payload.notification?.title ?? 'New message received'}`);
-  });
+      // Listen for messages
+      onMessage(messaging, (payload) => {
+        console.log('Message received. ', payload);
+
+        // Extract notification data
+        const { title, body } = payload.notification || {};
+
+        // Display message in a toast
+        if (title || body) {
+          toast.info(
+            <div>
+              <strong>{title}</strong>
+              <p>{body}</p>
+            </div>
+          );
+        }
+      });
+    }
+  }, []);
 };
 
-export { listenForMessages };
+export default useFirebaseMessaging;
