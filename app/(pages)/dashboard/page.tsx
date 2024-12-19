@@ -13,7 +13,7 @@ import { Circles } from 'react-loader-spinner'; // For loader
 import { motion } from 'framer-motion'; // For animations
 import { parseCookies, setCookie } from 'nookies';
 import  useFirebaseMessaging   from "@/app/lib/firebase/listenForMessages";
-import { requestPermission } from "@/app/lib/firebase/requestPermission";
+
 
 export default function DashboardPage() {
 
@@ -33,14 +33,9 @@ export default function DashboardPage() {
 
   const [view, setView] = useState<'list' | 'grid'>('list');
   const [institutions, setInstitutions] = useState<InstitutionData[]>([]);
-  const [adminId, setAdminId] = useState<string | null>(null);
+  //const [adminId, setAdminId] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search);
-      setAdminId(params.get('adminId'));
-    }
-  }, []);
+
   const fetchData = async () => {
     const data = await fetchInstitutionsByAdmin();
     setInstitutions(data || []);
@@ -58,12 +53,7 @@ export default function DashboardPage() {
     
     }, 1000);
   }, []);
-  useEffect(() => {
-     if (typeof window !== 'undefined') {
-    requestPermission(adminId); 
-
-    }
-  }, [adminId]);
+  
   useFirebaseMessaging();
  
   const handleViewChange = (newView: 'list' | 'grid') => {

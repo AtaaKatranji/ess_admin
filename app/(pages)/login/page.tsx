@@ -1,5 +1,5 @@
 "use client";
-import {  useState } from 'react';
+import {   useState } from 'react';
 import { motion } from 'framer-motion';
 import { Loader2, Lock, User, Eye, EyeOff } from 'lucide-react';
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useRouter } from 'next/navigation';
+import { requestPermission } from "@/app/lib/firebase/requestPermission";
 //import { setCookie } from 'nookies'; // Import nookies for cookie handling
 
 export default function AdminLogin() {
@@ -49,7 +50,9 @@ export default function AdminLogin() {
 
         toast.success(data.message);
         // After successful sign-in
-        
+
+         requestPermission(data.adminId); 
+
         setTimeout(() => {
           navigate.push(`/dashboard?adminId=${data.adminId}`); // Adjust this path if needed
         }, 1500);
