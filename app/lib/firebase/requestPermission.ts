@@ -11,6 +11,8 @@ const requestPermission = async (userId: string) => {
   try {
     // Request notification permission
     const permission = await Notification.requestPermission();
+    console.log(permission)
+    console.log(messagingInstance)
     if (permission === "granted") {
       // Use the typed messaging instance
       const token = await getToken(messagingInstance, {
