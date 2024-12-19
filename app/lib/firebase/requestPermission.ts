@@ -1,38 +1,25 @@
 import { getToken } from "firebase/messaging";
-import {  type Messaging } from "firebase/messaging";
 import { messaging } from "./firebase";
 
-// Add type annotation to the imported messaging
-const messagingInstance: Messaging = messaging;
+export const requestPermission = async (): Promise<string | null> => {
+  if (!messaging) {
+    console.warn("Firebase Messaging is not initialized.");
+    return null;
+  }
 
-// Function to request permission to show notifications
-const requestPermission = async (userId: string) => {
-  console.log("TEst");
   try {
-    // Request notification permission
-    const permission = await Notification.requestPermission();
-    console.log(permission)
-    console.log(messagingInstance)
-    if (permission === "granted") {
-      // Use the typed messaging instance
-      console.log(permission)
-      const token = await getToken(messagingInstance, {
-        vapidKey: process.env.NEXT_PRIVATE_ID,
-      });
-      console.log(permission)
+    const token = await getToken(messaging, {
+      vapidKey: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY, // Must be PUBLIC
+    });
+    if (token) {
       console.log("FCM Token:", token);
-      // Store this token in your MongoDB (or send it to your server) to use for sending notifications
-      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/noti/save-token`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId, token }),
-      });
+      return token;
     } else {
-      console.error("Notification permission denied.");
+      console.warn("No FCM token available.");
+      return null;
     }
   } catch (error) {
-    console.error("Error getting permission:", error);
+    console.error("Error retrieving FCM token:", error);
+    return null;
   }
 };
-
-export { requestPermission };

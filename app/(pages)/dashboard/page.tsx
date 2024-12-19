@@ -45,7 +45,7 @@ export default function DashboardPage() {
   useEffect(() => {
   console.log("TEst");
   
-  requestPermission(adminId!); 
+  requestPermission(); 
   },[])
 
   const fetchData = async () => {
