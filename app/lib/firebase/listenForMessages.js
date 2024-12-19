@@ -1,12 +1,10 @@
-import { getMessaging, onMessage } from "firebase/messaging";
+import {onMessage } from "firebase/messaging";
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import {  useEffect } from 'react';
 const useFirebaseMessaging = () => {
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const messaging = getMessaging();
-
-      // Listen for messages
       onMessage(messaging, (payload) => {
         console.log('Message received. ', payload);
 

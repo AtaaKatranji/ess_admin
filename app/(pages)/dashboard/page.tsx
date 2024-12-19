@@ -8,7 +8,7 @@ import InstitutionCard from '@/app/components/InstitutionCard';
 import {  fetchInstitutionsByAdmin } from '../../api/institutions/institutions';
 import { toast, ToastContainer } from 'react-toastify';
 import AddInstitutionDialog from '@/app/ui/Addinstitution';
-import { useRouter, useSearchParams  } from 'next/navigation';
+import { useRouter  } from 'next/navigation';
 import { Circles } from 'react-loader-spinner'; // For loader
 import { motion } from 'framer-motion'; // For animations
 import { parseCookies, setCookie } from 'nookies';
@@ -18,8 +18,6 @@ import { requestPermission } from "@/app/lib/firebase/requestPermission";
 export default function DashboardPage() {
 
   const navigate = useRouter();
-  const searchParams = useSearchParams(); // Access query parameters
-  const adminId = searchParams.get('adminId'); // Extract adminId
   const [loading, setLoading] = useState(true); // Loading state
 
   type InstitutionData = {
@@ -35,7 +33,14 @@ export default function DashboardPage() {
 
   const [view, setView] = useState<'list' | 'grid'>('list');
   const [institutions, setInstitutions] = useState<InstitutionData[]>([]);
-  
+  const [adminId, setAdminId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      setAdminId(params.get('adminId'));
+    }
+  }, []);
   const fetchData = async () => {
     const data = await fetchInstitutionsByAdmin();
     setInstitutions(data || []);
@@ -47,15 +52,7 @@ export default function DashboardPage() {
     if (savedView) {
       setView(savedView as 'list' | 'grid');
     }
-    // const getTokenFromCookies = () => {
-    //   const value = `; ${document.cookie}`;
-    //   const parts = value.split(`; token=`);
-    //   if (parts.length === 2) return parts.pop()?.split(';').shift();
-    //   return null;
-    // };
-
-
-    
+   
     setTimeout(() => {
     fetchData();
     
@@ -67,11 +64,7 @@ export default function DashboardPage() {
 
     }
   }, [adminId]);
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      useFirebaseMessaging();
-    }
-  }, []);
+  useFirebaseMessaging();
  
   const handleViewChange = (newView: 'list' | 'grid') => {
     setView(newView);

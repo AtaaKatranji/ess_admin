@@ -23,7 +23,7 @@ export default function AdminLogin() {
   interface AuthResponse {
     message: string;
     token: string; // Add the token property
-    // ... other properties if needed
+    adminId: string
   }
 
   const handleSubmit = async (event: React.FormEvent) => {
@@ -51,7 +51,7 @@ export default function AdminLogin() {
         // After successful sign-in
         
         setTimeout(() => {
-          navigate.push('/dashboard?adminId=${adminId}'); // Adjust this path if needed
+          navigate.push(`/dashboard:admin=${data.adminId}`); // Adjust this path if needed
         }, 1500);
         
       } else {
