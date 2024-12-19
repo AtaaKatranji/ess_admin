@@ -15,9 +15,11 @@ const requestPermission = async (userId: string) => {
     console.log(messagingInstance)
     if (permission === "granted") {
       // Use the typed messaging instance
+      console.log(permission)
       const token = await getToken(messagingInstance, {
         vapidKey: process.env.NEXT_PRIVATE_ID,
       });
+      console.log(permission)
       console.log("FCM Token:", token);
       // Store this token in your MongoDB (or send it to your server) to use for sending notifications
       await fetch(`${process.env.NEXT_PUBLIC_API_URL}/noti/save-token`, {
