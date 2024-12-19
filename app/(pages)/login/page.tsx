@@ -51,7 +51,7 @@ export default function AdminLogin() {
         // After successful sign-in
         
         setTimeout(() => {
-          navigate.push(`/dashboard:admin=${data.adminId}`); // Adjust this path if needed
+          navigate.push(`/dashboard?adminId=${data.adminId}`); // Adjust this path if needed
         }, 1500);
         
       } else {
