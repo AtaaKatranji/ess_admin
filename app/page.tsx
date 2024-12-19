@@ -1,7 +1,7 @@
 "use client";
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button'; // Assuming you're using shadcn UI
-import Notifications from './components/Notifications'
+
 
 export default function AdminDashboard() {
   const router = useRouter();
@@ -47,7 +47,7 @@ export default function AdminDashboard() {
       <div>Welcome to the EES Admin Dashboard</div>
       <Button onClick={() => router.push('/login')}>Sign In</Button>
       </div>
-      <Notifications />
+
     </div>
   );
 }
