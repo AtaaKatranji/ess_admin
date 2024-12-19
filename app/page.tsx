@@ -20,6 +20,7 @@ export default function AdminDashboard() {
 };
   useEffect(() => {
     registerServiceWorker();
+
   }, []);
   return (
     <div className="flex items-center justify-center min-h-screen space-y-4">

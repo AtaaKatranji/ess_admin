@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getMessaging} from "firebase/messaging";
+import { getMessaging, type Messaging } from "firebase/messaging";
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
@@ -15,7 +15,7 @@ const app = initializeApp(firebaseConfig);
 
 
 // Initialize messaging (check if window exists to avoid server-side errors)
-let messaging;
+let messaging: Messaging;
 if (typeof window !== "undefined") {
   messaging = getMessaging(app);
 }

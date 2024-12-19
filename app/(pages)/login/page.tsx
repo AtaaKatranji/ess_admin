@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useRouter } from 'next/navigation';
-import { requestPermission } from "@/app/lib/firebase/requestPermission";
+
 //import { setCookie } from 'nookies'; // Import nookies for cookie handling
 
 export default function AdminLogin() {
@@ -51,7 +51,7 @@ export default function AdminLogin() {
         toast.success(data.message);
         // After successful sign-in
 
-         requestPermission(data.adminId); 
+
 
         setTimeout(() => {
           navigate.push(`/dashboard?adminId=${data.adminId}`); // Adjust this path if needed
