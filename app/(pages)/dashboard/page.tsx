@@ -66,8 +66,12 @@ export default function DashboardPage() {
     requestPermission(adminId); 
 
     }
+  }, [adminId]);
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      useFirebaseMessaging();
+    }
   }, []);
-  useFirebaseMessaging();
  
   const handleViewChange = (newView: 'list' | 'grid') => {
     setView(newView);
