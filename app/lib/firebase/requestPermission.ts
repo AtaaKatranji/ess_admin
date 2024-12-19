@@ -7,6 +7,7 @@ const messagingInstance: Messaging = messaging;
 
 // Function to request permission to show notifications
 const requestPermission = async (userId: string) => {
+  console.log("TEst");
   try {
     // Request notification permission
     const permission = await Notification.requestPermission();
