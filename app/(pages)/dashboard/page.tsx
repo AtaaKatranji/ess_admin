@@ -12,7 +12,7 @@ import { useRouter  } from 'next/navigation';
 import { Circles } from 'react-loader-spinner'; // For loader
 import { motion } from 'framer-motion'; // For animations
 import { parseCookies, setCookie } from 'nookies';
-import  useFirebaseMessaging   from "@/app/lib/firebase/listenForMessages";
+
 
 
 export default function DashboardPage() {
@@ -54,7 +54,7 @@ export default function DashboardPage() {
     }, 1000);
   }, []);
   
-  useFirebaseMessaging();
+
  
   const handleViewChange = (newView: 'list' | 'grid') => {
     setView(newView);
