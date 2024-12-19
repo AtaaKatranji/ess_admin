@@ -61,8 +61,10 @@ export default function DashboardPage() {
     }, 1000);
   }, []);
   useEffect(() => {
-    requestPermission(adminId);  // Request notification permission on load
-    listenForMessages();  // Start listening for notifications
+     if (typeof window !== 'undefined') {
+    requestPermission(adminId); 
+    listenForMessages();
+    }
   }, []);
   const handleViewChange = (newView: 'list' | 'grid') => {
     setView(newView);
