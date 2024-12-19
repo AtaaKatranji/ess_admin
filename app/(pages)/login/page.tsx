@@ -1,5 +1,5 @@
 "use client";
-import { useState } from 'react';
+import {  useState } from 'react';
 import { motion } from 'framer-motion';
 import { Loader2, Lock, User, Eye, EyeOff } from 'lucide-react';
 import { Button } from "@/components/ui/button";
@@ -49,8 +49,9 @@ export default function AdminLogin() {
 
         toast.success(data.message);
         // After successful sign-in
+        
         setTimeout(() => {
-          navigate.push('/dashboard'); // Adjust this path if needed
+          navigate.push('/dashboard?adminId=${adminId}'); // Adjust this path if needed
         }, 1500);
         
       } else {

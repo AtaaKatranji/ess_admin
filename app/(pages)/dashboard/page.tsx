@@ -1,24 +1,29 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+
 import { List, Grid, Building2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import InstitutionCard from '@/app/components/InstitutionCard';
 import {  fetchInstitutionsByAdmin } from '../../api/institutions/institutions';
 import { toast, ToastContainer } from 'react-toastify';
 import AddInstitutionDialog from '@/app/ui/Addinstitution';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams  } from 'next/navigation';
 import { Circles } from 'react-loader-spinner'; // For loader
 import { motion } from 'framer-motion'; // For animations
 import { parseCookies, setCookie } from 'nookies';
-
+import { listenForMessages } from "@/app/lib/firebase/listenForMessages";
+import { requestPermission } from "@/app/lib/firebase/requestPermission";
 
 export default function DashboardPage() {
   const navigate = useRouter();
+  const searchParams = useSearchParams(); // Access query parameters
+  const adminId = searchParams.get('adminId'); // Extract adminId
   const [loading, setLoading] = useState(true); // Loading state
 
   type InstitutionData = {
     _id: string;
+    adminId: string;
     name: string;
     address: string;
     keyNumber: string;
@@ -52,9 +57,13 @@ export default function DashboardPage() {
     
     setTimeout(() => {
     fetchData();
+    
     }, 1000);
   }, []);
-  
+  useEffect(() => {
+    requestPermission(adminId);  // Request notification permission on load
+    listenForMessages();  // Start listening for notifications
+  }, []);
   const handleViewChange = (newView: 'list' | 'grid') => {
     setView(newView);
      // Store the preferred view in a cookie
