@@ -20,7 +20,7 @@ const requestPermission = async (userId: string) => {
       });
       console.log("FCM Token:", token);
       // Store this token in your MongoDB (or send it to your server) to use for sending notifications
-      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/save-token`, {
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/noti/save-token`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId, token }),
