@@ -1,11 +1,26 @@
 "use client";
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button'; // Assuming you're using shadcn UI
+import { useEffect } from 'react';
 
 
 export default function AdminDashboard() {
   const router = useRouter();
-
+  const registerServiceWorker = async () => {
+  if ("serviceWorker" in navigator) {
+    try {
+      const registration = await navigator.serviceWorker.register("/firebase-messaging-sw.js");
+      console.log("Service Worker registered successfully:", registration);
+    } catch (error) {
+      console.error("Service Worker registration failed:", error);
+    }
+  } else {
+    console.warn("Service Workers are not supported in this browser.");
+  }
+};
+  useEffect(() => {
+    registerServiceWorker();
+  }, []);
   return (
     <div className="flex items-center justify-center min-h-screen space-y-4">
         <div className="absolute inset-0 z-0">

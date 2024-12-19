@@ -13,10 +13,11 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 
-let messaging;
 
-if (typeof window !== 'undefined') {
+// Initialize messaging (check if window exists to avoid server-side errors)
+let messaging;
+if (typeof window !== "undefined") {
   messaging = getMessaging(app);
 }
 
-export { messaging, onMessage, getToken };
+export { messaging };
