@@ -44,6 +44,7 @@ export default function DashboardPage() {
   }, []);
   useEffect(() => {
   console.log("TEst");
+  console.log(adminId);
   
   requestPermission(); 
   },[])
