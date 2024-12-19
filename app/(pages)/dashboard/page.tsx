@@ -42,6 +42,9 @@ export default function DashboardPage() {
       setAdminId(params.get('adminId')!);
     }
   }, []);
+  useEffect(() => {
+  requestPermission(adminId!); 
+  },[])
 
   const fetchData = async () => {
     const data = await fetchInstitutionsByAdmin();
@@ -61,7 +64,7 @@ export default function DashboardPage() {
     }, 1000);
   }, []);
   
-  requestPermission(adminId!); 
+  
  
   const handleViewChange = (newView: 'list' | 'grid') => {
     setView(newView);
