@@ -66,8 +66,14 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
   const [isEditing, setIsEditing] = useState(false);
 
 
-  const handleEditShift = (shift: Shift) => {
-    setNewShift(shift);
+  const handleEditShift = async (shift: Shift) => {
+    const breaks = await fetchBreaksForShift(shift._id!);
+
+  // Set the newShift state with the shift data and breaks
+  setNewShift({
+    ...shift,
+    breaks: breaks, // Populate breaks
+  });
     setIsEditing(true);
     setIsOpen(true);
   };
@@ -308,6 +314,20 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
     const data = await response.json()
     setShifts(shifts.map(shift => shift._id === data._id ? data : shift))
   }
+  const fetchBreaksForShift = async (shiftId : string) => {
+    try {
+      const response = await fetch(`${BaseURL}/break//break-types/shift/${shiftId}`);
+    
+      if (!response.ok) {
+        throw new Error('Failed to fetch breaks');
+      }
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error fetching breaks:', error);
+      return [];
+    }
+  };
 
   return (
     <div className="container mx-auto p-4">
@@ -429,27 +449,27 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
             <fieldset className="mt-4 md:col-span-2">
               <legend className="text-sm font-medium text-gray-700">Breaks</legend>
               <div className="mt-2 space-y-2">
-                {newShift.breaks?.map((breakItem, index) => (
-                  <div key={index} className="flex items-center gap-2">
-                    <Input
-                      value={breakItem.name}
-                      onChange={(e) => {
-                        const updatedBreaks = [...newShift.breaks!];
-                        updatedBreaks[index].name = e.target.value;
-                        setNewShift({ ...newShift, breaks: updatedBreaks });
-                      }}
-                      placeholder="Break Name"
-                    />
-                    <Input
-                      type="number"
-                      value={breakItem.duration}
-                      onChange={(e) => {
-                        const updatedBreaks = [...newShift.breaks!];
-                        updatedBreaks[index].duration = parseInt(e.target.value, 10);
-                        setNewShift({ ...newShift, breaks: updatedBreaks });
-                      }}
-                      placeholder="Duration (minutes)"
-                    />
+          {newShift.breaks?.map((breakItem, index) => (
+            <div key={breakItem._id} className="flex items-center gap-2">
+              <Input
+                value={breakItem.name}
+                onChange={(e) => {
+                  const updatedBreaks = [...newShift.breaks!];
+                  updatedBreaks[index].name = e.target.value;
+                  setNewShift({ ...newShift, breaks: updatedBreaks });
+                }}
+                placeholder="Break Name"
+              />
+              <Input
+                type="number"
+                value={breakItem.duration}
+                onChange={(e) => {
+                  const updatedBreaks = [...newShift.breaks!];
+                  updatedBreaks[index].duration = parseInt(e.target.value, 10);
+                  setNewShift({ ...newShift, breaks: updatedBreaks });
+                }}
+                placeholder="Duration (minutes)"
+              />
                     <Select
                       value={breakItem.icon}
                       onValueChange={(value) => {
