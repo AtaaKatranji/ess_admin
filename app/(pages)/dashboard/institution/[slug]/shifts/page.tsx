@@ -123,7 +123,7 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
         // Step 2: Save the breaks
         if (newShift.breaks && newShift.breaks.length > 0) {
           const breakPromises = newShift.breaks.map((breakItem) =>
-            fetch(`${BaseURL}/break/`, {
+            fetch(`${BaseURL}/break/break-types`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
