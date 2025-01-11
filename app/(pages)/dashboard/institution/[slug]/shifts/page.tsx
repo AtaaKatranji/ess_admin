@@ -14,6 +14,11 @@ type Employee = {
   _id: string
   name: string
 }
+type Break = {
+  name: string;
+  duration: number; // in minutes
+  icon?: string; // optional icon
+};
 
 type Shift = {
   _id?: string
@@ -27,6 +32,7 @@ type Shift = {
   lateMultiplier: number,
   extraLimit: number,
   extraMultiplier: number,
+  breaks?: Break[]; // Add breaks to the Shift type
 
 }
 
@@ -49,6 +55,7 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
     lateMultiplier: 1,
     extraLimit: 1,
     extraMultiplier: 1,
+    breaks: [], // Initialize breaks as an empty array
   })
   const [employees, setEmployees] = useState<Employee[]>([])
   // const [newEmployee, setNewEmployee] = useState('')
@@ -317,6 +324,76 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
               ))}
             </div>
           </fieldset>
+
+          {/* Breaks Section */}
+            <fieldset className="mt-4 md:col-span-2">
+              <legend className="text-sm font-medium text-gray-700">Breaks</legend>
+              <div className="mt-2 space-y-2">
+                {newShift.breaks?.map((breakItem, index) => (
+                  <div key={index} className="flex items-center gap-2">
+                    <Input
+                      value={breakItem.name}
+                      onChange={(e) => {
+                        const updatedBreaks = [...newShift.breaks!];
+                        updatedBreaks[index].name = e.target.value;
+                        setNewShift({ ...newShift, breaks: updatedBreaks });
+                      }}
+                      placeholder="Break Name"
+                    />
+                    <Input
+                      type="number"
+                      value={breakItem.duration}
+                      onChange={(e) => {
+                        const updatedBreaks = [...newShift.breaks!];
+                        updatedBreaks[index].duration = parseInt(e.target.value, 10);
+                        setNewShift({ ...newShift, breaks: updatedBreaks });
+                      }}
+                      placeholder="Duration (minutes)"
+                    />
+                    <Select
+                      value={breakItem.icon}
+                      onValueChange={(value) => {
+                        const updatedBreaks = [...newShift.breaks!];
+                        updatedBreaks[index].icon = value;
+                        setNewShift({ ...newShift, breaks: updatedBreaks });
+                      }}
+                    >
+                      <SelectTrigger className="w-[120px]">
+                        <SelectValue placeholder="Select icon" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="coffee">☕ Coffee</SelectItem>
+                        <SelectItem value="food">🍴 Food</SelectItem>
+                        <SelectItem value="rest">🛋️ Rest</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => {
+                        const updatedBreaks = newShift.breaks!.filter((_, i) => i !== index);
+                        setNewShift({ ...newShift, breaks: updatedBreaks });
+                      }}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+                <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      setNewShift({
+                        ...newShift,
+                        breaks: [...(newShift.breaks || []), { name: '', duration: 0 }],
+                      });
+                    }}
+                  >
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    Add Break
+                  </Button>
+                </div>
+              </fieldset>
 
           <DialogFooter className="mt-6 md:col-span-2">
             <Button type="button" variant="secondary" onClick={() => setIsOpen(false)} className="mr-4">
