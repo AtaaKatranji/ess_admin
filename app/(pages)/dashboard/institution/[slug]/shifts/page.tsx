@@ -67,6 +67,8 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
 
 
   const handleEditShift = async (shift: Shift) => {
+    console.log("in handle edit  shift")
+    console.log(shift._id)
     const breaks = await fetchBreaksForShift(shift._id!);
 
   // Set the newShift state with the shift data and breaks
