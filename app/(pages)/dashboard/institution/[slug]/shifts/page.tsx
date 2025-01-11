@@ -103,38 +103,116 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
   const addShift = async () => {
    
     if (newShift.name && newShift.startTime && newShift.endTime && newShift.days.length > 0 && newShift.extraLimit >= 1 && newShift.extraLimit >= 1 && newShift.lateLimit >= 1 && newShift.lateMultiplier >= 1) {
-      const response = await fetch(`${BaseURL}/shift/`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...newShift, employees: [] }),
-      })
-      const data = await response.json()
-      setShifts([...shifts, data])
-      setNewShift({ name: '', startTime: '', endTime: '', days: [] , institutionKey:params.institutionKey, lateLimit: 1,
-        lateMultiplier: 1,
-        extraLimit: 1,
-        extraMultiplier: 1, })
-      setIsOpen(false)
+      
+      try {
+        // Prepare the data to be sent to the API
+        const shiftData = {
+          ...newShift,
+          employees: [], // Ensure employees are initialized as an empty array
+          breaks: newShift.breaks || [], // Include breaks if they exist
+        };
+  
+        // Send the POST request to the API
+        const response = await fetch(`${BaseURL}/shift/`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(shiftData),
+        });
+  
+        // Handle the response
+        if (!response.ok) {
+          throw new Error('Failed to add shift');
+        }
+  
+        const data = await response.json();
+  
+        // Update the shifts state with the new shift
+        setShifts([...shifts, data]);
+  
+        // Reset the newShift state to its initial values
+        setNewShift({
+          name: '',
+          startTime: '',
+          endTime: '',
+          days: [],
+          institutionKey: params.institutionKey,
+          lateLimit: 1,
+          lateMultiplier: 1,
+          extraLimit: 1,
+          extraMultiplier: 1,
+          breaks: [], // Reset breaks to an empty array
+        });
+  
+        // Close the dialog
+        setIsOpen(false);
+      } catch (error) {
+        console.error('Error adding shift:', error);
+        // Optionally, show an error message to the user
+      }
+    } else {
+      console.error('Validation failed: Please fill all required fields.');
+      // Optionally, show a validation error message to the user
     }
   }
-  const updateShift = async() =>{
-    if (newShift.name && newShift.startTime && newShift.endTime && newShift.days.length > 0) {
-      
+  const updateShift = async() =>{   
+      // Validate required fields
+  if (
+    newShift.name &&
+    newShift.startTime &&
+    newShift.endTime &&
+    newShift.days.length > 0
+  ) {
+    try {
+      // Prepare the data to be sent to the API
+      const shiftData = {
+        ...newShift,
+        breaks: newShift.breaks || [], // Include breaks if they exist
+      };
+
+      // Send the PUT request to the API
       const response = await fetch(`${BaseURL}/shift/${newShift._id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newShift),
-      })
-      const data = await response.json()
-      setShifts(shifts.map(shift => shift._id === data._id ? data : shift))
-      setNewShift({ name: '', startTime: '', endTime: '', days: [] , institutionKey:params.institutionKey, lateLimit: 1,
+        body: JSON.stringify(shiftData),
+      });
+
+      // Handle the response
+      if (!response.ok) {
+        throw new Error('Failed to update shift');
+      }
+
+      const data = await response.json();
+
+      // Update the shifts state with the updated shift
+      setShifts(shifts.map((shift) => (shift._id === data._id ? data : shift)));
+
+      // Reset the newShift state to its initial values
+      setNewShift({
+        name: '',
+        startTime: '',
+        endTime: '',
+        days: [],
+        institutionKey: params.institutionKey,
+        lateLimit: 1,
         lateMultiplier: 1,
         extraLimit: 1,
-        extraMultiplier: 1, })
-      setIsOpen(false)
-      setIsEditing(false)
+        extraMultiplier: 1,
+        breaks: [], // Reset breaks to an empty array
+      });
+
+      // Close the dialog and reset editing mode
+      setIsOpen(false);
+      setIsEditing(false);
+    } catch (error) {
+      console.error('Error updating shift:', error);
+      // Optionally, show an error message to the user
     }
+  } else {
+    console.error('Validation failed: Please fill all required fields.');
+    // Optionally, show a validation error message to the user
   }
+};
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (isEditing) {
