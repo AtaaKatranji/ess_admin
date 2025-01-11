@@ -316,7 +316,7 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
   }
   const fetchBreaksForShift = async (shiftId : string) => {
     try {
-      const response = await fetch(`${BaseURL}/break//break-types/shift/${shiftId}`);
+      const response = await fetch(`${BaseURL}/break/break-types/shift/${shiftId}`);
     
       if (!response.ok) {
         throw new Error('Failed to fetch breaks');
