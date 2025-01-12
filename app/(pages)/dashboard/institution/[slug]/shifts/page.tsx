@@ -66,7 +66,7 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
   const [isOpen, setIsOpen] = useState(false)
   const [isEditing, setIsEditing] = useState(false);
    // const [errorName, setErrorName] = useState<string | null>(null);
-  const [newName, setNewName] = useState<string | null>(null);
+  // const [newName, setNewName] = useState<string | null>(null);
 
 
   const handleEditShift = async (shift: Shift) => {
@@ -103,6 +103,11 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setNewShift({ ...newShift, [e.target.name]: e.target.value })
   }
+  const handleNameBreakChange = (e: React.ChangeEvent<HTMLInputElement>, index: string) => {
+    const updatedBreaks = [...newShift.breaks!];
+    updatedBreaks[Number(index)].name = e.target.value; // Type assertion to number
+    setNewShift({ ...newShift, breaks: updatedBreaks });
+  };
 
   const handleDayToggle = (day: string) => {
     setNewShift(prev => ({
@@ -484,22 +489,14 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
               <legend className="text-sm font-medium text-gray-700">Breaks</legend>
               <div className="mt-2 space-y-2">
           {newShift.breaks?.map((breakItem, index) => (
-            <div key={breakItem.name} className="flex items-center gap-2">
+            <div key={breakItem._id} className="flex items-center gap-2">
            
 
-            <Input
-              type="name"
+           <Input
+              id="name"
+              name="name"
               value={breakItem.name}
-              onChange={(e) => {
-                setNewName(e.target.value);
-              }}
-              onBlur={() => {
-                const updatedBreaks = [...newShift.breaks!];
-                updatedBreaks[index].name = newName!
-                setNewShift({ ...newShift, breaks: updatedBreaks})
-              }}
-                          
-              
+              onChange={(event) => handleNameBreakChange(event, String(index))} // Wrap in arrow function
               placeholder="Break Name"
             />
             {/* {errorName && <p className="text-red-500 text-sm">{errorName}</p>} */}
