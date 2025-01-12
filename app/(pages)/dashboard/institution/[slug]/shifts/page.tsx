@@ -15,6 +15,7 @@ type Employee = {
   name: string
 }
 type Break = {
+  _id:string,
   name: string;
   duration: number; // in minutes
   icon?: string; // optional icon
@@ -198,8 +199,8 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
       if (newShift.breaks && newShift.breaks.length > 0) {
         const breakPromises = newShift.breaks.map((breakItem) => {
           // If the break has an _id, it's an existing break that needs to be updated
-          if (breakItem.name) {
-            return fetch(`${BaseURL}/break/break-types/${breakItem.name}`, {
+          if (!breakItem._id.startsWith('temp-')){
+            return fetch(`${BaseURL}/break/break-types/${breakItem._id}`, {
               method: 'PUT',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
@@ -209,8 +210,6 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
             });
           } else {
             // If the break doesn't have an _id, it's a new break that needs to be created
-            // const { _id, ...newBreak } = breakItem;
-            // console.log(_id) // Destructure to remove _id
             return fetch(`${BaseURL}/break/break-types`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
@@ -221,6 +220,7 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
             });
           }
         });
+
           const breakResponses = await Promise.all(breakPromises);
           for (const response of breakResponses) {
             if (!response.ok) {
@@ -535,6 +535,7 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
                       setNewShift({
                         ...newShift,
                         breaks: [...(newShift.breaks || []), {
+                          _id: `temp-${Date.now()}`,
                           name: '', 
                           duration: 0 
                         }],
