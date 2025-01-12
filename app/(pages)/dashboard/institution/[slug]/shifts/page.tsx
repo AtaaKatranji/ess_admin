@@ -358,7 +358,7 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
       return [];
     }
   };
-  const [errorName, setErrorName] = useState<string | null>(null);
+  // const [errorName, setErrorName] = useState<string | null>(null);
   return (
     
     <div className="container mx-auto p-4">
@@ -497,7 +497,7 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
               
               placeholder="Break Name"
             />
-            {errorName && <p className="text-red-500 text-sm">{errorName}</p>}
+            {/* {errorName && <p className="text-red-500 text-sm">{errorName}</p>} */}
               <Input
                 type="number"
                 value={breakItem.duration}
