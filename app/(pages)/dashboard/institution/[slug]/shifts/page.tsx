@@ -486,13 +486,12 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
            
 
             <Input
+              type="name"
               value={breakItem.name}
               onChange={(e) => {
-                const newName = e.target.value;
                 const updatedBreaks = [...newShift.breaks!];
-                updatedBreaks[index].name = newName;
+                updatedBreaks[index].name = e.target.value
                 setNewShift({ ...newShift, breaks: updatedBreaks });
-                setErrorName(null); // Clear any previous error as the user types
               }}
               onBlur={(e) => {
                 const newName = e.target.value;
@@ -512,27 +511,7 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
                   setErrorName(null);
                 }
               }}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  const target = e.target as HTMLInputElement;
-                  const newName = target.value;
-
-                  // Check if the name is already used in other breaks
-                  const isNameUsed = newShift.breaks?.some(
-                    (item, idx) => idx !== index && item.name === newName
-                  );
-
-                  if (isNameUsed) {
-                    setErrorName("This break name is already used. Please choose a different name.");
-                  } else {
-                    // Update the parent state if the name is unique
-                    const updatedBreaks = [...newShift.breaks!];
-                    updatedBreaks[index].name = newName;
-                    setNewShift({ ...newShift, breaks: updatedBreaks });
-                    setErrorName(null);
-                  }
-                }
-              }}
+              
               placeholder="Break Name"
             />
             {errorName && <p className="text-red-500 text-sm">{errorName}</p>}
