@@ -65,6 +65,8 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
   const [selectedShift, setSelectedShift] = useState('Select shift')
   const [isOpen, setIsOpen] = useState(false)
   const [isEditing, setIsEditing] = useState(false);
+   // const [errorName, setErrorName] = useState<string | null>(null);
+  const [newName, setNewName] = useState<string | null>(null);
 
 
   const handleEditShift = async (shift: Shift) => {
@@ -358,7 +360,7 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
       return [];
     }
   };
-  // const [errorName, setErrorName] = useState<string | null>(null);
+ 
   return (
     
     <div className="container mx-auto p-4">
@@ -489,11 +491,14 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
               type="name"
               value={breakItem.name}
               onChange={(e) => {
-                const updatedBreaks = [...newShift.breaks!];
-                updatedBreaks[index].name = e.target.value.toString()
-                setNewShift({ ...newShift, breaks: updatedBreaks });
+                setNewName(e.target.value);
               }}
-              
+              onBlur={(newName) => {
+                const updatedBreaks = [...newShift.breaks!];
+                updatedBreaks[index].name = newName.target.value
+                setNewShift({ ...newShift, breaks: updatedBreaks})
+              }}
+                          
               
               placeholder="Break Name"
             />
