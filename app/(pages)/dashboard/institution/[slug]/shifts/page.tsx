@@ -198,7 +198,7 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
         // Step 2: Update the breaks
         if (newShift.breaks && newShift.breaks.length > 0) {
           const breakPromises = newShift.breaks.map((breakItem) =>
-            fetch(`${BaseURL}/break/${breakItem._id}`, {
+            fetch(`${BaseURL}/break/break-types/${breakItem._id}`, {
               method: 'PUT',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
