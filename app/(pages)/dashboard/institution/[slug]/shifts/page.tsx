@@ -210,11 +210,12 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
             });
           } else {
             // If the break doesn't have an _id, it's a new break that needs to be created
+            const { _id, ...newBreak } = breakItem; // Destructure to remove _id
             return fetch(`${BaseURL}/break/break-types`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
-                ...breakItem,
+                ...newBreak,
                 shiftId: newShift._id, // Associate the new break with the shift
               }),
             });
