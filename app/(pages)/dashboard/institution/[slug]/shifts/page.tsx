@@ -15,7 +15,6 @@ type Employee = {
   name: string
 }
 type Break = {
-  _id: string;
   name: string;
   duration: number; // in minutes
   icon?: string; // optional icon
@@ -199,8 +198,8 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
       if (newShift.breaks && newShift.breaks.length > 0) {
         const breakPromises = newShift.breaks.map((breakItem) => {
           // If the break has an _id, it's an existing break that needs to be updated
-          if (breakItem._id) {
-            return fetch(`${BaseURL}/break/break-types/${breakItem._id}`, {
+          if (breakItem.name) {
+            return fetch(`${BaseURL}/break/break-types/${breakItem.name}`, {
               method: 'PUT',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
@@ -210,13 +209,13 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
             });
           } else {
             // If the break doesn't have an _id, it's a new break that needs to be created
-            const { _id, ...newBreak } = breakItem;
-            console.log(_id) // Destructure to remove _id
+            // const { _id, ...newBreak } = breakItem;
+            // console.log(_id) // Destructure to remove _id
             return fetch(`${BaseURL}/break/break-types`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
-                ...newBreak,
+                ...breakItem,
                 shiftId: newShift._id, // Associate the new break with the shift
               }),
             });
@@ -467,16 +466,29 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
               <legend className="text-sm font-medium text-gray-700">Breaks</legend>
               <div className="mt-2 space-y-2">
           {newShift.breaks?.map((breakItem, index) => (
-            <div key={breakItem._id} className="flex items-center gap-2">
+            <div key={breakItem.name} className="flex items-center gap-2">
               <Input
-                value={breakItem.name}
-                onChange={(e) => {
-                  const updatedBreaks = [...newShift.breaks!];
-                  updatedBreaks[index].name = e.target.value;
-                  setNewShift({ ...newShift, breaks: updatedBreaks });
-                }}
-                placeholder="Break Name"
-              />
+                  value={breakItem.name}
+                  onChange={(e) => {
+                    const newName = e.target.value;
+
+                    // Check if the name is already used in other breaks
+                    const isNameUsed = newShift.breaks?.some(
+                      (breakItem, idx) => idx !== index && breakItem.name === newName
+                    );
+
+                    if (isNameUsed) {
+                      // Handle the case where the name is already used (e.g., show an error message)
+                      alert("This break name is already used. Please choose a different name.");
+                    } else {
+                      // Update the state if the name is unique
+                      const updatedBreaks = [...newShift.breaks!];
+                      updatedBreaks[index].name = newName;
+                      setNewShift({ ...newShift, breaks: updatedBreaks });
+                    }
+                  }}
+                  placeholder="Break Name"
+                />
               <Input
                 type="number"
                 value={breakItem.duration}
@@ -522,8 +534,7 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
                     onClick={() => {
                       setNewShift({
                         ...newShift,
-                        breaks: [...(newShift.breaks || []), { 
-                          _id: `temp_${Date.now()}`,  // Add temporary ID
+                        breaks: [...(newShift.breaks || []), {
                           name: '', 
                           duration: 0 
                         }],
