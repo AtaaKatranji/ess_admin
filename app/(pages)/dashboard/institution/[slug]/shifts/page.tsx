@@ -493,9 +493,9 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
               onChange={(e) => {
                 setNewName(e.target.value);
               }}
-              onBlur={(newName) => {
+              onBlur={() => {
                 const updatedBreaks = [...newShift.breaks!];
-                updatedBreaks[index].name = newName.target.value
+                updatedBreaks[index].name = newName!
                 setNewShift({ ...newShift, breaks: updatedBreaks})
               }}
                           
