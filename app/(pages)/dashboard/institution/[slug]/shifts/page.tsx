@@ -358,7 +358,7 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
       return [];
     }
   };
-
+  const [errorName, setErrorName] = useState<string | null>(null);
   return (
     
     <div className="container mx-auto p-4">
@@ -483,19 +483,59 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
               <div className="mt-2 space-y-2">
           {newShift.breaks?.map((breakItem, index) => (
             <div key={breakItem.name} className="flex items-center gap-2">
-              <Input
-                  value={breakItem.name}
-                  onChange={(e) => {
-                    const newName = e.target.value;
+           
 
-                      // Update the state if the name is unique
-                      const updatedBreaks = [...newShift.breaks!];
-                      updatedBreaks[index].name = newName;
-                      setNewShift({ ...newShift, breaks: updatedBreaks });
-                    
-                  }}
-                  placeholder="Break Name"
-                />
+            <Input
+              value={breakItem.name}
+              onChange={(e) => {
+                const newName = e.target.value;
+                const updatedBreaks = [...newShift.breaks!];
+                updatedBreaks[index].name = newName;
+                setNewShift({ ...newShift, breaks: updatedBreaks });
+                setErrorName(null); // Clear any previous error as the user types
+              }}
+              onBlur={(e) => {
+                const newName = e.target.value;
+
+                // Check if the name is already used in other breaks
+                const isNameUsed = newShift.breaks?.some(
+                  (item, idx) => idx !== index && item.name === newName
+                );
+
+                if (isNameUsed) {
+                  setErrorName("This break name is already used. Please choose a different name.");
+                } else {
+                  // Update the parent state if the name is unique
+                  const updatedBreaks = [...newShift.breaks!];
+                  updatedBreaks[index].name = newName;
+                  setNewShift({ ...newShift, breaks: updatedBreaks });
+                  setErrorName(null);
+                }
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  const target = e.target as HTMLInputElement;
+                  const newName = target.value;
+
+                  // Check if the name is already used in other breaks
+                  const isNameUsed = newShift.breaks?.some(
+                    (item, idx) => idx !== index && item.name === newName
+                  );
+
+                  if (isNameUsed) {
+                    setErrorName("This break name is already used. Please choose a different name.");
+                  } else {
+                    // Update the parent state if the name is unique
+                    const updatedBreaks = [...newShift.breaks!];
+                    updatedBreaks[index].name = newName;
+                    setNewShift({ ...newShift, breaks: updatedBreaks });
+                    setErrorName(null);
+                  }
+                }
+              }}
+              placeholder="Break Name"
+            />
+            {errorName && <p className="text-red-500 text-sm">{errorName}</p>}
               <Input
                 type="number"
                 value={breakItem.duration}
