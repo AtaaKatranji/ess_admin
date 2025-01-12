@@ -74,7 +74,7 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
   // Set the newShift state with the shift data and breaks
   setNewShift({
     ...shift,
-    breaks: breaks, // Populate breaks
+    breaks: breaks.data, // Populate breaks
   });
   console.log(newShift)
     setIsEditing(true);
