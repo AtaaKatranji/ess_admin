@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label'
 import { fetchEmployees } from '@/app/api/employees/employeeId'
 import { fetchShifts } from '@/app/api/shifts/shifts'
 import { toast, ToastContainer } from 'react-toastify'
+import { debounce } from 'lodash';
 const BaseURL = process.env.NEXT_PUBLIC_API_URL;
 type Employee = {
   _id: string
@@ -65,7 +66,73 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
   const [selectedShift, setSelectedShift] = useState('Select shift')
   const [isOpen, setIsOpen] = useState(false)
   const [isEditing, setIsEditing] = useState(false);
+  const [errorName, setErrorName] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [isNameTaken, setIsNameTaken] = useState<boolean | null>(null);
 
+  // Function to check if the name is already taken
+  const checkNameAvailability = async (name: string) => {
+    if (!name) {
+      setIsNameTaken(null); // Reset if the input is empty
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await fetch(`${BaseURL}/check-break-name?name=${name}`);
+      const data = await response.json();
+
+      if (data.isTaken) {
+        setIsNameTaken(true);
+        setErrorName("This break name is already used. Please choose a different name.");
+      } else {
+        setIsNameTaken(false);
+        setErrorName(null);
+      }
+    } catch (error) {
+      console.error("Error checking name availability:", error);
+      setErrorName("An error occurred while checking the name.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Debounced version of the name check function
+  const debouncedCheckName = debounce(checkNameAvailability, 500);
+
+  // Change the first handleInputChange to handleBreakInputChange
+  const handleBreakInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newName = e.target.value;
+
+    // Update the state with the new name
+    const updatedBreaks = newShift.breaks?.map((item, index) =>
+      index === index ? { ...item, name: newName } : item
+    );
+    setNewShift({ ...newShift, breaks: updatedBreaks });
+
+    // Reset name availability state
+    setIsNameTaken(null);
+    setErrorName(null);
+
+    // Check name availability (debounced)
+    debouncedCheckName(newName);
+  };
+
+  // Keep the second handleInputChange as is
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNewShift({ ...newShift, [e.target.name]: e.target.value })
+  }
+
+  // Handle input blur
+  const handleInputBlur = () => {
+    if (isNameTaken === true) {
+      // Clear the input if the name is taken
+      const updatedBreaks = newShift.breaks?.map((item, index) =>
+        index === index ? { ...item, name: '' } : item
+      );
+      setNewShift({ ...newShift, breaks: updatedBreaks });
+    }
+  };
 
   const handleEditShift = async (shift: Shift) => {
     console.log("in handle edit  shift")
@@ -97,10 +164,6 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
     }
     fetchEmp()
   }, [])
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setNewShift({ ...newShift, [e.target.name]: e.target.value })
-  }
 
   const handleDayToggle = (day: string) => {
     setNewShift(prev => ({
@@ -484,29 +547,21 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
           {newShift.breaks?.map((breakItem, index) => (
             <div key={breakItem.name} className="flex items-center gap-2">
               <Input
-                key={breakItem._id} // Use a unique key for each break to avoid re-render issues
-                value={breakItem.name}
-                onChange={(e) => {
-                  const newName = e.target.value;
-
-                  // Check if the name is already used in other breaks
-                  const isNameUsed = newShift.breaks?.some(
-                    (item, idx) => idx !== index && item.name === newName
-                  );
-
-                  if (isNameUsed) {
-                    // Handle the case where the name is already used (e.g., show an error message)
-                    alert("This break name is already used. Please choose a different name.");
-                  } else {
-                    // Update the state if the name is unique
-                    const updatedBreaks = newShift.breaks?.map((item, idx) =>
-                      idx === index ? { ...item, name: newName } : item
-                    );
-                    setNewShift({ ...newShift, breaks: updatedBreaks });
-                  }
-                }}
-                placeholder="Break Name"
-              />
+                  key={breakItem._id}
+                  value={breakItem.name}
+                  onChange={handleBreakInputChange}
+                  onBlur={handleInputBlur}
+                  placeholder="Break Name"
+                />
+                {errorName && <p className="text-red-500 text-sm">{errorName}</p>}
+                {loading && <span>Checking...</span>}
+                {isNameTaken === true && (
+                  <span style={{ color: 'red' }}>Name already taken</span>
+                )}
+                {isNameTaken === false && (
+                  <span style={{ color: 'green' }}>✔ Name is available</span>
+                )}
+                {isNameTaken === null && <span> </span>}
               <Input
                 type="number"
                 value={breakItem.duration}
