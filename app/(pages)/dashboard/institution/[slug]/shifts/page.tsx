@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogT
 import { Label } from '@/components/ui/label'
 import { fetchEmployees } from '@/app/api/employees/employeeId'
 import { fetchShifts } from '@/app/api/shifts/shifts'
+import { toast, ToastContainer } from 'react-toastify'
 const BaseURL = process.env.NEXT_PUBLIC_API_URL;
 type Employee = {
   _id: string
@@ -145,6 +146,9 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
           const breakResponses = await Promise.all(breakPromises);
           for (const response of breakResponses) {
             if (!response.ok) {
+              toast.error('Failed to add break', {
+                autoClose: 1500 // duration in milliseconds
+              });
               throw new Error('Failed to add break');
             }
           }
@@ -169,6 +173,9 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
   
         // Close the dialog
         setIsOpen(false);
+        toast.success('shift added successfully', {
+          autoClose: 1500 // duration in milliseconds
+        });
       } catch (error) {
         console.error('Error adding shift:', error);
       }
@@ -190,7 +197,11 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
         });
   
         if (!shiftResponse.ok) {
+          toast.error('Failed to update shift', {
+            autoClose: 1500 // duration in milliseconds
+          });
           throw new Error('Failed to update shift');
+          
         }
   
         const shiftData = await shiftResponse.json();
@@ -249,6 +260,9 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
         // Close the dialog and reset editing mode
         setIsOpen(false);
         setIsEditing(false);
+        toast.success('shift updated successfully', {
+          autoClose: 1500 // duration in milliseconds
+        });
       } catch (error) {
         console.error('Error updating shift:', error);
       }
@@ -346,7 +360,9 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
   };
 
   return (
+    
     <div className="container mx-auto p-4">
+      <ToastContainer />
       <div className='flex justify-between'>
       <h1 className="text-2xl font-bold mb-4">Shift Management</h1>
       <Button type="button" onClick={() => { setIsOpen(true) }}>
@@ -468,27 +484,29 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
           {newShift.breaks?.map((breakItem, index) => (
             <div key={breakItem.name} className="flex items-center gap-2">
               <Input
-                  value={breakItem.name}
-                  onChange={(e) => {
-                    const newName = e.target.value;
+                key={breakItem._id} // Use a unique key for each break to avoid re-render issues
+                value={breakItem.name}
+                onChange={(e) => {
+                  const newName = e.target.value;
 
-                    // Check if the name is already used in other breaks
-                    const isNameUsed = newShift.breaks?.some(
-                      (breakItem, idx) => idx !== index && breakItem.name === newName
+                  // Check if the name is already used in other breaks
+                  const isNameUsed = newShift.breaks?.some(
+                    (item, idx) => idx !== index && item.name === newName
+                  );
+
+                  if (isNameUsed) {
+                    // Handle the case where the name is already used (e.g., show an error message)
+                    alert("This break name is already used. Please choose a different name.");
+                  } else {
+                    // Update the state if the name is unique
+                    const updatedBreaks = newShift.breaks?.map((item, idx) =>
+                      idx === index ? { ...item, name: newName } : item
                     );
-
-                    if (isNameUsed) {
-                      // Handle the case where the name is already used (e.g., show an error message)
-                      alert("This break name is already used. Please choose a different name.");
-                    } else {
-                      // Update the state if the name is unique
-                      const updatedBreaks = [...newShift.breaks!];
-                      updatedBreaks[index].name = newName;
-                      setNewShift({ ...newShift, breaks: updatedBreaks });
-                    }
-                  }}
-                  placeholder="Break Name"
-                />
+                    setNewShift({ ...newShift, breaks: updatedBreaks });
+                  }
+                }}
+                placeholder="Break Name"
+              />
               <Input
                 type="number"
                 value={breakItem.duration}
