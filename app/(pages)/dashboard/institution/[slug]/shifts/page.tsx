@@ -195,19 +195,31 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
   
         const shiftData = await shiftResponse.json();
   
-        // Step 2: Update the breaks
-        if (newShift.breaks && newShift.breaks.length > 0) {
-          const breakPromises = newShift.breaks.map((breakItem) =>
-            fetch(`${BaseURL}/break/break-types/${breakItem._id}`, {
+         // Step 2: Handle breaks (update existing or create new ones)
+      if (newShift.breaks && newShift.breaks.length > 0) {
+        const breakPromises = newShift.breaks.map((breakItem) => {
+          // If the break has an _id, it's an existing break that needs to be updated
+          if (breakItem._id) {
+            return fetch(`${BaseURL}/break/break-types/${breakItem._id}`, {
               method: 'PUT',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
                 ...breakItem,
                 shiftId: newShift._id, // Ensure the break is associated with the shift
               }),
-            })
-          );
-  
+            });
+          } else {
+            // If the break doesn't have an _id, it's a new break that needs to be created
+            return fetch(`${BaseURL}/break/break-types`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                ...breakItem,
+                shiftId: newShift._id, // Associate the new break with the shift
+              }),
+            });
+          }
+        });
           const breakResponses = await Promise.all(breakPromises);
           for (const response of breakResponses) {
             if (!response.ok) {
