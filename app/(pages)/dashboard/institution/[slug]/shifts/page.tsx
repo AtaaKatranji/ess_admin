@@ -399,7 +399,20 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
       <ToastContainer />
       <div className='flex justify-between'>
       <h1 className="text-2xl font-bold mb-4">Shift Management</h1>
-      <Button type="button" onClick={() => { setIsOpen(true) }}>
+      <Button type="button" onClick={() => {
+        setNewShift({
+      name: '',
+      startTime: '',
+      endTime: '',
+      days: [],
+      institutionKey: params.institutionKey,
+      lateLimit: 1,
+      lateMultiplier: 1,
+      extraLimit: 1,
+      extraMultiplier: 1,
+      breaks: [],
+    }); 
+    setIsOpen(true) }}>
         <PlusCircle className="mr-2 h-4 w-4" />
         Add Shift
       </Button>
