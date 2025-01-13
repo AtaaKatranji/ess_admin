@@ -324,7 +324,27 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
     await fetch(`${BaseURL}/shift/${id}`, { method: 'DELETE' })
     setShifts(shifts.filter(shift => shift._id !== id))
   }
+  // Function to delete a break from the backend
+  const deleteBreak = async (breakId: string) => {
+    try {
+      const response = await fetch(`${BaseURL}/break/break-types/${breakId}`, {
+        method: 'DELETE',
+      });
 
+      if (!response.ok) {
+        throw new Error('Failed to delete break');
+      }
+
+      // Return true if the break was successfully deleted
+      return true;
+    } catch (error) {
+      console.error('Error deleting break:', error);
+      toast.error('Failed to delete break', {
+        autoClose: 1500, // duration in milliseconds
+      });
+      return false;
+    }
+  };
   // const addEmployee = async () => {
   //   if (newEmployee) {
   //     const response = await fetch('/api/employees', {
@@ -571,9 +591,21 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
                     <Button
                       variant="destructive"
                       size="sm"
-                      onClick={() => {
-                        const updatedBreaks = newShift.breaks!.filter((_, i) => i !== index);
-                        setNewShift({ ...newShift, breaks: updatedBreaks });
+                      onClick={async () => {
+                        const breakId = newShift.breaks![index]._id;
+                    
+                        // Call the API to delete the break
+                        const isDeleted = await deleteBreak(breakId);
+                    
+                        // If the break was successfully deleted from the backend, update the local state
+                        if (isDeleted) {
+                          const updatedBreaks = newShift.breaks!.filter((_, i) => i !== index);
+                          setNewShift({ ...newShift, breaks: updatedBreaks });
+                    
+                          toast.success('Break deleted successfully', {
+                            autoClose: 1500, // duration in milliseconds
+                          });
+                        }
                       }}
                     >
                       <Trash2 className="h-4 w-4" />
