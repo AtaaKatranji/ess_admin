@@ -267,6 +267,19 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
         // Close the dialog and reset editing mode
         setIsOpen(false);
         setIsEditing(false);
+        // Reset the newShift state
+        setNewShift({
+          name: '',
+          startTime: '',
+          endTime: '',
+          days: [],
+          institutionKey: params.institutionKey,
+          lateLimit: 1,
+          lateMultiplier: 1,
+          extraLimit: 1,
+          extraMultiplier: 1,
+          breaks: [],
+        });
         toast.success('shift updat successfully', {
           autoClose: 1500 // duration in milliseconds
         });
@@ -288,6 +301,20 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
       // Call your add function here
       addShift();
     }
+
+      // Reset the newShift state to its initial values
+  setNewShift({
+    name: '',
+    startTime: '',
+    endTime: '',
+    days: [],
+    institutionKey: params.institutionKey,
+    lateLimit: 1,
+    lateMultiplier: 1,
+    extraLimit: 1,
+    extraMultiplier: 1,
+    breaks: [],
+  });
     setIsOpen(false);
     setIsEditing(false);
    
