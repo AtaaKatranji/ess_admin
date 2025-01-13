@@ -524,6 +524,7 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
                       <SelectContent>
                         <SelectItem value="coffee">☕ Coffee</SelectItem>
                         <SelectItem value="food">🍴 Food</SelectItem>
+                        <SelectItem value="tea">🍵 Tea</SelectItem>
                         <SelectItem value="rest">🛋️ Rest</SelectItem>
                       </SelectContent>
                     </Select>
