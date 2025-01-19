@@ -52,7 +52,7 @@ const LeaveRequestsPage: React.FC = () => {
   useEffect(() => {
     const fetchHourlyLeaves = async () => {
       try {
-        const response = await fetch(`${BaseUrl}break/employee-breaks?customBreak=true`);
+        const response = await fetch(`${BaseUrl}/break/employee-breaks?customBreak=true`);
         const data: HourlyLeave[] = await response.json();
         setHourlyLeaves(data);
       } catch (error) {
@@ -136,7 +136,7 @@ useEffect(() => {
   // Handle approve hourly leave (custom break)
   const handleApproveHourlyLeave = async (id: string) => {
     try {
-      const response = await fetch(`${BaseUrl}/employee-breaks/${id}/approve`, {
+      const response = await fetch(`${BaseUrl}/break/employee-breaks/${id}/approve`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
       });
@@ -156,7 +156,7 @@ useEffect(() => {
   // Handle reject hourly leave (custom break)
   const handleRejectHourlyLeave = async (id: string) => {
     try {
-      const response = await fetch(`${BaseUrl}/employee-breaks/${id}/reject`, {
+      const response = await fetch(`${BaseUrl}/break/employee-breaks/${id}/reject`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
       });
