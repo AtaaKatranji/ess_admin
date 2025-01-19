@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import {  useEffect, useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -16,6 +16,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ChevronDown, Download, Search } from 'lucide-react'
 import { fetchShifts } from '@/app/api/shifts/shifts'
 import { fetchCheckInOutData } from '@/app/api/employees/employeeId'
+
+import { useParams } from 'next/navigation';
 
 // types/AttendanceRecord.ts
 interface Employee {
@@ -41,12 +43,13 @@ interface Shift {
   extraLimit: number;
 }
 
-interface InstitutionProps {
-  params: {
-    institutionKey: string;
-  }
-}
-const OverviewPage: React.FC<InstitutionProps> = ({ params }) => {
+
+
+// Define the props for OverviewPage
+export default function OverviewPage() {
+  const { slug } = useParams();
+
+
   const [shifts, setShifts] = useState<Shift[]>([]);
   const [selectedShift, setSelectedShift] = useState<Shift>(); // Start as undefined
   const [viewMode, setViewMode] = useState('daily');
@@ -55,7 +58,10 @@ const OverviewPage: React.FC<InstitutionProps> = ({ params }) => {
   useEffect(() => {
     const fetchAndSetShifts = async () => {
       try {
-        const data = await fetchShifts(params.institutionKey);
+        if (!slug) return; // If slug is undefined, do nothing
+        const institutionKey = Array.isArray(slug) ? slug[0] : slug; 
+        const data = await fetchShifts(institutionKey);
+
         setShifts(data);
         if (data.length > 0) {
           setSelectedShift(data[0]);
@@ -66,7 +72,7 @@ const OverviewPage: React.FC<InstitutionProps> = ({ params }) => {
       }
     };
     fetchAndSetShifts();
-  }, [params.institutionKey]);
+  }, []);
   
   useEffect(() => {
     const fetchData = async () => {
@@ -278,4 +284,3 @@ function WeeklyTimeSheet({ employees }: { employees: Employee[] }) {
   )
 }
 
-export default OverviewPage;

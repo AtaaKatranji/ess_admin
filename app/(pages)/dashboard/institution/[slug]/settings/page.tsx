@@ -26,7 +26,7 @@ interface InstitutionInfo {
 
 const SettingsPage: React.FC = () => {
   const params = useParams();
-  const slug = params?.slug;
+  const slug = Array.isArray(params?.slug) ? params.slug[0] : params?.slug;
   const router = useRouter();
 
   const [institutionInfo, setInstitutionInfo] = useState<InstitutionInfo>({
@@ -51,7 +51,7 @@ const SettingsPage: React.FC = () => {
     // Fetch data from your backend API for the specific institution
     const fetchData = async () => {
       try {
-        const data = await fetchInstitution(slug.toString());
+        const data = await fetchInstitution(slug!.toString());
         setInstitutionInfo(data);
         setInitialName(data.name);
 

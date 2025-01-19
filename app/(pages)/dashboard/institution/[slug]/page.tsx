@@ -3,11 +3,10 @@
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
-import { Home, Users, FileText, Bell, Settings, Menu, SquareArrowLeftIcon, Table } from 'lucide-react';
+import { Home, Users, FileText, Settings, Menu, SquareArrowLeftIcon, Table } from 'lucide-react';
 import OverviewPage from './overviwe/page';
 import EmployeeRequests from './requests/page';
 import SettingsPage from './settings/page';
-import NotificationsPage from './notifications/page';
 import EmployeeList from './employees/page';
 import Holiday from './holidays/page';
 import { CalendarDaysIcon } from '@heroicons/react/16/solid';
@@ -15,12 +14,12 @@ import { fetchInstitution } from '@/app/api/institutions/institutions';
 import { Circles } from 'react-loader-spinner';
 import { toast, ToastContainer } from 'react-toastify';
 import ShiftsPage from './shifts/page';
+
 interface SSIDInfo {
-  
   wifiName: string;
   macAddress: string;
-
 }
+
 interface Institution {
   name: string;
   address: string;
@@ -28,9 +27,10 @@ interface Institution {
   macAddresses: SSIDInfo[];
   slug: string;
 }
+
 const InstitutionDashboard: React.FC = () => {
-  const params = useParams();
-  const router = useRouter();
+  const params = useParams(); // Updated for Next.js 15
+  const router = useRouter(); // Updated for Next.js 15
   const slug = Array.isArray(params.slug) ? params.slug[0] : params.slug;
 
   const [activeSection, setActiveSection] = useState('overview');
@@ -43,7 +43,7 @@ const InstitutionDashboard: React.FC = () => {
     macAddresses: [],
     slug: '',
   });
-  const [institutionKey, setInstitutionKey] = useState('')
+  //const [institutionKey, setInstitutionKey] = useState('');
 
   const handleNavigation = (section: string) => {
     setActiveSection(section);
@@ -61,24 +61,23 @@ const InstitutionDashboard: React.FC = () => {
   };
 
   const fetchData = async () => {
+    if (!slug) return;
     const data = await fetchInstitution(slug.toString());
     setInstitution(data || []);
-    setInstitutionKey(data.uniqueKey);
-    setLoading(false); // Stop loading once data is fetched
+    //setInstitutionKey(data.uniqueKey);
+    setLoading(false);
   };
 
   const renderContent = () => {
     switch (activeSection) {
       case 'overview':
-        return <OverviewPage params={{institutionKey}} />;
+        return <OverviewPage />;
       case 'employees':
         return <EmployeeList />;
       case 'shifts':
-        return <ShiftsPage params={{institutionKey}} />;
+        return <ShiftsPage />;
       case 'requests':
         return <EmployeeRequests />;
-      case 'notifications':
-        return <NotificationsPage params={{ slug }} />;
       case 'holidays':
         return <Holiday />;
       case 'settings':
@@ -92,7 +91,7 @@ const InstitutionDashboard: React.FC = () => {
     if (slug) {
       fetchData();
     }
-  }, []);
+  }, [slug]);
 
   if (loading) {
     return (
@@ -165,15 +164,6 @@ const InstitutionDashboard: React.FC = () => {
             >
               <FileText className="mr-2 h-5 w-5" />
               Requests
-            </a>
-          </Link>
-          <Link href="#" legacyBehavior>
-            <a
-              onClick={() => handleNavigation('notifications')}
-              className={`flex items-center py-2 px-4 ${activeSection === 'notifications' ? 'bg-blue-600 rounded' : ''}`}
-            >
-              <Bell className="mr-2 h-5 w-5" />
-              Notifications
             </a>
           </Link>
           <Link href="#" legacyBehavior>

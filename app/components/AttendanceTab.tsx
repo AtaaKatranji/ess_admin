@@ -70,7 +70,11 @@ const AttendanceTab = ({ employeeId, selectedMonth }: { employeeId: string; sele
       const openAddDialog = () => {
         setIsEditing(false); // Set to add mode
         resetForm();
-        form.reset();// Reset form data for new record
+        form.reset({
+          checkDate: "", // Reset the date field
+          checkInTime: "", // Reset the check-in time field
+          checkOutTime: "", // Reset the check-out time field
+        });
         setIsDialogOpen(true);
       };
       const resetForm = () => {

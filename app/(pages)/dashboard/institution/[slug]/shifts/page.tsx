@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label'
 import { fetchEmployees } from '@/app/api/employees/employeeId'
 import { fetchShifts } from '@/app/api/shifts/shifts'
 import { toast, ToastContainer } from 'react-toastify'
+import { useParams } from 'next/navigation'
 const BaseURL = process.env.NEXT_PUBLIC_API_URL;
 type Employee = {
   _id: string
@@ -39,19 +40,19 @@ type Shift = {
 }
 
 const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-interface ShiftsPageProps {
-  params: {
-    institutionKey: string;
-  } // Define institutionKey as a string
-}
 
-const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
+
+
+export default function ShiftsPage() {
+  const { slug } = useParams();
+   // If slug is undefined, do nothing
+   const institutionKey = Array.isArray(slug) ? slug[0] : slug || 'default-institution-key';
   const [shifts, setShifts] = useState<Shift[]>([])
   const [newShift, setNewShift] = useState<Shift>({
     name: '',
     startTime: '',
     endTime: '',
-    institutionKey:params.institutionKey,
+    institutionKey:institutionKey,
     days: [],
     lateLimit: 1,
     lateMultiplier: 1,
@@ -87,12 +88,12 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
   // Fetch shifts from the API
   useEffect(() => { 
     const fetchShi= async () => {
-      const data = await fetchShifts(params.institutionKey)
+      const data = await fetchShifts(institutionKey)
       setShifts(data)
     }
     fetchShi()
     const fetchEmp = async () => {
-      const data = await fetchEmployees(params.institutionKey)
+      const data = await fetchEmployees(institutionKey)
       console.log(data)
       setEmployees(data)
       shifts.map(shift => shift.employees!.map(employee => console.log(employee.name)))
@@ -170,7 +171,7 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
           startTime: '',
           endTime: '',
           days: [],
-          institutionKey: params.institutionKey,
+          institutionKey: institutionKey,
           lateLimit: 1,
           lateMultiplier: 1,
           extraLimit: 1,
@@ -256,7 +257,7 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
           startTime: '',
           endTime: '',
           days: [],
-          institutionKey: params.institutionKey,
+          institutionKey: institutionKey,
           lateLimit: 1,
           lateMultiplier: 1,
           extraLimit: 1,
@@ -273,7 +274,7 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
           startTime: '',
           endTime: '',
           days: [],
-          institutionKey: params.institutionKey,
+          institutionKey: institutionKey,
           lateLimit: 1,
           lateMultiplier: 1,
           extraLimit: 1,
@@ -308,7 +309,7 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
     startTime: '',
     endTime: '',
     days: [],
-    institutionKey: params.institutionKey,
+    institutionKey: institutionKey,
     lateLimit: 1,
     lateMultiplier: 1,
     extraLimit: 1,
@@ -425,7 +426,7 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
       startTime: '',
       endTime: '',
       days: [],
-      institutionKey: params.institutionKey,
+      institutionKey: institutionKey,
       lateLimit: 1,
       lateMultiplier: 1,
       extraLimit: 1,
@@ -802,4 +803,4 @@ const ShiftsPage: React.FC<ShiftsPageProps> = ({params}) => {
   )
 
 };
-export default ShiftsPage;
+
