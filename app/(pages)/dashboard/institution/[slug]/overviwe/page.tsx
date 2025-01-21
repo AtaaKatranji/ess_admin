@@ -60,6 +60,7 @@ export default function OverviewPage() {
       try {
         if (!slug) return; // If slug is undefined, do nothing
         const institutionKey = Array.isArray(slug) ? slug[0] : slug; 
+        console.log("in overview page",institutionKey);
         const data = await fetchShifts(institutionKey);
 
         setShifts(data);

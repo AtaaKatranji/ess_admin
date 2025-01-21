@@ -47,6 +47,7 @@ export default function ShiftsPage() {
   const { slug } = useParams();
    // If slug is undefined, do nothing
    const institutionKey = Array.isArray(slug) ? slug[0] : slug || 'default-institution-key';
+   console.log("in Shift page",institutionKey);
   const [shifts, setShifts] = useState<Shift[]>([])
   const [newShift, setNewShift] = useState<Shift>({
     name: '',
