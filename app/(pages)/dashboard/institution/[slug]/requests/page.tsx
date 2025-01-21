@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Check, X, ChevronDown, ChevronUp } from "lucide-react";
-
+import { sendNotification } from "@/app/api/notifications/notification-api"
 // Leave request type definition
 interface LeaveRequest {
   _id: string;
@@ -108,6 +108,7 @@ const LeaveRequestsPage: React.FC = () => {
           req._id === id ? { ...req, status: updatedLeaveRequest.leaveRequest.status } : req
         )
       );
+      sendNotification("669272cf3784386de1a710f2", 'Hello from the admin!');
     } catch (error) {
       console.error("Error approving leave request:", error);
     }
