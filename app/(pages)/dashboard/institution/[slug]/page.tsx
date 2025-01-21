@@ -47,7 +47,12 @@ const InstitutionDashboard: React.FC = () => {
 
   const handleNavigation = (section: string) => {
     setActiveSection(section);
-    router.push(`/dashboard/institution/${slug}/${section}`);
+    if(section == "overview" || section == "shifts"){
+      router.push(`/dashboard/institution/${slug}/${section}?institutionKey=${institution.uniqueKey}`);
+    } else {
+      router.push(`/dashboard/institution/${slug}/${section}`);
+
+    }
     setIsSidebarOpen(false);
   };
 
@@ -71,7 +76,7 @@ const InstitutionDashboard: React.FC = () => {
   const renderContent = () => {
     switch (activeSection) {
       case 'overview':
-        return <OverviewPage institutionKey={institution.uniqueKey} />;
+        return <OverviewPage  />;
       case 'employees':
         return <EmployeeList />;
       case 'shifts':

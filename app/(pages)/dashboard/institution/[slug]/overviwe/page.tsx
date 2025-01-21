@@ -17,7 +17,7 @@ import { ChevronDown, Download, Search } from 'lucide-react'
 import { fetchShifts } from '@/app/api/shifts/shifts'
 import { fetchCheckInOutData } from '@/app/api/employees/employeeId'
 
-import { useParams } from 'next/navigation';
+import {  useSearchParams } from 'next/navigation';
 
 // types/AttendanceRecord.ts
 interface Employee {
@@ -43,13 +43,14 @@ interface Shift {
   extraLimit: number;
 }
 
-interface OverviewPageProps {
-  institutionKey: string;
-}
+
 
 // Define the props for OverviewPage
-const OverviewPage: React.FC<OverviewPageProps> = ({ institutionKey }) => {
-  const { slug } = useParams();
+export default function OverviewPage() {
+  //const { slug } = useParams();
+  const searchParams = useSearchParams();
+  const institutionKey = searchParams.get('institutionKey');
+
 
 
   const [shifts, setShifts] = useState<Shift[]>([]);
@@ -60,10 +61,9 @@ const OverviewPage: React.FC<OverviewPageProps> = ({ institutionKey }) => {
   useEffect(() => {
     const fetchAndSetShifts = async () => {
       try {
-        if (!slug) return; // If slug is undefined, do nothing
-        const institutionKey1 = Array.isArray(slug) ? slug[0] : slug; 
+        if (!institutionKey) return; // If slug is undefined, do nothing
+        
         console.log("in overview page",institutionKey);
-        console.log("in overview page 1",institutionKey1);
         const data = await fetchShifts(institutionKey);
 
         setShifts(data);
@@ -288,4 +288,3 @@ function WeeklyTimeSheet({ employees }: { employees: Employee[] }) {
   )
 }
 
-export default OverviewPage;
