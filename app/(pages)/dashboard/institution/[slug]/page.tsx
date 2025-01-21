@@ -52,7 +52,7 @@ const InstitutionDashboard: React.FC = () => {
     );
     
     if(section == "overview" || section == "shifts"){
-      router.push(`/dashboard/institution/${slug}/${section}?institutionKey=${institution.uniqueKey}`);
+      router.push(`/dashboard/institution/${slug}/${section}?key=${institution.uniqueKey}`);
     } else {
       router.push(`/dashboard/institution/${slug}/${section}`);
 

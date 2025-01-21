@@ -49,7 +49,7 @@ interface Shift {
 export default function OverviewPage() {
   //const { slug } = useParams();
   const searchParams = useSearchParams();
-  const institutionKey = searchParams.get('institutionKey');
+  const institutionKey = searchParams.get('key');
 
 
 

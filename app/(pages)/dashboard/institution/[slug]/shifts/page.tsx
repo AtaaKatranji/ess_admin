@@ -46,7 +46,7 @@ const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Sat
 export default function ShiftsPage() {
   const { slug } = useParams();
   const searchParams = useSearchParams();
-  const institutionKey1 = searchParams.get('institutionKey');
+  const institutionKey1 = searchParams.get('key');
    // If slug is undefined, do nothing
    const institutionKey = Array.isArray(slug) ? slug[0] : slug || 'default-institution-key';
    console.log("in Shift page ",institutionKey);
@@ -92,12 +92,12 @@ export default function ShiftsPage() {
   // Fetch shifts from the API
   useEffect(() => { 
     const fetchShi= async () => {
-      const data = await fetchShifts(institutionKey)
+      const data = await fetchShifts(institutionKey1!)
       setShifts(data)
     }
     fetchShi()
     const fetchEmp = async () => {
-      const data = await fetchEmployees(institutionKey)
+      const data = await fetchEmployees(institutionKey1!)
       console.log(data)
       setEmployees(data)
       shifts.map(shift => shift.employees!.map(employee => console.log(employee.name)))
