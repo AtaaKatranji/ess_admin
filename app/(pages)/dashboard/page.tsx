@@ -12,7 +12,7 @@ import { useRouter  } from 'next/navigation';
 import { Circles } from 'react-loader-spinner'; // For loader
 import { motion } from 'framer-motion'; // For animations
 import { parseCookies, setCookie } from 'nookies';
-import { requestPermission } from '@/app/lib/firebase/requestPermission';
+// import { requestPermission } from '@/app/lib/firebase/requestPermission';
 
 
 
@@ -46,7 +46,7 @@ export default function DashboardPage() {
   console.log("TEst");
   console.log(adminId);
   
-  requestPermission(); 
+  // requestPermission(); 
   },[])
 
   const fetchData = async () => {
