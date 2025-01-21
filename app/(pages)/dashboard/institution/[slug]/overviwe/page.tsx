@@ -43,10 +43,12 @@ interface Shift {
   extraLimit: number;
 }
 
-
+interface OverviewPageProps {
+  institutionKey: string;
+}
 
 // Define the props for OverviewPage
-export default function OverviewPage() {
+const OverviewPage: React.FC<OverviewPageProps> = ({ institutionKey }) => {
   const { slug } = useParams();
 
 
@@ -59,8 +61,9 @@ export default function OverviewPage() {
     const fetchAndSetShifts = async () => {
       try {
         if (!slug) return; // If slug is undefined, do nothing
-        const institutionKey = Array.isArray(slug) ? slug[0] : slug; 
+        const institutionKey1 = Array.isArray(slug) ? slug[0] : slug; 
         console.log("in overview page",institutionKey);
+        console.log("in overview page 1",institutionKey1);
         const data = await fetchShifts(institutionKey);
 
         setShifts(data);
@@ -285,3 +288,4 @@ function WeeklyTimeSheet({ employees }: { employees: Employee[] }) {
   )
 }
 
+export default OverviewPage;
