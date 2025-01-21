@@ -47,6 +47,10 @@ const InstitutionDashboard: React.FC = () => {
 
   const handleNavigation = (section: string) => {
     setActiveSection(section);
+    console.log(
+      "before pass it : ",institution.uniqueKey
+    );
+    
     if(section == "overview" || section == "shifts"){
       router.push(`/dashboard/institution/${slug}/${section}?institutionKey=${institution.uniqueKey}`);
     } else {
