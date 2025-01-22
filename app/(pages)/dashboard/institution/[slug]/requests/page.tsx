@@ -57,6 +57,7 @@ const LeaveRequestsPage: React.FC = () => {
           throw new Error("Failed to fetch hourly leaves");
         }
         const data = await response.json();
+        console.log(data)
         setHourlyLeaves(Array.isArray(data) ? data : []); // Ensure data is an array
       } catch (error) {
         console.error("Error fetching hourly leaves:", error);
@@ -269,7 +270,7 @@ const LeaveRequestsPage: React.FC = () => {
           <div className="space-y-6">
             {hourlyLeaves.length === 0 ? ( // Check if hourlyLeaves is empty
               <div className="text-center text-gray-500">
-                No hourly leave requests for today.
+                No hourly leave requests.
               </div>
             ) : (
               hourlyLeaves.map((leave) => (
