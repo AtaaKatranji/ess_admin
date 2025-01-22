@@ -58,7 +58,7 @@ const LeaveRequestsPage: React.FC = () => {
         }
         const data = await response.json();
         console.log(data.data)
-        setHourlyLeaves(Array.isArray(data.data.data) ? data.data.data : []); // Ensure data is an array
+        setHourlyLeaves(Array.isArray(data.data) ? data.data : []); // Ensure data is an array
       } catch (error) {
         console.error("Error fetching hourly leaves:", error);
         setHourlyLeaves([]); // Set to empty array on error
