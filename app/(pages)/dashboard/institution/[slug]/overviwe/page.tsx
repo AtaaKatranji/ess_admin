@@ -1,6 +1,6 @@
 'use client'
 
-import {  useEffect, useState } from 'react'
+import {   useEffect, useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -16,8 +16,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ChevronDown, Download, Search } from 'lucide-react'
 import { fetchShifts } from '@/app/api/shifts/shifts'
 import { fetchCheckInOutData } from '@/app/api/employees/employeeId'
+import { useInstitution } from '@/app/context/InstitutionContext';
 
-import {  useSearchParams } from 'next/navigation';
 
 // types/AttendanceRecord.ts
 interface Employee {
@@ -43,14 +43,11 @@ interface Shift {
   extraLimit: number;
 }
 
-
-
-// Define the props for OverviewPage
-export default function OverviewPage() {
+const OverviewPage = () => {
   //const { slug } = useParams();
-  const searchParams = useSearchParams();
-  const institutionKey = searchParams.get('key');
+  //const institutionKey = "";
 
+  const { institutionKey } = useInstitution();
 
 
   const [shifts, setShifts] = useState<Shift[]>([]);
@@ -288,3 +285,5 @@ function WeeklyTimeSheet({ employees }: { employees: Employee[] }) {
   )
 }
 
+
+export default OverviewPage;
