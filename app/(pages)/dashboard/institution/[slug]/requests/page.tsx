@@ -53,10 +53,14 @@ const LeaveRequestsPage: React.FC = () => {
     const fetchHourlyLeaves = async () => {
       try {
         const response = await fetch(`${BaseUrl}/break/employee-breaks/request-custom-break?customBreak=true`);
-        const data: HourlyLeave[] = await response.json();
-        setHourlyLeaves(data);
+        if (!response.ok) {
+          throw new Error("Failed to fetch hourly leaves");
+        }
+        const data = await response.json();
+        setHourlyLeaves(Array.isArray(data) ? data : []); // Ensure data is an array
       } catch (error) {
         console.error("Error fetching hourly leaves:", error);
+        setHourlyLeaves([]); // Set to empty array on error
       }
     };
     fetchHourlyLeaves();
