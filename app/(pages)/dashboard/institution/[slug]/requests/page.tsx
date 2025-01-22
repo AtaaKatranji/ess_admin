@@ -111,9 +111,10 @@ const LeaveRequestsPage: React.FC = () => {
   // Handle approve hourly leave (custom break)
   const handleApproveHourlyLeave = async (id: string) => {
     try {
-      const response = await fetch(`${BaseUrl}/break/employee-breaks/${id}/approve`, {
+      const response = await fetch(`${BaseUrl}/break/employee-breaks/${id}/status`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "Approved" }), // Send status as JSON
       });
       if (!response.ok) throw new Error("Failed to approve hourly leave");
 
@@ -131,9 +132,11 @@ const LeaveRequestsPage: React.FC = () => {
   // Handle reject hourly leave (custom break)
   const handleRejectHourlyLeave = async (id: string) => {
     try {
-      const response = await fetch(`${BaseUrl}/break/employee-breaks/${id}/reject`, {
+      const response = await fetch(`${BaseUrl}/break/employee-breaks/${id}/status`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "Rejected" }), // Send status as JSON
+
       });
       if (!response.ok) throw new Error("Failed to reject hourly leave");
 
