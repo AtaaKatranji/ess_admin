@@ -52,7 +52,7 @@ const LeaveRequestsPage: React.FC = () => {
   useEffect(() => {
     const fetchHourlyLeaves = async () => {
       try {
-        const response = await fetch(`${BaseUrl}/break/employee-breaks?customBreak=true`);
+        const response = await fetch(`${BaseUrl}/break/employee-breaks/request-custom-break?customBreak=true`);
         const data: HourlyLeave[] = await response.json();
         setHourlyLeaves(data);
       } catch (error) {
@@ -61,38 +61,7 @@ const LeaveRequestsPage: React.FC = () => {
     };
     fetchHourlyLeaves();
   }, [BaseUrl]);
-  // WebSocket connection for real-time updates
-  useEffect(() => {
-    const ws = new WebSocket(`ws:${BaseUrl}`);
 
-    ws.onmessage = (event) => {
-      const message = JSON.parse(event.data);
-
-      if (message.type === "newLeaveRequest") {
-        // Add new leave request to the list
-        setLeaveRequests((prev) => [...prev, message.request]);
-      } else if (message.type === "leaveRequestUpdated") {
-        // Update the leave request in the list
-        setLeaveRequests((prev) =>
-          prev.map((req) =>
-            req._id === message.request._id ? message.request : req
-          )
-        );
-      } else if (message.type === "newHourlyLeave") {
-        // Add new hourly leave to the list
-        setHourlyLeaves((prev) => [...prev, message.request]);
-      } else if (message.type === "hourlyLeaveUpdated") {
-        // Update the hourly leave in the list
-        setHourlyLeaves((prev) =>
-          prev.map((leave) =>
-            leave._id === message.request._id ? message.request : leave
-          )
-        );
-      }
-    };
-
-    return () => ws.close();
-  }, []);
   // Handle approve leave request
   const handleApprove = async (id: string) => {
     try {
