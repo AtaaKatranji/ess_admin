@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Check, X, ChevronDown, ChevronUp } from "lucide-react";
 import { sendNotification } from "@/app/api/notifications/notification-api"
+import { toast, ToastContainer } from "react-toastify";
 // Leave request type definition
 interface LeaveRequest {
   _id: string;
@@ -92,15 +93,41 @@ useEffect(() => {
       setHourlyLeaves([]); // Set to empty array on error
     }
   };
-  eventSource.addEventListener('newRequest', () => {
+  eventSource.addEventListener('newRequest', (event) => {
+    const data = JSON.parse(event.data); // Parse the event data
+    console.log('New request received:', data);
     fetchLeaveRequests();
     fetchHourlyLeaves();
+
+     // Show browser notification
+  if (Notification.permission === 'granted') {
+    new Notification('New Request', {
+      body: `A new ${data.type} request has been submitted.`,
+      icon: '/path/to/icon.png', // Optional: Add an icon
+    });
+  } else if (Notification.permission !== 'denied') {
+    // Request permission if not already granted
+    Notification.requestPermission().then((permission) => {
+      if (permission === 'granted') {
+        new Notification('New Request', {
+          body: `A new ${data.type} request has been submitted.`,
+          icon: '/path/to/icon.png',
+        });
+      }
+    });
+  }
+  // Show toast notification
+  toast.info(`New ${data.type} request received!`, {
+    position: 'top-right',
+    autoClose: 5000, // Close after 5 seconds
+  });
   });
 
   eventSource.addEventListener('statusUpdate', () => {
     fetchLeaveRequests();
     fetchHourlyLeaves();
   });
+ 
 
   return () => eventSource.close();
 }, []);
@@ -216,7 +243,7 @@ useEffect(() => {
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-3xl font-bold mb-6 text-center">Employee Requests</h1>
-
+      <ToastContainer />
       {/* Two Sections */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Section 1: Leave Requests */}
