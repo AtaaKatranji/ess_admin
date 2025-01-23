@@ -119,6 +119,8 @@ const LeaveRequestsPage: React.FC = () => {
       if (!response.ok) throw new Error("Failed to approve hourly leave");
 
       const updatedHourlyLeave = await response.json();
+      console.log(updatedHourlyLeave)
+      console.log(updatedHourlyLeave.data)
       setHourlyLeaves(
         hourlyLeaves.map((leave) =>
           leave._id === id ? { ...leave, status: updatedHourlyLeave.status } : leave
