@@ -94,6 +94,7 @@ useEffect(() => {
     }
   };
   eventSource.addEventListener('newRequest', (event) => {
+    console.log('New request received:', event);
     const data = JSON.parse(event.data); // Parse the event data
     console.log('New request received:', data);
     fetchLeaveRequests();
