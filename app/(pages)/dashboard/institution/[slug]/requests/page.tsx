@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import { Check, X, ChevronDown, ChevronUp } from "lucide-react";
 import { sendNotification } from "@/app/api/notifications/notification-api"
-import { toast, ToastContainer } from "react-toastify";
+import {  ToastContainer } from "react-toastify";
+import Pusher from "pusher-js";
 // Leave request type definition
 interface LeaveRequest {
   _id: string;
@@ -70,7 +71,9 @@ const LeaveRequestsPage: React.FC = () => {
 // Modify LeaveRequestsPage component to fetch SSE
 useEffect(() => {
   console.log("event connection")
-  const eventSource = new EventSource(`${BaseUrl}/sse-admin-updates`);
+  const pusher = new Pusher('PUSHER_KEY', { cluster: 'PUSHER_CLUSTER' });
+  const channel = pusher.subscribe('admin-channel');
+  //const eventSource = new EventSource(`${BaseUrl}/sse-admin-updates`);
   const fetchLeaveRequests = async () => {
     try {
       const response = await fetch(`${BaseUrl}/leaves/`);
@@ -94,44 +97,49 @@ useEffect(() => {
       setHourlyLeaves([]); // Set to empty array on error
     }
   };
-  eventSource.addEventListener('newRequest', (event) => {
-    console.log('New request received:', event);
-    const data = JSON.parse(event.data); // Parse the event data
-    console.log('New request received:', data);
+  // eventSource.addEventListener('newRequest', (event) => {
+  //   console.log('New request received:', event);
+  //   const data = JSON.parse(event.data); // Parse the event data
+  //   console.log('New request received:', data);
     fetchLeaveRequests();
     fetchHourlyLeaves();
-
+    channel.bind('status-update', () => {
+      fetchLeaveRequests();
+      fetchHourlyLeaves();
+    });
+  
+    return () => pusher.unsubscribe('admin-channel');
      // Show browser notification
-  if (Notification.permission === 'granted') {
-    new Notification('New Request', {
-      body: `A new ${data.type} request has been submitted.`,
-      icon: '/path/to/icon.png', // Optional: Add an icon
-    });
-  } else if (Notification.permission !== 'denied') {
-    // Request permission if not already granted
-    Notification.requestPermission().then((permission) => {
-      if (permission === 'granted') {
-        new Notification('New Request', {
-          body: `A new ${data.type} request has been submitted.`,
-          icon: '/path/to/icon.png',
-        });
-      }
-    });
-  }
-  // Show toast notification
-  toast.info(`New ${data.type} request received!`, {
-    position: 'top-right',
-    autoClose: 5000, // Close after 5 seconds
-  });
-  });
+//   if (Notification.permission === 'granted') {
+//     new Notification('New Request', {
+//       body: `A new ${data.type} request has been submitted.`,
+//       icon: '/path/to/icon.png', // Optional: Add an icon
+//     });
+//   } else if (Notification.permission !== 'denied') {
+//     // Request permission if not already granted
+//     Notification.requestPermission().then((permission) => {
+//       if (permission === 'granted') {
+//         new Notification('New Request', {
+//           body: `A new ${data.type} request has been submitted.`,
+//           icon: '/path/to/icon.png',
+//         });
+//       }
+//     });
+//   }
+//   // Show toast notification
+//   toast.info(`New ${data.type} request received!`, {
+//     position: 'top-right',
+//     autoClose: 5000, // Close after 5 seconds
+//   });
+//   });
 
-  eventSource.addEventListener('statusUpdate', () => {
-    fetchLeaveRequests();
-    fetchHourlyLeaves();
-  });
+//   eventSource.addEventListener('statusUpdate', () => {
+//     fetchLeaveRequests();
+//     fetchHourlyLeaves();
+//   });
  
 
-  return () => eventSource.close();
+//   return () => eventSource.close();
 }, []);
   // Handle approve leave request
   const handleApprove = async (id: string) => {
