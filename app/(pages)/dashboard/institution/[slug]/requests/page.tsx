@@ -118,7 +118,7 @@ const LeaveRequestsPage: React.FC = () => {
         body: JSON.stringify({ status: "Approved" }), // Send status as JSON
       });
       if (!response.ok) throw new Error("Failed to approve hourly leave");
-      console.log("status Respone: ",response.json());
+      
       const updatedHourlyLeave = await response.json();
       console.log("status: ",updatedHourlyLeave)
       console.log("status: ",updatedHourlyLeave.data)
