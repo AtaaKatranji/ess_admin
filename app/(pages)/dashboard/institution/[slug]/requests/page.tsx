@@ -71,8 +71,10 @@ const LeaveRequestsPage: React.FC = () => {
 // Modify LeaveRequestsPage component to fetch SSE
 useEffect(() => {
   console.log("event connection")
-  const pusher = new Pusher('PUSHER_KEY', { cluster: 'PUSHER_CLUSTER' });
-  const channel = pusher.subscribe('admin-channel');
+  const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY!, {
+    cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER!,
+    forceTLS: true,
+  });
   //const eventSource = new EventSource(`${BaseUrl}/sse-admin-updates`);
   const fetchLeaveRequests = async () => {
     try {
@@ -103,12 +105,19 @@ useEffect(() => {
   //   console.log('New request received:', data);
     fetchLeaveRequests();
     fetchHourlyLeaves();
-    channel.bind('status-update', () => {
+    const channel = pusher.subscribe("admin-channel");
+    channel.bind("status-update", () => {
+      console.log("Status update received!");
+      // Refresh data
       fetchLeaveRequests();
       fetchHourlyLeaves();
     });
+
+    return () => {
+      pusher.unsubscribe("admin-channel");
+      pusher.disconnect();
+    };
   
-    return () => pusher.unsubscribe('admin-channel');
      // Show browser notification
 //   if (Notification.permission === 'granted') {
 //     new Notification('New Request', {
