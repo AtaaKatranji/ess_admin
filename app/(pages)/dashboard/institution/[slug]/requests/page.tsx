@@ -66,7 +66,44 @@ const LeaveRequestsPage: React.FC = () => {
     };
     fetchHourlyLeaves();
   }, [BaseUrl]);
+// Modify LeaveRequestsPage component to fetch SSE
+useEffect(() => {
+  const eventSource = new EventSource(`${BaseUrl}/sse-admin-updates`);
+  const fetchLeaveRequests = async () => {
+    try {
+      const response = await fetch(`${BaseUrl}/leaves/`);
+      const data: LeaveRequest[] = await response.json();
+      setLeaveRequests(data);
+    } catch (error) {
+      console.error("Error fetching leave requests:", error);
+    }
+  };
+  const fetchHourlyLeaves = async () => {
+    try {
+      const response = await fetch(`${BaseUrl}/break/employee-breaks/request-custom-break?customBreak=true`);
+      if (!response.ok) {
+        throw new Error("Failed to fetch hourly leaves");
+      }
+      const data = await response.json();
+      console.log(data.data)
+      setHourlyLeaves(Array.isArray(data.data) ? data.data : []); // Ensure data is an array
+    } catch (error) {
+      console.error("Error fetching hourly leaves:", error);
+      setHourlyLeaves([]); // Set to empty array on error
+    }
+  };
+  eventSource.addEventListener('newRequest', () => {
+    fetchLeaveRequests();
+    fetchHourlyLeaves();
+  });
 
+  eventSource.addEventListener('statusUpdate', () => {
+    fetchLeaveRequests();
+    fetchHourlyLeaves();
+  });
+
+  return () => eventSource.close();
+}, []);
   // Handle approve leave request
   const handleApprove = async (id: string) => {
     try {
