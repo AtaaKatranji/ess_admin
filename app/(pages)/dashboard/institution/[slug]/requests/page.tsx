@@ -69,6 +69,7 @@ const LeaveRequestsPage: React.FC = () => {
   }, [BaseUrl]);
 // Modify LeaveRequestsPage component to fetch SSE
 useEffect(() => {
+  console.log("event connection")
   const eventSource = new EventSource(`${BaseUrl}/sse-admin-updates`);
   const fetchLeaveRequests = async () => {
     try {
