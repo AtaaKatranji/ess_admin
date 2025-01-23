@@ -70,7 +70,7 @@ const LeaveRequestsPage: React.FC = () => {
 // Modify LeaveRequestsPage component to fetch SSE
 useEffect(() => {
   console.log("event connection")
-  const eventSource = new EventSource(`${BaseUrl}/sse-admin-updates`);
+  const eventSource = new EventSource(`http://192.168.100.8:9000/sse-admin-updates`);
   const fetchLeaveRequests = async () => {
     try {
       const response = await fetch(`${BaseUrl}/leaves/`);
