@@ -110,6 +110,7 @@ const LeaveRequestsPage: React.FC = () => {
 
   // Handle approve hourly leave (custom break)
   const handleApproveHourlyLeave = async (id: string) => {
+    console.log("status Respone: Approved");
     try {
       const response = await fetch(`${BaseUrl}/break/employee-breaks/${id}/status`, {
         method: "PATCH",
