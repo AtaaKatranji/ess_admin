@@ -77,6 +77,7 @@ useEffect(() => {
     cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER!,
     forceTLS: true,
   });
+
   //const eventSource = new EventSource(`${BaseUrl}/sse-admin-updates`);
   const fetchLeaveRequests = async () => {
     try {
@@ -108,6 +109,18 @@ useEffect(() => {
     fetchLeaveRequests();
     fetchHourlyLeaves();
     const channel = pusher.subscribe("admin-channel");
+    channel.bind("pusher:subscription_succeeded", () => {
+      console.log("Channel subscribed successfully!");
+    
+      // Now it's safe to bind to other events
+      channel.bind("status-update", () => {
+        console.log("Received status-update event:");
+      });
+    });
+    // Handle subscription errors
+channel.bind("pusher:subscription_error", (error : string) => {
+  console.error("Failed to subscribe to channel:", error);
+});
     channel.bind("status-update", () => {
       console.log("Status update received!");
       // Refresh data
