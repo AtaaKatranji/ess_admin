@@ -71,9 +71,9 @@ const LeaveRequestsPage: React.FC = () => {
 // Modify LeaveRequestsPage component to fetch SSE
 useEffect(() => {
   console.log("event connection")
-  console.log("Pusher Key:", process.env.NEXT_PRIVATE_PUSHER_KEY);
+  console.log("Pusher Key:", process.env.NEXT_PUBLIC_PUSHER_KEY);
   console.log("Pusher Cluster:", process.env.NEXT_PUBLIC_PUSHER_CLUSTER);
-  const pusher = new Pusher(process.env.NEXT_PRIVATE_PUSHER_KEY!, {
+  const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY!, {
     cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER!,
     forceTLS: true,
   });
