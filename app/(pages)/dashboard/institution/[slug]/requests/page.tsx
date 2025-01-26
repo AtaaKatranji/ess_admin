@@ -73,60 +73,61 @@ const LeaveRequestsPage: React.FC = () => {
     };
     fetchHourlyLeaves();
   }, [BaseUrl]);
-// Modify LeaveRequestsPage component to fetch SSE
-useEffect(() => {
-  //const eventSource = new EventSource(`${BaseUrl}/sse-admin-updates`);
-  const fetchLeaveRequests = async () => {
-    try {
-      const response = await fetch(`${BaseUrl}/leaves/`);
-      const data: LeaveRequest[] = await response.json();
-      setLeaveRequests(data);
-    } catch (error) {
-      console.error("Error fetching leave requests:", error);
-    }
-  };
-  const fetchHourlyLeaves = async () => {
-    try {
-      const response = await fetch(`${BaseUrl}/break/employee-breaks/request-custom-break?customBreak=true`);
-      if (!response.ok) {
-        throw new Error("Failed to fetch hourly leaves");
-      }
-      const data = await response.json();
-      console.log(data.data)
-      setHourlyLeaves(Array.isArray(data.data) ? data.data : []); // Ensure data is an array
-    } catch (error) {
-      console.error("Error fetching hourly leaves:", error);
-      setHourlyLeaves([]); // Set to empty array on error
-    }
-  };
 
-    fetchLeaveRequests();
-    fetchHourlyLeaves();
-    const channel = pusherClient.subscribe("admin-channel");
-    channel.bind("pusher:subscription_succeeded", () => {
-      console.log("Channel subscribed successfully!");
-    });
-  
-    channel.bind("pusher:subscription_error", (error: string) => {
-      console.error("Failed to subscribe to channel:", error);
-    });
-  
-    channel.bind("status-update", (data: BreakTrigger) => {
-      console.log("Status update received!", data);
-      // Refresh data
+  // Modify LeaveRequestsPage component to fetch SSE
+  useEffect(() => {
+    //const eventSource = new EventSource(`${BaseUrl}/sse-admin-updates`);
+    const fetchLeaveRequests = async () => {
+      try {
+        const response = await fetch(`${BaseUrl}/leaves/`);
+        const data: LeaveRequest[] = await response.json();
+        setLeaveRequests(data);
+      } catch (error) {
+        console.error("Error fetching leave requests:", error);
+      }
+    };
+    const fetchHourlyLeaves = async () => {
+      try {
+        const response = await fetch(`${BaseUrl}/break/employee-breaks/request-custom-break?customBreak=true`);
+        if (!response.ok) {
+          throw new Error("Failed to fetch hourly leaves");
+        }
+        const data = await response.json();
+        console.log(data.data)
+        setHourlyLeaves(Array.isArray(data.data) ? data.data : []); // Ensure data is an array
+      } catch (error) {
+        console.error("Error fetching hourly leaves:", error);
+        setHourlyLeaves([]); // Set to empty array on error
+      }
+    };
+
       fetchLeaveRequests();
       fetchHourlyLeaves();
-      toast.info(`New ${data.status} request received!`, {
-        position: 'top-right',
-        autoClose: 5000, // Close after 5 seconds
+      const channel = pusherClient.subscribe("admin-channel");
+      channel.bind("pusher:subscription_succeeded", () => {
+        console.log("Channel subscribed successfully!");
       });
-    });
-  
-    return () => {
-      channel.unbind_all();
-      channel.unsubscribe();
-    };
-  }, []);
+    
+      channel.bind("pusher:subscription_error", (error: string) => {
+        console.error("Failed to subscribe to channel:", error);
+      });
+    
+      channel.bind("pusher:status-update", (data: BreakTrigger) => {
+        console.log("Status update received!", data);
+        // Refresh data
+        fetchLeaveRequests();
+        fetchHourlyLeaves();
+        toast.info(`New ${data.status} request received!`, {
+          position: 'top-right',
+          autoClose: 5000, // Close after 5 seconds
+        });
+      });
+    
+      return () => {
+        channel.unbind_all();
+        channel.unsubscribe();
+      };
+    }, []);
   // Handle approve leave request
   const handleApprove = async (id: string) => {
     try {
