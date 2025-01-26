@@ -3,8 +3,8 @@
 import { useState, useEffect } from "react";
 import { Check, X, ChevronDown, ChevronUp } from "lucide-react";
 import { sendNotification } from "@/app/api/notifications/notification-api"
-import {  ToastContainer } from "react-toastify";
-import Pusher from "pusher-js";
+import {  toast, ToastContainer } from "react-toastify";
+import pusherClient from '@/app/utils/pusherClient';
 // Leave request type definition
 interface LeaveRequest {
   _id: string;
@@ -27,6 +27,11 @@ interface HourlyLeave {
   status: string;
   employeeName: string;
   customBreak: boolean;
+}
+
+interface BreakTrigger {
+  breakid : string,
+  status : string
 }
 
 const LeaveRequestsPage: React.FC = () => {
@@ -70,14 +75,6 @@ const LeaveRequestsPage: React.FC = () => {
   }, [BaseUrl]);
 // Modify LeaveRequestsPage component to fetch SSE
 useEffect(() => {
-  console.log("event connection")
-  console.log("Pusher Key:", process.env.NEXT_PUBLIC_PUSHER_KEY);
-  console.log("Pusher Cluster:", process.env.NEXT_PUBLIC_PUSHER_CLUSTER);
-  const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY!, {
-    cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER!,
-    forceTLS: true,
-  });
-
   //const eventSource = new EventSource(`${BaseUrl}/sse-admin-updates`);
   const fetchLeaveRequests = async () => {
     try {
@@ -102,69 +99,34 @@ useEffect(() => {
       setHourlyLeaves([]); // Set to empty array on error
     }
   };
-  // eventSource.addEventListener('newRequest', (event) => {
-  //   console.log('New request received:', event);
-  //   const data = JSON.parse(event.data); // Parse the event data
-  //   console.log('New request received:', data);
+
     fetchLeaveRequests();
     fetchHourlyLeaves();
-    const channel = pusher.subscribe("admin-channel");
+    const channel = pusherClient.subscribe("admin-channel");
     channel.bind("pusher:subscription_succeeded", () => {
       console.log("Channel subscribed successfully!");
-    
-      // Now it's safe to bind to other events
-      channel.bind("status-update", () => {
-        console.log("Received status-update event:");
-      });
     });
-    // Handle subscription errors
-channel.bind("pusher:subscription_error", (error : string) => {
-  console.error("Failed to subscribe to channel:", error);
-});
-    channel.bind("status-update", () => {
-      console.log("Status update received!");
+  
+    channel.bind("pusher:subscription_error", (error: string) => {
+      console.error("Failed to subscribe to channel:", error);
+    });
+  
+    channel.bind("status-update", (data: BreakTrigger) => {
+      console.log("Status update received!", data);
       // Refresh data
       fetchLeaveRequests();
       fetchHourlyLeaves();
+      toast.info(`New ${data.status} request received!`, {
+        position: 'top-right',
+        autoClose: 5000, // Close after 5 seconds
+      });
     });
-
-    return () => {
-      pusher.unsubscribe("admin-channel");
-      pusher.disconnect();
-    };
   
-     // Show browser notification
-//   if (Notification.permission === 'granted') {
-//     new Notification('New Request', {
-//       body: `A new ${data.type} request has been submitted.`,
-//       icon: '/path/to/icon.png', // Optional: Add an icon
-//     });
-//   } else if (Notification.permission !== 'denied') {
-//     // Request permission if not already granted
-//     Notification.requestPermission().then((permission) => {
-//       if (permission === 'granted') {
-//         new Notification('New Request', {
-//           body: `A new ${data.type} request has been submitted.`,
-//           icon: '/path/to/icon.png',
-//         });
-//       }
-//     });
-//   }
-//   // Show toast notification
-//   toast.info(`New ${data.type} request received!`, {
-//     position: 'top-right',
-//     autoClose: 5000, // Close after 5 seconds
-//   });
-//   });
-
-//   eventSource.addEventListener('statusUpdate', () => {
-//     fetchLeaveRequests();
-//     fetchHourlyLeaves();
-//   });
- 
-
-//   return () => eventSource.close();
-}, []);
+    return () => {
+      channel.unbind_all();
+      channel.unsubscribe();
+    };
+  }, []);
   // Handle approve leave request
   const handleApprove = async (id: string) => {
     try {
