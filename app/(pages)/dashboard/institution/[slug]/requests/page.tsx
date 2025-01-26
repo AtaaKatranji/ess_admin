@@ -112,7 +112,7 @@ const LeaveRequestsPage: React.FC = () => {
         console.error("Failed to subscribe to channel:", error);
       });
     
-      channel.bind("pusher:status-update", (data: BreakTrigger) => {
+      channel.bind("status-update", (data: BreakTrigger) => {
         console.log("Status update received!", data);
         // Refresh data
         fetchLeaveRequests();
