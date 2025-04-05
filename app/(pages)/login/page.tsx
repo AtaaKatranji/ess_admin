@@ -43,7 +43,7 @@ export default function AdminLogin() {
         }),
         credentials:'include'
       });
-
+      console.log("response",response)
       if (response.ok) {
         const data: AuthResponse = await response.json();
         
