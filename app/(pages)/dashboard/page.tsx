@@ -4,13 +4,14 @@ import { useState, useEffect } from 'react';
 import { List, Grid, Building2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import InstitutionCard from '@/app/components/InstitutionCard';
-import {  fetchInstitutionsByAdmin, getLocalStorageItem } from '../../api/institutions/institutions';
+import {  fetchInstitutionsByAdmin } from '../../api/institutions/institutions';
 import { toast, ToastContainer } from 'react-toastify';
 import AddInstitutionDialog from '@/app/ui/Addinstitution';
 import { useRouter  } from 'next/navigation';
 import { Circles } from 'react-loader-spinner'; // For loader
 import { motion } from 'framer-motion'; // For animations
 import { parseCookies, setCookie } from 'nookies';
+
 // import { requestPermission } from '@/app/lib/firebase/requestPermission';
 
 
@@ -19,6 +20,9 @@ export default function DashboardPage() {
 
   const navigate = useRouter();
   const [loading, setLoading] = useState(true); // Loading state
+  const [view, setView] = useState<'list' | 'grid'>('list');
+  const [institutions, setInstitutions] = useState<InstitutionData[]>([]);
+  const [adminId, setAdminId] = useState<string | null>(null);
 
   type InstitutionData = {
     _id: string;
@@ -31,14 +35,13 @@ export default function DashboardPage() {
     slug: string;
   };
 
-  const [view, setView] = useState<'list' | 'grid'>('list');
-  const [institutions, setInstitutions] = useState<InstitutionData[]>([]);
-  const [adminId, setAdminId] = useState<string>();
+
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
-      setAdminId(params.get('adminId')!);
+      const urlAdminId = params.get('adminId');
+      setAdminId(urlAdminId);
     }
   }, []);
   useEffect(() => {
@@ -48,25 +51,42 @@ export default function DashboardPage() {
   // requestPermission(); 
   },[])
 
-  const fetchData = async () => {
-    const adminId = await getLocalStorageItem('adminId');
-    const data = await fetchInstitutionsByAdmin(adminId!);
-    setInstitutions(data || []);
-    setLoading(false); // Stop loading once data is fetched
+// Fetch institutions when adminId is available
+const fetchData = async () => {
+  if (!adminId) {
+    console.error('No adminId available');
+    setLoading(false);
+    toast.error('Admin ID not found. Please log in again.');
+    return;
   }
+
+  try {
+    const data = await fetchInstitutionsByAdmin(adminId);
+    setInstitutions(data || []);
+  } catch (error) {
+    console.error('Error fetching institutions:', error);
+    toast.error('Failed to load institutions');
+  } finally {
+    setLoading(false);
+  }
+};
+useEffect(() => {
   const cookies = parseCookies();
-  useEffect(() => {
-    const savedView = cookies.preferredView;
-    if (savedView) {
-      setView(savedView as 'list' | 'grid');
-    }
-   
-    setTimeout(() => {
+  const savedView = cookies.preferredView;
+  if (savedView) {
+    setView(savedView as 'list' | 'grid');
+  }
+
+  // Fetch data once adminId is set
+  if (adminId) {
     fetchData();
-    
-    }, 1000);
-  }, []);
-  
+  }
+}, [adminId]); // Depend on adminId
+
+// For debugging
+useEffect(() => {
+  console.log('Admin ID:', adminId);
+}, [adminId]); 
   
  
   const handleViewChange = (newView: 'list' | 'grid') => {
