@@ -35,14 +35,19 @@ const exportMonthlyReportPDF = (data) => {
 
   // Adding details section for each day
   const checkInOutData = data.details.map(entry => {
-    const date = new Date(entry.date + 'T00:00:00Z');
+    console.log("Entry date in export",entry.date)
+    const date = new Date(entry.date);
+    console.log("Entry date after converting in export",entry.date)
+    //const date = entry.date;
     const year = date.getUTCFullYear();
     const month = String(date.getUTCMonth() +1 ).padStart(2, '0'); // Ensure month is two-digit
     const day = String(date.getUTCDate()).padStart(2, '0'); // Ensure day is two-digit
-    console.log(month)
+    console.log(`fff ${month}`)
     console.log(day)
     console.log("1",entry.date)
     console.log("2",date)
+    console.log(`date is ${date}`)
+
     // Format options
     const shortOptions = { weekday: 'short' };
     const longOptions = { weekday: 'long' };
@@ -71,7 +76,7 @@ const exportMonthlyReportPDF = (data) => {
       ];
     }
   });
-
+  console.log(checkInOutData)
   doc.autoTable({
     head: [["Date", "Check-In", "Check-Out", "Daily Hours"]],
     body: checkInOutData,

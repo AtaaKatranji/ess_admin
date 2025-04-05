@@ -1,76 +1,223 @@
-"use client";
-import React, { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import { fetchEmployees } from '@/app/api/employees/employeeId'; // Update import path
-import { fetchInstitution } from '@/app/api/institutions/institutions';
+"use client"
+
+import type React from "react"
+import { useState, useEffect } from "react"
+import { useParams, useRouter } from "next/navigation"
+import { fetchEmployees, fetchTotalHours } from "@/app/api/employees/employeeId"
+import { fetchInstitution } from "@/app/api/institutions/institutions"
+import { fetchShifts } from "@/app/api/shifts/shifts"
+import { Clock, Users, Briefcase, Mail, Building } from "lucide-react"
+
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Skeleton } from "@/components/ui/skeleton"
 
 interface Employee {
-  _id: string;
-  name: string;
-  position: string;
+  _id: string
+  name: string
+  role: string
+  department?: string
+  email?: string
+  totalHours?: number
+  shiftId: {
+    _id: string
+    name: string
+  }
+  shiftName?: string
+}
+
+interface Shift {
+  _id: string
+  name: string
+  startTime: string
+  endTime: string
+  days: string[]
 }
 
 const EmployeeList: React.FC = () => {
-  const [employees, setEmployees] = useState<Employee[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
-  const params = useParams();
-  const slug = Array.isArray(params?.slug) ? params.slug[0] : params?.slug;
+  const [employees, setEmployees] = useState<Employee[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [selectedShift, setSelectedShift] = useState("all")
+  const [shiftOptions, setShiftOptions] = useState<Shift[]>([])
+  const router = useRouter()
+  const params = useParams()
+  const slug = Array.isArray(params?.slug) ? params.slug[0] : params?.slug
 
   const fetchData = async () => {
     try {
-      setLoading(true);
-      const dataIns = await fetchInstitution(slug!);
+      setLoading(true)
+      const dataIns = await fetchInstitution(slug!)
+      if (!dataIns.uniqueKey) return
 
-      const data = await fetchEmployees(dataIns.uniqueKey);
-      console.log("users ", data);
-      setEmployees(data);
+      const data = await fetchEmployees(dataIns.uniqueKey)
+      const dataShifts = await fetchShifts(dataIns.uniqueKey)
+
+      setShiftOptions(dataShifts)
+      if (dataShifts.length > 0) {
+        setSelectedShift(dataShifts[0]._id)
+      }
+
+      console.log("users ", data)
+      setEmployees(data)
+      if (data.length > 0) {
+        // Create a new array with total hours for each employee
+        const employeesWithHours = await Promise.all(
+          data.map(async (employee: Employee) => {
+            console.log("Employees: ", data.length)
+            const totalHours = await fetchTotalHours(employee._id, new Date())
+            return { ...employee, totalHours }
+          }),
+        )
+        setEmployees(employeesWithHours)
+      }
     } catch (error) {
-      console.error('Error fetching employees:', error);
-      setError('Failed to fetch employees.');
+      console.error("Error fetching employees:", error)
+      setError("Failed to fetch employees.")
     } finally {
-      setLoading(false); // Ensure loading is false in both success and error cases
+      setLoading(false)
     }
-  };
-
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const handleViewDetails = (employeeId: string) => {
-    router.push(`/dashboard/institution/${slug}/employees/${employeeId}`);
-  };
-
-  if (loading) {
-    return <p>Loading...</p>;
   }
 
-  if (error) {
-    return <p>{error}</p>;
+  useEffect(() => {
+    const fetchDataAsync = async () => {
+      await fetchData()
+    }
+
+    fetchDataAsync()
+  }, [])
+
+  const filteredEmployees =
+    selectedShift === "all" ? employees : employees.filter((emp) => emp.shiftId._id === selectedShift)
+
+  const handleViewDetails = (employeeId: string) => {
+    router.push(`/dashboard/institution/${slug}/employees/${employeeId}`)
   }
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Employees List</h1>
-      <ul className="space-y-4">
-        {employees.map((employee) => (
-          <li key={employee._id} className="bg-white shadow rounded-lg p-4 flex justify-between items-center">
-            <div>
-              <h2 className="text-lg font-semibold">{employee.name}</h2>
-              <p className="text-gray-600">{employee.position}</p>
-            </div>
-            <button
-              onClick={() => handleViewDetails(employee._id)}
-              className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
-            >
-              View Details
-            </button>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-};
+    <div className="container mx-auto p-4 space-y-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <h1 className="text-3xl font-bold tracking-tight">Employees List</h1>
+        <div className="flex items-center gap-3 w-full sm:w-auto">
+          <Users className="h-5 w-5 text-muted-foreground hidden sm:block" />
+          <Select value={selectedShift} onValueChange={setSelectedShift}>
+            <SelectTrigger className="w-full sm:w-[200px]">
+              <SelectValue placeholder="Filter by shift" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Shifts</SelectItem>
+              {shiftOptions.map((shift) => (
+                <SelectItem key={shift._id} value={shift._id}>
+                  {shift.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
 
-export default EmployeeList;
+      {loading ? (
+        <EmployeeListSkeleton />
+      ) : error ? (
+        <div className="rounded-lg border border-destructive/50 p-6 text-center">
+          <p className="text-destructive">{error}</p>
+        </div>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredEmployees.map((employee) => (
+              <Card key={employee._id} className="overflow-hidden transition-all hover:shadow-md">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-xl">{employee.name}</CardTitle>
+                  <Badge variant="secondary" className="w-fit">
+                    {employee.role}
+                  </Badge>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    {employee.department && (
+                      <div className="flex items-center text-sm text-muted-foreground">
+                        <Building className="h-4 w-4 mr-2" />
+                        <span>{employee.department}</span>
+                      </div>
+                    )}
+                    {employee.email && (
+                      <div className="flex items-center text-sm text-muted-foreground">
+                        <Mail className="h-4 w-4 mr-2" />
+                        <span className="truncate">{employee.email}</span>
+                      </div>
+                    )}
+                    {employee.shiftId?.name && (
+                      <div className="flex items-center text-sm text-muted-foreground">
+                        <Briefcase className="h-4 w-4 mr-2" />
+                        <span>{employee.shiftId.name}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex items-center p-3 bg-muted/50 rounded-md">
+                    <Clock className="h-5 w-5 mr-3 text-primary" />
+                    <div>
+                      <p className="text-sm font-medium">Total Hours</p>
+                      <p className="text-2xl font-bold">{employee.totalHours ?? "N/A"}</p>
+                    </div>
+                  </div>
+                </CardContent>
+                <CardFooter>
+                  <Button onClick={() => handleViewDetails(employee._id)} className="w-full bg-gradient-to-r from-primary to-blue-600 hover:from-primary/90 hover:to-blue-700 transition-all border-0"
+                  >
+                    View Details
+                  </Button>
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
+
+          {filteredEmployees.length === 0 && (
+            <div className="text-center p-10 border rounded-lg bg-muted/20">
+              <Users className="h-10 w-10 mx-auto text-muted-foreground mb-2" />
+              <p className="text-muted-foreground">No employees found for this shift.</p>
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  )
+}
+
+// Skeleton loader for the employee list
+const EmployeeListSkeleton = () => {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {[1, 2, 3, 4, 5, 6].map((i) => (
+        <Card key={i} className="overflow-hidden">
+          <CardHeader className="pb-2">
+            <Skeleton className="h-6 w-3/4 mb-2" />
+            <Skeleton className="h-5 w-1/4" />
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-3/4" />
+            </div>
+            <div className="flex items-center p-3 bg-muted/50 rounded-md">
+              <Skeleton className="h-10 w-10 rounded-full mr-3" />
+              <div className="space-y-2 w-full">
+                <Skeleton className="h-4 w-1/3" />
+                <Skeleton className="h-6 w-1/4" />
+              </div>
+            </div>
+          </CardContent>
+          <CardFooter>
+            <Skeleton className="h-10 w-full" />
+          </CardFooter>
+        </Card>
+      ))}
+    </div>
+  )
+}
+
+export default EmployeeList
+

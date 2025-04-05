@@ -24,6 +24,7 @@ export const fetchShifts = async (institutionKey: string) => {
 };
 
 export const fetchTimeShifts = async (employeeId: string) => {
+  console.log("fetchTimeShifts",employeeId)
   const response = await fetch(`${BaseUrl}/shift/time`, {
     method: 'POST',
     headers: {

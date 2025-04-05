@@ -61,7 +61,7 @@ const AbsentTab = ({ employeeId, selectedMonth }: { employeeId: string, selected
               key={index}
               className="flex justify-between items-center py-2 border-b last:border-b-0 cursor-pointer hover:bg-accent"
             >
-              <span>{format(new Date(date), "MMMM d, yyyy")}</span>
+              <span>{format(new Date(date), "MMMM dd, yyyy: EEEE")}</span>
             </div>
           ))
         ) : (

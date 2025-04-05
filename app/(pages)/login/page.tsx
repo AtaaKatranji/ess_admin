@@ -47,7 +47,7 @@ export default function AdminLogin() {
       if (response.ok) {
         const data: AuthResponse = await response.json();
         
-
+        localStorage.setItem('adminId', data.adminId);
         toast.success(data.message);
         // After successful sign-in
 

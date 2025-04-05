@@ -1,9 +1,9 @@
 
 import { toast } from "react-toastify";
-
 // Generate New Key
 const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
-
+const isBrowser = typeof window !== "undefined";
+ 
 interface SSIDInfo {
   
   wifiName: string;
@@ -86,14 +86,29 @@ export const fetchInstitutions = async () => {
     toast.error(`Error fetching institutions: ${error}` );
   }
 };
-export const fetchInstitutionsByAdmin = async () => {
+export const getLocalStorageItem = (key: string) => {
+  if (isBrowser) {
+    try {
+      const item = localStorage.getItem(key);
+      return item ? JSON.parse(item) : null;
+    } catch (error) {
+      console.error("Error getting localStorage:", error);
+      return null;
+    }
+  }
+  return null; // Return null if not in browser
+};
+export const fetchInstitutionsByAdmin = async (adminId: string) => {
     console.log("hey fucker")
-    const response = await fetch(`${BaseUrl}/ins/institutionsAdmin`, { // Include the ID in the URL
-      method: 'GET',
+    
+    const response = await fetch(`${BaseUrl}/ins/admin-institutions`, { // Include the ID in the URL
+      method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        // 'Authorization': `Bearer ${token}`,
       },
       credentials: 'include', 
+      body: JSON.stringify({ adminId }),
     });
     console.log("5: ",response)
     if (!response.ok) {

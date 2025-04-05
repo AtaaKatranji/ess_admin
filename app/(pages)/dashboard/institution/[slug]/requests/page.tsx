@@ -1,424 +1,382 @@
-"use client";
+"use client"
 
-import { useState, useEffect } from "react";
-import { Check, X, ChevronDown, ChevronUp } from "lucide-react";
-import { sendNotification } from "@/app/api/notifications/notification-api"
-import {  toast, ToastContainer } from "react-toastify";
-import pusherClient from '@/app/utils/pusherClient';
-// Leave request type definition
-interface LeaveRequest {
+import { useEffect, useState } from "react"
+import { LeaveRequestCard } from "@/app/components/leave-request-card"
+import { HourlyLeaveCard } from "@/app/components/hourly-leave-card"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Input } from "@/components/ui/input"
+import { Search,Clock, Calendar } from "lucide-react"
+import { useSSE } from "@/app/context/SSEContext"
+
+
+// Define the type for a leave request
+type LeaveRequest = {
   _id: string;
-  employeeId: string;
+  employeeName: string;
+  status: "Pending" | "Approved" | "Rejected";
   startDate: string;
   endDate: string;
-  type: string;
-  status: string;
-  reason: string;
-  employeeName: string;
-}
+  type: "Paid" | "Unpaid";
+  annualPaidLeave: number;
+  reason: string;}
 
 // Hourly leave (custom break) type definition
-interface HourlyLeave {
-  _id: string;
-  employeeId: string;
-  startTime: string;
-  endTime: string;
-  duration: number;
-  status: string;
-  employeeName: string;
-  customBreak: boolean;
+type HourlyLeave = {
+  breakDetails: {
+    _id: string;
+    employeeId: string;
+    startTime: string;
+    endTime: string;
+    duration: number;
+    status: "Approved" | "Rejected" | "Pending"
+  };
+  employeeDetails: {
+    _id: string;
+    name: string;
+  };
+  // Add any other details here
 }
-
-interface BreakTrigger {
-  breakid : string,
-  status : string
-}
-
-const LeaveRequestsPage: React.FC = () => {
-  const [expandedRequest, setExpandedRequest] = useState<string | null>(null);
-  const [expandedHourlyLeave, setExpandedHourlyLeave] = useState<string | null>(null);
-  const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>([]);
+export default function LeaveRequestsPage() {
+  const [requests, setRequests] = useState<LeaveRequest[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const [hourlyLeaves, setHourlyLeaves] = useState<HourlyLeave[]>([]);
+  const [activeTab, setActiveTab] = useState("pending")
+  const [leaveType, setLeaveType] = useState("daily") // "daily" or "hourly"
+  const [filterDate, setFilterDate] = useState("");
+
+  // const [expandedRequest, setExpandedRequest] = useState<string | null>(null);
+  // const [expandedHourlyLeave, setExpandedHourlyLeave] = useState<string | null>(null);
+  const { notificationsHourly, notificationsLeave } = useSSE();
+
   const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
-
-  // Fetch leave requests
-  useEffect(() => {
-    const fetchLeaveRequests = async () => {
-      try {
-        const response = await fetch(`${BaseUrl}/leaves/`);
-        const data: LeaveRequest[] = await response.json();
-        setLeaveRequests(data);
-      } catch (error) {
-        console.error("Error fetching leave requests:", error);
+  const fetchLeaveRequests = async () => {
+    try {
+      const response = await fetch(`${BaseUrl}/leaves/`);
+      const data = await response.json();
+      setRequests(data);
+    } catch (error) {
+      console.error("Error fetching leave requests:", error);
+    }
+  };
+  const fetchHourlyLeaves = async () => {
+    try {
+      const response = await fetch(`${BaseUrl}/break/employee-breaks/request-custom-break?customBreak=true`);
+      if (!response.ok) {
+        throw new Error("Failed to fetch hourly leaves");
       }
-    };
-    fetchLeaveRequests();
-  }, [BaseUrl]);
-
+      const data = await response.json();
+      console.log(data.data)
+      setHourlyLeaves(Array.isArray(data.data) ? data.data : []); // Ensure data is an array
+    } catch (error) {
+      console.error("Error fetching hourly leaves:", error);
+      setHourlyLeaves([]); // Set to empty array on error
+    }
+  };
+ 
   // Fetch hourly leaves (custom breaks)
   useEffect(() => {
-    const fetchHourlyLeaves = async () => {
-      try {
-        const response = await fetch(`${BaseUrl}/break/employee-breaks/request-custom-break?customBreak=true`);
-        if (!response.ok) {
-          throw new Error("Failed to fetch hourly leaves");
-        }
-        const data = await response.json();
-        console.log(data.data)
-        setHourlyLeaves(Array.isArray(data.data) ? data.data : []); // Ensure data is an array
-      } catch (error) {
-        console.error("Error fetching hourly leaves:", error);
-        setHourlyLeaves([]); // Set to empty array on error
-      }
-    };
+    fetchLeaveRequests();
     fetchHourlyLeaves();
   }, [BaseUrl]);
-
-  // Modify LeaveRequestsPage component to fetch SSE
   useEffect(() => {
-    //const eventSource = new EventSource(`${BaseUrl}/sse-admin-updates`);
-    const fetchLeaveRequests = async () => {
-      try {
-        const response = await fetch(`${BaseUrl}/leaves/`);
-        const data: LeaveRequest[] = await response.json();
-        setLeaveRequests(data);
-      } catch (error) {
-        console.error("Error fetching leave requests:", error);
-      }
-    };
-    const fetchHourlyLeaves = async () => {
-      try {
-        const response = await fetch(`${BaseUrl}/break/employee-breaks/request-custom-break?customBreak=true`);
-        if (!response.ok) {
-          throw new Error("Failed to fetch hourly leaves");
-        }
-        const data = await response.json();
-        console.log(data.data)
-        setHourlyLeaves(Array.isArray(data.data) ? data.data : []); // Ensure data is an array
-      } catch (error) {
-        console.error("Error fetching hourly leaves:", error);
-        setHourlyLeaves([]); // Set to empty array on error
-      }
-    };
-
-      fetchLeaveRequests();
+    if (notificationsHourly.length > 0) {
       fetchHourlyLeaves();
-      const channel = pusherClient.subscribe("admin-channel");
-      channel.bind("pusher:subscription_succeeded", () => {
-        console.log("Channel subscribed successfully!");
-      });
-    
-      channel.bind("pusher:subscription_error", (error: string) => {
-        console.error("Failed to subscribe to channel:", error);
-      });
-    
-      channel.bind("status-update", (data: BreakTrigger) => {
-        console.log("Status update received!", data);
-        // Refresh data
-        fetchLeaveRequests();
-        fetchHourlyLeaves();
-        toast.info(`New ${data.status} request received!`, {
-          position: 'top-right',
-          autoClose: 5000, // Close after 5 seconds
-        });
-      });
-    
-      return () => {
-        channel.unbind_all();
-        channel.unsubscribe();
-      };
-    }, []);
-  // Handle approve leave request
-  const handleApprove = async (id: string) => {
-    try {
-      const response = await fetch(`${BaseUrl}/leaves/${id}/approve`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-      });
-      if (!response.ok) throw new Error("Failed to approve leave request");
-
-      const updatedLeaveRequest = await response.json();
-      setLeaveRequests(
-        leaveRequests.map((req) =>
-          req._id === id ? { ...req, status: updatedLeaveRequest.leaveRequest.status } : req
-        )
-      );
-      sendNotification("669272cf3784386de1a710f2", 'Hello from the admin!');
-    } catch (error) {
-      console.error("Error approving leave request:", error);
     }
-  };
+  }, [notificationsHourly]);
+  useEffect(() => {
+    if (notificationsLeave.length > 0) {
+      fetchLeaveRequests();
+    }
+  }, [notificationsLeave]);
+  // Handle daily leave requests
+  const handleApprove = async(id: string) => {
+    const response = await fetch(`${BaseUrl}/leaves/${id}/approve`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+    });
+    if (!response.ok) throw new Error("Failed to approve leave request");
 
-  // Handle reject leave request
+    setRequests(requests!.map((req) => (req._id === id ? { ...req, status: "Approved" } : req)))
+  }
+
   const handleReject = async (id: string) => {
-    try {
-      const response = await fetch(`${BaseUrl}/leaves/${id}/reject`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-      });
-      if (!response.ok) throw new Error("Failed to reject leave request");
 
-      const updatedLeaveRequest = await response.json();
-      setLeaveRequests(
-        leaveRequests.map((req) =>
-          req._id === id ? { ...req, status: updatedLeaveRequest.leaveRequest.status } : req
-        )
-      );
-    } catch (error) {
-      console.error("Error rejecting leave request:", error);
-    }
-  };
+    const response = await fetch(`${BaseUrl}/leaves/${id}/reject`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+    });
+    if (!response.ok) throw new Error("Failed to reject leave request");
 
-  // Handle approve hourly leave (custom break)
-  const handleApproveHourlyLeave = async (id: string) => {
-    console.log("status Respone: Approved");
-    try {
-      const response = await fetch(`${BaseUrl}/break/employee-breaks/${id}/status`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: "Approved" }), // Send status as JSON
-      });
-      if (!response.ok) throw new Error("Failed to approve hourly leave");
-      
-      const updatedHourlyLeave = await response.json();
-      console.log("status: ",updatedHourlyLeave)
-      console.log("status: ",updatedHourlyLeave.data)
-      setHourlyLeaves(
-        hourlyLeaves.map((leave) =>
-          leave._id === id ? { ...leave, status: updatedHourlyLeave.status } : leave
-        )
-      );
-    } catch (error) {
-      console.error("Error approving hourly leave:", error);
-    }
-  };
+    
+    setRequests(requests!.map((req) => (req._id === id ? { ...req, status: "Rejected" } : req)))
+  }
 
-  // Handle reject hourly leave (custom break)
-  const handleRejectHourlyLeave = async (id: string) => {
-    try {
-      const response = await fetch(`${BaseUrl}/break/employee-breaks/${id}/status`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: "Rejected" }), // Send status as JSON
-
-      });
-      if (!response.ok) throw new Error("Failed to reject hourly leave");
-
-      const updatedHourlyLeave = await response.json();
-      setHourlyLeaves(
-        hourlyLeaves.map((leave) =>
-          leave._id === id ? { ...leave, status: updatedHourlyLeave.status } : leave
-        )
-      );
-    } catch (error) {
-      console.error("Error rejecting hourly leave:", error);
-    }
-  };
-
-  // Format date
-  const formattedDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString();
-  };
-
-  // Format time
-  const formattedTime = (timeString: string) => {
-    const time = new Date(timeString);
-    return time.toLocaleTimeString();
-  };
-
-  // Toggle expand leave request
-  const toggleExpand = (id: string) => {
-    setExpandedRequest(expandedRequest === id ? null : id);
-  };
-
-  // Toggle expand hourly leave
-  const toggleExpandHourlyLeave = (id: string) => {
-    setExpandedHourlyLeave(expandedHourlyLeave === id ? null : id);
-  };
-
-  return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-6 text-center">Employee Requests</h1>
-      <ToastContainer />
-      {/* Two Sections */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {/* Section 1: Leave Requests */}
-        <div className="bg-white shadow rounded-lg p-6 border border-gray-200">
-          <h2 className="text-xl font-semibold mb-4">Leave Requests</h2>
-          <div className="space-y-6">
-            {leaveRequests.length === 0 ? ( // Check if leaveRequests is empty
-              <div className="text-center text-gray-500">
-                No leave requests.
-              </div>
-            ) : (
-              leaveRequests.map((request) => (
-                <div
-                  key={request._id}
-                  className="bg-white shadow rounded-lg p-4 border border-gray-200 cursor-pointer"
-                  onClick={() => toggleExpand(request._id)}
-                >
-                  <div className="flex justify-between items-center mb-4">
-                    <div>
-                      <h2 className="text-lg font-semibold">{request.employeeName}</h2>
-                      <p className="text-sm text-gray-500">{request.type}</p>
-                    </div>
-                    <div className="flex items-center space-x-3">
-                      <span
-                        className={`px-3 py-1 rounded-full text-sm font-medium ${
-                          request.status === "Approved"
-                            ? "bg-green-100 text-green-800"
-                            : request.status === "Rejected"
-                            ? "bg-red-100 text-red-800"
-                            : "bg-yellow-100 text-yellow-800"
-                        }`}
-                      >
-                        {request.status}
-                      </span>
-                      <button
-                        onClick={() => toggleExpand(request._id)}
-                        className="text-gray-500 hover:text-gray-700"
-                        aria-label="Expand details"
-                      >
-                        {expandedRequest === request._id ? (
-                          <ChevronUp size={20} />
-                        ) : (
-                          <ChevronDown size={20} />
-                        )}
-                      </button>
-                    </div>
-                  </div>
-
-                  {expandedRequest === request._id && (
-                    <div className="border-t pt-4 space-y-3 text-gray-700">
-                      <div className="grid grid-cols-2 gap-4">
-                        <p>
-                          <span className="font-semibold">Start Date:</span>{" "}
-                          {formattedDate(request.startDate)}
-                        </p>
-                        <p>
-                          <span className="font-semibold">End Date:</span>{" "}
-                          {formattedDate(request.endDate)}
-                        </p>
-                        {request.reason && (
-                          <p className="col-span-2">
-                            <span className="font-semibold">Reason:</span>{" "}
-                            {request.reason}
-                          </p>
-                        )}
-                      </div>
-                      {request.status === "Pending" && (
-                        <div className="flex space-x-3 mt-3">
-                          <button
-                            onClick={() => handleApprove(request._id)}
-                            className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 flex items-center"
-                          >
-                            <Check size={16} className="mr-2" /> Approve
-                          </button>
-                          <button
-                            onClick={() => handleReject(request._id)}
-                            className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 flex items-center"
-                          >
-                            <X size={16} className="mr-2" /> Reject
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-
-        {/* Section 2: Hourly Leaves (Custom Breaks) */}
-        <div className="bg-white shadow rounded-lg p-6 border border-gray-200">
-          <h2 className="text-xl font-semibold mb-4">Hourly Leaves (Custom Breaks)</h2>
-          <div className="space-y-6">
-            {hourlyLeaves.length === 0 ? ( // Check if hourlyLeaves is empty
-              <div className="text-center text-gray-500">
-                No hourly leave requests.
-              </div>
-            ) : (
-              hourlyLeaves.map((leave) => (
-                <div
-                  key={leave._id}
-                  className="bg-white shadow rounded-lg p-4 border border-gray-200 cursor-pointer"
-                  onClick={() => toggleExpandHourlyLeave(leave._id)}
-                >
-                  <div className="flex justify-between items-center mb-4">
-                    <div>
-                      <h2 className="text-lg font-semibold">{leave.employeeName}</h2>
-                      <p className="text-sm text-gray-500">Custom Break</p>
-                    </div>
-                    <div className="flex items-center space-x-3">
-                      <span
-                        className={`px-3 py-1 rounded-full text-sm font-medium ${
-                          leave.status === "Approved"
-                            ? "bg-green-100 text-green-800"
-                            : leave.status === "Rejected"
-                            ? "bg-red-100 text-red-800"
-                            : "bg-yellow-100 text-yellow-800"
-                        }`}
-                      >
-                        {leave.status}
-                      </span>
-                      <button
-                        onClick={() => toggleExpandHourlyLeave(leave._id)}
-                        className="text-gray-500 hover:text-gray-700"
-                        aria-label="Expand details"
-                      >
-                        {expandedHourlyLeave === leave._id ? (
-                          <ChevronUp size={20} />
-                        ) : (
-                          <ChevronDown size={20} />
-                        )}
-                      </button>
-                    </div>
-                  </div>
-
-                  {expandedHourlyLeave === leave._id && (
-                    <div className="border-t pt-4 space-y-3 text-gray-700">
-                      <div className="grid grid-cols-2 gap-4">
-                        <p>
-                          <span className="font-semibold">Start Time:</span>{" "}
-                          {formattedTime(leave.startTime)}
-                        </p>
-                        <p>
-                          <span className="font-semibold">End Time:</span>{" "}
-                          {formattedTime(leave.endTime)}
-                        </p>
-                        <p>
-                          <span className="font-semibold">Duration:</span>{" "}
-                          {leave.duration} hours
-                        </p>
-                      </div>
-                      {leave.status === "Pending" && (
-                        <div className="flex space-x-3 mt-3">
-                          <button
-                            onClick={() => handleApproveHourlyLeave(leave._id)}
-                            className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 flex items-center"
-                          >
-                            <Check size={16} className="mr-2" /> Approve
-                          </button>
-                          <button
-                            onClick={() => handleRejectHourlyLeave(leave._id)}
-                            className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 flex items-center"
-                          >
-                            <X size={16} className="mr-2" /> Reject
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+  const handleTypeChange = (id: string, type: string) => {
+    setRequests(requests!.map((req) => (req._id === id ? { ...req, type: type as "Paid" | "Unpaid" } : req)))
+  }
+// Handle hourly leave requests
+const handleApproveHourlyLeave = async (id: string) => {
+  try {
+    const response = await fetch(`${BaseUrl}/break/employee-breaks/${id}/status`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: "Approved" }), // Send status as JSON
+    });
+    if (!response.ok) throw new Error("Failed to approve hourly leave");
+    
+    const updatedHourlyLeave = await response.json();
+    console.log("status: ",updatedHourlyLeave)
+    console.log("status: ",updatedHourlyLeave.status)
+    setHourlyLeaves(
+      hourlyLeaves.map((leave) =>
+        leave.breakDetails._id === id ? { ...leave, status: updatedHourlyLeave.status } : leave
+      )
+    );
+  } catch (error) {
+    console.error("Error approving hourly leave:", error);
+  }
 };
 
-export default LeaveRequestsPage;
+const handleRejectHourlyLeave = async (id: string) => {
+  try {
+    const response = await fetch(`${BaseUrl}/break/employee-breaks/${id}/status`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: "Rejected" }), // Send status as JSON
+
+    });
+    if (!response.ok) throw new Error("Failed to reject hourly leave");
+
+    const updatedHourlyLeave = await response.json();
+    setHourlyLeaves(
+      hourlyLeaves.map((leave) =>
+        leave.breakDetails._id === id ? { ...leave, breakDetails: { ...leave.breakDetails, status: updatedHourlyLeave.status } } : leave
+      )
+    );
+  } catch (error) {
+    console.error("Error rejecting hourly leave:", error);
+  }
+}
+
+  // Filter daily leave requests
+  const filteredRequests = requests!.filter((req) => {
+    //req.employeeName.toLowerCase().includes(searchQuery.toLowerCase())
+    const leaveDate = new Date(req.startDate).toISOString().split('T')[0];
+    const matchesDate = !filterDate || leaveDate === filterDate;
+    const matchesSearch = req.employeeName.toLowerCase().includes(searchQuery.toLowerCase())
+    return matchesDate && matchesSearch;
+  })
+  const pendingRequests = filteredRequests.filter((req) => req.status === "Pending")
+  const approvedRequests = filteredRequests.filter((req) => req.status === "Approved")
+  const rejectedRequests = filteredRequests.filter((req) => req.status === "Rejected")
+// Filter hourly leave requests
+// const filteredHourlyLeaves = hourlyLeaves.filter((leave) =>
+//   leave.employeeDetails.name.toLowerCase().includes(searchQuery.toLowerCase()),
+// )
+const filteredHourlyLeaves = hourlyLeaves.filter(leave => {
+  const leaveDate = new Date(leave.breakDetails.startTime).toISOString().split('T')[0];
+  const matchesDate = !filterDate || leaveDate === filterDate;
+  const matchesSearch = leave.employeeDetails.name.toLowerCase().includes(searchQuery.toLowerCase());
+  return matchesDate && matchesSearch;
+});
+const pendingHourlyLeaves = filteredHourlyLeaves.filter((leave) => leave.breakDetails.status === "Pending")
+const approvedHourlyLeaves = filteredHourlyLeaves.filter((leave) => leave.breakDetails.status === "Approved")
+const rejectedHourlyLeaves = filteredHourlyLeaves.filter((leave) => leave.breakDetails.status === "Rejected")
+
+
+return (
+  <div className="container mx-auto p-4 max-w-4xl">
+    <h1 className="text-2xl font-bold mb-6">Leave Requests</h1>
+
+    <div className="flex items-center gap-4 mb-6">
+      <div className="relative flex-1">
+
+        
+        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+        <Input
+          placeholder="Search by employee name..."
+          className="pl-8"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+      </div>
+        <input
+          type="date"
+          id="filter-date"
+          value={filterDate}
+          onChange={(e) => setFilterDate(e.target.value)}
+          placeholder="Select Date"
+          className="pl-10 pr-3 py-1  text-gray-600 border border-gray-300 bg-transparent rounded-md focus:outline-none focus:ring-1 focus:ring-black"
+        />
+        
+      
+      {/* <button
+        type="button"
+        onClick={handleFilter}
+        className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+      >
+        Filter
+      </button> */}
+    
+      {/* <button className="flex items-center gap-1 px-3 py-2 border rounded-md hover:bg-muted">
+        <Filter className="h-4 w-4" />
+        <input
+          type="date"
+          value={filterDate}
+          onChange={(e) => setFilterDate(e.target.value)}
+          className="border rounded-md p-2"
+        />
+        <span>Filter</span>
+      </button> */}
+    </div>
+
+    <div className="flex mb-6 border rounded-md overflow-hidden">
+      <button
+        className={`flex-1 py-2 px-4 flex items-center justify-center gap-2 ${
+          leaveType === "daily" ? "bg-primary text-primary-foreground" : "bg-muted hover:bg-muted/80"
+        }`}
+        onClick={() => setLeaveType("daily")}
+      >
+        <Calendar className="h-4 w-4" />
+        <span>Daily Leaves</span>
+      </button>
+      <button
+        className={`flex-1 py-2 px-4 flex items-center justify-center gap-2 ${
+          leaveType === "hourly" ? "bg-primary text-primary-foreground" : "bg-muted hover:bg-muted/80"
+        }`}
+        onClick={() => setLeaveType("hourly")}
+      >
+        <Clock className="h-4 w-4" />
+        <span>Hourly Leaves</span>
+      </button>
+    </div>
+
+    {leaveType === "daily" ? (
+      <Tabs defaultValue="pending" className="w-full" onValueChange={setActiveTab} value={activeTab}>
+        <TabsList className="grid grid-cols-3 mb-4">
+          <TabsTrigger value="pending" className="relative">
+            Pending
+            {pendingRequests.length > 0 && (
+              <span className="absolute top-1 right-1 bg-primary text-primary-foreground text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                {pendingRequests.length}
+              </span>
+            )}
+          </TabsTrigger>
+          <TabsTrigger value="approved">Approved</TabsTrigger>
+          <TabsTrigger value="rejected">Rejected</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="pending" className="mt-0">
+          {pendingRequests.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">No pending requests</div>
+          ) : (
+            pendingRequests.map((request) => (
+              <LeaveRequestCard
+                key={request._id}
+                request={request}
+                onApprove={handleApprove}
+                onReject={handleReject}
+                onTypeChange={handleTypeChange}
+              />
+            ))
+          )}
+        </TabsContent>
+
+        <TabsContent value="approved" className="mt-0">
+          {approvedRequests.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">No approved requests</div>
+          ) : (
+            approvedRequests.map((request) => (
+              <LeaveRequestCard
+                key={request._id}
+                request={request}
+                onApprove={handleApprove}
+                onReject={handleReject}
+                onTypeChange={handleTypeChange}
+              />
+            ))
+          )}
+        </TabsContent>
+
+        <TabsContent value="rejected" className="mt-0">
+          {rejectedRequests.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">No rejected requests</div>
+          ) : (
+            rejectedRequests.map((request) => (
+              <LeaveRequestCard
+                key={request._id}
+                request={request}
+                onApprove={handleApprove}
+                onReject={handleReject}
+                onTypeChange={handleTypeChange}
+              />
+            ))
+          )}
+        </TabsContent>
+      </Tabs>
+    ) : (
+      <Tabs defaultValue="pending" className="w-full" onValueChange={setActiveTab} value={activeTab}>
+        <TabsList className="grid grid-cols-3 mb-4">
+          <TabsTrigger value="pending" className="relative">
+            Pending
+            {pendingHourlyLeaves.length > 0 && (
+              <span className="absolute top-1 right-1 bg-primary text-primary-foreground text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                {pendingHourlyLeaves.length}
+              </span>
+            )}
+          </TabsTrigger>
+          <TabsTrigger value="approved">Approved</TabsTrigger>
+          <TabsTrigger value="rejected">Rejected</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="pending" className="mt-0">
+          {pendingHourlyLeaves.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">No pending hourly leaves</div>
+          ) : (
+            pendingHourlyLeaves.map((leave) => (
+              <HourlyLeaveCard
+                key={leave.breakDetails._id}
+                leave={{...leave, breakDetails: {...leave.breakDetails, duration: leave.breakDetails.duration.toString()}}}
+                onApprove={handleApproveHourlyLeave}
+                onReject={handleRejectHourlyLeave}
+              />
+            ))
+          )}
+        </TabsContent>
+
+        <TabsContent value="approved" className="mt-0">
+          {approvedHourlyLeaves.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">No approved hourly leaves</div>
+          ) : (
+            approvedHourlyLeaves.map((leave) => (
+              <HourlyLeaveCard
+                key={leave.breakDetails._id}
+                leave={{...leave, breakDetails: {...leave.breakDetails, duration: leave.breakDetails.duration.toString()}}}
+                onApprove={handleApproveHourlyLeave}
+                onReject={handleRejectHourlyLeave}
+              />
+            ))
+          )}
+        </TabsContent>
+
+        <TabsContent value="rejected" className="mt-0">
+          {rejectedHourlyLeaves.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">No rejected hourly leaves</div>
+          ) : (
+            rejectedHourlyLeaves.map((leave) => (
+              <HourlyLeaveCard
+                key={leave.breakDetails._id}
+                leave={{...leave, breakDetails: {...leave.breakDetails, duration: leave.breakDetails.duration.toString()}}}
+                onApprove={handleApproveHourlyLeave}
+                onReject={handleRejectHourlyLeave}
+              />
+            ))
+          )}
+        </TabsContent>
+      </Tabs>
+    )}
+  </div>
+)
+}
+
+

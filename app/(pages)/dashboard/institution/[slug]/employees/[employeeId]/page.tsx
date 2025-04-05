@@ -2,12 +2,13 @@
 
 import Link from 'next/link';
 import { useParams,useRouter } from 'next/navigation';
-import React, { useState } from 'react';
+import React, {  useState } from 'react';
 import EmployeeDetails from './detials/page';
-import EmployeeTasks from './tasks/page';
+//import EmployeeTasks from './tasks/page';
 import { ListCollapse, Menu, ArrowLeft, ClipboardEdit  } from 'lucide-react';
 
 import { ToastContainer } from 'react-toastify';
+import { PersonalDataCard } from '@/app/components/PersonalData';
 //import { LogoutIcon } from '@heroicons/react/outline';
 
 const EmployeeDashboard = () => {
@@ -17,11 +18,11 @@ const EmployeeDashboard = () => {
 
   const [activeSection, setActiveSection] = useState('details'); // Default active section
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
   const handleNavigation = (section: string) => {
     setActiveSection(section);
     router.push(`/dashboard/institution/${slug}/employees/${employeeId}/${section}`);
   };
-  
   const handleLogout = () => {
     // Clear any authentication/session state here if necessary
     // For example, remove tokens, clear cookies, etc.
@@ -37,15 +38,17 @@ const EmployeeDashboard = () => {
       case 'details':
         return <EmployeeDetails />;
       case 'tasks':
-        return <EmployeeTasks />;
+        return <PersonalDataCard />;
       
       default:
-        return <EmployeeDetails />;
+        return <PersonalDataCard  />;
     }
   };
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
+
+  
   return (
     <div className="flex flex-col md:flex-row h-screen bg-gray-100">
       {/* Mobile header */}

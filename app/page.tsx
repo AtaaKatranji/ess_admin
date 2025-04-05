@@ -1,35 +1,17 @@
 "use client";
 import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button'; // Assuming you're using shadcn UI
-// import { useEffect } from 'react';
-
+import { Button } from '@/components/ui/button'; 
 
 export default function AdminDashboard() {
   const router = useRouter();
-//   const registerServiceWorker = async () => {
-//   if ("serviceWorker" in navigator) {
-//     try {
-//       const registration = await navigator.serviceWorker.register("/firebase-messaging-sw.js");
-//       console.log("Service Worker registered successfully:", registration);
-//     } catch (error) {
-//       console.error("Service Worker registration failed:", error);
-//     }
-//   } else {
-//     console.warn("Service Workers are not supported in this browser.");
-//   }
-// };
-//   useEffect(() => {
-//     registerServiceWorker();
-
-//   }, []);
   return (
     <div className="flex items-center justify-center min-h-screen space-y-4">
         <div className="absolute inset-0 z-0">
         <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <linearGradient id="backgroundGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="#f5f5f5" stop-opacity="1" />
-              <stop offset="100%" stop-color="#eeeeee" stop-opacity="1" />
+              <stop offset="0%" stopColor="#f5f5f5" stopOpacity="1" />
+              <stop offset="100%" stopColor="#eeeeee" stopOpacity="1" />
             </linearGradient>
           </defs>
 
@@ -37,7 +19,7 @@ export default function AdminDashboard() {
 
           {/* <!-- Circle with Fingerprint --> */}
           <circle cx="150" cy="150" r="120" fill="#5a9bd5" opacity="0.2" />
-          <g fill="none" stroke="#5a9bd5" stroke-width="2" opacity="0.6">
+          <g fill="none" stroke="#5a9bd5" strokeWidth="2" opacity="0.6">
             <path d="M110,110 C120,90 180,90 190,110" />
             <path d="M115,125 C125,105 175,105 185,125" />
             <path d="M120,140 C130,120 170,120 180,140" />
@@ -61,7 +43,10 @@ export default function AdminDashboard() {
       </div>
       <div className='absolute flex flex-col bg-slate-100 rounded-xl shadow-md font-bold font-mono text-xl  items-center justify-center w-full max-w-md p-4 space-y-4 '>
       <div>Welcome to the EES Admin Dashboard</div>
-      <Button onClick={() => router.push('/login')}>Sign In</Button>
+      <Button onClick={() => {
+        console.log('Sign In button clicked'); // Log to check if it works
+        router.push('/login'); // Navigate to login page
+      }}>Sign In</Button>
       </div>
 
     </div>

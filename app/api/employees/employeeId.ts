@@ -35,3 +35,29 @@ export const fetchCheckInOutData = async (shiftId : string) => {
     throw error; // Propagate the error for further handling
   }
 };
+export const fetchTotalHours = async (employeeId : string, date: Date) => {
+  const month = date
+
+  try {
+    const response = await fetch(`${BaseUrl}/checks/calculate-hours`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ userId: employeeId, month }),
+    })
+    console.log(response)
+    if (!response.ok) {
+      throw new Error("Failed to fetch total hours")
+    }
+
+    const data = await response.json()
+
+    return data.total.totalHours;
+  } catch (error) {
+    console.error("Error fetching total hours:", error)
+    throw error
+  }
+  
+
+}

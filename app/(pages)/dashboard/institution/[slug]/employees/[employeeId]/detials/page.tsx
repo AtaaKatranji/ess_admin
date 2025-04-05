@@ -1,343 +1,214 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { useParams } from "next/navigation"
-
-import { format } from "date-fns"
-// startOfMonth, endOfMonth,
-import { toast, ToastContainer } from "react-toastify"
-
-import "react-toastify/dist/ReactToastify.css"
-import { CalendarIcon, ClockIcon, Star, Rabbit, Turtle, Search, Loader2, Download, LucideArchiveRestore, Loader } from "lucide-react"
+import { useState, useEffect, useCallback, useMemo } from "react";
+import { useParams } from "next/navigation";
+import { format } from "date-fns";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { CalendarIcon, ClockIcon, Star, Rabbit, Turtle, Search, Loader2, Download, LucideArchiveRestore } from "lucide-react";
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip } from "recharts";
-import { Button } from "@/components/ui/button"
-import { Calendar } from "@/components/ui/calendar"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
-import { Input } from "@/components/ui/input"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-//import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-
-import { fetchTimeShifts } from "@/app/api/shifts/shifts"
-import  exportMonthlyReportPDF  from "@/app/components/ExportPDF"
-import AbsentTab from "@/app/components/AbsentTab"
-import AttendanceTab from "@/app/components/AttendanceTab"
-import AddExtraHoursModal from "@/app/components/AddExtraHoursModal"
-
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { fetchTimeShifts } from "@/app/api/shifts/shifts";
+import exportMonthlyReportPDF from "@/app/components/ExportPDF";
+import AbsentTab from "@/app/components/AbsentTab";
+import AttendanceTab from "@/app/components/AttendanceTab";
+import AddExtraHoursModal from "@/app/components/AddExtraHoursModal";
+import AnnualLeaveCard from "@/app/components/AnnualLeaveCard";
+import HourlyLeavesTab from "@/app/components/TabHourlyLeaves";
 
 type Leave = {
-  id: string
-  startDate: string
-  endDate: string 
-  type: "Paid" | "Unpaid"
-  status: string
-  reason: string
-  durationInDays: number
-  
-}
+  id: string;
+  startDate: string;
+  endDate: string;
+  type: "Paid" | "Unpaid";
+  status: string;
+  reason: string;
+  durationInDays: number;
+};
 
 type MonthlySummary = {
-  month: string
-  totalAttendance: number
-  absences: number
-  tardies: number
-}
+  month: string;
+  totalAttendance: number;
+  absences: number;
+  tardies: number;
+};
+
 type Comp = {
-  name: string
-  attendance: number
-  absences: number
-  tardies: number
+  name: string;
+  attendance: number;
+  absences: number;
+  tardies: number;
+};
+
+interface MonthlyAttendanceResponse {
+  employeeId: string;
+  monthlyAttendance: Record<string, { totalAttendance: number; absences: number; tardies: number }>;
 }
+
+const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
 
 const EmployeeDetails = () => {
-
-  const [totalHours, setTotalHours] = useState<number | null>(null)
-  const [lateHours, setLateHours] = useState<number | null>(null)
-  const [earlyLeaveHours, setEarlyLeaveHours] = useState<number | null>(null)
-  const [earlyArrivalHours, setEarlyArrivalHours] = useState<number | null>(null)
-  const [extraAttendanceHours, setExtraAttendanceHours] = useState<number | null>(null)
-  const [addedHours, setAddedHours] = useState<number | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [isLoadingPdf, setIsLoadingPdf] = useState(false)
+  const [data, setData] = useState({
+    totalHours: null as number | null,
+    lateHours: null as number | null,
+    earlyLeaveHours: null as number | null,
+    earlyArrivalHours: null as number | null,
+    extraAttendanceHours: null as number | null,
+    addedHours: null as number | null,
+    startTime: "",
+    endTime: "",
+    monthlySummary: [] as MonthlySummary[],
+    comparisonData: [] as Comp[],
+    paidLeaves: null as number | null,
+    unpaidLeaves: null as number | null,
+    leaves: [] as Leave[],
+    employeeName: "",
+  });
+  const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingPdf, setIsLoadingPdf] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedMonth, setSelectedMonth] = useState<Date>(new Date());
 
-  const [startTime, setStartTime] = useState("")
-  const [endTime, setEndTime] = useState("")
-  const [searchTerm, setSearchTerm] = useState("")
-  const [selectedMonth, setSelectedMonth] = useState<Date>(new Date())
-  
-  const [monthlySummary, setMonthlySummary] = useState<MonthlySummary[]>([])
-  const [comparisonData, setComparisonData] = useState<Comp[]>([])
-  const [paidLeaves, setPaidLeaves] = useState<number | null>(null)
-  const [unpaidLeaves, setUnpaidLeaves] = useState<number | null>(null)
-  const [leaves, setLeaves] = useState<Leave[]>([])
-
-  const [employeeName, setEmployeeName] = useState<string []>([])
-
-  const BaseUrl = process.env.NEXT_PUBLIC_API_URL
-
-  
-  const params = useParams()
-  const employeeId = Array.isArray(params.employeeId) ? params.employeeId[0] : params.employeeId as string
-
-
-
-  const fetchTotalHours = async (date: Date) => {
-    const month = date
-
+  const params = useParams();
+  const employeeId = Array.isArray(params.employeeId) ? params.employeeId[0] : params.employeeId as string;
+  const fetchAllData = useCallback(async (month: Date) => {
+    setIsLoading(true);
     try {
-      const response = await fetch(`${BaseUrl}/checks/calculate-hours`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ userId: employeeId, month }),
-      })
-      console.log(response)
-      if (!response.ok) {
-        throw new Error("Failed to fetch total hours")
-      }
-
-      const data = await response.json()
-
-      setTotalHours(data.total.totalHours)
+      // Fetch shifts once outside Promise.all
+      const shiftsResRaw = await fetchTimeShifts(employeeId);
+      const shifts = Array.isArray(shiftsResRaw) ? shiftsResRaw[0] : shiftsResRaw;
+  
+      const [hoursRes, leavesRes, summaryRes, timeShiftRes] = await Promise.all([
+        fetch(`${BaseUrl}/checks/calculate-hours`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId: employeeId, month }),
+        }).then(res => res.ok ? res.json() : Promise.reject("Failed to fetch total hours")),
+        fetch(`${BaseUrl}/leaves/month`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId: employeeId, month }),
+        }).then(res => res.ok ? res.json() : Promise.reject("Failed to fetch leaves")),
+        fetch(`${BaseUrl}/checks/summaryLastTwoMonth/${employeeId}`).then(res => res.ok ? res.json() : Promise.reject("Failed to fetch summary")),
+        fetch(`${BaseUrl}/checks/timeShift`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userId: employeeId,
+            month: month.toLocaleString("default", { month: "long" }),
+            year: month.getFullYear(),
+            startTime: data.startTime || shifts?.startTime,
+            endTime: data.endTime || shifts?.endTime,
+          }),
+        }).then(res => res.ok ? res.json() : Promise.reject("Failed to fetch time shift")),
+      ]);
+  
+      const summary = Object.entries((summaryRes as MonthlyAttendanceResponse).monthlyAttendance).map(([month, stats]) => ({
+        month,
+        totalAttendance: stats.totalAttendance,
+        absences: stats.absences,
+        tardies: stats.tardies,
+      }));
+  
+      setData({
+        totalHours: hoursRes.total.totalHours,
+        lateHours: timeShiftRes.data.lateHours,
+        earlyLeaveHours: timeShiftRes.data.earlyLeaveHours,
+        earlyArrivalHours: timeShiftRes.data.earlyArrivalHours,
+        extraAttendanceHours: timeShiftRes.data.extraAttendanceHours,
+        addedHours: timeShiftRes.data.extraAdjusmentHours,
+        startTime: shifts?.startTime || "",
+        endTime: shifts?.endTime || "",
+        monthlySummary: summary,
+        comparisonData: summary.map(s => ({ name: s.month, attendance: s.totalAttendance, absences: s.absences, tardies: s.tardies })),
+        paidLeaves: leavesRes.leaveDays?.totalPaidLeaveDays || 0,
+        unpaidLeaves: leavesRes.leaveDays?.totalUnpaidLeaveDays || 0,
+        leaves: leavesRes.leaves?.leaves || [],
+        employeeName: "",
+      });
     } catch (error) {
-      console.error("Error fetching total hours:", error)
-      toast.error("Failed to fetch total hours. Please try again.")
+      console.error("Error fetching data:", error);
+      toast.error(`Failed to load data: ${error}`);
+    } finally {
+      setIsLoading(false);
     }
-  }
+  }, [employeeId]);
 
-  const fetchLeaves = async (date: Date) => {
-    const month = date
-    try{
-    const response = await fetch(`${BaseUrl}/leaves/month`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ userId: employeeId, month }),
-    });
-    
-    if (!response.ok) {
-      throw new Error("Failed to fetch leaves");
-    }
-    
-    const data = await response.json();
-    
-    // Access the nested structure
-    const leaveRequests = data.leaves?.leaves || []; // Safely access the nested 'leaves'
-    const totalPaidLeaveDays = data.leaveDays?.totalPaidLeaveDays || 0;
-    const totalUnpaidLeaveDays = data.leaveDays?.totalUnpaidLeaveDays || 0;
-    
-    // Log for debugging
-    console.log("Leave Requests: ", leaveRequests);
-    console.log("Total Paid Leave Days: ", totalPaidLeaveDays);
-    console.log("Total Unpaid Leave Days: ", totalUnpaidLeaveDays);
-    
-    // Update state
-    setPaidLeaves(totalPaidLeaveDays);
-    setUnpaidLeaves(totalUnpaidLeaveDays);
-    setLeaves(leaveRequests);
-    }catch (error) {
-      console.error("Error fetching total hours:", error)
-      toast.error("Failed to fetch total hours. Please try again.")
-    }
-  }
-
-  const fetchTimeShift = async () => {
-    const result = await fetchTimeShifts(employeeId)
-
-    if (Array.isArray(result)) {
-      const firstShift = result[0]
-      setStartTime(firstShift.startTime)
-      setEndTime(firstShift.endTime)
-
-    } else if (result) {
-      setStartTime(result.startTime)
-      setEndTime(result.endTime)
-
-    }
-  }
-  interface MonthlyAttendanceStats {
-    totalAttendance: number;
-    absences: number;
-    tardies: number;
-}
-
-
-// Define an interface for the response structure
-interface MonthlyAttendanceResponse {
-    employeeId: string;
-    monthlyAttendance: Record<string, MonthlyAttendanceStats>;
-}
-  const fetchMonthlySummary = async (employeeId: string) => {
-    try {
-        // Make an API call to fetch monthly attendance summary
-        const response = await fetch(`${BaseUrl}/checks/summaryLastTwoMonth/${employeeId}`);
-        
-        // Check if the response is okay
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-
-        
-        const data: MonthlyAttendanceResponse = await response.json();
-
-        // Map over the monthly attendance data
-        const summary = Object.entries(data.monthlyAttendance).map(([month, stats]) => ({
-            month,
-            totalAttendance: stats.totalAttendance,
-            absences: stats.absences,
-            tardies: stats.tardies,
-        }));
-        // Set the state with the fetched summary
-        setMonthlySummary(summary);
-        
-        // Prepare comparison data for chart or other use
-        setComparisonData(summary.map(s => ({
-            name: s.month,
-            attendance: s.totalAttendance,
-            absences: s.absences,
-            tardies: s.tardies,
-        })));
-    } catch (error) {
-        console.error('Error fetching monthly summary:', error);
-    }
-};
-const exportMonthlyReport = async () => {
-  console.log(selectedMonth)
-  try {
+  const exportMonthlyReport = useCallback(async () => {
     setIsLoadingPdf(true);
-  const response = await fetch(`${BaseUrl}/checks/summry2`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      employeeId: employeeId,
-      date: selectedMonth
-    }),
-  })
-  console.log("res: ",response.body)
-  if (!response) {
-    throw new Error('Failed to fetch');
-  }
-
-  const data = await response.json();
-  console.log(data)
-  setEmployeeName(await data.summary.employeeName);
-  // This would generate and download a report in a real application
-  exportMonthlyReportPDF(data);
-  toast.info("Monthly report exported as PDF!");
-  } catch (error) {
-    toast.warning(error as string);
-  } finally {
-    setIsLoadingPdf(false);
-  }
-  
-  // For now, we'll just show a toast message
-  
-}
-
-
-useEffect(() => {
-  const fetchData = async () => {
-    setIsLoading(true)
-    
-    await Promise.all([
-      fetchTotalHours(selectedMonth),
-      fetchLeaves(selectedMonth),
-      fetchTimeShift(),
-      fetchMonthlySummary(employeeId),
-    ])
-    setIsLoading(false)
-  }
-
-   fetchData()
-}, [employeeId, selectedMonth])
-
+    try {
+      const response = await fetch(`${BaseUrl}/checks/summry2`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ employeeId, date: selectedMonth }),
+      });
+      if (!response.ok) throw new Error("Failed to fetch report");
+      const data = await response.json();
+      setData(prev => ({ ...prev, employeeName: data.summary.employeeName }));
+      exportMonthlyReportPDF(data);
+      toast.info("Monthly report exported as PDF!");
+    } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        toast.warning(errorMessage);
+    } finally {
+      setIsLoadingPdf(false);
+    }
+  }, [employeeId, selectedMonth]);
 
   useEffect(() => {
-    const postTimeShiftData = async () => {
-      
-      if (startTime && endTime) {
-        const date = selectedMonth
-        const month = date.toLocaleString("default", { month: "long" })
-        const year = date.getFullYear()
-        
-        try {
-          const response = await fetch(`${BaseUrl}/checks/timeShift`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              userId: employeeId,
-              month,
-              year,
-              startTime,
-              endTime,
-            }),
-          })
+    fetchAllData(selectedMonth);
+  }, [fetchAllData, selectedMonth]);
 
-          if (!response.ok) {
-            throw new Error("Failed to fetch time shift")
-          }
-
-          const data = await response.json()
-          setExtraAttendanceHours(data.data.extraAttendanceHours)
-          setLateHours(data.data.lateHours)
-          setEarlyArrivalHours(data.data.earlyArrivalHours)
-          setEarlyLeaveHours(data.data.earlyLeaveHours)
-          setAddedHours(data.data.extraAdjusmentHours)
-        } catch (error) {
-          console.error("Error fetching total hours:", error)
-          toast.error("Failed to fetch total hours. Please try again.")
-        }
-      }
-    }
-
-    postTimeShiftData()
-  }, [startTime, endTime, selectedMonth, employeeId])
-
-
-
-  
+  const filteredLeaves = useMemo(() => {
+    const lowerSearch = searchTerm.toLowerCase();
+    return data.leaves.filter(leave =>
+      format(new Date(leave.startDate), "MMMM d, yyyy").toLowerCase().includes(lowerSearch) ||
+      leave.reason.toLowerCase().includes(lowerSearch)
+    );
+  }, [data.leaves, searchTerm]);
+  // Function to format the month display
+  const getMonthDisplay = (date: Date) => {
+    const now = new Date();
+    const isCurrentMonth = 
+      date.getMonth() === now.getMonth() && 
+      date.getFullYear() === now.getFullYear();
+    
+    return isCurrentMonth 
+      ? "This month" 
+      : date.toLocaleString('default', { month: 'long' });
+  };
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen">
         <Loader2 className="h-8 w-8 animate-spin" />
       </div>
-    )
+    );
   }
 
   return (
     <div className="container mx-auto p-4 space-y-4">
       <ToastContainer />
       <div className="flex justify-between items-center">
-        <h1 className="hidden md:block lg:hidden xl:block text-xl md:text-2xl font-bold">{employeeName}'s Attendance Dashboard</h1>
+        <h1 className="hidden md:block lg:hidden xl:block text-xl md:text-2xl font-bold">
+          {data.employeeName || "Employee"}'s Attendance Dashboard
+        </h1>
         <div className="flex items-center space-x-2">
-          
-            <Button
-              className="bg-cyan-900 text-white"
-              onClick={() => setIsModalOpen(true)}
-            >
-              Add Extra Hours
-            </Button>
-
-            <AddExtraHoursModal
-              isOpen={isModalOpen}
-              onClose={() => setIsModalOpen(false)}
-              employeeId={employeeId}
-              monthIndex={selectedMonth}
-            />
-          
+          <Button className="bg-cyan-900 text-white" onClick={() => setIsModalOpen(true)}>
+            Add Extra Hours
+          </Button>
+          <AddExtraHoursModal
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            employeeId={employeeId}
+            monthIndex={selectedMonth}
+          />
           <Popover>
             <PopoverTrigger asChild>
               <Button variant="outline">
@@ -355,85 +226,67 @@ useEffect(() => {
             </PopoverContent>
           </Popover>
           <Button onClick={exportMonthlyReport} className="bg-cyan-900 text-white">
-          {isLoadingPdf ? (
-              <Loader className="mr-2 h-4 w-4 animate-spin" /> // Show loader with animation
-            ) : (
-              <Download className="mr-2 h-4 w-4" /> // Show default icon
-            )}
-            {isLoading ? "Exporting..." : "Export Report"}
+            {isLoadingPdf ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Download className="mr-2 h-4 w-4" />}
+            {isLoadingPdf ? "Exporting..." : "Export Report"}
           </Button>
         </div>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
-        {/* total hours */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Hours</CardTitle>
             <ClockIcon className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
-          {addedHours == 0 ? (
-            <CardContent>
-            <div className="text-2xl font-bold">{totalHours} hours</div>
-            <p className="text-xs text-muted-foreground">This month</p>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {(data.totalHours || 0) + (data.addedHours || 0)} <span className="text-base font-medium">hours</span>
+            </div>
+            <p className="text-xs text-muted-foreground">{getMonthDisplay(selectedMonth)}</p>
           </CardContent>
-          ):(<CardContent>
-            <div className="text-2xl font-bold">{(Number(totalHours) || 0) + (Number(addedHours) || 0)} hours</div>
-            <p className="text-xs text-muted-foreground">This month</p>
-          </CardContent>)}
         </Card>
-        {/* late hours */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Late Hours</CardTitle>
             <Turtle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{lateHours} hours</div>
-            <p className="text-xs text-muted-foreground">This month</p>
+            <div className="text-2xl font-bold">{data.lateHours || 0} <span className="text-base font-medium">hours</span></div>
+            <p className="text-xs text-muted-foreground">{getMonthDisplay(selectedMonth)}</p>
           </CardContent>
         </Card>
-        {/* early leave */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Early Leaves</CardTitle>
             <Rabbit className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{earlyLeaveHours} hours</div>
-            <p className="text-xs text-muted-foreground">This month</p>
+            <div className="text-2xl font-bold">{data.earlyLeaveHours || 0} <span className="text-base font-medium">hours</span></div>
+            <p className="text-xs text-muted-foreground">{getMonthDisplay(selectedMonth)}</p>
           </CardContent>
         </Card>
-         {/* early arrive */}
-         <Card>
+        <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Early Arrivals</CardTitle>
             <ClockIcon className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{earlyArrivalHours} hours</div>
-            <p className="text-xs text-muted-foreground">This month</p>
+            <div className="text-2xl font-bold">{data.earlyArrivalHours || 0} <span className="text-base font-medium">hours</span></div>
+            <p className="text-xs text-muted-foreground">{getMonthDisplay(selectedMonth)}</p>
           </CardContent>
         </Card>
-        {/* extra hours */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Extra Hours</CardTitle>
             <Star className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
-          
-            {addedHours == 0 ? (
-              <CardContent>
-              <div className="text-2xl font-bold">{extraAttendanceHours} hours</div>
-              <p className="text-xs text-muted-foreground">This month</p>
-              </CardContent>
-            ) : ( 
-              <CardContent>
-                <div className="text-2xl font-bold">{extraAttendanceHours} + <span className="text-cyan-800">{addedHours}</span></div>
-              </CardContent>
-             ) }
-          
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {data.extraAttendanceHours || 0}
+              {data.addedHours ? <> + <span className="text-cyan-800">{data.addedHours}</span></> : null}
+            </div>
+            <p className="text-xs text-muted-foreground">{getMonthDisplay(selectedMonth)}</p>
+          </CardContent>
         </Card>
-        {/* leave days */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Leave Days</CardTitle>
@@ -441,169 +294,157 @@ useEffect(() => {
           </CardHeader>
           <CardContent>
             <div className="flex justify-between">
-              {/* Paid Leave Column */}
               <div className="flex flex-col items-start">
-                <div className="text-lg font-bold justify-center">{paidLeaves}</div>
+                <div className="text-lg font-bold">{data.paidLeaves || 0}</div>
                 <p className="text-xs text-muted-foreground">Paid Leave</p>
               </div>
-              {/* Divider */}
               <div className="px-2 text-muted-foreground">|</div>
-              {/* Unpaid Leave Column */}
               <div className="flex flex-col items-start">
-                <div className="text-lg font-bold justify-center">{unpaidLeaves}</div>
+                <div className="text-lg font-bold">{data.unpaidLeaves || 0}</div>
                 <p className="text-xs text-muted-foreground">Unpaid Leave</p>
               </div>
             </div>
           </CardContent>
         </Card>
       </div>
+      <AnnualLeaveCard employeeId={employeeId} />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      {/* monthy summry char */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Attendance Comparison</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={comparisonData}>
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="attendance" fill="#8884d8" />
-              <Bar dataKey="absences" fill="#82ca9d" />
-              <Bar  dataKey="tardies" fill="#ffc658" />
-            </BarChart>
-          </ResponsiveContainer>
-        </CardContent>
-      </Card>
-      {/* monthly summry table*/}
-      <Card>
-        <CardHeader>
-          <CardTitle>Monthly Summary</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ScrollArea className="h-[300px]">
-            <table className="w-full">
-              <thead>
-                <tr>
-                  <th className="text-left">Month</th>
-                  <th className="text-left">Total Attendance</th>
-                  <th className="text-left">Absences</th>
-                  <th className="text-left">Tardies</th>
-                </tr>
-              </thead>
-              <tbody>
-                {monthlySummary.map((summary, index) => (
-                  <tr key={index}>
-                    <td>{summary.month}</td>
-                    <td>{summary.totalAttendance}</td>
-                    <td>{summary.absences}</td>
-                    <td>{summary.tardies}</td>
+        <Card>
+          <CardHeader>
+            <CardTitle>Attendance Comparison</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={data.comparisonData}>
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="attendance" fill="#8884d8" />
+                <Bar dataKey="absences" fill="#82ca9d" />
+                <Bar dataKey="tardies" fill="#ffc658" />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Monthly Summary</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ScrollArea className="h-[300px]">
+              <table className="w-full">
+                <thead>
+                  <tr>
+                    <th className="text-left">Month</th>
+                    <th className="text-left">Attendance</th>
+                    <th className="text-left">Absences</th>
+                    <th className="text-left">Tardies</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </ScrollArea>
-        </CardContent>
-      </Card>
-</div>
+                </thead>
+                <tbody>
+                  {data.monthlySummary.map((summary) => (
+                    <tr key={summary.month}>
+                      <td>{summary.month}</td>
+                      <td>{summary.totalAttendance}</td>
+                      <td>{summary.absences}</td>
+                      <td>{summary.tardies}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </ScrollArea>
+          </CardContent>
+        </Card>
+      </div>
       <Tabs defaultValue="attendance" className="space-y-4">
         <TabsList>
           <TabsTrigger value="attendance">Attendance Records</TabsTrigger>
           <TabsTrigger value="leave">Leave Requests</TabsTrigger>
           <TabsTrigger value="absent">Absences</TabsTrigger>
-
-
+          <TabsTrigger value="hourlyLeaves">Hourly Leaves</TabsTrigger>
         </TabsList>
         <TabsContent value="attendance" className="space-y-4">
           <AttendanceTab employeeId={employeeId} selectedMonth={selectedMonth} />
         </TabsContent>
         <TabsContent value="leave" className="space-y-4">
-        <div className="flex justify-between items-center">
-          <h2 className="text-xl font-semibold">Leave Requests</h2>
-          {/* Uncomment for search functionality */}
-          <div className="relative">
-            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input 
-              placeholder="Search records" 
-              className="pl-8"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
+          <div className="flex justify-between items-center">
+            <h2 className="text-xl font-semibold">Leave Requests</h2>
+            <div className="relative">
+              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search records"
+                className="pl-8"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
           </div>
-        </div>
-
-        <Card>
+          <Card>
             <div className="flex p-4 space-x-8">
-              {/* Paid Leaves Section */}
               <div>
-               <ScrollArea className="h-[400px]">
-                <h3 className="text-lg font-medium">Paid Leaves</h3>
-                {leaves && leaves.filter((record) => record.type = "Paid").length > 0 ? (
-                  leaves
-                    .filter((record) => record.type = "Paid")
-                    .map((record) => (
-                      <div
-                        key={record.id}
-                        className="flex justify-between items-center py-2 border-b last:border-b-0 cursor-pointer hover:bg-accent"
-                        onClick={() => {}}
-                      >
-                        <div>
-                          <p className="font-medium">{format(new Date(record.startDate), "MMMM d, yyyy")}</p>
-                          <p className="text-sm text-muted-foreground">
-                            Start: {format(new Date(record.startDate), "yyyy MM dd")}, End: {format(new Date(record.endDate), "yyyy MM dd")}
-                          </p>
-                          <p>For: {record.reason}</p>
+                <ScrollArea className="h-[400px]">
+                  <h3 className="text-lg font-bold">Paid Leaves</h3>
+                  {filteredLeaves.filter(record => record.type === "Paid").length > 0 ? (
+                    filteredLeaves
+                      .filter(record => record.type === "Paid")
+                      .map(record => (
+                        <div
+                          key={record.id}
+                          className="flex justify-between items-center py-2 border-b last:border-b-0 cursor-pointer hover:bg-accent"
+                        >
+                          <div>
+                            <p className="font-medium">{format(new Date(record.startDate), "MMMM d, yyyy")}</p>
+                            <p className="text-sm text-muted-foreground">
+                              Start: {format(new Date(record.startDate), "yyyy MM dd")}, End: {format(new Date(record.endDate), "yyyy MM dd")}
+                            </p>
+                            <p>For: {record.reason}</p>
+                          </div>
+                          <p>No. of days: {record.durationInDays}</p>
                         </div>
-                        <p>No. of days: {record.durationInDays}</p>
-                      </div>
-                    ))
-                ) : (
-                  <p className="text-sm text-muted-foreground">No paid leave records available.</p>
-                )}
-               </ScrollArea>
+                      ))
+                  ) : (
+                    <p className="text-sm text-muted-foreground">No paid leave records available.</p>
+                  )}
+                </ScrollArea>
               </div>
-
-              {/* Unpaid Leaves Section */}
               <div>
-              <ScrollArea className="h-[400px]">
-                <h3 className="text-lg font-medium">Unpaid Leaves</h3>
-                {leaves && leaves.filter((record) => record.type == "Unpaid" ).length > 0 ? (
-                  leaves
-                    .filter((record) => record.type == "Unpaid")
-                    .map((record) => (
-                      <div
-                        key={record.id}
-                        className="flex justify-between items-center py-2 border-b last:border-b-0 cursor-pointer hover:bg-accent"
-                        onClick={() => {}}
-                      >
-                        <div>
-                          <p className="font-medium">{format(new Date(record.startDate), "MMMM d, yyyy")}</p>
-                          <p className="text-sm text-muted-foreground">
-                            Start: {format(new Date(record.startDate), "yyyy MM dd")}, End: {format(new Date(record.endDate), "yyyy MM dd")}
-                          </p>
-                          <p>For: {record.reason}</p>
+                <ScrollArea className="h-[400px]">
+                  <h3 className="text-lg font-medium">Unpaid Leaves</h3>
+                  {filteredLeaves.filter(record => record.type === "Unpaid").length > 0 ? (
+                    filteredLeaves
+                      .filter(record => record.type === "Unpaid")
+                      .map(record => (
+                        <div
+                          key={record.id}
+                          className="flex justify-between items-center py-2 border-b last:border-b-0 cursor-pointer hover:bg-accent"
+                        >
+                          <div>
+                            <p className="font-medium">{format(new Date(record.startDate), "MMMM d, yyyy")}</p>
+                            <p className="text-sm text-muted-foreground">
+                              Start: {format(new Date(record.startDate), "yyyy MM dd")}, End: {format(new Date(record.endDate), "yyyy MM dd")}
+                            </p>
+                            <p>For: {record.reason}</p>
+                          </div>
+                          <p>No. of days: {record.durationInDays}</p>
                         </div>
-                        <p>No. of days: {record.durationInDays}</p>
-                      </div>
-                    ))
-                ) : (
-                  <p className="text-sm text-muted-foreground">No unpaid leave records available.</p>
-                )}
+                      ))
+                  ) : (
+                    <p className="text-sm text-muted-foreground">No unpaid leave records available.</p>
+                  )}
                 </ScrollArea>
               </div>
             </div>
-          
-        </Card>
+          </Card>
         </TabsContent>
         <TabsContent value="absent">
           <AbsentTab employeeId={employeeId} selectedMonth={selectedMonth} />
         </TabsContent>
-
+        <TabsContent value="hourlyLeaves">
+          <HourlyLeavesTab employeeId={employeeId} selectedMonth={selectedMonth} />
+        </TabsContent>
       </Tabs>
-
     </div>
-  )
-}
+  );
+};
 
-export default EmployeeDetails
+export default EmployeeDetails;
