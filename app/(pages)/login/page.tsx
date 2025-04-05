@@ -24,7 +24,7 @@ export default function AdminLogin() {
   interface AuthResponse {
     message: string;
     token: string; // Add the token property
-    adminId: string
+    data: {adminId: string};
   }
 
   const handleSubmit = async (event: React.FormEvent) => {
@@ -45,16 +45,16 @@ export default function AdminLogin() {
       });
       console.log("response",response)
       if (response.ok) {
-        const data: AuthResponse = await response.json();
+        const data : AuthResponse = await response.json();
         
-        localStorage.setItem('adminId', data.adminId);
+        
         toast.success(data.message);
         // After successful sign-in
 
 
 
         setTimeout(() => {
-          navigate.push(`/dashboard?adminId=${data.adminId}`); // Adjust this path if needed
+          navigate.push(`/dashboard?adminId=${data.data.adminId}`); // Adjust this path if needed
         }, 1500);
         
       } else {
