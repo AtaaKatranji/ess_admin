@@ -139,6 +139,7 @@ const AddInstitutionDialog: React.FC<AddInstitutionDialogProps> = ({ onSuccess }
 
 useEffect(() => {
   const cookieToken = cookies.token;
+    console.log("cookieToken: ",cookieToken);
     setToken( cookieToken || null )
     console.log("token in add Institution: ",token);
 }, [token]);
