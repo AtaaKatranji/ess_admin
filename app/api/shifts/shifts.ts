@@ -3,7 +3,7 @@ const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
 
 export const fetchShifts = async (institutionKey: string) => {
   try {
-    const response = await fetch(`${BaseUrl}/shift/institution`, {
+    const response = await fetch(`${BaseUrl}/shifts/institution`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -25,7 +25,7 @@ export const fetchShifts = async (institutionKey: string) => {
 
 export const fetchTimeShifts = async (employeeId: string) => {
   console.log("fetchTimeShifts",employeeId)
-  const response = await fetch(`${BaseUrl}/shift/time`, {
+  const response = await fetch(`${BaseUrl}/shifts/time`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
