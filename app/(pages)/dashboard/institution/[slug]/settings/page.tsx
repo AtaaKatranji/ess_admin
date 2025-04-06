@@ -52,9 +52,12 @@ const SettingsPage: React.FC = () => {
     const fetchData = async () => {
       try {
         const data = await fetchInstitution(slug!.toString());
-        setInstitutionInfo(data);
+        console.log('Fetched institution data:', data);
+        setInstitutionInfo({
+          ...data,
+          macAddresses: Array.isArray(data.macAddresses) ? data.macAddresses : [], // Normalize
+        });
         setInitialName(data.name);
-
       } catch (error) {
         console.error('Error fetching institution data:', error);
       }
