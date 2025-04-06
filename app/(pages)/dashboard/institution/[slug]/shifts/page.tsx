@@ -750,7 +750,6 @@ export default function ShiftsPage() {
                       {shift.employees!.map(employee => (
                         
                         <>
-                          {console.log("Employee inside map:",employee)}
                         <li key={employee._id} className="flex items-center justify-between bg-gray-100 p-2 rounded">
                           <span>{employee.name}</span>
                           <div className="flex gap-2">
