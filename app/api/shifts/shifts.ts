@@ -3,7 +3,7 @@ const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
 
 export const fetchShifts = async (institutionKey: string) => {
   try {
-    const response = await fetch(`${BaseUrl}/shift/Ins`, {
+    const response = await fetch(`${BaseUrl}/shift/institution`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
