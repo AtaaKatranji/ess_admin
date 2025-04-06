@@ -187,6 +187,7 @@ const SettingsPage: React.FC = () => {
       toast.error('Cannot delete: Admin ID is missing.');
       return;
     }
+    const adminId = institutionInfo.adminId;
     console.log("adminId before delete:", institutionInfo.adminId);
     console.log("deleted slug: ", institutionInfo.slug);
     const res = await deleteInstitutionInfo(institutionInfo.slug);
@@ -196,7 +197,8 @@ const SettingsPage: React.FC = () => {
         toast.success("Institution deleted successfully");
         //toast(`${res}`,);
         setTimeout(() => {
-          router.push('/dashboard'); // Adjust this path if needed
+          //navigate.push(`/dashboard?adminId=${adminId}`);
+          router.push(`/dashboard?adminId=${adminId}`); // Adjust this path if needed
         }, 1500);
       }else{
         toast.error(`Failed to delete institution: ${res}`);
