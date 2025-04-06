@@ -183,21 +183,28 @@ const SettingsPage: React.FC = () => {
   };
 
   const handleDelete = async () => {
-      
+    if (!institutionInfo.adminId) {
+      toast.error('Cannot delete: Admin ID is missing.');
+      return;
+    }
+    console.log("adminId before delete:", institutionInfo.adminId);
     console.log("deleted slug: ", institutionInfo.slug);
     const res = await deleteInstitutionInfo(institutionInfo.slug);
+    console.log('Delete response:', res);
     try{
       if(res == "Institution deleted successfully"){
-        
-        toast(`${res}`,);
+        toast.success("Institution deleted successfully");
+        //toast(`${res}`,);
         setTimeout(() => {
           router.push('/dashboard'); // Adjust this path if needed
         }, 1500);
       }else{
-        toast(`${res}`);
+        toast.error(`Failed to delete institution: ${res}`);
+        //toast(`${res}`);
       }
-    }catch{
-      
+    }catch (error) {
+      console.error('Error during deletion:', error);
+  toast.error('Failed to delete institution.');
     }
     
 
