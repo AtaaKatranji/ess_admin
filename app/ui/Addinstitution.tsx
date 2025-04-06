@@ -31,7 +31,7 @@ const AddInstitutionDialog: React.FC<AddInstitutionDialogProps> = ({ onSuccess }
   const [errorName, setErrorName] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [token, setToken] = useState('');
+  const [token, setToken] = useState<string | null>(null);
   const [isNameTaken, setIsNameTaken] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(false);
   const cookies = parseCookies(); 
@@ -66,7 +66,7 @@ const AddInstitutionDialog: React.FC<AddInstitutionDialogProps> = ({ onSuccess }
     }
     
     try {
-    const adminId = extractAdminId(token);
+    const adminId = extractAdminId(token!);
     const institutionData = { adminId, name, address, keyNumber, macAddresses };
     console.log("in handle submit",institutionData)
     const response = await fetch(`${BaseUrl}/ins/institutions`, {
@@ -117,7 +117,7 @@ const AddInstitutionDialog: React.FC<AddInstitutionDialogProps> = ({ onSuccess }
   };
   const handleCheckName = () => {
     if (name) {
-      const adminId = extractAdminId(token);
+      const adminId = extractAdminId(token!);
       const timeoutId = setTimeout(async() => {
         setLoading(true);
         const res= await checkNameExists(name,adminId!);
@@ -138,7 +138,8 @@ const AddInstitutionDialog: React.FC<AddInstitutionDialogProps> = ({ onSuccess }
   }
 
 useEffect(() => {
-    setToken( cookies.token )
+  const cookieToken = cookies.token;
+    setToken( cookieToken || null )
     console.log("token in add Institution: ",token);
 }, [token]);
 
