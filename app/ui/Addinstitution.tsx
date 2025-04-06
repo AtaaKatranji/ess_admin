@@ -71,10 +71,10 @@ const AddInstitutionDialog: React.FC<AddInstitutionDialogProps> = ({ onSuccess }
     const response = await fetch(`${BaseUrl}/ins/institutions`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(institutionData),
+        credentials:'include'
       });
 
       if (response.ok) {
@@ -116,10 +116,10 @@ const AddInstitutionDialog: React.FC<AddInstitutionDialogProps> = ({ onSuccess }
   };
   const handleCheckName = () => {
     if (name) {
-
+      const adminId = extractAdminId(token);
       const timeoutId = setTimeout(async() => {
         setLoading(true);
-        const res= await checkNameExists(name);
+        const res= await checkNameExists(name,adminId!);
         setLoading(false);
         if (typeof res === "boolean") {
           console.log("res ", res)
@@ -138,7 +138,7 @@ const AddInstitutionDialog: React.FC<AddInstitutionDialogProps> = ({ onSuccess }
 
 useEffect(() => {
     setToken( cookies.token )
-    console.log("token: ",token);
+    console.log("token in add Institution: ",token);
 }, [token]);
 
 

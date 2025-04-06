@@ -206,7 +206,7 @@ const SettingsPage: React.FC = () => {
     if (institutionInfo.name && institutionInfo.name !== initialName) { // Only check if name has changed
       const timeoutId = setTimeout(async () => {
         setLoading(true);
-        const res = await checkNameExists(institutionInfo.name);
+        const res = await checkNameExists(institutionInfo.name,institutionInfo.adminId);
         
         if (typeof res === "boolean") {
           setIsNameTaken(res);

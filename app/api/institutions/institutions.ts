@@ -202,10 +202,10 @@ export const deleteInstitutionInfo = async (slug: string ) => {
   }
 }
 
-export const checkNameExists = async (name: string) => {
+export const checkNameExists = async (name: string,adminId: string) => {
   try {
     // Replace this URL with your actual API endpoint
-    const insData = {name}
+    const insData = {adminId,name}
     const response = await fetch(`${BaseUrl}/ins/check-name`, {
       method: 'post',
       headers: {
