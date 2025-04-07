@@ -13,30 +13,31 @@ import { toast, ToastContainer } from 'react-toastify'
 import { useInstitution } from '@/app/context/InstitutionContext'
 const BaseURL = process.env.NEXT_PUBLIC_API_URL;
 type Employee = {
-  _id: string
-  name: string
-}
-type Break = {
-  _id:string,
+  id: string; // Changed from id to id for MySQL
   name: string;
-  duration: number; // in minutes
-  icon?: string; // optional icon
-};
+}
+
+type Break = {
+  id: string; // Changed from id to id
+  name: string;
+  duration: number;
+  icon?: string;
+  shiftId?: string; // Added to associate with shift
+}
 
 type Shift = {
-  _id?: string
-  name: string
-  startTime: string
-  endTime: string
-  days: string[]
-  institutionKey: string,
-  employees?: Employee[],
-  lateLimit: number,
-  lateMultiplier: number,
-  extraLimit: number,
-  extraMultiplier: number,
-  breaks?: Break[]; // Add breaks to the Shift type
-
+  id?: string; // Changed from id to id
+  name: string;
+  startTime: string;
+  endTime: string;
+  days: string[];
+  institutionKey: string;
+  employees?: Employee[];
+  lateLimit: number;
+  lateMultiplier: number;
+  extraLimit: number;
+  extraMultiplier: number;
+  breaks?: Break[];
 }
 
 const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
@@ -64,42 +65,44 @@ export default function ShiftsPage() {
   const [selectedEmployee, setSelectedEmployee] = useState('Select employee')
   const [selectedShift, setSelectedShift] = useState('Select shift')
   const [isOpen, setIsOpen] = useState(false)
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState(false)
    // const [errorName, setErrorName] = useState<string | null>(null);
   // const [newName, setNewName] = useState<string | null>(null);
 
 
-  const handleEditShift = async (shift: Shift) => {
-    console.log("in handle edit  shift")
-    console.log(shift._id)
-    const breaks = await fetchBreaksForShift(shift._id!);
-    console.log(breaks)
-  // Set the newShift state with the shift data and breaks
-  setNewShift({
-    ...shift,
-    breaks: breaks.data, // Populate breaks
-  });
-  console.log(newShift)
-    setIsEditing(true);
-    setIsOpen(true);
-  };
+
 
   // Fetch shifts from the API
   useEffect(() => { 
-    const fetchShi= async () => {
-      const data = await fetchShifts(institutionKey)
-      setShifts(data)
-      console.log("Shift data:" ,data);
+    const fetchShi = async () => {
+      try {
+        const data = await fetchShifts(institutionKey)
+        console.log('Raw shift data:', data)
+        // Sanitize data to ensure days is an array and map id
+        const sanitizedShifts = data.map((shift : Shift) => ({
+          ...shift,
+          id: shift.id, // Handle both cases if backend mixes id/id
+          days: Array.isArray(shift.days) ? shift.days : JSON.parse(shift.days || '[]'),
+          employees: shift.employees || [] // Ensure employees is always an array
+        }))
+        setShifts(sanitizedShifts)
+      } catch (error) {
+        console.error('Error fetching shifts:', error)
+      }
     }
     fetchShi()
+
     const fetchEmp = async () => {
-      const data = await fetchEmployees(institutionKey)
-      console.log(data)
-      setEmployees(data)
-      shifts.map(shift => shift.employees!.map(employee => console.log(employee.name)))
+      try {
+        const data = await fetchEmployees(institutionKey)
+        console.log('Raw employee data:', data)
+        setEmployees(data.map((emp: Employee) => ({ id: emp.id , name: emp.name })))
+      } catch (error) {
+        console.error('Error fetching employees:', error)
+      }
     }
     fetchEmp()
-  }, [])
+  }, [institutionKey])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setNewShift({ ...newShift, [e.target.name]: e.target.value })
@@ -118,213 +121,151 @@ export default function ShiftsPage() {
         : [...prev.days, day],
     }))
   }
-
   const addShift = async () => {
-    console.log(newShift);
-    if (newShift.name && newShift.startTime && newShift.endTime && newShift.days.length > 0) {
-      try {
-        // Step 1: Save the shift
-        const shiftResponse = await fetch(`${BaseURL}/shifts/`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            ...newShift,
-            employees: [], // Ensure employees are initialized as an empty array
-          }),
-        });
-  
-        if (!shiftResponse.ok) {
-          throw new Error('Failed to add shift');
-        }
-  
-        const shiftData = await shiftResponse.json();
-  
-        // Step 2: Save the breaks
-        if (newShift.breaks && newShift.breaks.length > 0) {
-          const breakPromises = newShift.breaks.map((breakItem) =>
-            fetch(`${BaseURL}/break/break-types`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                ...breakItem,
-                shiftId: shiftData._id, // Associate the break with the shift
-              }),
-            })
-          );
-  
-          const breakResponses = await Promise.all(breakPromises);
-          for (const response of breakResponses) {
-            if (!response.ok) {
-              toast.error('Failed to add break', {
-                autoClose: 1500 // duration in milliseconds
-              });
-              throw new Error('Failed to add break');
-            }
-          }
-        }
-  
-        // Update the shifts state with the new shift
-        setShifts([...shifts, shiftData]);
-  
-        // Reset the newShift state
-        setNewShift({
-          name: '',
-          startTime: '',
-          endTime: '',
-          days: [],
-          institutionKey: institutionKey,
-          lateLimit: 1,
-          lateMultiplier: 1,
-          extraLimit: 1,
-          extraMultiplier: 1,
-          breaks: [],
-        });
-  
-        // Close the dialog
-        setIsOpen(false);
-        toast.success('shift added successfully', {
-          autoClose: 1500 // duration in milliseconds
-        });
-      } catch (error) {
-        console.error('Error adding shift:', error);
-      }
-    } else {
-      console.error('Validation failed: Please fill all required fields.');
+    if (!newShift.name || !newShift.startTime || !newShift.endTime || newShift.days.length === 0) {
+      toast.error('Please fill all required fields')
+      return
     }
-  };
-  const updateShift = async () => {
-    if (newShift.name && newShift.startTime && newShift.endTime && newShift.days.length > 0) {
-      try {
-        // Step 1: Update the shift
-        const shiftResponse = await fetch(`${BaseURL}/shifts/${newShift._id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            ...newShift,
-            employees: newShift.employees || [], // Ensure employees are initialized
-          }),
-        });
-  
-        if (!shiftResponse.ok) {
-          toast.error('Failed to update shift', {
-            autoClose: 1500 // duration in milliseconds
-          });
-          throw new Error('Failed to update shift');
-          
-        }
-  
-        const shiftData = await shiftResponse.json();
-  
-         // Step 2: Handle breaks (update existing or create new ones)
+
+    try {
+      const shiftResponse = await fetch(`${BaseURL}/shifts/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newShift), // No need to set employees here
+      })
+
+      if (!shiftResponse.ok) {
+        const errorData = await shiftResponse.json()
+        throw new Error(errorData.message || 'Failed to add shift')
+      }
+
+      const shiftData = await shiftResponse.json()
+      console.log('Created shift:', shiftData)
+
+      // Handle breaks
       if (newShift.breaks && newShift.breaks.length > 0) {
-        const breakPromises = newShift.breaks.map((breakItem) => {
-          // If the break has an _id, it's an existing break that needs to be updated
-          if (!breakItem._id.startsWith('temp-')){
-            return fetch(`${BaseURL}/break/break-types/${breakItem._id}`, {
-              method: 'PUT',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                ...breakItem,
-                shiftId: newShift._id, // Ensure the break is associated with the shift
-              }),
-            });
-          } else {
-            // If the break doesn't have an _id, it's a new break that needs to be created
-            return fetch(`${BaseURL}/break/break-types`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                ...breakItem,
-                shiftId: newShift._id, // Associate the new break with the shift
-              }),
-            });
-          }
-        });
-
-          const breakResponses = await Promise.all(breakPromises);
-          for (const response of breakResponses) {
-            if (!response.ok) {
-              throw new Error('Failed to update break');
-            }
-          }
-        }
-  
-        // Update the shifts state with the updated shift
-        setShifts(shifts.map((shift) => (shift._id === shiftData._id ? shiftData : shift)));
-  
-        // Reset the newShift state
-        setNewShift({
-          name: '',
-          startTime: '',
-          endTime: '',
-          days: [],
-          institutionKey: institutionKey,
-          lateLimit: 1,
-          lateMultiplier: 1,
-          extraLimit: 1,
-          extraMultiplier: 1,
-          breaks: [],
-        });
-  
-        // Close the dialog and reset editing mode
-        setIsOpen(false);
-        setIsEditing(false);
-        // Reset the newShift state
-        setNewShift({
-          name: '',
-          startTime: '',
-          endTime: '',
-          days: [],
-          institutionKey: institutionKey,
-          lateLimit: 1,
-          lateMultiplier: 1,
-          extraLimit: 1,
-          extraMultiplier: 1,
-          breaks: [],
-        });
-        toast.success('shift updat successfully', {
-          autoClose: 1500 // duration in milliseconds
-        });
-      } catch (error) {
-        console.error('Error updating shift:', error);
+        const breakPromises = newShift.breaks.map(breakItem =>
+          fetch(`${BaseURL}/break/break-types`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ...breakItem, shiftId: shiftData.id })
+          })
+        )
+        await Promise.all(breakPromises)
       }
-    } else {
-      console.error('Validation failed: Please fill all required fields.');
+
+      setShifts([...shifts, { ...shiftData, employees: [] }])
+      resetNewShift()
+      setIsOpen(false)
+      toast.success('Shift added successfully', { autoClose: 1500 })
+    } catch (error) {
+      console.error('Error adding shift:', error)
+      toast.error(`Failed to add shift: ${error instanceof Error ? error.message : 'Unknown error'}`, { autoClose: 1500 })
     }
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (isEditing) {
-      // Call your update function here
-      updateShift();
-      
-    } else {
-      // Call your add function here
-      addShift();
+  }
+  const updateShift = async () => {
+    if (!newShift.id || !newShift.name || !newShift.startTime || !newShift.endTime || newShift.days.length === 0) {
+      toast.error('Please fill all required fields')
+      return
     }
 
-      // Reset the newShift state to its initial values
-  setNewShift({
-    name: '',
-    startTime: '',
-    endTime: '',
-    days: [],
-    institutionKey: institutionKey,
-    lateLimit: 1,
-    lateMultiplier: 1,
-    extraLimit: 1,
-    extraMultiplier: 1,
-    breaks: [],
-  });
-    setIsOpen(false);
-    setIsEditing(false);
-   
-  };
+    try {
+      const shiftResponse = await fetch(`${BaseURL}/shifts/${newShift.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newShift),
+      })
 
+      if (!shiftResponse.ok) {
+        const errorData = await shiftResponse.json()
+        throw new Error(errorData.message || 'Failed to update shift')
+      }
+
+      const shiftData = await shiftResponse.json()
+      console.log('Updated shift:', shiftData)
+
+      // Handle breaks (similar to addShift)
+      if (newShift.breaks && newShift.breaks.length > 0) {
+        const breakPromises = newShift.breaks.map(breakItem =>
+          breakItem.id && !breakItem.id.startsWith('temp-')
+            ? fetch(`${BaseURL}/break/break-types/${breakItem.id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ...breakItem, shiftId: newShift.id })
+              })
+            : fetch(`${BaseURL}/break/break-types`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ...breakItem, shiftId: newShift.id })
+              })
+        )
+        await Promise.all(breakPromises)
+      }
+
+      setShifts(shifts.map(shift => shift.id === shiftData.id ? { ...shiftData, employees: shift.employees || [] } : shift))
+      resetNewShift()
+      setIsOpen(false)
+      setIsEditing(false)
+      toast.success('Shift updated successfully', { autoClose: 1500 })
+    } catch (error) {
+      console.error('Error updating shift:', error)
+      toast.error(`Failed to update shift: ${error instanceof Error ? error.message : 'Unknown error'}`, { autoClose: 1500 })
+    }
+  }
+  // const handleSubmit = (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   if (isEditing) {
+  //     updateShift();
+  //   } else {
+  //     addShift();
+  //   }
+
+  //   // Reset the newShift state to its initial values
+  //   setNewShift({
+  //     name: '',
+  //     startTime: '',
+  //     endTime: '',
+  //     days: [],
+  //     institutionKey: institutionKey,
+  //     lateLimit: 1,
+  //     lateMultiplier: 1,
+  //     extraLimit: 1,
+  //     extraMultiplier: 1,
+  //     breaks: [],
+  //   });
+  //   setIsOpen(false);
+  //   setIsEditing(false);
+  // };
+  const resetNewShift = () => {
+    setNewShift({
+      name: '',
+      startTime: '',
+      endTime: '',
+      days: [],
+      institutionKey: institutionKey,
+      lateLimit: 1,
+      lateMultiplier: 1,
+      extraLimit: 1,
+      extraMultiplier: 1,
+      breaks: [],
+    })
+  }
+  const handleEditShift = async (shift: Shift) => {
+    const breaks = await fetchBreaksForShift(shift.id!)
+    setNewShift({ ...shift, breaks: breaks.data })
+    setIsEditing(true)
+    setIsOpen(true)
+  }
   const deleteShift = async (id: string) => {
-    await fetch(`${BaseURL}/shifts/${id}`, { method: 'DELETE' })
-    setShifts(shifts.filter(shift => shift._id !== id))
+    try {
+      const response = await fetch(`${BaseURL}/shifts/${id}`, { method: 'DELETE' })
+      if (!response.ok) throw new Error('Failed to delete shift')
+      setShifts(shifts.filter(shift => shift.id !== id))
+      toast.success('Shift deleted successfully', { autoClose: 1500 })
+    } catch (error) {
+      console.error('Error deleting shift:', error)
+      toast.error('Failed to delete shift', { autoClose: 1500 })
+    }
   }
   // Function to delete a break from the backend
   const deleteBreak = async (breakId: string) => {
@@ -347,37 +288,26 @@ export default function ShiftsPage() {
       return false;
     }
   };
-  // const addEmployee = async () => {
-  //   if (newEmployee) {
-  //     const response = await fetch('/api/employees', {
-  //       method: 'POST',
-  //       headers: { 'Content-Type': 'application/json' },
-  //       body: JSON.stringify({ name: newEmployee }),
-  //     })
-  //     const data = await response.json()
-  //     setEmployees([...employees, data])
-  //     setNewEmployee('')
-  //   }
-  // }
 
   const assignEmployee = async () => {
-    if (selectedEmployee && selectedShift) {
-      const id = selectedShift;
-      const response = await fetch(`${BaseURL}/shifts/${id}/assign`, {
+    if (selectedEmployee === 'Select employee' || selectedShift === 'Select shift') return
+    try {
+      const response = await fetch(`${BaseURL}/shifts/${selectedShift}/assign`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ employeeId: selectedEmployee }),
       })
+      if (!response.ok) throw new Error('Failed to assign employee')
       const data = await response.json()
-      
-      setShifts(shifts.map(shift => shift._id === data._id ? data : shift))
-      shifts.map(shift => shift.employees!.map(employee => console.log(employee.name))
-      )
+      setShifts(shifts.map(shift => shift.id === data.id ? data : shift))
       setSelectedEmployee('Select employee')
       setSelectedShift('Select shift')
+      toast.success('Employee assigned successfully', { autoClose: 1500 })
+    } catch (error) {
+      console.error('Error assigning employee:', error)
+      toast.error('Failed to assign employee', { autoClose: 1500 })
     }
   }
-
   const removeEmployeeFromShift = async (shiftId: string, employeeId: string) => {
     console.log(employeeId)
     const response = await fetch(`${BaseURL}/shifts/${shiftId}/remove`, {
@@ -387,9 +317,8 @@ export default function ShiftsPage() {
     })
     const data = await response.json()
     console.log("in remove employee: ",data)
-    setShifts(shifts.map(shift => shift._id === data._id ? data : shift))
+    setShifts(shifts.map(shift => shift.id === data.id ? data : shift))
   }
-
   const moveEmployee = async (fromShiftId: string, toShiftId: string, employeeId: string) => {
     console.log(fromShiftId,toShiftId,employeeId)
     const response = await fetch(`${BaseURL}/shifts/${fromShiftId}/move`, {
@@ -398,7 +327,7 @@ export default function ShiftsPage() {
       body: JSON.stringify({ toShiftId, employeeId }),
     })
     const data = await response.json()
-    setShifts(shifts.map(shift => shift._id === data._id ? data : shift))
+    setShifts(shifts.map(shift => shift.id === data.id ? data : shift))
   }
   const fetchBreaksForShift = async (shiftId : string) => {
     try {
@@ -420,33 +349,26 @@ export default function ShiftsPage() {
     <div className="container mx-auto p-4">
       <ToastContainer />
       <div className='flex justify-between'>
-      <h1 className="text-2xl font-bold mb-4">Shift Management</h1>
-      <Button type="button" onClick={() => {
-        setNewShift({
-      name: '',
-      startTime: '',
-      endTime: '',
-      days: [],
-      institutionKey: institutionKey,
-      lateLimit: 1,
-      lateMultiplier: 1,
-      extraLimit: 1,
-      extraMultiplier: 1,
-      breaks: [],
-    }); 
-    setIsOpen(true) }}>
-        <PlusCircle className="mr-2 h-4 w-4" />
-        Add Shift
-      </Button>
+        <h1 className="text-2xl font-bold mb-4">Shift Management</h1>
+        <Button type="button" onClick={() => { resetNewShift(); setIsOpen(true) }}>
+          <PlusCircle className="mr-2 h-4 w-4" />
+          Add Shift
+        </Button>
       </div>
        {/* Dialog for Adding and Editing Shifts */}
        <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogContent className="p-6 bg-gray-100 rounded-lg">
-        <DialogHeader>
-          <DialogTitle className="text-xl font-semibold">{isEditing ? "Edit Current Shift":"Add New Shift"}</DialogTitle>
-        </DialogHeader>
-        
-        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <DialogContent className="p-6 bg-gray-100 rounded-lg">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-semibold">{isEditing ? "Edit Current Shift" : "Add New Shift"}</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={(e) => { 
+            e.preventDefault();
+            if (isEditing) {
+              updateShift();
+            } else {
+              addShift();
+            }
+          }} className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* First row with single column */}
           <div className="md:col-span-2">
             <Label htmlFor="name">Shift Name</Label>
@@ -551,7 +473,7 @@ export default function ShiftsPage() {
               <legend className="text-sm font-medium text-gray-700">Breaks</legend>
               <div className="mt-2 space-y-2">
           {newShift.breaks?.map((breakItem, index) => (
-            <div key={breakItem._id} className="flex items-center gap-2">
+            <div key={breakItem.id} className="flex items-center gap-2">
            
 
            <Input
@@ -594,7 +516,7 @@ export default function ShiftsPage() {
                       variant="destructive"
                       size="sm"
                       onClick={async () => {
-                        const breakId = newShift.breaks![index]._id;
+                        const breakId = newShift.breaks![index].id;
                     
                         // Call the API to delete the break
                         const isDeleted = await deleteBreak(breakId);
@@ -621,7 +543,7 @@ export default function ShiftsPage() {
                       setNewShift({
                         ...newShift,
                         breaks: [...(newShift.breaks || []), {
-                          _id: `temp-${Date.now()}`,
+                          id: `temp-${Date.now()}`,
                           name: '', 
                           duration: 0 
                         }],
@@ -659,25 +581,17 @@ export default function ShiftsPage() {
       </Dialog>
       <div className="mb-8">
         <h2 className="text-xl font-semibold mb-4">Manage Employees</h2>
-        {/* <div className="flex gap-2 mb-4">
-          <Input
-            placeholder="New employee name"
-            value={newEmployee}
-            onChange={(e) => setNewEmployee(e.target.value)}
-          />
-          <Button onClick={addEmployee}>Add Employee</Button>
-        </div> */}
         <div className="flex gap-2">
           {/* select employee */}
           <Select value={selectedEmployee} onValueChange={setSelectedEmployee}>
             <SelectTrigger className="w-[200px]">
               <SelectValue>
-              {selectedEmployee === "Select employee" ? "Select employee" : employees.find(employee => employee._id === selectedEmployee)?.name  }
+              {selectedEmployee === "Select employee" ? "Select employee" : employees.find(employee => employee.id === selectedEmployee)?.name  }
               </SelectValue>
             </SelectTrigger>
             <SelectContent>
               {employees.map(employee => (
-                <SelectItem key={employee._id} value={employee._id}>
+                <SelectItem key={employee.id} value={employee.id}>
                   {employee.name}
                 </SelectItem>
               ))}
@@ -687,12 +601,12 @@ export default function ShiftsPage() {
           <Select value={selectedShift} onValueChange={setSelectedShift}>
             <SelectTrigger className="w-[200px]">
               <SelectValue>
-                {selectedShift != "Select shift" ? shifts.find(shift => shift._id === selectedShift)?.name : "Select shift"}
+                {selectedShift != "Select shift" ? shifts.find(shift => shift.id === selectedShift)?.name : "Select shift"}
                 </SelectValue>
             </SelectTrigger>
             <SelectContent>
               {shifts.map(shift => (
-                <SelectItem key={shift._id} value={shift._id!}>
+                <SelectItem key={shift.id} value={shift.id!}>
                   {shift.name}
                 </SelectItem>
               ))}
@@ -712,7 +626,7 @@ export default function ShiftsPage() {
         ) : (
           <ul className="space-y-4">
             {shifts.map(shift => (
-              <li key={shift._id} className="bg-white p-4 rounded-lg shadow">
+              <li key={shift.id} className="bg-white p-4 rounded-lg shadow">
                 <div className="flex justify-between items-start mb-4">
                   <div>
                     <h3 className="text-lg font-medium">{shift.name}</h3>
@@ -735,7 +649,7 @@ export default function ShiftsPage() {
                   <Button
                     variant="destructive"
                     size="icon"
-                    onClick={() => deleteShift(shift._id!)}
+                    onClick={() => deleteShift(shift.id!)}
                     aria-label={`Delete ${shift.name}`}
                   >
                     <Trash2 className="h-4 w-4" />
@@ -744,15 +658,15 @@ export default function ShiftsPage() {
                 </div>
                 <div>
                   <h4 className="text-md font-medium mb-2">Assigned Employees:</h4>
-                  {shift.employees!.length === 0 ? (
+                  {(!shift.employees || shift.employees.length === 0) ? (
                     <p className="text-sm text-gray-500">No employees assigned</p>
                   ) : (
                     <ul className="space-y-2">
                       
-                      {shift.employees!.map(employee => (
+                      {shift.employees.map(employee => (
                         
                         <>
-                        <li key={employee._id} className="flex items-center justify-between bg-gray-100 p-2 rounded">
+                        <li key={employee.id} className="flex items-center justify-between bg-gray-100 p-2 rounded">
                           <span>{employee.name}</span>
                           <div className="flex gap-2">
                             <Dialog>
@@ -766,13 +680,13 @@ export default function ShiftsPage() {
                                 <DialogHeader>
                                   <DialogTitle>Move Employee to Another Shift</DialogTitle>
                                 </DialogHeader>
-                                <Select onValueChange={(value) => moveEmployee(shift._id!, value, employee._id)}>
+                                <Select onValueChange={(value) => moveEmployee(shift.id!, value, employee.id)}>
                                   <SelectTrigger className="w-full">
                                     <SelectValue placeholder="Select shift" />
                                   </SelectTrigger>
                                   <SelectContent>
-                                    {shifts.filter(s => s._id !== shift._id).map(s => (
-                                      <SelectItem key={s._id} value={s._id!}>{s.name}</SelectItem>
+                                    {shifts.filter(s => s.id !== shift.id).map(s => (
+                                      <SelectItem key={s.id} value={s.id!}>{s.name}</SelectItem>
                                     ))}
                                   </SelectContent>
                                 </Select>
@@ -782,7 +696,7 @@ export default function ShiftsPage() {
                             <Button
                               variant="destructive"
                               size="sm"
-                              onClick={() => removeEmployeeFromShift(shift._id!, employee._id)}
+                              onClick={() => removeEmployeeFromShift(shift.id!, employee.id)}
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>
