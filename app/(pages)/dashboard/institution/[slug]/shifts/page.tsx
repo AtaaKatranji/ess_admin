@@ -89,6 +89,7 @@ export default function ShiftsPage() {
     const fetchShi= async () => {
       const data = await fetchShifts(institutionKey)
       setShifts(data)
+      console.log("Shift data:" ,data);
     }
     fetchShi()
     const fetchEmp = async () => {
@@ -719,7 +720,7 @@ export default function ShiftsPage() {
                       {shift.startTime} - {shift.endTime}
                     </p>
                     <p className="text-sm text-gray-500">
-                      {shift.days.join(', ')}
+                      {Array.isArray(shift.days) ? shift.days.join(', ') : 'No days assigned'}
                     </p>
                     
                   </div>
