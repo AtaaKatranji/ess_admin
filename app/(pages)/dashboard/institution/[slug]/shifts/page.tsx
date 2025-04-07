@@ -170,6 +170,7 @@ export default function ShiftsPage() {
     }
 
     try {
+      console.log('Sending update data:', JSON.stringify(newShift)); // Log what’s sent
       const shiftResponse = await fetch(`${BaseURL}/shifts/${newShift.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -182,8 +183,14 @@ export default function ShiftsPage() {
       }
 
       const shiftData = await shiftResponse.json()
-      console.log('Updated shift:', shiftData)
+      console.log('Received updated shift:', shiftData);
 
+      // Ensure days is an array
+      const sanitizedShift = {
+        ...shiftData,
+        days: Array.isArray(shiftData.days) ? shiftData.days : JSON.parse(shiftData.days || '[]'),
+        employees: shiftData.employees || [],
+    };
       // Handle breaks (similar to addShift)
       if (newShift.breaks && newShift.breaks.length > 0) {
         const breakPromises = newShift.breaks.map(breakItem =>
@@ -202,7 +209,11 @@ export default function ShiftsPage() {
         await Promise.all(breakPromises)
       }
 
-      setShifts(shifts.map(shift => shift.id === shiftData.id ? { ...shiftData, employees: shift.employees || [] } : shift))
+      setShifts(prevShifts => {
+        const newShifts = prevShifts.map(shift => shift.id === sanitizedShift.id ? sanitizedShift : shift);
+        console.log('Updated shifts:', newShifts);
+        return newShifts;
+    });
       resetNewShift()
       setIsOpen(false)
       setIsEditing(false)
@@ -634,7 +645,7 @@ export default function ShiftsPage() {
                       {shift.startTime} - {shift.endTime}
                     </p>
                     <p className="text-sm text-gray-500">
-                      {Array.isArray(shift.days) ? shift.days.join(', ') : 'No days assigned'}
+                    {Array.isArray(shift.days) && shift.days.length > 0 ? shift.days.join(', ') : 'No days assigned'}
                     </p>
                     
                   </div>
