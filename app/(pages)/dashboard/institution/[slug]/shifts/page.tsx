@@ -119,6 +119,7 @@ export default function ShiftsPage() {
   }
 
   const addShift = async () => {
+    console.log(newShift);
     if (newShift.name && newShift.startTime && newShift.endTime && newShift.days.length > 0) {
       try {
         // Step 1: Save the shift

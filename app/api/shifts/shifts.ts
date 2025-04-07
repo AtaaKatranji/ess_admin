@@ -3,12 +3,13 @@ const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
 
 export const fetchShifts = async (institutionKey: string) => {
   try {
-    const response = await fetch(`${BaseUrl}/shifts/institution`, {
-      method: 'POST',
+    const response = await fetch(`${BaseUrl}/shifts/institution?institutionKey=${institutionKey}`, {
+      
+      method: 'GET',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ institutionKey }), // Wrap in an object
+      //body: JSON.stringify({ institutionKey }), // Wrap in an object
     });
 
     if (!response.ok) {
