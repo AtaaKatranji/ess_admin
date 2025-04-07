@@ -30,7 +30,7 @@ interface Employee {
   totalHours: number;
 }
 interface Shift {
-  _id: string;
+  id: string;
   days: string[];
   startTime: string;
   endTime: string;
@@ -81,7 +81,7 @@ const OverviewPage = () => {
       if (!selectedShift) return; // Ensure selectedShift is defined
       try {
         console.log(selectedShift)
-        const shiftId = selectedShift._id; // Get the actual shift ID
+        const shiftId = selectedShift.id; // Get the actual shift ID
         const data = await fetchCheckInOutData(shiftId);
         setEmployees(data);
       } catch (error) {
@@ -107,7 +107,7 @@ const OverviewPage = () => {
         </DropdownMenuTrigger>
         <DropdownMenuContent>
           {shifts.map((shift) => (
-            <DropdownMenuItem key={shift._id} onSelect={() => setSelectedShift(shift)}>
+            <DropdownMenuItem key={shift.id} onSelect={() => setSelectedShift(shift)}>
               {shift.name}
             </DropdownMenuItem>
             
