@@ -27,7 +27,7 @@ interface Employee {
   loggedIn: boolean;
   checkIn: string;
   checkOut: string;
-  totalHours: number;
+  totalHours: string; // Changed to string to match backend formatting
 }
 interface Shift {
   id: string;
@@ -42,18 +42,18 @@ interface Shift {
   extraMultiplier: number;
   extraLimit: number;
 }
+interface ApiResponse {
+  message?: string;
+  data: Employee[];
+}
 
 const OverviewPage = () => {
-  //const { slug } = useParams();
-  //const institutionKey = "";
-
   const { institutionKey } = useInstitution();
-
-
   const [shifts, setShifts] = useState<Shift[]>([]);
-  const [selectedShift, setSelectedShift] = useState<Shift>(); // Start as undefined
+  const [selectedShift, setSelectedShift] = useState<Shift | undefined>(); // Start as undefined
   const [viewMode, setViewMode] = useState('daily');
-  const [employees, setEmployees] = useState([]);
+  const [attendanceData, setAttendanceData] = useState<ApiResponse>({ data: [], message: '' });
+  //const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
     const fetchAndSetShifts = async () => {
@@ -66,26 +66,26 @@ const OverviewPage = () => {
         setShifts(data);
         if (data.length > 0) {
           setSelectedShift(data[0]);
-          console.log(selectedShift) // Set the first shift name as the default selectedShift
         }
       } catch (err) {
         console.error("Error fetching shifts:", err);
       }
     };
     fetchAndSetShifts();
-  }, []);
+  }, [institutionKey]);
   
   useEffect(() => {
     const fetchData = async () => {
-      console.log(selectedShift)
+      
       if (!selectedShift) return; // Ensure selectedShift is defined
+      setLoading(true);
       try {
-        console.log(selectedShift)
         const shiftId = selectedShift.id; // Get the actual shift ID
         const data = await fetchCheckInOutData(shiftId);
-        setEmployees(data);
+        setAttendanceData(data);
       } catch (error) {
         console.error('Error fetching check-in/out data:', error);
+        setAttendanceData({ message: 'Error loading data', data: [] });
       } finally {
         setLoading(false);
       }
@@ -132,7 +132,7 @@ const OverviewPage = () => {
             <CardTitle>Attendance Status</CardTitle>
           </CardHeader>
           <CardContent>
-            <AttendanceStatus employees={employees} loading={loading} />
+            <AttendanceStatus response={attendanceData} loading={loading} />
           </CardContent>
         </Card>
 
@@ -151,10 +151,10 @@ const OverviewPage = () => {
                 <TabsTrigger value="weekly">Weekly View</TabsTrigger>
               </TabsList>
               <TabsContent value="daily">
-                <DailyTimeSheet employees={employees} />
+                <DailyTimeSheet employees={attendanceData.data} />
               </TabsContent>
               <TabsContent value="weekly">
-                <WeeklyTimeSheet employees={employees} />
+                <WeeklyTimeSheet employees={attendanceData.data} />
               </TabsContent>
             </Tabs>
           </CardContent>
@@ -165,65 +165,71 @@ const OverviewPage = () => {
 };
 
 
-function AttendanceStatus({ employees, loading }: { employees: Employee[],loading :boolean }) {
-  const loggedInEmployees = employees.filter(e => e.loggedIn)
-  const notLoggedInEmployees = employees.filter(e => !e.loggedIn)
-  console.log(employees)
+function AttendanceStatus({ response, loading }: { response: ApiResponse, loading: boolean }) {
+  const { data: employees, message } = response;
+  const loggedInEmployees = employees.filter(e => e.loggedIn);
+  const notLoggedInEmployees = employees.filter(e => !e.loggedIn);
+
   return (
     <div className="space-y-4">
-      <div>
-        <h3 className="font-semibold mb-2">Logged In</h3>
-        
-            <div>
-          {loading ? (
-            <div className="flex items-center justify-center h-40">
-              <div className="loader"></div> {/* Add your loader component or CSS */}
-              <p>Loading...</p>
-            </div>
-          ) : (
-            <ul className="space-y-2">
-              {loggedInEmployees.map(employee => (
-                <li key={employee.id} className="flex items-center space-x-2">
-                  <div
-                className={`w-8 h-8 rounded-full flex items-center justify-center relative ${
-                  employee.onLeave
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-gray-200 text-black'
-                }`}
-              >
-                    <span className="text-xs font-semibold">{employee.name.charAt(0)}</span>
-                    <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></span>
-                  </div>
-                  <span>{employee.name}</span>
-                </li>
-              ))}
-            </ul>
-          )}
+      {loading ? (
+        <div className="flex items-center justify-center h-40">
+          <div className="loader"></div>
+          <p>Loading...</p>
         </div>
-      </div>
- 
-      <div>
-        <h3 className="font-semibold mb-2">Not Logged In</h3>
-        <ul className="space-y-2">
-          {notLoggedInEmployees.map(employee => (
-            <li key={employee.id} className="flex items-center space-x-2">
-              <div
-                className={`w-8 h-8 rounded-full flex items-center justify-center relative ${
-                  employee.onLeave
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-gray-200 text-black'
-                }`}
-              >
-                <span className="text-xs font-semibold">{employee.name.charAt(0)}</span>
-                <span className="absolute bottom-0 right-0 w-3 h-3 bg-gray-400 rounded-full border-2 border-white"></span>
+      ) : (
+        <>
+          {message && (
+            <p className="text-sm text-gray-600 italic mb-2">{message}</p>
+          )}
+          {employees.length > 0 && (
+            <>
+              <div>
+                <h3 className="font-semibold mb-2">Logged In</h3>
+                <ul className="space-y-2">
+                  {loggedInEmployees.map(employee => (
+                    <li key={employee.id} className="flex items-center space-x-2">
+                      <div
+                        className={`w-8 h-8 rounded-full flex items-center justify-center relative ${
+                          employee.onLeave
+                            ? 'bg-blue-500 text-white'
+                            : 'bg-gray-200 text-black'
+                        }`}
+                      >
+                        <span className="text-xs font-semibold">{employee.name.charAt(0)}</span>
+                        <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></span>
+                      </div>
+                      <span>{employee.name}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
-              <span>{employee.name}</span>
-            </li>
-          ))}
-        </ul>
-      </div>
+              <div>
+                <h3 className="font-semibold mb-2">Not Logged In</h3>
+                <ul className="space-y-2">
+                  {notLoggedInEmployees.map(employee => (
+                    <li key={employee.id} className="flex items-center space-x-2">
+                      <div
+                        className={`w-8 h-8 rounded-full flex items-center justify-center relative ${
+                          employee.onLeave
+                            ? 'bg-blue-500 text-white'
+                            : 'bg-gray-200 text-black'
+                        }`}
+                      >
+                        <span className="text-xs font-semibold">{employee.name.charAt(0)}</span>
+                        <span className="absolute bottom-0 right-0 w-3 h-3 bg-gray-400 rounded-full border-2 border-white"></span>
+                      </div>
+                      <span>{employee.name}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </>
+          )}
+        </>
+      )}
     </div>
-  )
+  );
 }
 
 function DailyTimeSheet({ employees }: { employees: Employee[] }) {
@@ -239,20 +245,27 @@ function DailyTimeSheet({ employees }: { employees: Employee[] }) {
           </tr>
         </thead>
         <tbody>
-          {employees.map(employee => (
-            <tr key={employee.id} className="border-b">
-              <td className="py-2">{employee.name}</td>
-              <td className="py-2">{employee.checkIn}</td>
-              <td className="py-2">{employee.checkOut}</td>
-              <td className="py-2">{employee.totalHours}</td>
+        {employees.length > 0 ? (
+            employees.map(employee => (
+              <tr key={employee.id} className="border-b">
+                <td className="py-2">{employee.name}</td>
+                <td className="py-2">{employee.checkIn}</td>
+                <td className="py-2">{employee.checkOut}</td>
+                <td className="py-2">{employee.totalHours}</td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan={4} className="py-4 text-center text-gray-500">
+                No employee data available
+              </td>
             </tr>
-          ))}
+          )}
         </tbody>
       </table>
     </div>
-  )
+  );
 }
-
 function WeeklyTimeSheet({ employees }: { employees: Employee[] }) {
   const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
@@ -268,21 +281,29 @@ function WeeklyTimeSheet({ employees }: { employees: Employee[] }) {
           </tr>
         </thead>
         <tbody>
-          {employees.map(employee => (
-            <tr key={employee.id} className="border-b">
-              <td className="py-2">{employee.name}</td>
-              {days.map(day => (
-                <td key={day} className="py-2">
-                  <div className="text-xs">{employee.checkIn} - {employee.checkOut}</div>
-                  <div className="font-semibold">{employee.totalHours}h</div>
-                </td>
-              ))}
+        {employees.length > 0 ? (
+            employees.map(employee => (
+              <tr key={employee.id} className="border-b">
+                <td className="py-2">{employee.name}</td>
+                {days.map(day => (
+                  <td key={day} className="py-2">
+                    <div className="text-xs">{employee.checkIn} - {employee.checkOut}</div>
+                    <div className="font-semibold">{employee.totalHours}h</div>
+                  </td>
+                ))}
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan={8} className="py-4 text-center text-gray-500">
+                No employee data available
+              </td>
             </tr>
-          ))}
+          )}
         </tbody>
       </table>
     </div>
-  )
+  );
 }
 
 
