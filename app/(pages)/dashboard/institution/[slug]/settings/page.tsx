@@ -53,9 +53,19 @@ const SettingsPage: React.FC = () => {
       try {
         const data = await fetchInstitution(slug!.toString());
         console.log('Fetched institution data:', data);
+        let parsedMacAddresses = [];
+        if (typeof data.macAddresses === 'string') {
+          try {
+            parsedMacAddresses = JSON.parse(data.macAddresses);
+          } catch (e) {
+            console.error('Error parsing macAddresses:', e);
+          }
+        } else if (Array.isArray(data.macAddresses)) {
+          parsedMacAddresses = data.macAddresses;
+        }
         setInstitutionInfo({
           ...data,
-          macAddresses: Array.isArray(data.macAddresses) ? data.macAddresses : [], // Normalize
+          macAddresses: parsedMacAddresses,
         });
         setInitialName(data.name);
       } catch (error) {

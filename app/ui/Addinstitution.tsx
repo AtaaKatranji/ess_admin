@@ -80,9 +80,9 @@ const AddInstitutionDialog: React.FC<AddInstitutionDialogProps> = ({ onSuccess }
 
       if (response.ok) {
         await response.json();
-        setIsModalOpen(false); // Close the modal on success
-        onSuccessA(); 
-        onSuccess?.(); // Optional success callback
+        setIsModalOpen(false);
+        onSuccessA();
+        onSuccess?.();// Optional success callback
       } else {
         toast.error(`Error adding institution: ${response.statusText}`);
       }
