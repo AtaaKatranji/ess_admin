@@ -105,63 +105,83 @@ const SettingsPage: React.FC = () => {
 
   const handleAddSSID = async () => {
     if (newSSID && newMacAddress) {
-      // Create a new SSID entry
-      const newSS  = {
-        // Change 'id' to '_id'
+      const newSS = {
         wifiName: newSSID,
         macAddress: newMacAddress,
       };
   
-      // Update the institutionInfo state with the new MAC address
+      // Optimistically update the state
       setInstitutionInfo((prevInfo) => ({
         ...prevInfo,
-        macAddresses: [...prevInfo.macAddresses, newSS], // Correctly update macAddresses
+        macAddresses: [...prevInfo.macAddresses, newSS],
       }));
   
       try {
-        // Call the API to update the institution
-        const data = await updatedInstitutionInfo({ 
-          ...institutionInfo, 
-          macAddresses: [...institutionInfo.macAddresses, newSS], // Send updated macAddresses in API call
-        }, institutionInfo.slug);
+        const data = await updatedInstitutionInfo(
+          {
+            ...institutionInfo,
+            macAddresses: [...institutionInfo.macAddresses, newSS],
+          },
+          institutionInfo.slug
+        );
   
         if (data) {
-          // Success: Display success message and update institution info in state
           toast.success(`Institution updated successfully.`);
-          setInstitutionInfo(data); // Update state with the response from API
+          // Parse macAddresses if it’s a string, otherwise use it or default to []
+          const parsedMacAddresses = typeof data.macAddresses === 'string'
+            ? JSON.parse(data.macAddresses)
+            : Array.isArray(data.macAddresses)
+            ? data.macAddresses
+            : [];
+          setInstitutionInfo({ ...data, macAddresses: parsedMacAddresses });
         } else {
-          // Handle error response
           toast.error(`Failed to update institution.`);
           setErrorName('Failed to update institution.');
+          // Optionally revert optimistic update on failure
+          setInstitutionInfo((prevInfo) => ({
+            ...prevInfo,
+            macAddresses: prevInfo.macAddresses.filter(
+              (ssid) => ssid.macAddress !== newSS.macAddress
+            ),
+          }));
         }
       } catch (error) {
-        console.error('Error updating institution:', (error as Error).message );
+        console.error('Error updating institution:', (error as Error).message);
         setErrorName('An error occurred while saving. Please try again.');
+        // Revert optimistic update on error
+        setInstitutionInfo((prevInfo) => ({
+          ...prevInfo,
+          macAddresses: prevInfo.macAddresses.filter(
+            (ssid) => ssid.macAddress !== newSS.macAddress
+          ),
+        }));
       }
   
-      // Clear input fields after adding
+      // Clear input fields
       setNewSSID('');
       setNewMacAddress('');
     }
   };
   
-
   const handleDeleteSSID = async (id: string) => {
     if (institutionInfo.macAddresses.length === 1) {
       toast.error("You must have at least one Wi-Fi network before deleting.");
       return;
     }
   
-    // Update the local state by filtering out the SSID with the given id
+    // Store the original macAddresses for rollback in case of failure
+    const originalMacAddresses = [...institutionInfo.macAddresses];
+  
+    // Optimistically update the local state
     setInstitutionInfo((prevInfo) => ({
       ...prevInfo,
-      macAddresses: prevInfo.macAddresses.filter((ssid) => ssid.macAddress !== id), // Update macAddresses
+      macAddresses: prevInfo.macAddresses.filter((ssid) => ssid.macAddress !== id),
     }));
   
     // Prepare updated institution data
     const updatedInfo = {
       ...institutionInfo,
-      macAddresses: institutionInfo.macAddresses.filter((ssid) => ssid.macAddress !== id), // Filtered list
+      macAddresses: institutionInfo.macAddresses.filter((ssid) => ssid.macAddress !== id),
     };
   
     try {
@@ -169,20 +189,34 @@ const SettingsPage: React.FC = () => {
       const data = await updatedInstitutionInfo(updatedInfo, institutionInfo.slug);
   
       if (data) {
-        // Success: Display success message and update institution info in state
+        // Success: Parse macAddresses and update state
         toast.success(`Institution updated successfully.`);
-        setInstitutionInfo(data); // Update state with the response from API
+        const parsedMacAddresses = typeof data.macAddresses === 'string'
+          ? JSON.parse(data.macAddresses)
+          : Array.isArray(data.macAddresses)
+          ? data.macAddresses
+          : [];
+        setInstitutionInfo({ ...data, macAddresses: parsedMacAddresses });
       } else {
         // Handle error response
         toast.error("Failed to update institution.");
         setErrorName("Failed to update institution.");
+        // Revert optimistic update
+        setInstitutionInfo((prevInfo) => ({
+          ...prevInfo,
+          macAddresses: originalMacAddresses,
+        }));
       }
     } catch (error) {
       console.error('Error updating institution:', (error as Error).message);
       setErrorName('An error occurred while saving. Please try again.');
+      // Revert optimistic update on error
+      setInstitutionInfo((prevInfo) => ({
+        ...prevInfo,
+        macAddresses: originalMacAddresses,
+      }));
     }
   };
-  
 
   const handleGenerateNewKey = () => {
     
