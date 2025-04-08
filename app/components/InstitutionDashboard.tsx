@@ -23,6 +23,7 @@ interface SSIDInfo {
 
 interface Institution {
   name: string;
+  adminId: string;
   address: string;
   uniqueKey: string;
   macAddresses: SSIDInfo[];
@@ -37,9 +38,10 @@ const InstitutionDashboard: React.FC = () => {
 
   const [activeSection, setActiveSection] = useState('overview');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [institution, setInstitution] = useState<Institution>({
+  const [isloading, setIsLoading] = useState(true);
+  const [institutionInfo, setInstitutionInfo] = useState<Institution>({
     name: '',
+    adminId: '',
     address: '',
     uniqueKey: '',
     macAddresses: [],
@@ -50,7 +52,7 @@ const InstitutionDashboard: React.FC = () => {
   const handleNavigation = (section: string) => {
     setActiveSection(section);
     console.log(
-      "before pass it : ",institution.uniqueKey
+      "before pass it : ",institutionInfo.uniqueKey
     );
       router.push(`/dashboard/institution/${slug}/${section}`);
 
@@ -58,9 +60,13 @@ const InstitutionDashboard: React.FC = () => {
     setIsSidebarOpen(false);
   };
 
-  const handleLogout = () => {
-    toast.info(`Logging out from institution ${slug}`);
-    router.push('/dashboard');
+  const handleExitInstitution = () => {
+    setIsLoading(true);
+    toast.info(`Exiting institution ${slug}`);
+    setTimeout(() => {
+      router.push(`/dashboard?adminId=${institutionInfo.adminId}`);
+      setIsLoading(false);
+    }, 1500);
   };
 
   const toggleSidebar = () => {
@@ -90,7 +96,7 @@ const InstitutionDashboard: React.FC = () => {
 
   useEffect(() => {
     const fetchInstitutionData = async () => {
-        setLoading(true)
+      setIsLoading(true)
       try {
         if (!slug) return;
 
@@ -99,9 +105,9 @@ const InstitutionDashboard: React.FC = () => {
         if (institution && institution.uniqueKey) {
           // Set the institution key in the context
           setInstitutionKey(institution.uniqueKey);
-          setInstitution(institution);
+          setInstitutionInfo(institution);
         }
-        setLoading(false)
+        setIsLoading(false)
       } catch (error) {
         console.error('Error fetching institution data:', error);
       }
@@ -110,7 +116,7 @@ const InstitutionDashboard: React.FC = () => {
     fetchInstitutionData();
   }, [slug, setInstitutionKey]);
 
-  if (loading) {
+  if (isloading) {
     return (
       <div className="h-screen flex items-center justify-center">
         {/* Loading Spinner */}
@@ -119,7 +125,7 @@ const InstitutionDashboard: React.FC = () => {
     );
   }
 
-  if (!institution) {
+  if (!institutionInfo) {
     return <p>Institution not found</p>;
   }
 
@@ -127,7 +133,7 @@ const InstitutionDashboard: React.FC = () => {
     <div className="flex flex-col md:flex-row h-screen bg-gray-100">
       {/* Mobile header */}
       <header className="md:hidden bg-gray-800 text-white p-4 flex justify-between items-center">
-        <h1 className="text-xl font-bold">{institution.name}</h1>
+        <h1 className="text-xl font-bold">{institutionInfo.name}</h1>
         <button onClick={toggleSidebar} className="text-white focus:outline-none">
           <Menu className="h-6 w-6" />
         </button>
@@ -204,11 +210,11 @@ const InstitutionDashboard: React.FC = () => {
         </nav>
         <div className="p-4">
           <button
-            onClick={handleLogout}
+            onClick={handleExitInstitution}
             className="w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-red-700 flex items-center justify-center"
           >
             <SquareArrowLeftIcon className="mr-2 h-5 w-5" />
-            Logout
+            Exit Institution
           </button>
         </div>
       </aside>
