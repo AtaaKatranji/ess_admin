@@ -9,6 +9,7 @@ import { Search,Clock, Calendar } from "lucide-react"
 import { useSSE } from "@/app/context/SSEContext"
 
 
+
 // Define the type for a leave request
 type LeaveRequest = {
   _id: string;
@@ -51,7 +52,16 @@ export default function LeaveRequestsPage() {
   const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
   const fetchLeaveRequests = async () => {
     try {
-      const response = await fetch(`${BaseUrl}/leaves/`);
+      const response = await fetch(`${BaseUrl}/leaves/`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            // 'Authorization': `Bearer ${token}`,
+          },
+          credentials: 'include', 
+        }
+      );
       const data = await response.json();
       setRequests(data);
     } catch (error) {
@@ -60,7 +70,14 @@ export default function LeaveRequestsPage() {
   };
   const fetchHourlyLeaves = async () => {
     try {
-      const response = await fetch(`${BaseUrl}/break/employee-breaks/request-custom-break?customBreak=true`);
+      const response = await fetch(`${BaseUrl}/break/employee-breaks/request-custom-break?customBreak=true`,{
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          // 'Authorization': `Bearer ${token}`,
+        },
+        credentials: 'include', 
+      });
       if (!response.ok) {
         throw new Error("Failed to fetch hourly leaves");
       }
