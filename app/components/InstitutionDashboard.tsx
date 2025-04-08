@@ -8,8 +8,8 @@ import OverviewPage from '@/app/(pages)/dashboard/institution/[slug]/overviwe/pa
 import EmployeeRequests from '@/app/(pages)/dashboard/institution/[slug]/requests/page'
 import SettingsPage from '@/app/(pages)/dashboard/institution/[slug]/settings/page'
 import EmployeeList from '@/app/(pages)/dashboard/institution/[slug]/employees/page';
-import Holiday from '@/app/(pages)/dashboard/institution/[slug]/holidays/page'
-import { CalendarDaysIcon } from '@heroicons/react/16/solid';
+//import Holiday from '@/app/(pages)/dashboard/institution/[slug]/holidays/page'
+//import { CalendarDaysIcon } from '@heroicons/react/16/solid';
 import { fetchInstitution } from '@/app/api/institutions/institutions';
 import { Circles } from 'react-loader-spinner';
 import { toast, ToastContainer } from 'react-toastify';
@@ -85,8 +85,8 @@ const InstitutionDashboard: React.FC = () => {
         return <ShiftsPage />;
       case 'requests':
         return <EmployeeRequests />;
-      case 'holidays':
-        return <Holiday />;
+      // case 'holidays':
+      //   return <Holiday />;
       case 'settings':
         return <SettingsPage />;
       default:
@@ -189,7 +189,7 @@ const InstitutionDashboard: React.FC = () => {
               Requests
             </a>
           </Link>
-          <Link href="#" legacyBehavior>
+          {/* <Link href="#" legacyBehavior>
             <a
               onClick={() => handleNavigation('holidays')}
               className={`flex items-center py-2 px-4 ${activeSection === 'holidays' ? 'bg-blue-600 rounded' : ''}`}
@@ -197,7 +197,7 @@ const InstitutionDashboard: React.FC = () => {
               <CalendarDaysIcon className="mr-2 h-5 w-5" />
               Holidays
             </a>
-          </Link>
+          </Link> */}
           <Link href="#" legacyBehavior>
             <a
               onClick={() => handleNavigation('settings')}
