@@ -15,21 +15,21 @@ import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 
 interface Employee {
-  _id: string
+  id: string
   name: string
   role: string
   department?: string
   email?: string
   totalHours?: number
   shiftId: {
-    _id: string
+    id: string
     name: string
   }
   shiftName?: string
 }
 
 interface Shift {
-  _id: string
+  id: string
   name: string
   startTime: string
   endTime: string
@@ -67,7 +67,7 @@ const EmployeeList: React.FC = () => {
         const employeesWithHours = await Promise.all(
           data.map(async (employee: Employee) => {
             console.log("Employees: ", data.length)
-            const totalHours = await fetchTotalHours(employee._id, new Date())
+            const totalHours = await fetchTotalHours(employee.id, new Date())
             return { ...employee, totalHours }
           }),
         )
@@ -90,7 +90,7 @@ const EmployeeList: React.FC = () => {
   }, [])
 
   const filteredEmployees =
-    selectedShift === "all" ? employees : employees.filter((emp) => emp.shiftId._id === selectedShift)
+    selectedShift === "all" ? employees : employees.filter((emp) => emp.shiftId.id === selectedShift)
 
   const handleViewDetails = (employeeId: string) => {
     router.push(`/dashboard/institution/${slug}/employees/${employeeId}`)
@@ -109,7 +109,7 @@ const EmployeeList: React.FC = () => {
             <SelectContent>
               <SelectItem value="all">All Shifts</SelectItem>
               {shiftOptions.map((shift) => (
-                <SelectItem key={shift._id} value={shift._id}>
+                <SelectItem key={shift.id} value={shift.id}>
                   {shift.name}
                 </SelectItem>
               ))}
@@ -128,7 +128,7 @@ const EmployeeList: React.FC = () => {
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredEmployees.map((employee) => (
-              <Card key={employee._id} className="overflow-hidden transition-all hover:shadow-md">
+              <Card key={employee.id} className="overflow-hidden transition-all hover:shadow-md">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-xl">{employee.name}</CardTitle>
                   <Badge variant="secondary" className="w-fit">
@@ -166,7 +166,7 @@ const EmployeeList: React.FC = () => {
                   </div>
                 </CardContent>
                 <CardFooter>
-                  <Button onClick={() => handleViewDetails(employee._id)} className="w-full bg-gradient-to-r from-primary to-blue-600 hover:from-primary/90 hover:to-blue-700 transition-all border-0"
+                  <Button onClick={() => handleViewDetails(employee.id)} className="w-full bg-gradient-to-r from-primary to-blue-600 hover:from-primary/90 hover:to-blue-700 transition-all border-0"
                   >
                     View Details
                   </Button>
