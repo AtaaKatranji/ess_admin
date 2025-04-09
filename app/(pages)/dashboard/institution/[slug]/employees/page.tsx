@@ -66,7 +66,7 @@ const EmployeeList: React.FC = () => {
         // Create a new array with total hours for each employee
         const employeesWithHours = await Promise.all(
           data.map(async (employee: Employee) => {
-            console.log("Employees: ", data.length)
+            console.log("Employees: ", data.length , employee.id)
             const totalHours = await fetchTotalHours(employee.id, new Date())
             return { ...employee, totalHours }
           }),
