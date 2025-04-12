@@ -121,7 +121,7 @@ const EmployeeDetails = () => {
       }));
   
       setData({
-        totalHours: hoursRes.total.totalHours,
+        totalHours: hoursRes.totalHours,
         lateHours: timeShiftRes.data.lateHours,
         earlyLeaveHours: timeShiftRes.data.earlyLeaveHours,
         earlyArrivalHours: timeShiftRes.data.earlyArrivalHours,
