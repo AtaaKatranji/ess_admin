@@ -147,6 +147,13 @@ const EmployeeDetails = () => {
   const exportMonthlyReport = useCallback(async () => {
     setIsLoadingPdf(true);
     try {
+      if (!selectedMonth || isNaN(new Date(selectedMonth).getTime())) {
+        throw new Error("Invalid date provided");
+      }
+      const normalizedDate = new Date(selectedMonth);
+      const dateToSend = new Date(Date.UTC(normalizedDate.getFullYear(), normalizedDate.getMonth(), 1));
+      console.log('selectedMonth:', selectedMonth, typeof selectedMonth);
+      console.log('dateToSend:', dateToSend, typeof dateToSend);
       const response = await fetch(`${BaseUrl}/checks/summary`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -154,6 +161,7 @@ const EmployeeDetails = () => {
       });
       if (!response.ok) throw new Error("Failed to fetch report");
       const data = await response.json();
+      console.log('Response details:', data.details);
       setData(prev => ({ ...prev, employeeName: data.summary.employeeName }));
       exportMonthlyReportPDF(data);
       toast.info("Monthly report exported as PDF!");
