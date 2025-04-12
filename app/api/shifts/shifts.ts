@@ -26,12 +26,12 @@ export const fetchShifts = async (institutionKey: string) => {
 
 export const fetchTimeShifts = async (employeeId: string) => {
   console.log("fetchTimeShifts",employeeId)
-  const response = await fetch(`${BaseUrl}/shifts/time`, {
-    method: 'POST',
+  const response = await fetch(`${BaseUrl}/shifts/time?employeeId=${employeeId}`, {
+    method: 'GET',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ employeeId }), // Wrap in an object
+    //body: JSON.stringify({ employeeId }), // Wrap in an object
   });
   const data = await response.json();
   console.log(data)
