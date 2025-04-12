@@ -77,6 +77,7 @@ export default function LeaveCard({ employeeId }: LeaveCardProps) {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ userId: employeeId}),
+          credentials: "include",
         });
         
         // Check if the response is okay
