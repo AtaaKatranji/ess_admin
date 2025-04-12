@@ -21,7 +21,7 @@ import AttendanceTab from "@/app/components/AttendanceTab";
 import AddExtraHoursModal from "@/app/components/AddExtraHoursModal";
 import AnnualLeaveCard from "@/app/components/AnnualLeaveCard";
 import HourlyLeavesTab from "@/app/components/TabHourlyLeaves";
-import { console } from "inspector";
+
 
 type Leave = {
   id: string;
