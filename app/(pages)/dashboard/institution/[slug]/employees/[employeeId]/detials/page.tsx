@@ -112,7 +112,7 @@ const EmployeeDetails = () => {
           }),
         }).then(res => res.ok ? res.json() : Promise.reject("Failed to fetch time shift")),
       ]);
-      console.log("timeShiftRes", timeShiftRes.data);
+      console.log("timeShiftRes", timeShiftRes);
       const summary = Object.entries((summaryRes as MonthlyAttendanceResponse).monthlyAttendance).map(([month, stats]) => ({
         month,
         totalAttendance: stats.totalAttendance,
