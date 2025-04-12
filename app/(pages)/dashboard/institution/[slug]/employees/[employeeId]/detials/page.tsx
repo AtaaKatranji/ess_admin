@@ -157,7 +157,7 @@ const EmployeeDetails = () => {
       const response = await fetch(`${BaseUrl}/checks/summary`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ employeeId, date: selectedMonth }),
+        body: JSON.stringify({ employeeId, date: dateToSend }),
       });
       if (!response.ok) throw new Error("Failed to fetch report");
       const data = await response.json();
