@@ -27,7 +27,7 @@ export default function LeaveCard({ employeeId }: LeaveCardProps) {
   const updateAnnualPaidLeaves = async (update: LeaveUpdate) => {
     console.log("update annual leaves", update);
     try {
-      const response = await fetch(`${BaseUrl}/api/annualLeave/update`, {
+      const response = await fetch(`${BaseUrl}/api/annual-leave/update`, {
         method: "PUT", // Using PUT for updates, adjust based on your API
         headers: {
           "Content-Type": "application/json",
@@ -71,7 +71,7 @@ export default function LeaveCard({ employeeId }: LeaveCardProps) {
   const fetchAnnualPaidLeaves = async (employeeId: string) => {
     try {
         // Make an API call to fetch monthly attendance summary
-        const response = await fetch(`${BaseUrl}/api/annualLeave`, {
+        const response = await fetch(`${BaseUrl}/api/annual-leave`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

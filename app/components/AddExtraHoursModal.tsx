@@ -76,7 +76,7 @@ const AddExtraHoursModal = ({ isOpen, onClose, employeeId, monthIndex }: AddExtr
   useEffect(() => {
     if (!employeeId || !monthIndex) return;
     const date = new Date(monthIndex);
-    const month = date.getMonth()+1;
+    //const month = date.getMonth()+1;
     // Fetch adjustments from the API
     const fetchAdjustments = async () => {
       try {
@@ -85,7 +85,7 @@ const AddExtraHoursModal = ({ isOpen, onClose, employeeId, monthIndex }: AddExtr
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ employeeId, month }),
+        body: JSON.stringify({ employeeId, date }),
       });
         if (!response.ok) {
           throw new Error("Failed to fetch adjustments");

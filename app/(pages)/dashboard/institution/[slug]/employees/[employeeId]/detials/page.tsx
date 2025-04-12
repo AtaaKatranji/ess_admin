@@ -98,6 +98,7 @@ const EmployeeDetails = () => {
           //body: JSON.stringify({ userId: employeeId, month }),
         }).then(res => res.ok ? res.json() : Promise.reject("Failed to fetch leaves")),
         fetch(`${BaseUrl}/checks/summaryLastTwoMonth/${employeeId}`).then(res => res.ok ? res.json() : Promise.reject("Failed to fetch summary")),
+        
         fetch(`${BaseUrl}/checks/timeShift`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
