@@ -85,7 +85,7 @@ const AddExtraHoursModal = ({ isOpen, onClose, employeeId, monthIndex }: AddExtr
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ employeeId, date }),
+        body: JSON.stringify({ employeeId, month:date }),
       });
         if (!response.ok) {
           throw new Error("Failed to fetch adjustments");

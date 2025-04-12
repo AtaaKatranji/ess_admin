@@ -21,6 +21,7 @@ import AttendanceTab from "@/app/components/AttendanceTab";
 import AddExtraHoursModal from "@/app/components/AddExtraHoursModal";
 import AnnualLeaveCard from "@/app/components/AnnualLeaveCard";
 import HourlyLeavesTab from "@/app/components/TabHourlyLeaves";
+import { console } from "inspector";
 
 type Leave = {
   id: string;
@@ -85,7 +86,7 @@ const EmployeeDetails = () => {
       console.log("Employee Id in page detiles: ", employeeId);
       const shiftsResRaw = await fetchTimeShifts(employeeId);
       const shifts = Array.isArray(shiftsResRaw) ? shiftsResRaw[0] : shiftsResRaw;
-  
+      console.log("month", month);
       const [hoursRes, leavesRes, summaryRes, timeShiftRes] = await Promise.all([
         fetch(`${BaseUrl}/checks/calculate-hours`, {
           method: "POST",
