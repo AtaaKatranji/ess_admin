@@ -45,6 +45,7 @@ export const fetchTotalHours = async (employeeId : string, date: Date) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ userId: employeeId, month }),
+      credentials: "include",
     })
     console.log(response)
     if (!response.ok) {
@@ -52,7 +53,7 @@ export const fetchTotalHours = async (employeeId : string, date: Date) => {
     }
 
     const data = await response.json()
-
+    console.log(data.total.totalHours);
     return data.total.totalHours;
   } catch (error) {
     console.error("Error fetching total hours:", error)
