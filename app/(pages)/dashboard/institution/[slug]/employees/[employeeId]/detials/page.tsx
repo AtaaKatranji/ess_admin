@@ -112,7 +112,7 @@ const EmployeeDetails = () => {
           }),
         }).then(res => res.ok ? res.json() : Promise.reject("Failed to fetch time shift")),
       ]);
-  
+      console.log("timeShiftRes", timeShiftRes.data);
       const summary = Object.entries((summaryRes as MonthlyAttendanceResponse).monthlyAttendance).map(([month, stats]) => ({
         month,
         totalAttendance: stats.totalAttendance,
@@ -147,7 +147,7 @@ const EmployeeDetails = () => {
   const exportMonthlyReport = useCallback(async () => {
     setIsLoadingPdf(true);
     try {
-      const response = await fetch(`${BaseUrl}/checks/summry2`, {
+      const response = await fetch(`${BaseUrl}/checks/summary`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ employeeId, date: selectedMonth }),
