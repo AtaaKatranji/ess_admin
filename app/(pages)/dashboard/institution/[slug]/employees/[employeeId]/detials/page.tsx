@@ -82,6 +82,7 @@ const EmployeeDetails = () => {
     setIsLoading(true);
     try {
       // Fetch shifts once outside Promise.all
+      console.log("Employee Id in page detiles: ", employeeId);
       const shiftsResRaw = await fetchTimeShifts(employeeId);
       const shifts = Array.isArray(shiftsResRaw) ? shiftsResRaw[0] : shiftsResRaw;
   
