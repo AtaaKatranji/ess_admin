@@ -44,7 +44,7 @@ export const fetchTotalHours = async (employeeId : string, date: Date) => {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ userId: employeeId, month }),
+      body: JSON.stringify({ userId: employeeId, date: month }),
       credentials: "include",
     })
     console.log(response)
