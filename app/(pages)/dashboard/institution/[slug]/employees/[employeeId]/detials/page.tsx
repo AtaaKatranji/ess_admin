@@ -108,10 +108,10 @@ const EmployeeDetails = () => {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             userId: employeeId,
-            month: month.toLocaleString("default", { month: "long" }),
+            month: month.getMonth()+1,
             year: month.getFullYear(),
-            startTime: data.startTime || shifts?.startTime,
-            endTime: data.endTime || shifts?.endTime,
+            shiftStart: data.startTime || shifts?.startTime,
+            shiftEnd: data.endTime || shifts?.endTime,
           }),
         }).then(res => res.ok ? res.json() : Promise.reject("Failed to fetch time shift")),
       ]);
