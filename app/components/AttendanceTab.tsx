@@ -96,6 +96,7 @@ const AttendanceTab = ({ employeeId, selectedMonth }: { employeeId: string; sele
           body: JSON.stringify(data),
         });
       } else {
+        console.log("data", data)
         const existingRecordsResponse = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/checks/checks?date=${data.checkDate}&employeeId=${employeeId}`,
           { method: "GET", headers: { "Content-Type": "application/json" } }
