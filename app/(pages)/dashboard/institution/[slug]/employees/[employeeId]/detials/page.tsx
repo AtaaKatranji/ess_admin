@@ -153,10 +153,15 @@ const EmployeeDetails = () => {
       if (!selectedMonth || isNaN(new Date(selectedMonth).getTime())) {
         throw new Error("Invalid date provided");
       }
+      
+// Extract year and month from selectedMonth
       const normalizedDate = new Date(selectedMonth);
-      const dateToSend = new Date(Date.UTC(normalizedDate.getFullYear(), normalizedDate.getMonth(), 1));
-      console.log('selectedMonth:', selectedMonth, typeof selectedMonth);
-      console.log('dateToSend:', dateToSend, typeof dateToSend);
+      const year = normalizedDate.getFullYear();
+      const month = String(normalizedDate.getMonth() + 1).padStart(2, "0"); // Months are 0-based, pad to 2 digits
+      const dateToSend = `${year}-${month}-01`; // Format as YYYY-MM-DD (1st of the month)
+
+      console.log("selectedMonth:", selectedMonth, typeof selectedMonth);
+      console.log("dateToSend:", dateToSend, typeof dateToSend);
       const response = await fetch(`${BaseUrl}/checks/summary`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
