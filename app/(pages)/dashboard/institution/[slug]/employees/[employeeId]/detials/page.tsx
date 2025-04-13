@@ -21,6 +21,7 @@ import AttendanceTab from "@/app/components/AttendanceTab";
 import AddExtraHoursModal from "@/app/components/AddExtraHoursModal";
 import AnnualLeaveCard from "@/app/components/AnnualLeaveCard";
 import HourlyLeavesTab from "@/app/components/TabHourlyLeaves";
+import moment from "moment";
 
 
 type Leave = {
@@ -86,12 +87,14 @@ const EmployeeDetails = () => {
       console.log("Employee Id in page detiles: ", employeeId);
       const shiftsResRaw = await fetchTimeShifts(employeeId);
       const shifts = Array.isArray(shiftsResRaw) ? shiftsResRaw[0] : shiftsResRaw;
-      console.log("month", new Date(month));
+      
+      const formattedMonth = moment(month).format('YYYY-MM-01');
+      console.log("month", formattedMonth);
       const [hoursRes, leavesRes, summaryRes, timeShiftRes] = await Promise.all([
         fetch(`${BaseUrl}/checks/calculate-hours`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ userId: employeeId, month }),
+          body: JSON.stringify({ userId: employeeId, month:formattedMonth }),
         }).then(res => res.ok ? res.json() : Promise.reject("Failed to fetch total hours")),
         fetch(`${BaseUrl}/leaves/month?userId=${employeeId}&month=${month.getDate()}`, {
           method: "GET",
