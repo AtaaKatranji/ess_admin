@@ -1,3 +1,4 @@
+import moment from "moment";
 
 const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
 
@@ -37,14 +38,14 @@ export const fetchCheckInOutData = async (shiftId : string) => {
 };
 export const fetchTotalHours = async (employeeId : string, date: Date) => {
   const month = date
-
+  const formattedMonth = moment(month).format('YYYY-MM-01');
   try {
     const response = await fetch(`${BaseUrl}/checks/calculate-hours`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ userId: employeeId, date: month }),
+      body: JSON.stringify({ userId: employeeId, date: formattedMonth }),
       credentials: "include",
     })
     console.log(response)
