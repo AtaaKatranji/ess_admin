@@ -20,7 +20,7 @@ import {
 import { fetchTimeShifts } from '../api/shifts/shifts';
 
 type History = {
-  _id: string; // Updated to _id
+  id: string; // Updated to _id
   checkDate: string;
   checkInTime: string;
   checkOutTime: string | null;
@@ -107,7 +107,7 @@ const AttendanceTab = ({ employeeId, selectedMonth }: { employeeId: string; sele
           return;
         }
         const timeZone = "Asia/Damascus";
-        const requestData = { ...data, timeZone, employeeId };
+        const requestData = { ...data, timeZone, userId:employeeId };
         response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/checks/add`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -178,7 +178,7 @@ const AttendanceTab = ({ employeeId, selectedMonth }: { employeeId: string; sele
                 .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
                 .map((record) => (
                   <div
-                    key={record._id} // Fixed to use _id
+                    key={record.id} // Fixed to use _id
                     className="flex justify-between items-center py-2 border-b last:border-b-0 cursor-pointer hover:bg-accent"
                     onClick={() => openEditDialog(record)}
                   >
