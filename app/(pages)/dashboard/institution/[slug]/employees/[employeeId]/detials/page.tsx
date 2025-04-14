@@ -146,40 +146,37 @@ const EmployeeDetails = () => {
       setIsLoading(false);
     }
   }, [employeeId]);
-
   const exportMonthlyReport = useCallback(async () => {
     setIsLoadingPdf(true);
     try {
-      if (!selectedMonth || isNaN(new Date(selectedMonth).getTime())) {
-        throw new Error("Invalid date provided");
-      }
-      
-// Extract year and month from selectedMonth
-      const normalizedDate = new Date(selectedMonth);
-      const year = normalizedDate.getFullYear();
-      const month = String(normalizedDate.getMonth() + 1).padStart(2, "0"); // Months are 0-based, pad to 2 digits
-      const dateToSend = `${year}-${month}-01`; // Format as YYYY-MM-DD (1st of the month)
-
-      console.log("selectedMonth:", selectedMonth, typeof selectedMonth);
-      console.log("dateToSend:", dateToSend, typeof dateToSend);
-      const response = await fetch(`${BaseUrl}/checks/summary`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ employeeId, date: dateToSend }),
-      });
-      if (!response.ok) throw new Error("Failed to fetch report");
-      const data = await response.json();
-      console.log('Response details:', data.details);
-      setData(prev => ({ ...prev, employeeName: data.summary.employeeName }));
-      exportMonthlyReportPDF(data);
-      toast.info("Monthly report exported as PDF!");
-    } catch (error: unknown) {
+        if (!selectedMonth || isNaN(new Date(selectedMonth).getTime())) {
+            throw new Error("Invalid date provided");
+        }
+        const normalizedDate = new Date(selectedMonth);
+        const year = normalizedDate.getFullYear();
+        const month = String(normalizedDate.getMonth() + 1).padStart(2, "0");
+        const dateToSend = `${year}-${month}-01`;
+        console.log("selectedMonth:", selectedMonth, typeof selectedMonth);
+        console.log("dateToSend:", dateToSend, typeof dateToSend);
+        const response = await fetch(`${BaseUrl}/checks/summary`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ employeeId, date: dateToSend, dateString: selectedMonth }),
+        });
+        if (!response.ok) throw new Error("Failed to fetch report");
+        const data = await response.json();
+        console.log('Full response:', JSON.stringify(data, null, 2)); // Log full response
+        console.log('Details length:', data.details.length); // Log number of days
+        setData(prev => ({ ...prev, employeeName: data.summary.employeeName }));
+        exportMonthlyReportPDF(data);
+        toast.info("Monthly report exported as PDF!");
+    } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
         toast.warning(errorMessage);
     } finally {
-      setIsLoadingPdf(false);
+        setIsLoadingPdf(false);
     }
-  }, [employeeId, selectedMonth]);
+}, [employeeId, selectedMonth]);
 
   useEffect(() => {
     fetchAllData(selectedMonth);
