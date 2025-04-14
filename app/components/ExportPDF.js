@@ -5,7 +5,7 @@ import 'jspdf-autotable';
 
 const exportMonthlyReportPDF = (data) => {
   if (typeof window === 'undefined') return; // Check if window is available for Next.js
-
+  console.log("data in export",data);
   const doc = new jsPDF();
   doc.text(`${data.summary.monthName} Attendance Report`, 14, 10);
   doc.text(`Employee: ${data.summary.employeeName}`,14, 16);
