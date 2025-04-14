@@ -155,7 +155,7 @@ const EmployeeDetails = () => {
         const normalizedDate = new Date(selectedMonth);
         const year = normalizedDate.getFullYear();
         const month = String(normalizedDate.getMonth() + 1).padStart(2, "0");
-        const dateToSend = `${year}-${month}-01`;
+        const dateToSend = `${year}-${month}-${normalizedDate.getDate()}`;
         console.log("selectedMonth:", selectedMonth, typeof selectedMonth);
         console.log("dateToSend:", dateToSend, typeof dateToSend);
         const response = await fetch(`${BaseUrl}/checks/summary`, {
