@@ -57,9 +57,9 @@ const EmployeeList: React.FC = () => {
       const dataShifts = await fetchShifts(dataIns.uniqueKey)
 
       setShiftOptions(dataShifts)
-      if (dataShifts.length > 0) {
-        setSelectedShift(dataShifts[0]._id)
-      }
+      // if (dataShifts.length > 0) {
+      //   setSelectedShift(dataShifts[0]._id)
+      // }
 
       console.log("users ", data)
       setEmployees(data)
