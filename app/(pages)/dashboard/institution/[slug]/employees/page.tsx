@@ -21,10 +21,11 @@ interface Employee {
   department?: string
   email?: string
   totalHours?: number
-  shiftId: {
+  shift: {
     id: string
     name: string
   }
+  shiftId?: string
   shiftName?: string
 }
 
@@ -90,7 +91,7 @@ const EmployeeList: React.FC = () => {
   }, [])
 
   const filteredEmployees =
-    selectedShift === "all" ? employees : employees.filter((emp) => emp.shiftId.id === selectedShift)
+    selectedShift === "all" ? employees : employees.filter((emp) => emp.shiftId === selectedShift)
 
   const handleViewDetails = (employeeId: string) => {
     router.push(`/dashboard/institution/${slug}/employees/${employeeId}`)
@@ -149,10 +150,10 @@ const EmployeeList: React.FC = () => {
                         <span className="truncate">{employee.email}</span>
                       </div>
                     )}
-                    {employee.shiftId?.name && (
+                    {employee.shift?.name && (
                       <div className="flex items-center text-sm text-muted-foreground">
                         <Briefcase className="h-4 w-4 mr-2" />
-                        <span>{employee.shiftId.name}</span>
+                        <span>{employee.shift.name}</span>
                       </div>
                     )}
                   </div>
