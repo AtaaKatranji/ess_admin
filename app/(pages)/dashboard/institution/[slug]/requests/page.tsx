@@ -12,8 +12,11 @@ import { useSSE } from "@/app/context/SSEContext"
 
 // Define the type for a leave request
 type LeaveRequest = {
-  _id: string;
-  employeeName: string;
+  id: string;
+  user: {
+    id: string
+    name: string
+  }
   status: "Pending" | "Approved" | "Rejected";
   startDate: string;
   endDate: string;
@@ -113,7 +116,7 @@ export default function LeaveRequestsPage() {
     });
     if (!response.ok) throw new Error("Failed to approve leave request");
 
-    setRequests(requests!.map((req) => (req._id === id ? { ...req, status: "Approved" } : req)))
+    setRequests(requests!.map((req) => (req.id === id ? { ...req, status: "Approved" } : req)))
   }
 
   const handleReject = async (id: string) => {
@@ -125,11 +128,11 @@ export default function LeaveRequestsPage() {
     if (!response.ok) throw new Error("Failed to reject leave request");
 
     
-    setRequests(requests!.map((req) => (req._id === id ? { ...req, status: "Rejected" } : req)))
+    setRequests(requests!.map((req) => (req.id === id ? { ...req, status: "Rejected" } : req)))
   }
 
   const handleTypeChange = (id: string, type: string) => {
-    setRequests(requests!.map((req) => (req._id === id ? { ...req, type: type as "Paid" | "Unpaid" } : req)))
+    setRequests(requests!.map((req) => (req.id === id ? { ...req, type: type as "Paid" | "Unpaid" } : req)))
   }
 // Handle hourly leave requests
 const handleApproveHourlyLeave = async (id: string) => {
@@ -180,7 +183,7 @@ const handleRejectHourlyLeave = async (id: string) => {
     //req.employeeName.toLowerCase().includes(searchQuery.toLowerCase())
     const leaveDate = new Date(req.startDate).toISOString().split('T')[0];
     const matchesDate = !filterDate || leaveDate === filterDate;
-    const matchesSearch = req.employeeName.toLowerCase().includes(searchQuery.toLowerCase())
+    const matchesSearch = req.user.name.toLowerCase().includes(searchQuery.toLowerCase())
     return matchesDate && matchesSearch;
   })
   const pendingRequests = filteredRequests.filter((req) => req.status === "Pending")
@@ -289,7 +292,7 @@ return (
           ) : (
             pendingRequests.map((request) => (
               <LeaveRequestCard
-                key={request._id}
+                key={request.id}
                 request={request}
                 onApprove={handleApprove}
                 onReject={handleReject}
@@ -305,7 +308,7 @@ return (
           ) : (
             approvedRequests.map((request) => (
               <LeaveRequestCard
-                key={request._id}
+                key={request.id}
                 request={request}
                 onApprove={handleApprove}
                 onReject={handleReject}
@@ -321,7 +324,7 @@ return (
           ) : (
             rejectedRequests.map((request) => (
               <LeaveRequestCard
-                key={request._id}
+                key={request.id}
                 request={request}
                 onApprove={handleApprove}
                 onReject={handleReject}

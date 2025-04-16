@@ -11,8 +11,11 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 
 // Type definitions
 interface LeaveRequest {
-  _id: string
-  employeeName: string
+  id: string
+  user: {
+    id: string
+    name: string
+  }
   status: "Approved" | "Rejected" | "Pending"
   startDate: string
   endDate: string
@@ -62,7 +65,7 @@ export function LeaveRequestCard({ request, onApprove, onReject, onTypeChange }:
   const [isExpanded, setIsExpanded] = useState(false)
 
   const handleTypeChange = (value: string) => {
-    onTypeChange(request._id, value)
+    onTypeChange(request.id, value)
   }
 
   const dayCount = getDayCount(request.startDate, request.endDate)
@@ -72,7 +75,7 @@ export function LeaveRequestCard({ request, onApprove, onReject, onTypeChange }:
     <Card className="mb-4 overflow-hidden">
       <CardHeader className="pb-2 pt-4 px-4 flex flex-row items-center justify-between bg-muted/30">
         <div className="flex items-center gap-2">
-          <div className="font-semibold text-lg">{request.employeeName}</div>
+          <div className="font-semibold text-lg">{request.user.name}</div>
           <Badge
             variant={
               request.status === "Approved" ? "approve" : request.status === "Rejected" ? "destructive" : "outline"
@@ -166,11 +169,11 @@ export function LeaveRequestCard({ request, onApprove, onReject, onTypeChange }:
             variant="outline"
             size="sm"
             className="text-destructive border-destructive hover:bg-destructive/10"
-            onClick={() => onReject(request._id)}
+            onClick={() => onReject(request.id)}
           >
             <X className="mr-1 h-4 w-4" /> Reject
           </Button>
-          <Button variant="default" size="sm" onClick={() => onApprove(request._id)}>
+          <Button variant="default" size="sm" onClick={() => onApprove(request.id)}>
             <Check className="mr-1 h-4 w-4" /> Approve
           </Button>
         </CardFooter>
