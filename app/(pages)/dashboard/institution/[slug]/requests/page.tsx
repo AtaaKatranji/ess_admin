@@ -113,6 +113,7 @@ export default function LeaveRequestsPage() {
     const response = await fetch(`${BaseUrl}/leaves/${id}/approve`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
+      credentials : "include",
     });
     if (!response.ok) throw new Error("Failed to approve leave request");
 
@@ -124,6 +125,7 @@ export default function LeaveRequestsPage() {
     const response = await fetch(`${BaseUrl}/leaves/${id}/reject`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
+      credentials : "include",
     });
     if (!response.ok) throw new Error("Failed to reject leave request");
 
