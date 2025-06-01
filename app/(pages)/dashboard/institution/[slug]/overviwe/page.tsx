@@ -168,7 +168,7 @@ const OverviewPage = () => {
 function AttendanceStatus({ response, loading }: { response: ApiResponse, loading: boolean }) {
   const { data: employees, message } = response;
 
-  const loggedInEmployees = employees.filter(e => e.loggedIn);
+  const loggedInEmployees = employees.filter(e => e.loggedIn && e.checkOut == "Not checked out");
   const loggedOutEmployees = employees.filter(e => e.checkOut != "Not checked out"); // <- New list
   const notLoggedInEmployees = employees.filter(e => !e.loggedIn && e.checkOut == "Not checked out"); // not logged in & not logged out
 
@@ -210,7 +210,7 @@ function AttendanceStatus({ response, loading }: { response: ApiResponse, loadin
 
               {/* Logged Out */}
               <div>
-                <h3 className="font-semibold mb-2 text-red-600">Logged Out</h3>
+                <h3 className="font-semibold mb-2">Logged Out</h3>
                 <ul className="space-y-2">
                   {loggedOutEmployees.map(employee => (
                     <li key={employee.id} className="flex items-center space-x-2">
@@ -224,7 +224,7 @@ function AttendanceStatus({ response, loading }: { response: ApiResponse, loadin
                         <span className="text-xs font-semibold">{employee.name.charAt(0)}</span>
                         <span className="absolute bottom-0 right-0 w-3 h-3 bg-red-500 rounded-full border-2 border-white"></span>
                       </div>
-                      <span className="text-red-600">{employee.name}</span>
+                      <span>{employee.name}</span>
                     </li>
                   ))}
                 </ul>
