@@ -167,8 +167,10 @@ const OverviewPage = () => {
 
 function AttendanceStatus({ response, loading }: { response: ApiResponse, loading: boolean }) {
   const { data: employees, message } = response;
+
   const loggedInEmployees = employees.filter(e => e.loggedIn);
-  const notLoggedInEmployees = employees.filter(e => !e.loggedIn);
+  const loggedOutEmployees = employees.filter(e => e.checkOut != "Not checked out"); // <- New list
+  const notLoggedInEmployees = employees.filter(e => !e.loggedIn && e.checkOut == "Not checked out"); // not logged in & not logged out
 
   return (
     <div className="space-y-4">
@@ -184,6 +186,7 @@ function AttendanceStatus({ response, loading }: { response: ApiResponse, loadin
           )}
           {employees.length > 0 && (
             <>
+              {/* Logged In */}
               <div>
                 <h3 className="font-semibold mb-2">Logged In</h3>
                 <ul className="space-y-2">
@@ -204,6 +207,30 @@ function AttendanceStatus({ response, loading }: { response: ApiResponse, loadin
                   ))}
                 </ul>
               </div>
+
+              {/* Logged Out */}
+              <div>
+                <h3 className="font-semibold mb-2 text-red-600">Logged Out</h3>
+                <ul className="space-y-2">
+                  {loggedOutEmployees.map(employee => (
+                    <li key={employee.id} className="flex items-center space-x-2">
+                      <div
+                        className={`w-8 h-8 rounded-full flex items-center justify-center relative ${
+                          employee.onLeave
+                            ? 'bg-blue-500 text-white'
+                            : 'bg-gray-200 text-black'
+                        }`}
+                      >
+                        <span className="text-xs font-semibold">{employee.name.charAt(0)}</span>
+                        <span className="absolute bottom-0 right-0 w-3 h-3 bg-red-500 rounded-full border-2 border-white"></span>
+                      </div>
+                      <span className="text-red-600">{employee.name}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Not Logged In */}
               <div>
                 <h3 className="font-semibold mb-2">Not Logged In</h3>
                 <ul className="space-y-2">
@@ -231,6 +258,7 @@ function AttendanceStatus({ response, loading }: { response: ApiResponse, loadin
     </div>
   );
 }
+
 
 function DailyTimeSheet({ employees }: { employees: Employee[] }) {
   return (
