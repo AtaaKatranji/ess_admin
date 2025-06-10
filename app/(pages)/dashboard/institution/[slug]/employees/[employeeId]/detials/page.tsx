@@ -99,6 +99,7 @@ const EmployeeDetails = () => {
         fetch(`${BaseUrl}/leaves/month?userId=${employeeId}&month=${month.getDate()}`, {
           method: "GET",
           headers: { "Content-Type": "application/json" },
+          credentials : "include",
           //body: JSON.stringify({ userId: employeeId, month }),
         }).then(res => res.ok ? res.json() : Promise.reject("Failed to fetch leaves")),
         fetch(`${BaseUrl}/checks/summaryLastTwoMonth/${employeeId}`).then(res => res.ok ? res.json() : Promise.reject("Failed to fetch summary")),
