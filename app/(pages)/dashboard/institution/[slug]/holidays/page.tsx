@@ -13,13 +13,14 @@ import { format } from "date-fns";
 type Holiday = {
   id: string;
   name: string;
-  date: string;
+  startDate: string;
+  endDate: string;
   description?: string;
 };
 
 const mockData: Holiday[] = [
-  { id: "1", name: "New Year", date: "2025-01-01", description: "Start of the year" },
-  { id: "2", name: "Eid al-Fitr", date: "2025-04-21", description: "End of Ramadan" },
+  { id: "1", name: "New Year", startDate: "2025-01-01", endDate: "2025-01-01", description: "Start of the year" },
+  { id: "2", name: "Eid al-Fitr", startDate: "2025-04-21", endDate: "2025-04-24", description: "End of Ramadan" },
 ];
 
 export default function PublicHolidaysPage() {
@@ -40,7 +41,10 @@ export default function PublicHolidaysPage() {
             </DialogHeader>
             <form className="space-y-4">
               <Input placeholder="Holiday name" />
-              <Input type="date" />
+              <div className="flex gap-4">
+                <Input type="date" placeholder="Start date" />
+                <Input type="date" placeholder="End date" />
+              </div>
               <Textarea placeholder="Description (optional)" />
               <Button type="submit" className="w-full">Save</Button>
             </form>
@@ -61,7 +65,9 @@ export default function PublicHolidaysPage() {
           {holidays.map((holiday) => (
             <TableRow key={holiday.id}>
               <TableCell>{holiday.name}</TableCell>
-              <TableCell>{format(new Date(holiday.date), "yyyy-MM-dd")}</TableCell>
+              <TableCell>
+                {format(new Date(holiday.startDate), "yyyy-MM-dd")} to {format(new Date(holiday.endDate), "yyyy-MM-dd")}
+              </TableCell>
               <TableCell>{holiday.description}</TableCell>
               <TableCell className="text-right space-x-2">
                 <Button variant="outline" size="icon"><Pencil className="w-4 h-4" /></Button>
