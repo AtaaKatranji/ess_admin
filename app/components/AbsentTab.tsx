@@ -4,15 +4,17 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Search } from 'lucide-react';
 import { format } from "date-fns"
 import { Input } from "@/components/ui/input"
+import moment from 'moment';
 
 const AbsentTab = ({ employeeId, selectedMonth }: { employeeId: string, selectedMonth:Date }) => {
   const [absentDays, setAbsentDays] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("")
   useEffect(() => {
+    const formattedMonth = moment(selectedMonth).format('YYYY-MM');
     const fetchAbsences = async () => {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/checks/absences?employeeId=${employeeId}&month=${selectedMonth}`);
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/checks/absences?employeeId=${employeeId}&month=${formattedMonth}`);
         const data = await response.json();
         setAbsentDays(data.absentDates || []);
       } catch (error) {
