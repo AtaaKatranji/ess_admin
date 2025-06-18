@@ -57,14 +57,16 @@ const NonAttendanceTab: React.FC<Props> = ({
         `${process.env.NEXT_PUBLIC_API_URL}/checks/absences?employeeId=${employeeId}&month=${formattedMonth}`
       );
       const data = await res.json();
+      console.log("fetchAbsences", data);
       return data.absentDates || [];
     };
-
+    
     const fetchLeaves = async () => {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/leaves/month?userId=${employeeId}&month=${formattedMonth}`
       );
       const data = await res.json();
+      console.log("fetchLeaves", data);
       return data.leaves || [];
     };
 
@@ -73,6 +75,7 @@ const NonAttendanceTab: React.FC<Props> = ({
         `${process.env.NEXT_PUBLIC_API_URL}/holidays/institution/${institutionKey}`
       );
       const data = await res.json();
+      console.log("fetchHolidays", data);
       return data || [];
     };
 
