@@ -47,7 +47,7 @@ const NonAttendanceTab: React.FC<Props> = ({
   const [holidays, setHolidays] = useState<Holiday[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-
+  console.log("institutionKey", institutionKey);
   useEffect(() => {
     const formattedMonth = moment(selectedMonth).format("YYYY-MM");
     setLoading(true);
