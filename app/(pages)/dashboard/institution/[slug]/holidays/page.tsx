@@ -63,7 +63,7 @@ const handleEditClick = (holiday: Holiday) => {
 const handleSubmit = async (e: React.FormEvent) => {
   e.preventDefault();
 
-  const payload = { name, startDate, endDate, description, institutionId: institutionKey };
+  const payload = { name, startDate, endDate, description, uniqueKey: institutionKey };
 
   const url = isEditing
     ? `${BaseUrl}/holidays/${editingHoliday?.id}`
@@ -117,7 +117,7 @@ const handleDelete = async (id: number) => {
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold">Public Holidays</h2>
-        <h2 className="text-2xl font-bold">${institutionKey}</h2>
+        {/* <h2 className="text-2xl font-bold">${institutionKey}</h2> */}
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
             <Button onClick={openAddDialog}><Plus className="mr-2 w-4 h-4" /> Add Holiday</Button>
