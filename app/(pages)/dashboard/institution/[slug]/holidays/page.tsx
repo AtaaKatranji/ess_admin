@@ -38,7 +38,7 @@ useEffect(() => {
   fetchHolidays();
 }, []);
 const fetchHolidays = async () => {
-  const res = await fetch(`${BaseUrl}/holidays/institution/:${institutionKey}`); // replace with dynamic ID
+  const res = await fetch(`${BaseUrl}/holidays/institution/${institutionKey}`); // replace with dynamic ID
   const data = await res.json();
   setHolidays(data);
 };
