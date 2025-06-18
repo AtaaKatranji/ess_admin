@@ -23,7 +23,8 @@ import AnnualLeaveCard from "@/app/components/AnnualLeaveCard";
 import HourlyLeavesTab from "@/app/components/TabHourlyLeaves";
 import moment from "moment";
 import NonAttendanceTab from "@/app/components/nonAttendanceDays";
-import { useInstitution } from "@/app/context/InstitutionContext";
+import { fetchInstitution } from "@/app/api/institutions/institutions";
+
 
 type Leave = {
   id: string;
@@ -72,6 +73,7 @@ const EmployeeDetails = () => {
     unpaidLeaves: null as number | null,
     leaves: [] as Leave[],
     employeeName: "",
+    
   });
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingPdf, setIsLoadingPdf] = useState(false);
@@ -80,9 +82,14 @@ const EmployeeDetails = () => {
   const [selectedMonth, setSelectedMonth] = useState<Date>(new Date());
   const params = useParams();
   const slug = Array.isArray(params.slug) ? params.slug[0] : params.slug;
+  const [institutionKey, setInstitutionKey] = useState("");
 
   const employeeId = Array.isArray(params.employeeId) ? params.employeeId[0] : params.employeeId as string;
-  const { institutionKey } = useInstitution();
+  const fetchData = async () => {
+
+    await setInstitutionKey( await fetchInstitution(slug!));
+    console.log("InstitutionKey", institutionKey);
+  };
   const fetchAllData = useCallback(async (month: Date) => {
     setIsLoading(true);
     try {
@@ -184,6 +191,8 @@ const EmployeeDetails = () => {
 }, [employeeId, selectedMonth]);
 
   useEffect(() => {
+    fetchData();
+    console.log("InstitutionKey", institutionKey);
     fetchAllData(selectedMonth);
   }, [fetchAllData, selectedMonth]);
 
@@ -465,7 +474,7 @@ const EmployeeDetails = () => {
           <HourlyLeavesTab employeeId={employeeId} selectedMonth={selectedMonth} />
         </TabsContent>
         <TabsContent value="dayRecords">
-          <NonAttendanceTab employeeId={employeeId} selectedMonth={selectedMonth} institutionKey={institutionKey} />
+          <NonAttendanceTab employeeId={employeeId} selectedMonth={selectedMonth} institutionKey="TACULZO0F" />
         </TabsContent>
       </Tabs>
     </div>
