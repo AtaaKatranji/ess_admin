@@ -22,7 +22,8 @@ import AddExtraHoursModal from "@/app/components/AddExtraHoursModal";
 import AnnualLeaveCard from "@/app/components/AnnualLeaveCard";
 import HourlyLeavesTab from "@/app/components/TabHourlyLeaves";
 import moment from "moment";
-
+import NonAttendanceTab from "@/app/components/nonAttendanceDays";
+import { useInstitution } from "@/app/context/InstitutionContext";
 
 type Leave = {
   id: string;
@@ -80,6 +81,7 @@ const EmployeeDetails = () => {
 
   const params = useParams();
   const employeeId = Array.isArray(params.employeeId) ? params.employeeId[0] : params.employeeId as string;
+  const { institutionKey } = useInstitution();
   const fetchAllData = useCallback(async (month: Date) => {
     setIsLoading(true);
     try {
@@ -458,6 +460,9 @@ const EmployeeDetails = () => {
         </TabsContent>
         <TabsContent value="hourlyLeaves">
           <HourlyLeavesTab employeeId={employeeId} selectedMonth={selectedMonth} />
+        </TabsContent>
+        <TabsContent value="hourlyLeaves">
+          <NonAttendanceTab employeeId={employeeId} selectedMonth={selectedMonth} institutionKey={institutionKey} />
         </TabsContent>
       </Tabs>
     </div>
