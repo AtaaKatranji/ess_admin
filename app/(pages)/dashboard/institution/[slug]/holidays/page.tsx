@@ -23,14 +23,9 @@ type Holiday = {
   institutionId: number;
 };
 
-const mockData: Holiday[] = [
-  { id: 1, name: "New Year", startDate: "2025-01-01", endDate: "2025-01-01", description: "Start of the year", institutionId: 1 },
-  { id: 2, name: "Eid al-Fitr", startDate: "2025-04-21", endDate: "2025-04-24", description: "End of Ramadan", institutionId: 1 },
-];
-
 export default function PublicHolidaysPage() {
   const { institutionKey } = useInstitution();
-  const [holidays, setHolidays] = useState<Holiday[]>(mockData);
+  const [holidays, setHolidays] = useState<Holiday[]>([]);
 
   const [name, setName] = useState("");
   const [startDate, setStartDate] = useState("");
@@ -43,7 +38,7 @@ useEffect(() => {
   fetchHolidays();
 }, []);
 const fetchHolidays = async () => {
-  const res = await fetch(`${BaseUrl}/holidays/institution/1`); // replace with dynamic ID
+  const res = await fetch(`${BaseUrl}/holidays/institution/institutionKey`); // replace with dynamic ID
   const data = await res.json();
   setHolidays(data);
 };
@@ -158,19 +153,31 @@ const handleDelete = async (id: number) => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {holidays.map((holiday) => (
-                <TableRow key={holiday.id}>
-                  <TableCell>{holiday.name}</TableCell>
-                  <TableCell>
-                    {format(new Date(holiday.startDate), "yyyy-MM-dd")} to {format(new Date(holiday.endDate), "yyyy-MM-dd")}
-                  </TableCell>
-                  <TableCell>{holiday.description}</TableCell>
-                  <TableCell className="text-right space-x-2">
-                    <Button variant="outline" size="icon" onClick={() => handleEditClick(holiday)}><Pencil className="w-4 h-4" /></Button>
-                    <Button variant="destructive" size="icon" onClick={() => handleDelete(holiday.id)}><Trash2 className="w-4 h-4" /></Button>
+              {holidays.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={4} className="text-center text-muted-foreground">
+                    No holidays found for this institution.
                   </TableCell>
                 </TableRow>
-              ))}
+              ) : (
+                holidays.map((holiday) => (
+                  <TableRow key={holiday.id}>
+                    <TableCell>{holiday.name}</TableCell>
+                    <TableCell>
+                      {format(new Date(holiday.startDate), "yyyy-MM-dd")} to {format(new Date(holiday.endDate), "yyyy-MM-dd")}
+                    </TableCell>
+                    <TableCell>{holiday.description}</TableCell>
+                    <TableCell className="text-right space-x-2">
+                      <Button variant="outline" size="icon" onClick={() => handleEditClick(holiday)}>
+                        <Pencil className="w-4 h-4" />
+                      </Button>
+                      <Button variant="destructive" size="icon" onClick={() => handleDelete(holiday.id)}>
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
             </TableBody>
           </Table>
         </CardContent>
