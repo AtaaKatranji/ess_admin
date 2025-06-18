@@ -67,7 +67,7 @@ const NonAttendanceTab: React.FC<Props> = ({
       );
       const data = await res.json();
       console.log("fetchLeaves", data);
-      return data.leaves || [];
+      return data.leaves?.leaves || [];
     };
 
     const fetchHolidays = async () => {
