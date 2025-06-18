@@ -107,10 +107,10 @@ const NonAttendanceTab: React.FC<Props> = ({
 
         // 1. Check Holiday
         const holiday = holidays.find(
-          (h) =>
-            date >= new Date(h.startDate) &&
-            date <= new Date(h.endDate)
-        );
+            (h) =>
+              dateStr >= format(new Date(h.startDate), "yyyy-MM-dd") &&
+              dateStr <= format(new Date(h.endDate), "yyyy-MM-dd")
+          );
         if (holiday) {
           return {
             date,
