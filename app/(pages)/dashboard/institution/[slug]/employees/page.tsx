@@ -51,6 +51,7 @@ const EmployeeList: React.FC = () => {
     try {
       setLoading(true)
       const dataIns = await fetchInstitution(slug!)
+      console.log("dataIns", dataIns)
       if (!dataIns.uniqueKey) return
 
       const data = await fetchEmployees(dataIns.uniqueKey)

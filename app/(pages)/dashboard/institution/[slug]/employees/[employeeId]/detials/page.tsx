@@ -87,8 +87,9 @@ const EmployeeDetails = () => {
   const employeeId = Array.isArray(params.employeeId) ? params.employeeId[0] : params.employeeId as string;
   const fetchData = async () => {
 
-    await setInstitutionKey( await fetchInstitution(slug!));
+    setInstitutionKey( await fetchInstitution(slug!));
     console.log("InstitutionKey", institutionKey);
+    console.log("InstitutionKey dirctly", await fetchInstitution(slug!));
   };
   const fetchAllData = useCallback(async (month: Date) => {
     setIsLoading(true);
