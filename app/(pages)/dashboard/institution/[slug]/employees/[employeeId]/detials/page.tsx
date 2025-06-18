@@ -86,9 +86,9 @@ const EmployeeDetails = () => {
 
   const employeeId = Array.isArray(params.employeeId) ? params.employeeId[0] : params.employeeId as string;
   const fetchData = async () => {
-
-    setInstitutionKey( await fetchInstitution(slug!));
-    console.log("InstitutionKey", institutionKey);
+    const dataIns = await fetchInstitution(slug!)
+    setInstitutionKey( dataIns.uniqueKey);
+    console.log("InstitutionKey from data Ins", institutionKey);
     console.log("InstitutionKey dirctly", await fetchInstitution(slug!));
   };
   const fetchAllData = useCallback(async (month: Date) => {
@@ -475,7 +475,7 @@ const EmployeeDetails = () => {
           <HourlyLeavesTab employeeId={employeeId} selectedMonth={selectedMonth} />
         </TabsContent>
         <TabsContent value="dayRecords">
-          <NonAttendanceTab employeeId={employeeId} selectedMonth={selectedMonth} institutionKey="TACULZO0F" />
+          <NonAttendanceTab employeeId={employeeId} selectedMonth={selectedMonth} institutionKey={institutionKey} />
         </TabsContent>
       </Tabs>
     </div>
