@@ -96,17 +96,22 @@ const EmployeeDetails = () => {
   const [institutionKey, setInstitutionKey] = useState("");
 
   const employeeId = Array.isArray(params.employeeId) ? params.employeeId[0] : params.employeeId as string;
-  const fetchData = async () => {
-    const dataIns = await fetchInstitution(slug!)
-    setInstitutionKey( dataIns.uniqueKey);
-    console.log("InstitutionKey from data Ins", institutionKey);
-    console.log("InstitutionKey dirctly", await fetchInstitution(slug!));
-  };
+  // const fetchData = async () => {
+  //   const dataIns = await fetchInstitution(slug!)
+  //   setInstitutionKey( dataIns.uniqueKey);
+  //   console.log("InstitutionKey from data Ins", dataIns.uniqueKey);
+  //   console.log("InstitutionKey dirctly", await fetchInstitution(slug!));
+  // };
   const fetchAllData = useCallback(async (month: Date) => {
     setIsLoading(true);
     try {
       console.log("Slug in page detiles: ", slug);
       // Fetch shifts once outside Promise.all
+      const dataIns = await fetchInstitution(slug!);
+      const uniqueKey = dataIns.uniqueKey;
+      setInstitutionKey(uniqueKey);
+      console.log("uniqueKey", dataIns.uniqueKey);
+      console.log("InstitutionKey uni", uniqueKey);
       console.log("Employee Id in page detiles: ", employeeId);
       const shiftsResRaw = await fetchTimeShifts(employeeId);
       const shifts = Array.isArray(shiftsResRaw) ? shiftsResRaw[0] : shiftsResRaw;
@@ -138,7 +143,7 @@ const EmployeeDetails = () => {
             shiftEnd: data.endTime || shifts?.endTime,
           }),
         }).then(res => res.ok ? res.json() : Promise.reject("Failed to fetch time shift")),
-        fetch(`${BaseUrl}/holidays/institution/${institutionKey}`)
+        fetch(`${BaseUrl}/holidays/institution/${dataIns.uniqueKey}`)
         .then(res => res.ok ? res.json() : Promise.reject("Failed to fetch holidays")),
       ]);
       console.log("timeShiftRes", timeShiftRes);
