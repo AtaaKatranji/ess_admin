@@ -84,6 +84,7 @@ const EmployeeDetails = () => {
     leaves: [] as Leave[],
     employeeName: "",
     holidays: [] as Holiday[],
+    worksDays: [],
     
   });
   const [isLoading, setIsLoading] = useState(true);
@@ -96,12 +97,7 @@ const EmployeeDetails = () => {
   const [institutionKey, setInstitutionKey] = useState("");
 
   const employeeId = Array.isArray(params.employeeId) ? params.employeeId[0] : params.employeeId as string;
-  // const fetchData = async () => {
-  //   const dataIns = await fetchInstitution(slug!)
-  //   setInstitutionKey( dataIns.uniqueKey);
-  //   console.log("InstitutionKey from data Ins", dataIns.uniqueKey);
-  //   console.log("InstitutionKey dirctly", await fetchInstitution(slug!));
-  // };
+
   const fetchAllData = useCallback(async (month: Date) => {
     setIsLoading(true);
     try {
@@ -110,15 +106,9 @@ const EmployeeDetails = () => {
       const dataIns = await fetchInstitution(slug!);
       const uniqueKey = dataIns.uniqueKey;
       setInstitutionKey(uniqueKey);
-      console.log("uniqueKey", dataIns.uniqueKey);
-      console.log("InstitutionKey uni", uniqueKey);
-      console.log("Employee Id in page detiles: ", employeeId);
       const shiftsResRaw = await fetchTimeShifts(employeeId);
-      const shifts = Array.isArray(shiftsResRaw) ? shiftsResRaw[0] : shiftsResRaw;
-      
+      const shifts = Array.isArray(shiftsResRaw) ? shiftsResRaw[0] : shiftsResRaw;      
       const formattedMonth = moment(month).format('YYYY-MM-01');
-      console.log("month", formattedMonth);
-      console.log("institutionKey before fetchin holidays: ", institutionKey);
       const [hoursRes, leavesRes, summaryRes, timeShiftRes, holidaysRes] = await Promise.all([
         fetch(`${BaseUrl}/checks/calculate-hours`, {
           method: "POST",
@@ -143,7 +133,7 @@ const EmployeeDetails = () => {
             shiftEnd: data.endTime || shifts?.endTime,
           }),
         }).then(res => res.ok ? res.json() : Promise.reject("Failed to fetch time shift")),
-        fetch(`${BaseUrl}/holidays/institution/${dataIns.uniqueKey}`)
+        fetch(`${BaseUrl}/holidays/institution/${uniqueKey}`)
         .then(res => res.ok ? res.json() : Promise.reject("Failed to fetch holidays")),
       ]);
       console.log("timeShiftRes", timeShiftRes);
@@ -165,6 +155,7 @@ const EmployeeDetails = () => {
         addedHours: timeShiftRes.extraAdjusmentHours,
         startTime: shifts?.startTime || "",
         endTime: shifts?.endTime || "",
+        worksDays: shifts?.worksDays || [],
         monthlySummary: summary,
         comparisonData: summary.map(s => ({ name: s.month, attendance: s.totalAttendance, absences: s.absences, tardies: s.tardies })),
         paidLeaves: leavesRes.leaveDays?.totalPaidLeaveDays || 0,
@@ -218,6 +209,7 @@ const EmployeeDetails = () => {
     console.log("holiday test fetching: ", data.holidays);
     console.log("See Start&End Time: ", data.startTime , " ", data.endTime);
     console.log("hours per shift: ", parseInt(data.startTime!.split(":")[0]) - parseInt(data.endTime!.split(":")[0]));
+    console.log("Works Days: ", data.worksDays);
 
   }, [fetchAllData, selectedMonth]);
 
@@ -364,7 +356,7 @@ const EmployeeDetails = () => {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       <AnnualLeaveCard employeeId={employeeId} />
-      <OccasionCard holidays={data.holidays} shiftStart={data.startTime} shiftEnd={data.endTime}/>
+      <OccasionCard holidays={data.holidays} shiftStart={data.startTime} shiftEnd={data.endTime} workDays={data.worksDays}/>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card>
