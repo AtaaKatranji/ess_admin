@@ -25,7 +25,7 @@ import moment from "moment";
 import NonAttendanceTab from "@/app/components/nonAttendanceDays";
 import { fetchInstitution } from "@/app/api/institutions/institutions";
 import OccasionCard from "@/app/components/OccasionCard";
-
+import { Holiday } from "@/app/types/Employee";
 
 type Leave = {
   id: string;
@@ -51,6 +51,15 @@ type Comp = {
   tardies: number;
 };
 
+// type Holiday = {
+//   id: number;
+//   name: string;
+//   startDate: string;
+//   endDate: string;
+//   description?: string;
+//   institutionId: number;
+// };
+
 interface MonthlyAttendanceResponse {
   employeeId: string;
   monthlyAttendance: Record<string, { totalAttendance: number; absences: number; tardies: number }>;
@@ -74,6 +83,7 @@ const EmployeeDetails = () => {
     unpaidLeaves: null as number | null,
     leaves: [] as Leave[],
     employeeName: "",
+    holidays: [] as Holiday[],
     
   });
   const [isLoading, setIsLoading] = useState(true);
@@ -103,7 +113,7 @@ const EmployeeDetails = () => {
       
       const formattedMonth = moment(month).format('YYYY-MM-01');
       console.log("month", formattedMonth);
-      const [hoursRes, leavesRes, summaryRes, timeShiftRes] = await Promise.all([
+      const [hoursRes, leavesRes, summaryRes, timeShiftRes, holidaysRes] = await Promise.all([
         fetch(`${BaseUrl}/checks/calculate-hours`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -128,6 +138,9 @@ const EmployeeDetails = () => {
             shiftEnd: data.endTime || shifts?.endTime,
           }),
         }).then(res => res.ok ? res.json() : Promise.reject("Failed to fetch time shift")),
+
+        fetch(`${BaseUrl}/holidays/institution/${institutionKey}`)
+        .then(res => res.ok ? res.json() : Promise.reject("Failed to fetch holidays")),
       ]);
       console.log("timeShiftRes", timeShiftRes);
       const summary = Object.entries((summaryRes as MonthlyAttendanceResponse).monthlyAttendance).map(([month, stats]) => ({
@@ -151,6 +164,7 @@ const EmployeeDetails = () => {
         paidLeaves: leavesRes.leaveDays?.totalPaidLeaveDays || 0,
         unpaidLeaves: leavesRes.leaveDays?.totalUnpaidLeaveDays || 0,
         leaves: leavesRes.leaves?.leaves || [],
+        holidays: holidaysRes || [],
         employeeName: "",
       });
     } catch (error) {
@@ -194,8 +208,11 @@ const EmployeeDetails = () => {
 
   useEffect(() => {
     fetchData();
-    console.log("InstitutionKey", institutionKey);
     fetchAllData(selectedMonth);
+    console.log("holiday test fetching: ", data.holidays);
+    console.log("See Start&End Time: ", data.startTime , " ", data.endTime);
+    console.log("hours per shift: ", parseInt(data.startTime!.split(":")[0]) - parseInt(data.endTime!.split(":")[0]));
+
   }, [fetchAllData, selectedMonth]);
 
   const filteredLeaves = useMemo(() => {
@@ -341,7 +358,7 @@ const EmployeeDetails = () => {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       <AnnualLeaveCard employeeId={employeeId} />
-      <OccasionCard />
+      <OccasionCard holidays={data.holidays} shiftStart={data.startTime} shiftEnd={data.endTime}/>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card>
@@ -479,7 +496,7 @@ const EmployeeDetails = () => {
           <HourlyLeavesTab employeeId={employeeId} selectedMonth={selectedMonth} />
         </TabsContent>
         <TabsContent value="dayRecords">
-          <NonAttendanceTab employeeId={employeeId} selectedMonth={selectedMonth} institutionKey={institutionKey} />
+          <NonAttendanceTab employeeId={employeeId} selectedMonth={selectedMonth} institutionKey={institutionKey} holidays={data.holidays}  />
         </TabsContent>
       </Tabs>
     </div>

@@ -5,7 +5,7 @@ import { Search } from "lucide-react";
 import { format, eachDayOfInterval } from "date-fns";
 import { Input } from "@/components/ui/input";
 import moment from "moment";
-
+import { Holiday } from "@/app/types/Employee";
 type Leave = {
   startDate: string;
   endDate: string;
@@ -14,12 +14,7 @@ type Leave = {
   durationInDays?: number;
 };
 
-type Holiday = {
-  startDate: string;
-  endDate: string;
-  name: string;
-  description?: string;
-};
+
 
 type DayRecord = {
   date: Date;
@@ -35,16 +30,18 @@ type Props = {
   employeeId: string;
   selectedMonth: Date;
   institutionKey: string;
+  holidays: Holiday[];
 };
 
 const NonAttendanceTab: React.FC<Props> = ({
   employeeId,
   selectedMonth,
   institutionKey,
+  holidays,
 }) => {
   const [absentDays, setAbsentDays] = useState<string[]>([]);
   const [leaves, setLeaves] = useState<Leave[]>([]);
-  const [holidays, setHolidays] = useState<Holiday[]>([]);
+  //const [holidays, setHolidays] = useState<Holiday[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   console.log("institutionKey", institutionKey);
@@ -70,20 +67,22 @@ const NonAttendanceTab: React.FC<Props> = ({
       return data.leaves?.leaves || [];
     };
 
-    const fetchHolidays = async () => {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/holidays/institution/${institutionKey}`
-      );
-      const data = await res.json();
-      console.log("fetchHolidays", data);
-      return data || [];
-    };
+    // const fetchHolidays = async () => {
+    //   const res = await fetch(
+    //     `${process.env.NEXT_PUBLIC_API_URL}/holidays/institution/${institutionKey}`
+    //   );
+    //   const data = await res.json();
+    //   console.log("fetchHolidays", data);
+    //   return data || [];
+    // };
 
-    Promise.all([fetchAbsences(), fetchLeaves(), fetchHolidays()])
-      .then(([absences, leaves, holidays]) => {
+
+    //Promise.all([fetchAbsences(), fetchLeaves(), fetchHolidays()])
+    Promise.all([fetchAbsences(), fetchLeaves()])
+      .then(([absences, leaves]) => {
         setAbsentDays(absences);
         setLeaves(leaves);
-        setHolidays(holidays);
+        //setHolidays(holidays);
       })
       .catch((error) => {
         console.error("Error fetching data:", error);
