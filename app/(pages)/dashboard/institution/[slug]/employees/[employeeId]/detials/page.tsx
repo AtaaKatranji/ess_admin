@@ -113,6 +113,7 @@ const EmployeeDetails = () => {
       
       const formattedMonth = moment(month).format('YYYY-MM-01');
       console.log("month", formattedMonth);
+      console.log("institutionKey before fetchin holidays: ", institutionKey);
       const [hoursRes, leavesRes, summaryRes, timeShiftRes, holidaysRes] = await Promise.all([
         fetch(`${BaseUrl}/checks/calculate-hours`, {
           method: "POST",
