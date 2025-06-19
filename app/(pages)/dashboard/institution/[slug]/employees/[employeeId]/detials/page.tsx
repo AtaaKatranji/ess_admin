@@ -157,7 +157,7 @@ const EmployeeDetails = () => {
         addedHours: timeShiftRes.extraAdjusmentHours,
         startTime: shifts?.startTime || "",
         endTime: shifts?.endTime || "",
-        worksDays: shifts?.worksDays || [],
+        worksDays: shiftsResRaw.days || [],
         monthlySummary: summary,
         comparisonData: summary.map(s => ({ name: s.month, attendance: s.totalAttendance, absences: s.absences, tardies: s.tardies })),
         paidLeaves: leavesRes.leaveDays?.totalPaidLeaveDays || 0,
