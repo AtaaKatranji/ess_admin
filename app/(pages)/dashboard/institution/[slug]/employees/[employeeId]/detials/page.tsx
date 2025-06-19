@@ -139,6 +139,8 @@ const EmployeeDetails = () => {
       console.log("timeShiftRes", timeShiftRes);
       console.log("holidaysRes", holidaysRes);
       console.log("hoursRes", hoursRes);
+      console.log("shiftsResRaw", shiftsResRaw);
+      console.log("shiftsResRaw", shiftsResRaw);
       const summary = Object.entries((summaryRes as MonthlyAttendanceResponse).monthlyAttendance).map(([month, stats]) => ({
         month,
         totalAttendance: stats.totalAttendance,
