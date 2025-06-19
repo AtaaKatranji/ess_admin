@@ -24,6 +24,7 @@ import HourlyLeavesTab from "@/app/components/TabHourlyLeaves";
 import moment from "moment";
 import NonAttendanceTab from "@/app/components/nonAttendanceDays";
 import { fetchInstitution } from "@/app/api/institutions/institutions";
+import OccasionCard from "@/app/components/OccasionCard";
 
 
 type Leave = {
@@ -338,7 +339,10 @@ const EmployeeDetails = () => {
           </CardContent>
         </Card>
       </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       <AnnualLeaveCard employeeId={employeeId} />
+      <OccasionCard />
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card>
           <CardHeader>
