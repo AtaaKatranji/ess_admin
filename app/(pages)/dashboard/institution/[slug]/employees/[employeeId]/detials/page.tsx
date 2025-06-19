@@ -125,8 +125,7 @@ const EmployeeDetails = () => {
           credentials : "include",
           //body: JSON.stringify({ userId: employeeId, month }),
         }).then(res => res.ok ? res.json() : Promise.reject("Failed to fetch leaves")),
-        fetch(`${BaseUrl}/checks/summaryLastTwoMonth/${employeeId}`).then(res => res.ok ? res.json() : Promise.reject("Failed to fetch summary")),
-        
+        fetch(`${BaseUrl}/checks/summaryLastTwoMonth/${employeeId}`).then(res => res.ok ? res.json() : Promise.reject("Failed to fetch summary")),        
         fetch(`${BaseUrl}/checks/timeShift`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -138,11 +137,12 @@ const EmployeeDetails = () => {
             shiftEnd: data.endTime || shifts?.endTime,
           }),
         }).then(res => res.ok ? res.json() : Promise.reject("Failed to fetch time shift")),
-
         fetch(`${BaseUrl}/holidays/institution/${institutionKey}`)
         .then(res => res.ok ? res.json() : Promise.reject("Failed to fetch holidays")),
       ]);
       console.log("timeShiftRes", timeShiftRes);
+      console.log("holidaysRes", holidaysRes);
+      console.log("hoursRes", hoursRes);
       const summary = Object.entries((summaryRes as MonthlyAttendanceResponse).monthlyAttendance).map(([month, stats]) => ({
         month,
         totalAttendance: stats.totalAttendance,
