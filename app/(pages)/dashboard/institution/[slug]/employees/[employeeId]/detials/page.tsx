@@ -213,7 +213,7 @@ const EmployeeDetails = () => {
 }, [employeeId, selectedMonth]);
 
   useEffect(() => {
-    fetchData();
+    // fetchData();
     fetchAllData(selectedMonth);
     console.log("holiday test fetching: ", data.holidays);
     console.log("See Start&End Time: ", data.startTime , " ", data.endTime);
