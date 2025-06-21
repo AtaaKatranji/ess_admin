@@ -34,12 +34,13 @@ const exportMonthlyReportPDF = (data) => {
       const date = new Date(entry.date);
       if (isNaN(date.getTime())) {
           console.error("Invalid date:", entry.date);
-          return ["Invalid Date", "-", "-", "-"];
+          return ["Invalid Date", "-", "-", "-", "-", "-", "-"];
       }
       const year = date.getUTCFullYear();
       const month = String(date.getUTCMonth() + 1).padStart(2, '0');
-      const day = String(date.getUTCDate()).padStart(2, '0');
-      const shortOptions = { weekday: 'short' };
+      const dayNum = String(date.getUTCDate()).padStart(2, '0');
+      const shortDay = entry.dayOfWeek || new Intl.DateTimeFormat('en-US', { weekday: 'short' }).format(date);
+      //const shortOptions = { weekday: 'short' };
       const longOptions = { weekday: 'long' };
       let formattedDate;
       if (entry.type !== "Attendance") {
@@ -53,7 +54,8 @@ const exportMonthlyReportPDF = (data) => {
           return [formattedDate, "-", "-", "-"];
       } else {
           return [
-              formattedDate,
+              `${year}-${month}-${dayNum}`,
+              shortDay,
               entry.type || "-",
               entry.checkIn || "-",
               entry.checkOut || "-",
