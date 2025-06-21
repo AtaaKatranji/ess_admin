@@ -50,9 +50,9 @@ const exportMonthlyReportPDF = (data) => {
     //       const shortDayName = new Intl.DateTimeFormat('en-US', shortDay).format(date);
     //       formattedDate = `${year}-${month}-${day}: ${shortDayName}`;
     //   }
-      if (entry.type !== "Attendance") {
-          return [formattedDate, "-", "-", "-"];
-      } else {
+    //   if (entry.type !== "Attendance") {
+    //       return [formattedDate, "-", "-", "-"];
+    //   } else {
           return [
               `${year}-${month}-${dayNum}`,
               longDay,
@@ -62,7 +62,7 @@ const exportMonthlyReportPDF = (data) => {
               entry.dailyHours || "-",
               entry.holidayName || ""
           ];
-      }
+    //   }
   });
 
   doc.autoTable({
