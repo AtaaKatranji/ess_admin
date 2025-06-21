@@ -39,23 +39,23 @@ const exportMonthlyReportPDF = (data) => {
       const year = date.getUTCFullYear();
       const month = String(date.getUTCMonth() + 1).padStart(2, '0');
       const dayNum = String(date.getUTCDate()).padStart(2, '0');
-      const shortDay = entry.dayOfWeek || new Intl.DateTimeFormat('en-US', { weekday: 'short' }).format(date);
-      //const shortOptions = { weekday: 'short' };
-      const longOptions = { weekday: 'long' };
-      let formattedDate;
-      if (entry.type !== "Attendance") {
-          const longDayName = new Intl.DateTimeFormat('en-US', longOptions).format(date);
-          formattedDate = `${year}-${month}-${day}: ${longDayName}    ${entry.type}`;
-      } else {
-          const shortDayName = new Intl.DateTimeFormat('en-US', shortOptions).format(date);
-          formattedDate = `${year}-${month}-${day}: ${shortDayName}`;
-      }
+     // const shortDay = entry.dayOfWeek || new Intl.DateTimeFormat('en-US', { weekday: 'short' }).format(date);
+      const longDay = entry.dayOfWeek || new Intl.DateTimeFormat('en-US', { weekday: 'long' }).format(date);      //const shortOptions = { weekday: 'short' };
+    //   const longOptions = { weekday: 'long' };
+    //   let formattedDate;
+    //   if (entry.type !== "Attendance") {
+    //       const longDayName = new Intl.DateTimeFormat('en-US', longOptions).format(date);
+    //       formattedDate = `${year}-${month}-${day}: ${longDayName}    ${entry.type}`;
+    //   } else {
+    //       const shortDayName = new Intl.DateTimeFormat('en-US', shortDay).format(date);
+    //       formattedDate = `${year}-${month}-${day}: ${shortDayName}`;
+    //   }
       if (entry.type !== "Attendance") {
           return [formattedDate, "-", "-", "-"];
       } else {
           return [
               `${year}-${month}-${dayNum}`,
-              shortDay,
+              longDay,
               entry.type || "-",
               entry.checkIn || "-",
               entry.checkOut || "-",
