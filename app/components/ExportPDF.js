@@ -19,6 +19,7 @@ const exportMonthlyReportPDF = (data) => {
       ["Early Arrival Hours", data.summary.earlyArrivalHours],
       ["Extra Attendance Hours", data.summary.extraAttendanceHours],
       ["Total Days Attendanced", data.summary.totalDays],
+      ["Total Days Holidays", data.summary.totalHolidays],
       ["Paid Leaves", data.summary.totalLeaves || 0], // Fix mismatch
       ["Unpaid Leaves", 0], // Fix mismatch
       ["Extra Added Hours", data.summary.extraAdjusmentHours],
@@ -66,8 +67,8 @@ const exportMonthlyReportPDF = (data) => {
     head: [["Date", "Day", "Type", "Check-In", "Check-Out", "Daily Hours", "Holiday Name"]],
       body: checkInOutData,
       startY: doc.lastAutoTable.finalY + 10,
-      didParseCell: function (data) {
-        if (data.section === 'body') {
+      didParseCell: function (checkInOutData) {
+        if (checkInOutData.section === 'body') {
           const rowType = data.row.raw[2];
           if (rowType === "Public Holiday") data.cell.styles.fillColor = [220, 235, 255]; // Light blue
           if (rowType === "Weekend") data.cell.styles.fillColor = [245, 245, 245]; // Light gray
