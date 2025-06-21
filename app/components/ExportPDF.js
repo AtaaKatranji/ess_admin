@@ -6,8 +6,39 @@ import 'jspdf-autotable';
 const exportMonthlyReportPDF = (data) => {
   if (typeof window === 'undefined') return;
   const doc = new jsPDF();
-  doc.text(`${data.summary.monthName} Attendance Report`, 14, 10);
-  doc.text(`Employee: ${data.summary.employeeName}`, 14, 16);
+  const monthNameText = data.summary.monthName;
+  const reportText = " Attendance Report";
+  const fullLine = monthNameText + reportText;
+  
+  // Calculate total width
+  const fullLineWidth = doc.getTextWidth(fullLine);
+  
+  // Calculate X so the line is centered
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const centerX = (pageWidth - fullLineWidth) / 2;
+  
+  // Draw bold month name
+  doc.setFont(undefined, 'bold');
+  doc.text(monthNameText, centerX, 10);
+  
+  // Draw regular " Attendance Report" right after bold text
+  const monthNameWidth = doc.getTextWidth(monthNameText);
+  doc.setFont(undefined, 'normal');
+  doc.text(reportText, centerX + monthNameWidth, 10);
+
+// 2. Print "Employee: John Doe" with "Employee:" regular, "John Doe" bold
+
+// Set font to normal for "Employee:"
+const employeeLabel = "Employee: ";
+doc.setFont(undefined, 'normal');
+doc.text(employeeLabel, 14, 16);
+
+// Calculate width of the label to position the bold name correctly
+const employeeLabelWidth = doc.getTextWidth(employeeLabel);
+
+// Set font to bold for employee name
+doc.setFont(undefined, 'bold');
+doc.text(data.summary.employeeName, 14 + employeeLabelWidth, 16);
   let totalHours = Number(data.summary.totalHours) || 0;
   if (Number(data.summary.extraAdjusmentHours) > 0) {
       totalHours += Number(data.summary.extraAdjusmentHours) || 0;
