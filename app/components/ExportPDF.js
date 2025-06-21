@@ -5,8 +5,6 @@ import 'jspdf-autotable';
 
 const exportMonthlyReportPDF = (data) => {
   if (typeof window === 'undefined') return;
-  console.log("Full data in export:", JSON.stringify(data, null, 2));
-  console.log("Details length in export:", data.details.length);
   const doc = new jsPDF();
   doc.text(`${data.summary.monthName} Attendance Report`, 14, 10);
   doc.text(`Employee: ${data.summary.employeeName}`, 14, 16);
@@ -50,23 +48,33 @@ const exportMonthlyReportPDF = (data) => {
           const shortDayName = new Intl.DateTimeFormat('en-US', shortOptions).format(date);
           formattedDate = `${year}-${month}-${day}: ${shortDayName}`;
       }
-      console.log("Formatted row:", [formattedDate, entry.checkIn || "-", entry.checkOut || "-", entry.dailyHours || "-"]);
       if (entry.type !== "Attendance") {
           return [formattedDate, "-", "-", "-"];
       } else {
           return [
               formattedDate,
+              entry.type || "-",
               entry.checkIn || "-",
               entry.checkOut || "-",
-              entry.dailyHours || "-"
+              entry.dailyHours || "-",
+              entry.holidayName || ""
           ];
       }
   });
-  console.log("checkInOutData:", JSON.stringify(checkInOutData, null, 2));
+
   doc.autoTable({
-      head: [["Date", "Check-In", "Check-Out", "Daily Hours"]],
+    head: [["Date", "Day", "Type", "Check-In", "Check-Out", "Daily Hours", "Holiday Name"]],
       body: checkInOutData,
       startY: doc.lastAutoTable.finalY + 10,
+      didParseCell: function (data) {
+        if (data.section === 'body') {
+          const rowType = data.row.raw[2];
+          if (rowType === "Public Holiday") data.cell.styles.fillColor = [220, 235, 255]; // Light blue
+          if (rowType === "Weekend") data.cell.styles.fillColor = [245, 245, 245]; // Light gray
+          if (rowType === "Leave") data.cell.styles.fillColor = [255, 240, 220]; // Light orange
+          if (rowType === "Absent") data.cell.styles.fillColor = [255, 225, 225]; // Light red
+        }
+      }
   });
   doc.save(`${data.summary.monthName}_Attendance_Report_${data.summary.employeeName}.pdf`);
 };

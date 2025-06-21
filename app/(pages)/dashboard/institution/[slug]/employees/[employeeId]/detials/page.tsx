@@ -136,11 +136,7 @@ const EmployeeDetails = () => {
         fetch(`${BaseUrl}/holidays/institution/${uniqueKey}`)
         .then(res => res.ok ? res.json() : Promise.reject("Failed to fetch holidays")),
       ]);
-      console.log("timeShiftRes", timeShiftRes);
-      console.log("holidaysRes", holidaysRes);
-      console.log("hoursRes", hoursRes);
-      console.log("shiftsResRaw", shiftsResRaw);
-      console.log("shiftsResRaw", shiftsResRaw);
+
       const summary = Object.entries((summaryRes as MonthlyAttendanceResponse).monthlyAttendance).map(([month, stats]) => ({
         month,
         totalAttendance: stats.totalAttendance,
@@ -208,10 +204,7 @@ const EmployeeDetails = () => {
   useEffect(() => {
     // fetchData();
     fetchAllData(selectedMonth);
-    console.log("holiday test fetching: ", data.holidays);
-    console.log("See Start&End Time: ", data.startTime , " ", data.endTime);
-    console.log("hours per shift: ", parseInt(data.startTime!.split(":")[0]) - parseInt(data.endTime!.split(":")[0]));
-    console.log("Works Days: ", data.worksDays);
+
 
   }, [fetchAllData, selectedMonth]);
 
