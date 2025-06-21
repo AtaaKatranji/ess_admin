@@ -109,7 +109,7 @@ const EmployeeDetails = () => {
       const shiftsResRaw = await fetchTimeShifts(employeeId);
       const shifts = Array.isArray(shiftsResRaw) ? shiftsResRaw[0] : shiftsResRaw;      
       const formattedMonth = moment(month).format('YYYY-MM-01');
-      const [hoursRes, leavesRes, summaryRes, timeShiftRes, holidaysRes] = await Promise.all([
+      const [hoursRes, leavesRes, summaryRes, timeShiftRes, holidaysRes,empName] = await Promise.all([
         fetch(`${BaseUrl}/checks/calculate-hours`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -135,6 +135,7 @@ const EmployeeDetails = () => {
         }).then(res => res.ok ? res.json() : Promise.reject("Failed to fetch time shift")),
         fetch(`${BaseUrl}/holidays/institution/${uniqueKey}`)
         .then(res => res.ok ? res.json() : Promise.reject("Failed to fetch holidays")),
+        fetch(`${BaseUrl}/api/users/personal?employeeId=${employeeId}`).then(res => res.ok ? res.json() : Promise.reject("Failed to fetch employee's name")),
       ]);
 
       const summary = Object.entries((summaryRes as MonthlyAttendanceResponse).monthlyAttendance).map(([month, stats]) => ({
@@ -160,7 +161,7 @@ const EmployeeDetails = () => {
         unpaidLeaves: leavesRes.leaveDays?.totalUnpaidLeaveDays || 0,
         leaves: leavesRes.leaves?.leaves || [],
         holidays: holidaysRes || [],
-        employeeName: "",
+        employeeName: empName.name || "",
       });
     } catch (error) {
       console.error("Error fetching data:", error);
