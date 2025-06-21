@@ -29,55 +29,35 @@ const exportMonthlyReportPDF = (data) => {
       body: summaryData,
       startY: 20,
   });
-  const checkInOutData = data.details.map(entry => {
-      console.log("Processing entry:", entry);
+  doc.autoTable({
+    head: [["Date", "Day", "Type", "Check-In", "Check-Out", "Daily Hours", "Holiday Name"]],
+    body: data.details.map(entry => {
       const date = new Date(entry.date);
-      if (isNaN(date.getTime())) {
-          console.error("Invalid date:", entry.date);
-          return ["Invalid Date", "-", "-", "-", "-", "-", "-"];
-      }
+      if (isNaN(date.getTime())) return ["Invalid Date", "-", "-", "-", "-", "-", "-"];
       const year = date.getUTCFullYear();
       const month = String(date.getUTCMonth() + 1).padStart(2, '0');
       const dayNum = String(date.getUTCDate()).padStart(2, '0');
-     // const shortDay = entry.dayOfWeek || new Intl.DateTimeFormat('en-US', { weekday: 'short' }).format(date);
-      const longDay = entry.dayOfWeek || new Intl.DateTimeFormat('en-US', { weekday: 'long' }).format(date);      //const shortOptions = { weekday: 'short' };
-    //   const longOptions = { weekday: 'long' };
-    //   let formattedDate;
-    //   if (entry.type !== "Attendance") {
-    //       const longDayName = new Intl.DateTimeFormat('en-US', longOptions).format(date);
-    //       formattedDate = `${year}-${month}-${day}: ${longDayName}    ${entry.type}`;
-    //   } else {
-    //       const shortDayName = new Intl.DateTimeFormat('en-US', shortDay).format(date);
-    //       formattedDate = `${year}-${month}-${day}: ${shortDayName}`;
-    //   }
-    //   if (entry.type !== "Attendance") {
-    //       return [formattedDate, "-", "-", "-"];
-    //   } else {
-          return [
-              `${year}-${month}-${dayNum}`,
-              longDay,
-              entry.type || "-",
-              entry.checkIn || "-",
-              entry.checkOut || "-",
-              entry.dailyHours || "-",
-              entry.holidayName || ""
-          ];
-    //   }
-  });
-
-  doc.autoTable({
-    head: [["Date", "Day", "Type", "Check-In", "Check-Out", "Daily Hours", "Holiday Name"]],
-      body: checkInOutData,
-      startY: doc.lastAutoTable.finalY + 10,
-      didParseCell: function (checkInOutData) {
-        if (checkInOutData.section === 'body') {
-          const rowType = data.row.raw[2];
-          if (rowType === "Public Holiday") data.cell.styles.fillColor = [220, 235, 255]; // Light blue
-          if (rowType === "Weekend") data.cell.styles.fillColor = [245, 245, 245]; // Light gray
-          if (rowType === "Leave") data.cell.styles.fillColor = [255, 240, 220]; // Light orange
-          if (rowType === "Absent") data.cell.styles.fillColor = [255, 225, 225]; // Light red
-        }
+      const shortDay = entry.dayOfWeek || new Intl.DateTimeFormat('en-US', { weekday: 'short' }).format(date);
+      return [
+        `${year}-${month}-${dayNum}`,
+        shortDay,
+        entry.type || "-",
+        entry.checkIn || "-",
+        entry.checkOut || "-",
+        entry.dailyHours || "-",
+        entry.holidayName || ""
+      ];
+    }),
+    startY: doc.lastAutoTable.finalY + 10,
+    didParseCell: function (data) {
+      if (data.section === 'body') {
+        const rowType = data.row.raw[2];
+        if (rowType === "Public Holiday") data.cell.styles.fillColor = [220, 235, 255]; // Light blue
+        if (rowType === "Weekend") data.cell.styles.fillColor = [245, 245, 245]; // Light gray
+        if (rowType === "Leave") data.cell.styles.fillColor = [255, 240, 220]; // Light orange
+        if (rowType === "Absent") data.cell.styles.fillColor = [255, 225, 225]; // Light red
       }
+    }
   });
   doc.save(`${data.summary.monthName}_Attendance_Report_${data.summary.employeeName}.pdf`);
 };
