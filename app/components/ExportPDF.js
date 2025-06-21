@@ -52,8 +52,8 @@ const exportMonthlyReportPDF = (data) => {
     didParseCell: function (data) {
       if (data.section === 'body') {
         const rowType = data.row.raw[2];
-        if (rowType === "Public Holiday") data.cell.styles.fillColor = [220, 235, 255]; // Light blue
-        if (rowType === "Weekend") data.cell.styles.fillColor = [245, 245, 245]; // Light gray
+        if (rowType === "Offical Holiday") data.cell.styles.fillColor = [220, 235, 255]; // Light blue
+        if (rowType === "Weekend") data.cell.styles.fillColor = [255, 255, 237]; // Light gray
         if (rowType === "Leave") data.cell.styles.fillColor = [255, 240, 220]; // Light orange
         if (rowType === "Absent") data.cell.styles.fillColor = [255, 225, 225]; // Light red
       }
