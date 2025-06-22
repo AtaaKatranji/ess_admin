@@ -14,6 +14,7 @@ import { useInstitution } from '@/app/context/InstitutionContext'
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
+import ShiftForm from '@/app/components/shift-dialog'
 const BaseURL = process.env.NEXT_PUBLIC_API_URL;
 type Employee = {
   id: string; // Changed from id to id for MySQL
@@ -403,6 +404,7 @@ const toggleEmployeesExpanded = (shiftId: number) => {
     
     <div className="container mx-auto p-4">
       <ToastContainer />
+      <ShiftForm />
       <div className='flex justify-between'>
         <h1 className="text-2xl font-bold mb-4">Shift Management</h1>
         <Button type="button" onClick={() => { resetNewShift(); setIsOpen(true) }}>
