@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect} from 'react'
-import { PlusCircle, Trash2, UserPlus, ArrowRightLeft, Edit, SaveIcon, Clock, Calendar, Settings } from 'lucide-react'
+import { PlusCircle, Trash2, UserPlus, ArrowRightLeft, Edit, SaveIcon, Clock, Calendar, Settings, ChevronDown } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -75,7 +75,7 @@ export default function ShiftsPage() {
   const [isEditing, setIsEditing] = useState(false)
    // const [errorName, setErrorName] = useState<string | null>(null);
   // const [newName, setNewName] = useState<string | null>(null);
-
+  const [isEmployeesExpandedMap, setIsEmployeesExpandedMap] = useState<{ [key: number]: boolean }>({})
 
 
 
@@ -392,6 +392,12 @@ const getEffectiveTime = (shift: Shift, day: string) => {
     end: formatTime(shift.endTime),
     isOverride: false,
   }
+}
+const toggleEmployeesExpanded = (shiftId: number) => {
+  setIsEmployeesExpandedMap((prevState) => ({
+    ...prevState,
+    [shiftId]: !prevState[shiftId],
+  }))
 }
   return (
     
@@ -766,60 +772,84 @@ const getEffectiveTime = (shift: Shift, day: string) => {
                   )}
 
                   <Separator />
+                    {/* Assigned Employees - Collapsible */}
+                    <div>
+                    {(() => {
+                      const isEmployeesExpanded = isEmployeesExpandedMap[Number(shift.id!)] ?? true
 
-                  {/* Assigned Employees */}
-                  <div>
-                    <h4 className="text-lg font-medium mb-3">Assigned Employees ({shift.employees?.length || 0})</h4>
-                    {!shift.employees || shift.employees.length === 0 ? (
-                      <p className="text-sm text-gray-500 bg-gray-50 p-4 rounded-lg">No employees assigned</p>
-                    ) : (
-                      <div className="space-y-2">
-                        {shift.employees.map((employee: Employee) => (
+                      return (
+                        <>
                           <div
-                            key={employee.id}
-                            className="flex items-center justify-between bg-gray-50 p-3 rounded-lg hover:bg-gray-100 transition-colors"
+                            className="flex items-center justify-between cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors"
+                            onClick={() => toggleEmployeesExpanded(Number(shift.id!))}
                           >
-                            <span className="font-medium">{employee.name}</span>
-                            <div className="flex gap-2">
-                              <Dialog>
-                                <DialogTrigger asChild>
-                                  <Button variant="outline" size="sm">
-                                    <ArrowRightLeft className="h-4 w-4 mr-2" />
-                                    Move
-                                  </Button>
-                                </DialogTrigger>
-                                <DialogContent>
-                                  <DialogHeader>
-                                    <DialogTitle>Move Employee to Another Shift</DialogTitle>
-                                  </DialogHeader>
-                                  <Select onValueChange={(value) => moveEmployee(shift.id!, value, employee.id)}>
-                                    <SelectTrigger className="w-full">
-                                      <SelectValue placeholder="Select shift" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      {shifts
-                                        .filter((s) => s.id !== shift.id)
-                                        .map((s) => (
-                                          <SelectItem key={s.id} value={s.id!.toString()}>
-                                            {s.name}
-                                          </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                  </Select>
-                                </DialogContent>
-                              </Dialog>
-                              <Button
-                                variant="destructive"
-                                size="sm"
-                                onClick={() => removeEmployeeFromShift(shift.id!, employee.id)}
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </div>
+                            <h4 className="text-lg font-medium">Assigned Employees ({shift.employees?.length || 0})</h4>
+                            <ChevronDown
+                              className={`h-5 w-5 transition-transform duration-200 ${
+                                isEmployeesExpanded ? "rotate-180" : ""
+                              }`}
+                            />
                           </div>
-                        ))}
-                      </div>
-                    )}
+
+                          {isEmployeesExpanded && (
+                            <div className="mt-3 space-y-2 animate-in slide-in-from-top-2 duration-200">
+                              {!shift.employees || shift.employees.length === 0 ? (
+                                <p className="text-sm text-gray-500 bg-gray-50 p-4 rounded-lg">No employees assigned</p>
+                              ) : (
+                                <div className="space-y-2">
+                                  {shift.employees.map((employee: Employee) => (
+                                    <div
+                                      key={employee.id}
+                                      className="flex items-center justify-between bg-gray-50 p-3 rounded-lg hover:bg-gray-100 transition-colors"
+                                    >
+                                      <span className="font-medium">{employee.name}</span>
+                                      <div className="flex gap-2">
+                                        <Dialog>
+                                          <DialogTrigger asChild>
+                                            <Button variant="outline" size="sm">
+                                              <ArrowRightLeft className="h-4 w-4 mr-2" />
+                                              Move
+                                            </Button>
+                                          </DialogTrigger>
+                                          <DialogContent>
+                                            <DialogHeader>
+                                              <DialogTitle>Move Employee to Another Shift</DialogTitle>
+                                            </DialogHeader>
+                                            <Select
+                                              onValueChange={(value) => moveEmployee(shift.id!, value, employee.id)}
+                                            >
+                                              <SelectTrigger className="w-full">
+                                                <SelectValue placeholder="Select shift" />
+                                              </SelectTrigger>
+                                              <SelectContent>
+                                                {shifts
+                                                  .filter((s) => s.id !== shift.id)
+                                                  .map((s) => (
+                                                    <SelectItem key={s.id} value={s.id!.toString()}>
+                                                      {s.name}
+                                                    </SelectItem>
+                                                  ))}
+                                              </SelectContent>
+                                            </Select>
+                                          </DialogContent>
+                                        </Dialog>
+                                        <Button
+                                          variant="destructive"
+                                          size="sm"
+                                          onClick={() => removeEmployeeFromShift(shift.id!, employee.id)}
+                                        >
+                                          <Trash2 className="h-4 w-4" />
+                                        </Button>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </>
+                      )
+                    })()}
                   </div>
                 </CardContent>
               </Card>
