@@ -14,6 +14,8 @@ import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { PlusCircle, Trash2, Save, Clock, Settings, AlertCircle } from "lucide-react"
 import { Shift } from "@/app/types/Shift";
+import { toast } from "react-toastify"
+const BaseURL = process.env.NEXT_PUBLIC_API_URL;
 const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 
 // Sample initial shift data
@@ -90,8 +92,49 @@ export default function ShiftForm() {
     setIsEditing(false)
   }
 
-  const addShift = () => {
+  const addShift = async() => {
     console.log("Adding shift:", newShift)
+    if (!newShift.name || !newShift.startTime || !newShift.endTime || newShift.days.length === 0) {
+        toast.error('Please fill all required fields')
+        return
+      }
+  
+      try {
+        const shiftResponse = await fetch(`${BaseURL}/shifts/`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(newShift), // No need to set employees here
+        })
+  
+        if (!shiftResponse.ok) {
+          const errorData = await shiftResponse.json()
+          throw new Error(errorData.message || 'Failed to add shift')
+        }
+  
+        const shiftData = await shiftResponse.json()
+        console.log('Created shift:', shiftData)
+  
+        // Handle breaks
+        if (newShift.breaks && newShift.breaks.length > 0) {
+          const breakPromises = newShift.breaks.map(breakItem =>
+            fetch(`${BaseURL}/break/break-types`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ ...breakItem, shiftId: shiftData.id })
+            })
+          )
+          await Promise.all(breakPromises)
+        }
+  
+        
+        resetNewShift()
+        setIsOpen(false)
+        toast.success('Shift added successfully', { autoClose: 1500 })
+      } catch (error) {
+        console.error('Error adding shift:', error)
+        toast.error(`Failed to add shift: ${error instanceof Error ? error.message : 'Unknown error'}`, { autoClose: 1500 })
+      }
+    
     setIsOpen(false)
     resetNewShift()
   }
