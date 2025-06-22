@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect} from 'react'
-import { PlusCircle, Trash2, UserPlus, ArrowRightLeft, Edit, SaveIcon } from 'lucide-react'
+import { PlusCircle, Trash2, UserPlus, ArrowRightLeft, Edit, SaveIcon, Clock, Calendar, Settings } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -11,6 +11,9 @@ import { fetchEmployees } from '@/app/api/employees/employeeId'
 import { fetchShifts } from '@/app/api/shifts/shifts'
 import { toast, ToastContainer } from 'react-toastify'
 import { useInstitution } from '@/app/context/InstitutionContext'
+import { Badge } from "@/components/ui/badge"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Separator } from "@/components/ui/separator"
 const BaseURL = process.env.NEXT_PUBLIC_API_URL;
 type Employee = {
   id: string; // Changed from id to id for MySQL
@@ -28,9 +31,11 @@ type Break = {
 type Shift = {
   id?: string; // Changed from id to id
   name: string;
+  mode: string;
   startTime: string;
   endTime: string;
   days: string[];
+  overrides: string;
   institutionKey: string;
   employees?: Employee[];
   lateLimit: number;
@@ -50,10 +55,12 @@ export default function ShiftsPage() {
   const [shifts, setShifts] = useState<Shift[]>([])
   const [newShift, setNewShift] = useState<Shift>({
     name: '',
+    mode: 'standard',
     startTime: '',
     endTime: '',
     institutionKey:institutionKey,
     days: [],
+    overrides: '',
     lateLimit: 1,
     lateMultiplier: 1,
     extraLimit: 1,
@@ -250,8 +257,10 @@ export default function ShiftsPage() {
   const resetNewShift = () => {
     setNewShift({
       name: '',
+      mode: 'standard',
       startTime: '',
       endTime: '',
+      overrides: '',
       days: [],
       institutionKey: institutionKey,
       lateLimit: 1,
@@ -354,7 +363,36 @@ export default function ShiftsPage() {
       return [];
     }
   };
- 
+  // New helper functions
+  const parseOverrides = (overrides: string) => {
+    if (!overrides) return {}
+    try {
+      return JSON.parse(overrides)
+    } catch {
+      return {}
+    }
+  }
+  // Helper function to format time
+const formatTime = (time: string) => {
+  return time.slice(0, 5) // Remove seconds
+}
+
+// Helper function to get effective time for a day
+const getEffectiveTime = (shift: Shift, day: string) => {
+  const overrides = parseOverrides(shift.overrides)
+  if (overrides[day]) {
+    return {
+      start: overrides[day].start,
+      end: overrides[day].end,
+      isOverride: true,
+    }
+  }
+  return {
+    start: formatTime(shift.startTime),
+    end: formatTime(shift.endTime),
+    isOverride: false,
+  }
+}
   return (
     
     <div className="container mx-auto p-4">
@@ -635,93 +673,159 @@ export default function ShiftsPage() {
         {shifts.length === 0 ? (
           <p>No shifts added yet.</p>
         ) : (
-          <ul className="space-y-4">
-            {shifts.map(shift => (
-              <li key={shift.id} className="bg-white p-4 rounded-lg shadow">
-                <div className="flex justify-between items-start mb-4">
-                  <div>
-                    <h3 className="text-lg font-medium">{shift.name}</h3>
-                    <p className="text-sm text-gray-500">
-                      {shift.startTime} - {shift.endTime}
-                    </p>
-                    <p className="text-sm text-gray-500">
-                    {Array.isArray(shift.days) && shift.days.length > 0 ? shift.days.join(', ') : 'No days assigned'}
-                    </p>
-                    
+          <div className="space-y-6">
+          {shifts.map((shift) => {
+            const overrides = parseOverrides(shift.overrides)
+            const hasOverrides = Object.keys(overrides).length > 0
+
+            return (
+              <Card key={shift.id} className="w-full">
+                <CardHeader>
+                  <div className="flex justify-between items-start">
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-3">
+                        <CardTitle className="text-xl">{shift.name}</CardTitle>
+                        <Badge
+                          variant={shift.mode === "advanced" ? "default" : "secondary"}
+                          className="flex items-center gap-1"
+                        >
+                          {shift.mode === "advanced" ? <Settings className="h-3 w-3" /> : <Clock className="h-3 w-3" />}
+                          {shift.mode.charAt(0).toUpperCase() + shift.mode.slice(1)}
+                        </Badge>
+                      </div>
+
+                      {/* Base Schedule */}
+                      <div className="flex items-center gap-4 text-sm text-gray-600">
+                        <div className="flex items-center gap-1">
+                          <Clock className="h-4 w-4" />
+                          <span>
+                            Base: {formatTime(shift.startTime)} - {formatTime(shift.endTime)}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Calendar className="h-4 w-4" />
+                          <span>
+                            {Array.isArray(shift.days) && shift.days.length > 0
+                              ? shift.days.join(", ")
+                              : "No days assigned"}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-2">
+                      <Button variant="outline" size="icon" onClick={() => handleEditShift(shift)}>
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        size="icon"
+                        onClick={() => deleteShift(shift.id!)}
+                        aria-label={`Delete ${shift.name}`}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
-                  <div className='space-x-4'>
-                  <Button
-                      variant="default"
-                      size="icon"
-                      onClick={() => handleEditShift(shift)}
-                    >
-                     <Edit className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    size="icon"
-                    onClick={() => deleteShift(shift.id!)}
-                    aria-label={`Delete ${shift.name}`}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                  </div>
-                </div>
-                <div>
-                  <h4 className="text-md font-medium mb-2">Assigned Employees:</h4>
-                  {(!shift.employees || shift.employees.length === 0) ? (
-                    <p className="text-sm text-gray-500">No employees assigned</p>
-                  ) : (
-                    <ul className="space-y-2">
-                      
-                      {shift.employees.map(employee => (
-                        
-                        <>
-                        <li key={employee.id} className="flex items-center justify-between bg-gray-100 p-2 rounded">
-                          <span>{employee.name}</span>
-                          <div className="flex gap-2">
-                            <Dialog>
-                              <DialogTrigger asChild>
-                                <Button variant="outline" size="sm">
-                                  <ArrowRightLeft className="h-4 w-4 mr-2" />
-                                  Move
-                                </Button>
-                              </DialogTrigger>
-                              <DialogContent>
-                                <DialogHeader>
-                                  <DialogTitle>Move Employee to Another Shift</DialogTitle>
-                                </DialogHeader>
-                                <Select onValueChange={(value) => moveEmployee(shift.id!, value, employee.id)}>
-                                  <SelectTrigger className="w-full">
-                                    <SelectValue placeholder="Select shift" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    {shifts.filter(s => s.id !== shift.id).map(s => (
-                                      <SelectItem key={s.id} value={s.id!}>{s.name}</SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                                
-                              </DialogContent>
-                            </Dialog>
-                            <Button
-                              variant="destructive"
-                              size="sm"
-                              onClick={() => removeEmployeeFromShift(shift.id!, employee.id)}
+                </CardHeader>
+
+                <CardContent className="space-y-4">
+                  {/* Advanced Mode: Show Day-specific Overrides */}
+                  {shift.mode === "advanced" && hasOverrides && (
+                    <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                      <h4 className="font-medium text-blue-900 mb-3 flex items-center gap-2">
+                        <Settings className="h-4 w-4" />
+                        Day-specific Schedule Overrides
+                      </h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                        {shift.days.map((day: string) => {
+                          const effectiveTime = getEffectiveTime(shift, day)
+                          return (
+                            <div
+                              key={day}
+                              className={`p-3 rounded-md border ${
+                                effectiveTime.isOverride ? "bg-blue-100 border-blue-300" : "bg-gray-50 border-gray-200"
+                              }`}
                             >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </li>
-                        </>
-                        
-                      ))}
-                    </ul>
+                              <div className="font-medium text-sm">{day}</div>
+                              <div
+                                className={`text-sm ${effectiveTime.isOverride ? "text-blue-700 font-medium" : "text-gray-600"}`}
+                              >
+                                {effectiveTime.start} - {effectiveTime.end}
+                                {effectiveTime.isOverride && (
+                                  <Badge variant="outline" className="ml-2 text-xs">
+                                    Custom
+                                  </Badge>
+                                )}
+                              </div>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    </div>
                   )}
-                </div>
-              </li>
-            ))}
-          </ul>
+
+                  <Separator />
+
+                  {/* Assigned Employees */}
+                  <div>
+                    <h4 className="text-lg font-medium mb-3">Assigned Employees ({shift.employees?.length || 0})</h4>
+                    {!shift.employees || shift.employees.length === 0 ? (
+                      <p className="text-sm text-gray-500 bg-gray-50 p-4 rounded-lg">No employees assigned</p>
+                    ) : (
+                      <div className="space-y-2">
+                        {shift.employees.map((employee: Employee) => (
+                          <div
+                            key={employee.id}
+                            className="flex items-center justify-between bg-gray-50 p-3 rounded-lg hover:bg-gray-100 transition-colors"
+                          >
+                            <span className="font-medium">{employee.name}</span>
+                            <div className="flex gap-2">
+                              <Dialog>
+                                <DialogTrigger asChild>
+                                  <Button variant="outline" size="sm">
+                                    <ArrowRightLeft className="h-4 w-4 mr-2" />
+                                    Move
+                                  </Button>
+                                </DialogTrigger>
+                                <DialogContent>
+                                  <DialogHeader>
+                                    <DialogTitle>Move Employee to Another Shift</DialogTitle>
+                                  </DialogHeader>
+                                  <Select onValueChange={(value) => moveEmployee(shift.id!, value, employee.id)}>
+                                    <SelectTrigger className="w-full">
+                                      <SelectValue placeholder="Select shift" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {shifts
+                                        .filter((s) => s.id !== shift.id)
+                                        .map((s) => (
+                                          <SelectItem key={s.id} value={s.id!.toString()}>
+                                            {s.name}
+                                          </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                  </Select>
+                                </DialogContent>
+                              </Dialog>
+                              <Button
+                                variant="destructive"
+                                size="sm"
+                                onClick={() => removeEmployeeFromShift(shift.id!, employee.id)}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            )
+          })}
+        </div>
         )}
       </div>
     </div>

@@ -31,10 +31,13 @@ interface Employee {
 }
 interface Shift {
   id: string;
-  days: string[];
+  name: string;
+  mode: string;
   startTime: string;
   endTime: string;
-  name: string;
+  defaultTime: string;
+  overrides: string;
+  days: string[];
   employees: string[];
   institutionKey: string;
   lateMultiplier: number;
