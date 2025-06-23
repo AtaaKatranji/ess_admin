@@ -14,9 +14,9 @@ import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { PlusCircle, Trash2, Save, Clock, Settings, AlertCircle } from "lucide-react"
 import { Shift } from "@/app/types/Shift";
-import { toast } from "react-toastify"
+// import { toast } from "react-toastify"
 
-const BaseURL = process.env.NEXT_PUBLIC_API_URL;
+// const BaseURL = process.env.NEXT_PUBLIC_API_URL;
 const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 
 // Sample initial shift data
@@ -24,11 +24,12 @@ const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Sat
 type ShiftFormProps = {
   open: boolean
   onOpenChange: (open: boolean) => void
+  isEditing: boolean
   shift?: Shift | null
   onSave : (shift: Shift) => void
   institutionKey: string
 }
-export default function ShiftForm({open, onOpenChange, shift, onSave , institutionKey }: ShiftFormProps){
+export default function ShiftForm({open, onOpenChange, isEditing, shift, onSave , institutionKey }: ShiftFormProps){
   const initialShift = {
     name: "",
     mode: "standard",
@@ -43,12 +44,12 @@ export default function ShiftForm({open, onOpenChange, shift, onSave , instituti
     breaks: [],
     institutionKey: institutionKey,
   }
-  //const [isOpen, setIsOpen] = useState(false)
-  const [isEditing, setIsEditing] = useState(false)
+
   const [newShift, setNewShift] = useState<Shift>(initialShift)
   useEffect(() => {
     if (shift) {
       setNewShift(shift)
+      
     } else {
       setNewShift(initialShift)
     }
@@ -101,63 +102,63 @@ export default function ShiftForm({open, onOpenChange, shift, onSave , instituti
     })
   }
 
-  const resetNewShift = () => {
-    setNewShift(initialShift)
-    setIsEditing(false)
-  }
+  // const resetNewShift = () => {
+  //   setNewShift(initialShift)
+  //   setIsEditing(false)
+  // }
 
-  const addShift = async() => {
-    console.log("Adding shift:", newShift)
-    if (!newShift.name || !newShift.startTime || !newShift.endTime || newShift.days.length === 0) {
-        toast.error('Please fill all required fields')
-        return
-      }
+  // const addShift = async() => {
+  //   console.log("Adding shift:", newShift)
+  //   if (!newShift.name || !newShift.startTime || !newShift.endTime || newShift.days.length === 0) {
+  //       toast.error('Please fill all required fields')
+  //       return
+  //     }
   
-      try {
-        const shiftResponse = await fetch(`${BaseURL}/shifts/`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(newShift), // No need to set employees here
-        })
+  //     try {
+  //       const shiftResponse = await fetch(`${BaseURL}/shifts/`, {
+  //         method: 'POST',
+  //         headers: { 'Content-Type': 'application/json' },
+  //         body: JSON.stringify(newShift), // No need to set employees here
+  //       })
   
-        if (!shiftResponse.ok) {
-          const errorData = await shiftResponse.json()
-          throw new Error(errorData.message || 'Failed to add shift')
-        }
+  //       if (!shiftResponse.ok) {
+  //         const errorData = await shiftResponse.json()
+  //         throw new Error(errorData.message || 'Failed to add shift')
+  //       }
   
-        const shiftData = await shiftResponse.json()
-        console.log('Created shift:', shiftData)
+  //       const shiftData = await shiftResponse.json()
+  //       console.log('Created shift:', shiftData)
   
-        // Handle breaks
-        if (newShift.breaks && newShift.breaks.length > 0) {
-          const breakPromises = newShift.breaks.map(breakItem =>
-            fetch(`${BaseURL}/break/break-types`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ ...breakItem, shiftId: shiftData.id })
-            })
-          )
-          await Promise.all(breakPromises)
-        }
+  //       // Handle breaks
+  //       if (newShift.breaks && newShift.breaks.length > 0) {
+  //         const breakPromises = newShift.breaks.map(breakItem =>
+  //           fetch(`${BaseURL}/break/break-types`, {
+  //             method: 'POST',
+  //             headers: { 'Content-Type': 'application/json' },
+  //             body: JSON.stringify({ ...breakItem, shiftId: shiftData.id })
+  //           })
+  //         )
+  //         await Promise.all(breakPromises)
+  //       }
   
         
-        resetNewShift()
-        //setIsOpen(false)
-        toast.success('Shift added successfully', { autoClose: 1500 })
-      } catch (error) {
-        console.error('Error adding shift:', error)
-        toast.error(`Failed to add shift: ${error instanceof Error ? error.message : 'Unknown error'}`, { autoClose: 1500 })
-      }
+  //       resetNewShift()
+  //       //setIsOpen(false)
+  //       toast.success('Shift added successfully', { autoClose: 1500 })
+  //     } catch (error) {
+  //       console.error('Error adding shift:', error)
+  //       toast.error(`Failed to add shift: ${error instanceof Error ? error.message : 'Unknown error'}`, { autoClose: 1500 })
+  //     }
     
-    //setIsOpen(false)
-    resetNewShift()
-  }
+  //   //setIsOpen(false)
+  //   resetNewShift()
+  // }
 
-  const updateShift = () => {
-    console.log("Updating shift:", newShift)
-    //setIsOpen(false)
-    resetNewShift()
-  }
+  // const updateShift = () => {
+  //   console.log("Updating shift:", newShift)
+  //   //setIsOpen(false)
+  //   resetNewShift()
+  // }
   const handleSubmit = () => {
     onSave(newShift);
   };
@@ -175,12 +176,7 @@ export default function ShiftForm({open, onOpenChange, shift, onSave , instituti
           <form
             onSubmit={(e) => {
               e.preventDefault()
-              if (isEditing) {
-                updateShift()
-              } else {
-                addShift()
-              }
-              onSave(newShift)
+              handleSubmit()
             }}
             className="space-y-6"
           >
@@ -513,7 +509,7 @@ export default function ShiftForm({open, onOpenChange, shift, onSave , instituti
             </Card>
 
             <DialogFooter>
-              <Button type="button" variant="secondary" onClick={() => handleSubmit}>
+              <Button type="button" variant="secondary" onClick={() => onOpenChange(false)}>
                 Cancel
               </Button>
               <Button type="submit">
