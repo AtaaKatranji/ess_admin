@@ -426,6 +426,21 @@ const handleSave = async (data : Shift) => {
   console.log("updatedShifts",updatedShifts)
   console.log("updated NEW List Shifts",shifts)
   setDialogOpen(false);
+  const parsedShifts = shifts.map(s => ({
+    ...s,
+    days: normalizeDays(s.days)
+  }));
+  console.log("parsedShifts",parsedShifts)
+  setShifts(parsedShifts);
+};
+const normalizeDays = (days: string[] | string | undefined | null) => {
+  if (!days) return [];
+  if (Array.isArray(days)) return days;
+  try {
+    return JSON.parse(days);
+  } catch {
+    return [];
+  }
 };
   return (
     
