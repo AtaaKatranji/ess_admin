@@ -412,6 +412,7 @@ const handleSave = async (data : Shift) => {
   } else {
     // Add mode: add new shift
     try {
+      console.log("Addning shift:", data)
       await shiftAPI.addShift(data);
       toast.success('Shift added successfully', { autoClose: 1500 });
       
@@ -422,6 +423,8 @@ const handleSave = async (data : Shift) => {
   // Fetch and update the list
   const updatedShifts = await shiftAPI.fetchShifts(institutionKey);
   setShifts(updatedShifts);
+  console.log("updatedShifts",updatedShifts)
+  console.log("updated NEW List Shifts",shifts)
   setDialogOpen(false);
 };
   return (
