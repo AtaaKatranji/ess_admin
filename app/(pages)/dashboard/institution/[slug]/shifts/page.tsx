@@ -551,7 +551,7 @@ const handleSave = async (data : Shift) => {
 
                 <CardContent className="space-y-4">
                   {/* Advanced Mode: Show Day-specific Overrides */}
-                  {shift.mode === "advanced" && hasOverrides && (
+                  {shift.mode === "advanced" && hasOverrides && Array.isArray(shift.days) && shift.days.length > 0 && (
                     <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
                       <h4 className="font-medium text-blue-900 mb-3 flex items-center gap-2">
                         <Settings className="h-4 w-4" />
