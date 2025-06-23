@@ -16,35 +16,36 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import ShiftForm from '@/app/components/shift-dialog'
 const BaseURL = process.env.NEXT_PUBLIC_API_URL;
+import { Shift } from '@/app/types/Shift'
 type Employee = {
   id: string; // Changed from id to id for MySQL
   name: string;
 }
 
-type Break = {
-  id: string; // Changed from id to id
-  name: string;
-  duration: number;
-  icon?: string;
-  shiftId?: string; // Added to associate with shift
-}
+// type Break = {
+//   id: string; // Changed from id to id
+//   name: string;
+//   duration: number;
+//   icon?: string;
+//   shiftId?: string; // Added to associate with shift
+// }
 
-type Shift = {
-  id?: string; // Changed from id to id
-  name: string;
-  mode: string;
-  startTime: string;
-  endTime: string;
-  days: string[];
-  overrides: string;
-  institutionKey: string;
-  employees?: Employee[];
-  lateLimit: number;
-  lateMultiplier: number;
-  extraLimit: number;
-  extraMultiplier: number;
-  breaks?: Break[];
-}
+// type Shift = {
+//   id?: string; // Changed from id to id
+//   name: string;
+//   mode: string;
+//   startTime: string;
+//   endTime: string;
+//   days: string[];
+//   overrides: string;
+//   institutionKey: string;
+//   employees?: Employee[];
+//   lateLimit: number;
+//   lateMultiplier: number;
+//   extraLimit: number;
+//   extraMultiplier: number;
+//   breaks?: Break[];
+// }
 
 const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 
@@ -61,7 +62,7 @@ export default function ShiftsPage() {
     endTime: '',
     institutionKey:institutionKey,
     days: [],
-    overrides: '',
+    overrides: {},
     lateLimit: 1,
     lateMultiplier: 1,
     extraLimit: 1,
@@ -77,7 +78,8 @@ export default function ShiftsPage() {
    // const [errorName, setErrorName] = useState<string | null>(null);
   // const [newName, setNewName] = useState<string | null>(null);
   const [isEmployeesExpandedMap, setIsEmployeesExpandedMap] = useState<{ [key: number]: boolean }>({})
-
+  const [dialogOpen, setDialogOpen] = useState(false)
+  const [editingShift, setEditingShift] = useState<Shift | null>(null)
 
 
   // Fetch shifts from the API
@@ -261,7 +263,7 @@ export default function ShiftsPage() {
       mode: 'standard',
       startTime: '',
       endTime: '',
-      overrides: '',
+      overrides: {},
       days: [],
       institutionKey: institutionKey,
       lateLimit: 1,
@@ -272,6 +274,8 @@ export default function ShiftsPage() {
     })
   }
   const handleEditShift = async (shift: Shift) => {
+    setEditingShift(shift)  // shift from your list
+    setDialogOpen(true) 
     const breaks = await fetchBreaksForShift(shift.id!)
     setNewShift({ ...shift, breaks: breaks.data })
     setIsEditing(true)
@@ -365,14 +369,17 @@ export default function ShiftsPage() {
     }
   };
   // New helper functions
-  const parseOverrides = (overrides: string) => {
-    if (!overrides) return {}
-    try {
-      return JSON.parse(overrides)
-    } catch {
-      return {}
-    }
-  }
+  // const parseOverrides = (overrides: string) => {
+  //   if (!overrides) return {}
+  //   try {
+  //     return JSON.parse(overrides)
+  //   } catch {
+  //     return {}
+  //   }
+  // }
+  const parseOverrides = (
+    overrides: { [day: string]: { start: string; end: string } } | undefined
+  ) => overrides ?? {};
   // Helper function to format time
 const formatTime = (time: string) => {
   return time.slice(0, 5) // Remove seconds
@@ -400,17 +407,36 @@ const toggleEmployeesExpanded = (shiftId: number) => {
     [shiftId]: !prevState[shiftId],
   }))
 }
+const handleSave = async (data : Shift) => {
+  if (isEditing) {
+    // Edit mode: update shift
+    console.log("Updating shift:", data)
+  } else {
+    // Add mode: add new shift
+    console.log("Adding shift:", data)
+  }
+  // Fetch and update the list
+  
+  setDialogOpen(false);
+};
   return (
     
     <div className="container mx-auto p-4">
       <ToastContainer />
-      <ShiftForm />
+
       <div className='flex justify-between'>
         <h1 className="text-2xl font-bold mb-4">Shift Management</h1>
-        <Button type="button" onClick={() => { resetNewShift(); setIsOpen(true) }}>
+        <ShiftForm open={dialogOpen}
+          onOpenChange={setDialogOpen}
+          shift={editingShift}
+          onSave={ handleSave}
+          institutionKey={institutionKey} />
+        <Button type="button" onClick={() => { resetNewShift(); setIsOpen(true); setEditingShift(null)
+  setDialogOpen(true) }}>
           <PlusCircle className="mr-2 h-4 w-4" />
           Add Shift
         </Button>
+        
       </div>
        {/* Dialog for Adding and Editing Shifts */}
        <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -722,7 +748,9 @@ const toggleEmployeesExpanded = (shiftId: number) => {
                     </div>
 
                     <div className="flex gap-2">
-                      <Button variant="outline" size="icon" onClick={() => handleEditShift(shift)}>
+                      <Button variant="outline" size="icon" onClick={() => {
+
+                        handleEditShift(shift)}}>
                         <Edit className="h-4 w-4" />
                       </Button>
                       <Button

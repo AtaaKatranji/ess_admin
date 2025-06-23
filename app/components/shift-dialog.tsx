@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -15,30 +15,44 @@ import { Separator } from "@/components/ui/separator"
 import { PlusCircle, Trash2, Save, Clock, Settings, AlertCircle } from "lucide-react"
 import { Shift } from "@/app/types/Shift";
 import { toast } from "react-toastify"
+
 const BaseURL = process.env.NEXT_PUBLIC_API_URL;
 const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 
 // Sample initial shift data
-const initialShift = {
-  name: "",
-  mode: "standard",
-  startTime: "09:00",
-  endTime: "17:00",
-  days: [],
-  overrides: {},
-  lateMultiplier: 1,
-  extraMultiplier: 1,
-  lateLimit: 1,
-  extraLimit: 1,
-  breaks: [],
-  institutionKey: "TCULOZ0F",
-}
 
-export default function ShiftForm() {
-  const [isOpen, setIsOpen] = useState(false)
+type ShiftFormProps = {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  shift?: Shift | null
+  onSave : (shift: Shift) => void
+  institutionKey: string
+}
+export default function ShiftForm({open, onOpenChange, shift, onSave , institutionKey }: ShiftFormProps){
+  const initialShift = {
+    name: "",
+    mode: "standard",
+    startTime: "09:00",
+    endTime: "17:00",
+    days: [],
+    overrides: {},
+    lateMultiplier: 1,
+    extraMultiplier: 1,
+    lateLimit: 1,
+    extraLimit: 1,
+    breaks: [],
+    institutionKey: institutionKey,
+  }
+  //const [isOpen, setIsOpen] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [newShift, setNewShift] = useState<Shift>(initialShift)
-
+  useEffect(() => {
+    if (shift) {
+      setNewShift(shift)
+    } else {
+      setNewShift(initialShift)
+    }
+  }, [shift, open])
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
     setNewShift((prev: Shift) => ({
@@ -128,23 +142,25 @@ export default function ShiftForm() {
   
         
         resetNewShift()
-        setIsOpen(false)
+        //setIsOpen(false)
         toast.success('Shift added successfully', { autoClose: 1500 })
       } catch (error) {
         console.error('Error adding shift:', error)
         toast.error(`Failed to add shift: ${error instanceof Error ? error.message : 'Unknown error'}`, { autoClose: 1500 })
       }
     
-    setIsOpen(false)
+    //setIsOpen(false)
     resetNewShift()
   }
 
   const updateShift = () => {
     console.log("Updating shift:", newShift)
-    setIsOpen(false)
+    //setIsOpen(false)
     resetNewShift()
   }
-
+  const handleSubmit = () => {
+    onSave(newShift);
+  };
   return (
     <div className="container mx-auto p-4">
       <div className="flex justify-between">
@@ -153,7 +169,7 @@ export default function ShiftForm() {
           type="button"
           onClick={() => {
             resetNewShift()
-            setIsOpen(true)
+            //setIsOpen(true)
           }}
         >
           <PlusCircle className="mr-2 h-4 w-4" />
@@ -162,9 +178,9 @@ export default function ShiftForm() {
       </div>
 
       {/* Dialog for Adding and Editing Shifts */}
-      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
+          <DialogHeader >
             <DialogTitle className="text-xl font-semibold">
               {isEditing ? "Edit Current Shift" : "Add New Shift"}
             </DialogTitle>
@@ -178,6 +194,7 @@ export default function ShiftForm() {
               } else {
                 addShift()
               }
+              onSave(newShift)
             }}
             className="space-y-6"
           >
@@ -510,7 +527,7 @@ export default function ShiftForm() {
             </Card>
 
             <DialogFooter>
-              <Button type="button" variant="secondary" onClick={() => setIsOpen(false)}>
+              <Button type="button" variant="secondary" onClick={() => handleSubmit}>
                 Cancel
               </Button>
               <Button type="submit">
