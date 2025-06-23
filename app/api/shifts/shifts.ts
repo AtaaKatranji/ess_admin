@@ -97,63 +97,54 @@ export const addShift = async (newShift: Shift) => {
     console.error('Error adding shift:', error)
   }
 }
-// const updateShift = async () => {
-//   if (!newShift.id || !newShift.name || !newShift.startTime || !newShift.endTime || newShift.days.length === 0) {
-//     toast.error('Please fill all required fields')
-//     return
-//   }
+export const updateShift = async (newShift: Shift) => {
 
-//   try {
-//     console.log('Sending update data:', JSON.stringify(newShift)); // Log what’s sent
-//     const shiftResponse = await fetch(`${BaseUrl}/shifts/${newShift.id}`, {
-//       method: 'PUT',
-//       headers: { 'Content-Type': 'application/json' },
-//       body: JSON.stringify(newShift),
-//     })
 
-//     if (!shiftResponse.ok) {
-//       const errorData = await shiftResponse.json()
-//       throw new Error(errorData.message || 'Failed to update shift')
-//     }
+    try {
+      console.log('Sending update data:', JSON.stringify(newShift)); // Log what’s sent
+      const shiftResponse = await fetch(`${BaseUrl}/shifts/${newShift.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newShift),
+      })
 
-//     const shiftData = await shiftResponse.json()
-//     console.log('Received updated shift:', shiftData);
+      if (!shiftResponse.ok) {
+        const errorData = await shiftResponse.json()
+        throw new Error(errorData.message || 'Failed to update shift')
+      }
 
-//     // Ensure days is an array
-//     const sanitizedShift = {
-//       ...shiftData,
-//       days: Array.isArray(shiftData.days) ? shiftData.days : JSON.parse(shiftData.days || '[]'),
-//       employees: shiftData.employees || [],
-//   };
-//     // Handle breaks (similar to addShift)
-//     if (newShift.breaks && newShift.breaks.length > 0) {
-//       const breakPromises = newShift.breaks.map(breakItem =>
-//         breakItem.id && !breakItem.id.startsWith('temp-')
-//           ? fetch(`${BaseUrl}/break/break-types/${breakItem.id}`, {
-//               method: 'PUT',
-//               headers: { 'Content-Type': 'application/json' },
-//               body: JSON.stringify({ ...breakItem, shiftId: newShift.id })
-//             })
-//           : fetch(`${BaseUrl}/break/break-types`, {
-//               method: 'POST',
-//               headers: { 'Content-Type': 'application/json' },
-//               body: JSON.stringify({ ...breakItem, shiftId: newShift.id })
-//             })
-//       )
-//       await Promise.all(breakPromises)
-//     }
+      const shiftData = await shiftResponse.json()
+      console.log('Received updated shift:', shiftData);
 
-//     setShifts(prevShifts => {
-//       const newShifts = prevShifts.map(shift => shift.id === sanitizedShift.id ? sanitizedShift : shift);
-//       console.log('Updated shifts:', newShifts);
-//       return newShifts;
-//   });
-//     resetNewShift()
-//     setIsOpen(false)
-//     setIsEditing(false)
-//     toast.success('Shift updated successfully', { autoClose: 1500 })
-//   } catch (error) {
-//     console.error('Error updating shift:', error)
-//     toast.error(`Failed to update shift: ${error instanceof Error ? error.message : 'Unknown error'}`, { autoClose: 1500 })
-//   }
-// }
+      // Ensure days is an array
+      const sanitizedShift = {
+        ...shiftData,
+        days: Array.isArray(shiftData.days) ? shiftData.days : JSON.parse(shiftData.days || '[]'),
+        employees: shiftData.employees || [],
+    };
+      // Handle breaks (similar to addShift)
+      if (newShift.breaks && newShift.breaks.length > 0) {
+        const breakPromises = newShift.breaks.map(breakItem =>
+          breakItem.id && !breakItem.id.startsWith('temp-')
+            ? fetch(`${BaseUrl}/break/break-types/${breakItem.id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ...breakItem, shiftId: newShift.id })
+              })
+            : fetch(`${BaseUrl}/break/break-types`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ...breakItem, shiftId: newShift.id })
+              })
+        )
+        await Promise.all(breakPromises)
+      }
+
+
+        return sanitizedShift;
+    
+    } catch (error) {
+      console.error('Error updating shift:', error)
+      
+    }
+  }

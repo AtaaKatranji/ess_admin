@@ -406,14 +406,16 @@ const toggleEmployeesExpanded = (shiftId: number) => {
   }))
 }
 const handleSave = async (data : Shift) => {
+  let newShift = data;
   if (editingShift) {
     // Edit mode: update shift
+    newShift = await shiftAPI.updateShift(data);
     console.log("Updating shift:", data)
   } else {
     // Add mode: add new shift
     try {
       console.log("Addning shift:", data)
-      await shiftAPI.addShift(data);
+      newShift = await shiftAPI.addShift(data);
       toast.success('Shift added successfully', { autoClose: 1500 });
       
     } catch (error) {
@@ -421,27 +423,19 @@ const handleSave = async (data : Shift) => {
     }
   }
   // Fetch and update the list
-  const updatedShifts = await shiftAPI.fetchShifts(institutionKey);
-  setShifts(updatedShifts);
-  console.log("updatedShifts",updatedShifts)
-  console.log("updated NEW List Shifts",shifts)
+  setShifts((prevShifts) => [...prevShifts, newShift]);
   setDialogOpen(false);
-  const parsedShifts = shifts.map(s => ({
-    ...s,
-    days: normalizeDays(s.days)
-  }));
-  console.log("parsedShifts",parsedShifts)
-  setShifts(parsedShifts);
+
 };
-const normalizeDays = (days: string[] | string | undefined | null) => {
-  if (!days) return [];
-  if (Array.isArray(days)) return days;
-  try {
-    return JSON.parse(days);
-  } catch {
-    return [];
-  }
-};
+// const normalizeDays = (days: string[] | string | undefined | null) => {
+//   if (!days) return [];
+//   if (Array.isArray(days)) return days;
+//   try {
+//     return JSON.parse(days);
+//   } catch {
+//     return [];
+//   }
+// };
   return (
     
     <div className="container mx-auto p-4">
