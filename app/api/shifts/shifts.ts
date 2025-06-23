@@ -17,6 +17,7 @@ export const fetchShifts = async (institutionKey: string) => {
     }
 
     const data = await response.json();
+    console.log("data in fetch api",data);
     return data;
   } catch (error) {
     console.error('Error fetching shifts:', error);
@@ -91,8 +92,6 @@ export const addShift = async (newShift: Shift) => {
     }
 
     // setShifts([...shifts, { ...shiftData, employees: [] }])
-
-
     return shiftData;
   } catch (error) {
     console.error('Error adding shift:', error)
