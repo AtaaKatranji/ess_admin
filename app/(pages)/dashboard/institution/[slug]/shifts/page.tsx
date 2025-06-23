@@ -431,8 +431,12 @@ const handleSave = async (data : Shift) => {
           shift={editingShift}
           onSave={ handleSave}
           institutionKey={institutionKey} />
-        <Button type="button" onClick={() => { resetNewShift(); setIsOpen(true); setEditingShift(null)
-  setDialogOpen(true) }}>
+        <Button type="button" onClick={() => { 
+          // resetNewShift()
+          // setIsOpen(true) 
+          setEditingShift(null);
+          setDialogOpen(true);
+          }}>
           <PlusCircle className="mr-2 h-4 w-4" />
           Add Shift
         </Button>

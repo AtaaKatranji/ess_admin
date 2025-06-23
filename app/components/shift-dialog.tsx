@@ -163,20 +163,6 @@ export default function ShiftForm({open, onOpenChange, shift, onSave , instituti
   };
   return (
     <div className="container mx-auto p-4">
-      <div className="flex justify-between">
-        <h1 className="text-2xl font-bold mb-4">Shift Management</h1>
-        <Button
-          type="button"
-          onClick={() => {
-            resetNewShift()
-            //setIsOpen(true)
-          }}
-        >
-          <PlusCircle className="mr-2 h-4 w-4" />
-          Add Shift
-        </Button>
-      </div>
-
       {/* Dialog for Adding and Editing Shifts */}
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
