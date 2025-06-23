@@ -79,17 +79,21 @@ export default function ShiftForm({open, onOpenChange, isEditing, shift, onSave 
   }
 
   const handleOverrideChange = (day: string, field: "start" | "end", value: string) => {
-    setNewShift((prev: Shift) => ({
-      ...prev,
-      overrides: {
-        ...prev.overrides,
-        [day]: {
-          ...prev.overrides![day],
-          [field]: value,
+    setNewShift((prev: Shift) => {
+      const currentOverride = prev.overrides?.[day] ?? { start: prev.startTime, end: prev.endTime };
+      return {
+        ...prev,
+        overrides: {
+          ...prev.overrides,
+          [day]: {
+            ...currentOverride,
+            [field]: value,
+          },
         },
-      },
-    }))
-  }
+      };
+    });
+  };
+  
 
   const removeOverride = (day: string) => {
     setNewShift((prev: Shift) => {
@@ -303,7 +307,7 @@ export default function ShiftForm({open, onOpenChange, isEditing, shift, onSave 
 
                       <div className="grid gap-4">
                         {newShift.days.map((day: string) => {
-                          const hasOverride = newShift.overrides![day]
+                          const hasOverride = newShift.overrides?.[day];
                           return (
                             <div key={day} className="border rounded-lg p-4">
                               <div className="flex items-center justify-between mb-3">

@@ -410,11 +410,10 @@ const handleSave = async (data : Shift) => {
   if (editingShift) {
     // Edit mode: update shift
     newShift = await shiftAPI.updateShift(data);
-    console.log("Updating shift:", data)
+    toast.success('Shift updated successfully', { autoClose: 1500 });
   } else {
     // Add mode: add new shift
     try {
-      console.log("Addning shift:", data)
       newShift = await shiftAPI.addShift(data);
       toast.success('Shift added successfully', { autoClose: 1500 });
       
@@ -427,15 +426,7 @@ const handleSave = async (data : Shift) => {
   setDialogOpen(false);
 
 };
-// const normalizeDays = (days: string[] | string | undefined | null) => {
-//   if (!days) return [];
-//   if (Array.isArray(days)) return days;
-//   try {
-//     return JSON.parse(days);
-//   } catch {
-//     return [];
-//   }
-// };
+
   return (
     
     <div className="container mx-auto p-4">
