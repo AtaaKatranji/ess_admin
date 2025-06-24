@@ -48,7 +48,15 @@ export default function ShiftForm({open, onOpenChange, isEditing, shift, onSave 
   const [newShift, setNewShift] = useState<Shift>(initialShift)
   useEffect(() => {
     if (shift) {
-      setNewShift(shift)
+      let overrides = shift.overrides;
+      if (typeof overrides === "string") {
+        try {
+          overrides = JSON.parse(overrides);
+        } catch {
+          overrides = {};
+        }
+      }
+      setNewShift({ ...shift, overrides });
       
     } else {
       setNewShift(initialShift)
@@ -81,6 +89,7 @@ export default function ShiftForm({open, onOpenChange, isEditing, shift, onSave 
   const handleOverrideChange = (day: string, field: "start" | "end", value: string) => {
     setNewShift((prev: Shift) => {
       const currentOverride = prev.overrides?.[day] ?? { start: prev.startTime, end: prev.endTime };
+      console.log(currentOverride);
       return {
         ...prev,
         overrides: {

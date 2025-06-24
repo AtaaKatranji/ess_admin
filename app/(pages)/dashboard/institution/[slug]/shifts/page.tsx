@@ -22,59 +22,13 @@ type Employee = {
   name: string;
 }
 
-// type Break = {
-//   id: string; // Changed from id to id
-//   name: string;
-//   duration: number;
-//   icon?: string;
-//   shiftId?: string; // Added to associate with shift
-// }
-
-// type Shift = {
-//   id?: string; // Changed from id to id
-//   name: string;
-//   mode: string;
-//   startTime: string;
-//   endTime: string;
-//   days: string[];
-//   overrides: string;
-//   institutionKey: string;
-//   employees?: Employee[];
-//   lateLimit: number;
-//   lateMultiplier: number;
-//   extraLimit: number;
-//   extraMultiplier: number;
-//   breaks?: Break[];
-// }
-
-// const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-
-
-
 export default function ShiftsPage() {
   const { institutionKey } = useInstitution();
 
   const [shifts, setShifts] = useState<Shift[]>([])
-  // const [newShift, setNewShift] = useState<Shift>({
-  //   name: '',
-  //   mode: 'standard',
-  //   startTime: '',
-  //   endTime: '',
-  //   institutionKey:institutionKey,
-  //   days: [],
-  //   overrides: {},
-  //   lateLimit: 1,
-  //   lateMultiplier: 1,
-  //   extraLimit: 1,
-  //   extraMultiplier: 1,
-  //   breaks: [], // Initialize breaks as an empty array
-  // })
   const [employees, setEmployees] = useState<Employee[]>([])
   const [selectedEmployee, setSelectedEmployee] = useState('Select employee')
   const [selectedShift, setSelectedShift] = useState('Select shift')
-  // const [isOpen, setIsOpen] = useState(false)
-
-   // const [errorName, setErrorName] = useState<string | null>(null);
   const [isEmployeesExpandedMap, setIsEmployeesExpandedMap] = useState<{ [key: number]: boolean }>({})
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editingShift, setEditingShift] = useState<Shift | null>(null)
