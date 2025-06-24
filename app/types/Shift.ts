@@ -23,6 +23,7 @@ export interface Shift {
 type  Employee = {
     id: string; // Changed from id to id for MySQL
     name: string;
+    shiftId?: string;
   }
   
 type  Break = {

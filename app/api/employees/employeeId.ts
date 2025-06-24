@@ -1,3 +1,4 @@
+
 import moment from "moment";
 
 const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -19,7 +20,12 @@ export const fetchEmployees = async (institutionKey: string) => {
     }
 
     const data = await response.json();
-    return data;
+    console.log("data in fetch employee list api",data);
+    // Assuming each employee has a property like shiftAssigned or shiftId/null
+    const unassignedEmployees = data.filter(
+      (emp: {name: string, shiftId: string}) => !emp.shiftId // or !emp.shiftAssigned, adjust as per your model
+    );
+    return unassignedEmployees;
   } catch (error) {
     console.error('Error fetching employees:', error);
     throw error;
