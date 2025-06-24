@@ -330,8 +330,18 @@ export default function ShiftsPage() {
   //   }
   // }
   const parseOverrides = (
-    overrides: { [day: string]: { start: string; end: string } } | undefined
-  ) => overrides ?? {};
+    overrides: { [day: string]: { start: string; end: string } } | string | undefined
+  ) => {
+    if (!overrides) return {};
+    if (typeof overrides === "string") {
+      try {
+        return JSON.parse(overrides);
+      } catch {
+        return {};
+      }
+    }
+    return overrides;
+  };
   // Helper function to format time
 const formatTime = (time: string) => {
   return time.slice(0, 5) // Remove seconds
