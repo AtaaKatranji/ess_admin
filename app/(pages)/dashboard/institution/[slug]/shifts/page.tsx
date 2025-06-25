@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect} from 'react'
-import { PlusCircle, Trash2, UserPlus, ArrowRightLeft, Edit, Clock, Calendar, Settings, ChevronDown, Plus, Timer, Coffee, Utensils, Pause } from 'lucide-react'
+import { PlusCircle, Trash2, UserPlus, ArrowRightLeft, Edit, Clock, Calendar, Settings, ChevronDown, Plus, Timer, Coffee, Utensils, Pause, Users } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 // import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -419,7 +419,7 @@ const editBreakType = (breakType: Break) => {
                     </div>
                   )}
 
-                  <Separator />
+
                     {/* Assigned Employees - Collapsible */}
                     <div>
                     {(() => {
@@ -431,7 +431,9 @@ const editBreakType = (breakType: Break) => {
                             className="flex items-center justify-between cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors"
                             onClick={() => toggleEmployeesExpanded(Number(shift.id!))}
                           >
-                            <h4 className="text-lg font-medium">Assigned Employees ({shift.employees?.length || 0})</h4>
+                            <h4 className="text-lg font-medium">
+                            <Users className="h-5 w-5" />
+                              Assigned Employees ({shift.employees?.length || 0})</h4>
                             <ChevronDown
                               className={`h-5 w-5 transition-transform duration-200 ${
                                 isEmployeesExpanded ? "rotate-180" : ""
@@ -499,6 +501,7 @@ const editBreakType = (breakType: Break) => {
                       )
                     })()}
                   </div>
+                  <Separator />
                   {/* Break Types - Collapsible */}
                     <div>
                       <div

@@ -113,26 +113,7 @@ export const updateShift = async (newShift: Shift) => {
 
     try {
       console.log('Sending update data:', JSON.stringify(newShift)); // Log what’s sent
-      const shiftResponse = await fetch(`${BaseUrl}/shifts/${newShift.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newShift),
-      })
 
-      if (!shiftResponse.ok) {
-        const errorData = await shiftResponse.json()
-        throw new Error(errorData.message || 'Failed to update shift')
-      }
-
-      const shiftData = await shiftResponse.json()
-      console.log('Received updated shift:', shiftData);
-
-      // Ensure days is an array
-      const sanitizedShift = {
-        ...shiftData,
-        days: Array.isArray(shiftData.days) ? shiftData.days : JSON.parse(shiftData.days || '[]'),
-        employees: shiftData.employees || [],
-    };
       // Handle breaks (similar to addShift)
       if (newShift.breakTypes && newShift.breakTypes.length > 0) {
         const breaksToSave = newShift.breakTypes.filter(b =>
@@ -158,7 +139,26 @@ export const updateShift = async (newShift: Shift) => {
         });
         await Promise.all(breakPromises);
       }
+      const shiftResponse = await fetch(`${BaseUrl}/shifts/${newShift.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newShift),
+      })
 
+      if (!shiftResponse.ok) {
+        const errorData = await shiftResponse.json()
+        throw new Error(errorData.message || 'Failed to update shift')
+      }
+
+      const shiftData = await shiftResponse.json()
+      console.log('Received updated shift:', shiftData);
+
+      // Ensure days is an array
+      const sanitizedShift = {
+        ...shiftData,
+        days: Array.isArray(shiftData.days) ? shiftData.days : JSON.parse(shiftData.days || '[]'),
+        employees: shiftData.employees || [],
+    };
 
 
         return sanitizedShift;
