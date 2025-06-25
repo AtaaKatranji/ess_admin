@@ -26,7 +26,7 @@ type  Employee = {
     shiftId?: string;
   }
   
-type  Break = {
+export type  Break = {
     id: string; // Changed from id to id
     name: string;
     duration: number;
@@ -35,6 +35,6 @@ type  Break = {
     maxUsagePerDay: number;
     isDirty: boolean;
   }
-  
+ 
 
 

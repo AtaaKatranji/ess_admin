@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect} from 'react'
-import { PlusCircle, Trash2, UserPlus, ArrowRightLeft, Edit, Clock, Calendar, Settings, ChevronDown } from 'lucide-react'
+import { PlusCircle, Trash2, UserPlus, ArrowRightLeft, Edit, Clock, Calendar, Settings, ChevronDown, Plus, Timer, Coffee, Utensils, Pause } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 // import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -15,7 +15,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import ShiftForm from '@/app/components/shift-dialog'
 const BaseURL = process.env.NEXT_PUBLIC_API_URL;
-import { Shift } from '@/app/types/Shift'
+import { Break, Shift } from '@/app/types/Shift'
 import * as shiftAPI from '@/app/api/shifts/shifts'
 
 type Employee = {
@@ -28,7 +28,30 @@ type Employeelist = {
   name: string;
 
 }
-
+const getBreakIcon = (iconType: string) => {
+  switch (iconType.toLowerCase()) {
+    case "coffee":
+      return <Coffee className="h-4 w-4" />
+    case "tea":
+      return <Utensils className="h-4 w-4" />
+    case "rest":
+      return <Pause className="h-4 w-4" />
+    default:
+      return <Timer className="h-4 w-4" />
+  }
+}
+const getBreakColor = (iconType: string) => {
+  switch (iconType.toLowerCase()) {
+    case "coffee":
+      return "bg-amber-50 border-amber-200 text-amber-800"
+    case "tea":
+      return "bg-green-50 border-green-200 text-green-800"
+    case "rest":
+      return "bg-blue-50 border-blue-200 text-blue-800"
+    default:
+      return "bg-gray-50 border-gray-200 text-gray-800"
+  }
+}
 export default function ShiftsPage() {
   const { institutionKey } = useInstitution();
 
@@ -39,6 +62,7 @@ export default function ShiftsPage() {
   const [isEmployeesExpandedMap, setIsEmployeesExpandedMap] = useState<{ [key: number]: boolean }>({})
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editingShift, setEditingShift] = useState<Shift | null>(null)
+  const [isBreaksExpanded, setIsBreaksExpanded] = useState(true)
 
 
   // Fetch shifts from the API
@@ -227,7 +251,13 @@ const handleSave = async (data : Shift) => {
   setDialogOpen(false);
 
 };
+const deleteBreakType = (breakId: string) => {
+  console.log("Delete break:", breakId)
+}
 
+const editBreakType = (breakType: Break) => {
+  console.log("Edit break:", breakType)
+}
   return (
     
     <div className="container mx-auto p-4">
@@ -469,6 +499,102 @@ const handleSave = async (data : Shift) => {
                       )
                     })()}
                   </div>
+                  {/* Break Types - Collapsible */}
+                    <div>
+                      <div
+                        className="flex items-center justify-between cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors"
+                        onClick={() => setIsBreaksExpanded(!isBreaksExpanded)}
+                      >
+                        <h4 className="text-lg font-medium flex items-center gap-2">
+                          <Timer className="h-5 w-5" />
+                          Break Types ({shift.breakTypes?.length || 0})
+                        </h4>
+                        <div className="flex items-center gap-2">
+                          {/* <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              console.log("Add new break type")
+                            }}
+                          >
+                            <Plus className="h-4 w-4 mr-1" />
+                            Add Break
+                          </Button> */}
+                          <ChevronDown
+                            className={`h-5 w-5 transition-transform duration-200 ${isBreaksExpanded ? "rotate-180" : ""}`}
+                          />
+                        </div>
+                      </div>
+
+                      {isBreaksExpanded && (
+                        <div className="mt-3 space-y-3 animate-in slide-in-from-top-2 duration-200">
+                          {!shift.breakTypes || shift.breakTypes.length === 0 ? (
+                            <div className="text-center py-8">
+                              <Timer className="h-12 w-12 text-gray-300 mx-auto mb-3" />
+                              <p className="text-sm text-gray-500 mb-4">No break types configured</p>
+                              <Button variant="outline" size="sm">
+                                <Plus className="h-4 w-4 mr-2" />
+                                Add Your First Break Type
+                              </Button>
+                            </div>
+                          ) : (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                              {shift.breakTypes.map((breakType) => (
+                                <div
+                                  key={breakType.id}
+                                  className={`p-4 rounded-lg border-2 transition-all hover:shadow-md ${getBreakColor(breakType.icon!)}`}
+                                >
+                                  <div className="flex items-start justify-between mb-3">
+                                    <div className="flex items-center gap-2">
+                                      {getBreakIcon(breakType.icon!)}
+                                      <h5 className="font-semibold text-sm">{breakType.name}</h5>
+                                    </div>
+                                    <div className="flex gap-1">
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className="h-6 w-6 p-0 hover:bg-white/50"
+                                        onClick={() => editBreakType(breakType)}
+                                      >
+                                        <Edit className="h-3 w-3" />
+                                      </Button>
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className="h-6 w-6 p-0 hover:bg-red-100 hover:text-red-600"
+                                        onClick={() => deleteBreakType(breakType.id)}
+                                      >
+                                        <Trash2 className="h-3 w-3" />
+                                      </Button>
+                                    </div>
+                                  </div>
+
+                                  <div className="space-y-2">
+                                    <div className="flex items-center justify-between text-xs">
+                                      <span className="flex items-center gap-1">
+                                        <Clock className="h-3 w-3" />
+                                        Duration
+                                      </span>
+                                      <Badge variant="outline" className="text-xs">
+                                        {breakType.duration} min
+                                      </Badge>
+                                    </div>
+
+                                    <div className="flex items-center justify-between text-xs">
+                                      <span>Daily Limit</span>
+                                      <Badge variant="outline" className="text-xs">
+                                        {breakType.maxUsagePerDay}x per day
+                                      </Badge>
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
                 </CardContent>
               </Card>
             )
