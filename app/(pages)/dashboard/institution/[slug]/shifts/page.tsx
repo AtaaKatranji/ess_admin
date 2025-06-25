@@ -93,28 +93,6 @@ export default function ShiftsPage() {
       toast.error('Failed to delete shift', { autoClose: 1500 })
     }
   }
-  // Function to delete a break from the backend
-  // const deleteBreak = async (breakId: string) => {
-  //   try {
-  //     const response = await fetch(`${BaseURL}/break/break-types/${breakId}`, {
-  //       method: 'DELETE',
-  //     });
-
-  //     if (!response.ok) {
-  //       throw new Error('Failed to delete break');
-  //     }
-
-  //     // Return true if the break was successfully deleted
-  //     return true;
-  //   } catch (error) {
-  //     console.error('Error deleting break:', error);
-  //     toast.error('Failed to delete break', {
-  //       autoClose: 1500, // duration in milliseconds
-  //     });
-  //     return false;
-  //   }
-  // };
-
   const assignEmployee = async () => {
     if (selectedEmployee === 'Select employee' || selectedShift === 'Select shift') return
     try {
@@ -218,15 +196,15 @@ const toggleEmployeesExpanded = (shiftId: number) => {
   }))
 }
 const handleSave = async (data : Shift) => {
-  //let newShift = data;
+  let newShift = data;
   if (editingShift) {
     // Edit mode: update shift
-    await shiftAPI.updateShift(data);
+    newShift = await shiftAPI.updateShift(data);
     toast.success('Shift updated successfully', { autoClose: 1500 });
   } else {
     // Add mode: add new shift
     try {
-      await shiftAPI.addShift(data);
+      newShift = await shiftAPI.addShift(data);
       toast.success('Shift added successfully', { autoClose: 1500 });
       
     } catch (error) {
@@ -234,9 +212,9 @@ const handleSave = async (data : Shift) => {
     }
   }
   // Fetch and update the list
-  //setShifts((prevShifts) => [...prevShifts, newShift]);
-  const refreshedShifts = await shiftAPI.fetchShifts(institutionKey);
-  setShifts(refreshedShifts);
+  setShifts((prevShifts) => [...prevShifts, newShift]);
+  // const refreshedShifts = await shiftAPI.fetchShifts(institutionKey);
+  // setShifts(refreshedShifts);
   setDialogOpen(false);
 
 };

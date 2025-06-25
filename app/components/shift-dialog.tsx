@@ -15,7 +15,7 @@ import { Separator } from "@/components/ui/separator"
 import { PlusCircle, Trash2, Save, Clock, Settings, AlertCircle, Users, Coffee } from "lucide-react"
 import { Shift } from "@/app/types/Shift";
 import * as shiftAPI from '@/app/api/shifts/shifts'
-// import { toast } from "react-toastify"
+import { toast } from "react-toastify"
 
 // const BaseURL = process.env.NEXT_PUBLIC_API_URL;
 const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
@@ -650,9 +650,14 @@ export default function ShiftForm({open, onOpenChange, isEditing, shift, onSave 
                       type="button"
                       variant="outline"
                       size="sm"
-                      onClick={() => {
+                      onClick={async () => {
                         console.log("before deleteBreak", breakItem.id);
-                        shiftAPI.deleteBreak(breakItem.id!)
+                        const res = await shiftAPI.deleteBreak(breakItem.id!)
+                        if (res) {
+                          toast.success('Break deleted successfully', {
+                            autoClose: 1500, // duration in milliseconds
+                          });
+                        }
                         const updatedBreaks = newShift.breakTypes!.filter((_, i) => i !== index)
                         setNewShift({ ...newShift, breakTypes: updatedBreaks })
                         
