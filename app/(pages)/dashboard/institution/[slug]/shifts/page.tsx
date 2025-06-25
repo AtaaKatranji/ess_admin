@@ -20,6 +20,12 @@ import * as shiftAPI from '@/app/api/shifts/shifts'
 type Employee = {
   id: string; // Changed from id to id for MySQL
   name: string;
+  shiftId: string;
+}
+type Employeelist = {
+  id: string; // Changed from id to id for MySQL
+  name: string;
+
 }
 
 export default function ShiftsPage() {
@@ -58,7 +64,8 @@ export default function ShiftsPage() {
       try {
         const data = await fetchEmployees(institutionKey)
         console.log('Raw employee data:', data)
-        setEmployees(data.map((emp: Employee) => ({ id: emp.id , name: emp.name })))
+        setEmployees(data .filter((emp: Employee) => emp.shiftId == null) // Only unassigned
+        .map((emp: Employee) => ({ id: emp.id, name: emp.name })))
       } catch (error) {
         console.error('Error fetching employees:', error)
       }
@@ -578,7 +585,7 @@ const handleSave = async (data : Shift) => {
                                 <p className="text-sm text-gray-500 bg-gray-50 p-4 rounded-lg">No employees assigned</p>
                               ) : (
                                 <div className="space-y-2">
-                                  {shift.employees.map((employee: Employee) => (
+                                  {shift.employees.map((employee: Employeelist) => (
                                     <div
                                       key={employee.id}
                                       className="flex items-center justify-between bg-gray-50 p-3 rounded-lg hover:bg-gray-100 transition-colors"

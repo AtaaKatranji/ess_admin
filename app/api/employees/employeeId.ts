@@ -3,23 +3,23 @@ import moment from "moment";
 
 const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
 
-interface Employee {
-  id: number;
-  name: string;
-  phoneNumber: string;
-  institutionKey: string;
-  password: string;
-  role: string;
-  gender: string;
-  shiftId: number | null; // null if not assigned
-  institutionId: number;
-  createdAt: string;
-  updatedAt: string;
-  shift?: {
-    name: string;
-  };
-  shiftName?: string;
-}
+// interface Employee {
+//   id: number;
+//   name: string;
+//   phoneNumber: string;
+//   institutionKey: string;
+//   password: string;
+//   role: string;
+//   gender: string;
+//   shiftId: number | null; // null if not assigned
+//   institutionId: number;
+//   createdAt: string;
+//   updatedAt: string;
+//   shift?: {
+//     name: string;
+//   };
+//   shiftName?: string;
+// }
 
 
 export const fetchEmployees = async (institutionKey: string) => {
@@ -39,10 +39,10 @@ export const fetchEmployees = async (institutionKey: string) => {
     const data = await response.json();
     console.log("data in fetch employee list api",data);
     // Assuming each employee has a property like shiftAssigned or shiftId/null
-    const unassignedEmployees = data.filter(
-      (emp: Employee) => !emp.shiftId // or !emp.shiftAssigned, adjust as per your model
-    );
-    return unassignedEmployees;
+    // const unassignedEmployees = data.filter(
+    //   (emp: Employee) => !emp.shiftId // or !emp.shiftAssigned, adjust as per your model
+    // );
+    return data;
   } catch (error) {
     console.error('Error fetching employees:', error);
     throw error;
