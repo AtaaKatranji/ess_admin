@@ -139,20 +139,24 @@ export const updateShift = async (newShift: Shift) => {
           (typeof b.id === 'string' && b.id.startsWith('temp-')) || b.isDirty
         );
       
-        const breakPromises = breaksToSave.map(breakItem =>
-          (typeof breakItem.id === 'string' && breakItem.id.startsWith('temp-'))
-            ? fetch(`${BaseUrl}/break/break-types/${breakItem.id}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ ...breakItem, shiftId: newShift.id })
-              })
-            : fetch(`${BaseUrl}/break/break-types`, {
+        const breakPromises = breaksToSave.map(breakItem => {
+          // Remove isDirty from breakItem
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const { isDirty, ...breakPayload } = breakItem;
+        
+          return (typeof breakItem.id === 'string' && breakItem.id.startsWith('temp-'))
+            ? fetch(`${BaseUrl}/break/break-types`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ ...breakItem, shiftId: newShift.id })
+                body: JSON.stringify({ ...breakPayload, shiftId: newShift.id })
               })
-        )
-        await Promise.all(breakPromises)
+            : fetch(`${BaseUrl}/break/break-types/${breakItem.id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ...breakPayload, shiftId: newShift.id })
+              });
+        });
+        await Promise.all(breakPromises);
       }
 
 
