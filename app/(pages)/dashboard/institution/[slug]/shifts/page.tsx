@@ -218,15 +218,15 @@ const toggleEmployeesExpanded = (shiftId: number) => {
   }))
 }
 const handleSave = async (data : Shift) => {
-  let newShift = data;
+  //let newShift = data;
   if (editingShift) {
     // Edit mode: update shift
-    newShift = await shiftAPI.updateShift(data);
+    await shiftAPI.updateShift(data);
     toast.success('Shift updated successfully', { autoClose: 1500 });
   } else {
     // Add mode: add new shift
     try {
-      newShift = await shiftAPI.addShift(data);
+      await shiftAPI.addShift(data);
       toast.success('Shift added successfully', { autoClose: 1500 });
       
     } catch (error) {
@@ -234,7 +234,9 @@ const handleSave = async (data : Shift) => {
     }
   }
   // Fetch and update the list
-  setShifts((prevShifts) => [...prevShifts, newShift]);
+  //setShifts((prevShifts) => [...prevShifts, newShift]);
+  const refreshedShifts = await shiftAPI.fetchShifts(institutionKey);
+  setShifts(refreshedShifts);
   setDialogOpen(false);
 
 };
@@ -348,7 +350,7 @@ const handleSave = async (data : Shift) => {
 
                     <div className="flex gap-2">
                       <Button variant="outline" size="icon" onClick={() => {
-
+                        console.log("before handleEditShift", shift);
                         handleEditShift(shift)}}>
                         <Edit className="h-4 w-4" />
                       </Button>
