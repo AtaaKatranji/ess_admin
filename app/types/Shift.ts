@@ -33,6 +33,7 @@ type  Break = {
     icon?: string;
     shiftId?: string; // Added to associate with shift
     maxUsagePerDay: number;
+    isDirty: boolean;
   }
   
 

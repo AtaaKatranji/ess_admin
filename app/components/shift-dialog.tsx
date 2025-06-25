@@ -44,6 +44,7 @@ export default function ShiftForm({open, onOpenChange, isEditing, shift, onSave 
     extraLimit: 1,
     breaks: [],
     institutionKey: institutionKey,
+    isDirty: false,
   }
 
   const [newShift, setNewShift] = useState<Shift>(initialShift)
@@ -57,10 +58,11 @@ export default function ShiftForm({open, onOpenChange, isEditing, shift, onSave 
           overrides = {};
         }
       }
-      setNewShift({ ...shift, overrides });
-      
+      // Add isDirty:false for each breakType
+      const breaksWithFlags = (shift.breakTypes || []).map(b => ({ ...b, isDirty: false }));
+      setNewShift({ ...shift, overrides, breakTypes: breaksWithFlags });
     } else {
-      setNewShift(initialShift)
+      setNewShift(initialShift);
     }
   }, [shift, open])
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -437,90 +439,7 @@ export default function ShiftForm({open, onOpenChange, isEditing, shift, onSave 
             </Card>
 
             {/* Breaks Section */}
-            {/* <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Breaks</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {newShift.breaks?.map((breakItem, index) => (
-                    <div key={breakItem.id} className="flex items-center gap-3 p-3 border rounded-lg">
-                      <Input
-                        value={breakItem.name}
-                        onChange={(e) => {
-                          const updatedBreaks = [...newShift.breaks!]
-                          updatedBreaks[index].name = e.target.value
-                          setNewShift({ ...newShift, breaks: updatedBreaks })
-                        }}
-                        placeholder="Break Name"
-                        className="flex-1"
-                      />
-                      <Input
-                        type="number"
-                        value={breakItem.duration}
-                        onChange={(e) => {
-                          const updatedBreaks = [...newShift.breaks!]
-                          updatedBreaks[index].duration = Number.parseInt(e.target.value, 10)
-                          setNewShift({ ...newShift, breaks: updatedBreaks })
-                        }}
-                        placeholder="Duration (min)"
-                        className="w-32"
-                      />
-                      <Select
-                        value={breakItem.icon}
-                        onValueChange={(value) => {
-                          const updatedBreaks = [...newShift.breaks!]
-                          updatedBreaks[index].icon = value
-                          setNewShift({ ...newShift, breaks: updatedBreaks })
-                        }}
-                      >
-                        <SelectTrigger className="w-32">
-                          <SelectValue placeholder="Icon" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="coffee">☕ Coffee</SelectItem>
-                          <SelectItem value="food">🍴 Food</SelectItem>
-                          <SelectItem value="tea">🍵 Tea</SelectItem>
-                          <SelectItem value="rest">🛋️ Rest</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        size="sm"
-                        onClick={() => {
-                          const updatedBreaks = newShift.breaks!.filter((_, i) => i !== index)
-                          setNewShift({ ...newShift, breaks: updatedBreaks })
-                        }}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  ))}
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => {
-                      setNewShift({
-                        ...newShift,
-                        breaks: [
-                          ...(newShift.breaks || []),
-                          {
-                            id: `temp-${Date.now()}`,
-                            name: "",
-                            duration: 0,
-                            icon: "coffee",
-                          },
-                        ],
-                      })
-                    }}
-                  >
-                    <PlusCircle className="mr-2 h-4 w-4" />
-                    Add Break
-                  </Button>
-                </div>
-              </CardContent>
-            </Card> */}
+            
 <div className="space-y-6">
       <div className="border-l-4 border-blue-500 pl-4">
         <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
@@ -560,8 +479,12 @@ export default function ShiftForm({open, onOpenChange, isEditing, shift, onSave 
                       value={breakItem.name}
                       onChange={(e) => {
                         const updatedBreaks = [...newShift.breakTypes!]
-                        updatedBreaks[index].name = e.target.value
-                        setNewShift({ ...newShift, breakTypes: updatedBreaks })
+                        updatedBreaks[index] = {
+                          ...updatedBreaks[index],
+                          name: e.target.value,
+                          isDirty: true // Mark dirty!
+                        };
+                        setNewShift({ ...newShift, breakTypes: updatedBreaks });
                       }}
                       placeholder="e.g., Lunch Break, Coffee Break"
                       className="h-10 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
@@ -584,7 +507,11 @@ export default function ShiftForm({open, onOpenChange, isEditing, shift, onSave 
                         value={breakItem.duration}
                         onChange={(e) => {
                           const updatedBreaks = [...newShift.breakTypes!]
-                          updatedBreaks[index].duration = Number.parseInt(e.target.value, 10)
+                          updatedBreaks[index] = {
+                            ...updatedBreaks[index],
+                            duration: Number.parseInt(e.target.value, 10),
+                            isDirty: true // Mark dirty!
+                          };
                           setNewShift({ ...newShift, breakTypes: updatedBreaks })
                         }}
                         placeholder="30"
@@ -612,7 +539,11 @@ export default function ShiftForm({open, onOpenChange, isEditing, shift, onSave 
                       value={breakItem.maxUsagePerDay || 1}
                       onChange={(e) => {
                         const updatedBreaks = [...newShift.breakTypes!]
-                        updatedBreaks[index].maxUsagePerDay = Number.parseInt(e.target.value, 10) || 1
+                        updatedBreaks[index] = {
+                          ...updatedBreaks[index],
+                          maxUsagePerDay : Number.parseInt(e.target.value, 10) || 1,
+                          isDirty: true // Mark dirty!
+                        }
                         setNewShift({ ...newShift, breakTypes: updatedBreaks })
                       }}
                       placeholder="1"
@@ -628,7 +559,11 @@ export default function ShiftForm({open, onOpenChange, isEditing, shift, onSave 
                       value={breakItem.icon}
                       onValueChange={(value) => {
                         const updatedBreaks = [...newShift.breakTypes!]
-                        updatedBreaks[index].icon = value
+                        updatedBreaks[index] = {
+                          ...updatedBreaks[index],
+                          icon: value,
+                          isDirty: true // Mark dirty!
+                        };
                         setNewShift({ ...newShift, breakTypes: updatedBreaks })
                       }}
                     >
@@ -694,6 +629,7 @@ export default function ShiftForm({open, onOpenChange, isEditing, shift, onSave 
                         duration: 0,
                         icon: "coffee",
                         maxUsagePerDay: 1,
+                        isDirty: true, // New, so dirty
                       },
                     ],
                   })

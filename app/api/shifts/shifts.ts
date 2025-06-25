@@ -98,6 +98,16 @@ export const addShift = async (newShift: Shift) => {
     console.error('Error adding shift:', error)
   }
 }
+// function isBreakEdited(original, edited) {
+//   if (!original) return false; // Should not happen unless logic bug
+//   return (
+//     original.name !== edited.name ||
+//     original.duration !== edited.duration ||
+//     original.icon !== edited.icon ||
+//     original.maxUsagePerDay !== edited.maxUsagePerDay
+//     // ...add any fields you want to track
+//   );
+// }
 export const updateShift = async (newShift: Shift) => {
 
 
@@ -125,8 +135,12 @@ export const updateShift = async (newShift: Shift) => {
     };
       // Handle breaks (similar to addShift)
       if (newShift.breakTypes && newShift.breakTypes.length > 0) {
-        const breakPromises = newShift.breakTypes.map(breakItem =>
-          breakItem.id && typeof breakItem.id === 'string' && breakItem.id.startsWith('temp-')
+        const breaksToSave = newShift.breakTypes.filter(b =>
+          (typeof b.id === 'string' && b.id.startsWith('temp-')) || b.isDirty
+        );
+      
+        const breakPromises = breaksToSave.map(breakItem =>
+          (typeof breakItem.id === 'string' && breakItem.id.startsWith('temp-'))
             ? fetch(`${BaseUrl}/break/break-types/${breakItem.id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
@@ -140,6 +154,7 @@ export const updateShift = async (newShift: Shift) => {
         )
         await Promise.all(breakPromises)
       }
+
 
 
         return sanitizedShift;
