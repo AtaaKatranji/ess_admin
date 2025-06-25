@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { PlusCircle, Trash2, Save, Clock, Settings, AlertCircle, Users, Coffee } from "lucide-react"
 import { Shift } from "@/app/types/Shift";
+import * as shiftAPI from '@/app/api/shifts/shifts'
 // import { toast } from "react-toastify"
 
 // const BaseURL = process.env.NEXT_PUBLIC_API_URL;
@@ -650,8 +651,11 @@ export default function ShiftForm({open, onOpenChange, isEditing, shift, onSave 
                       variant="outline"
                       size="sm"
                       onClick={() => {
+                        console.log("before deleteBreak", breakItem.id);
+                        shiftAPI.deleteBreak(breakItem.id!)
                         const updatedBreaks = newShift.breakTypes!.filter((_, i) => i !== index)
                         setNewShift({ ...newShift, breakTypes: updatedBreaks })
+                        
                       }}
                       className="h-10 w-10 p-0 border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300"
                     >

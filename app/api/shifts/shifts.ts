@@ -1,6 +1,7 @@
 const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
 import { Shift } from '@/app/types/Shift';
 
+
 export const fetchShifts = async (institutionKey: string) => {
   try {
     const response = await fetch(`${BaseUrl}/shifts/institution?institutionKey=${institutionKey}`, {
@@ -162,3 +163,22 @@ export const updateShift = async (newShift: Shift) => {
   //     return [];
   //   }
   // };
+   // Function to delete a break from the backend
+export  const deleteBreak = async (breakId: string) => {
+    try {
+      const response = await fetch(`${BaseUrl}/break/break-types/${breakId}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete break');
+      }
+
+      // Return true if the break was successfully deleted
+      return true;
+    } catch (error) {
+      console.error('Error deleting break:', error);
+      
+      return false;
+    }
+  };
