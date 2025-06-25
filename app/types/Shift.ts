@@ -17,7 +17,7 @@ export interface Shift {
     lateMultiplier: number;
     extraLimit: number;
     extraMultiplier: number;
-    breaks?: Break[];
+    breakTypes?: Break[];
   }
 
 type  Employee = {

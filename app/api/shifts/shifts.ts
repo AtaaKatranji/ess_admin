@@ -80,8 +80,8 @@ export const addShift = async (newShift: Shift) => {
     console.log('Created shift:', shiftData)
 
     // Handle breaks
-    if (newShift.breaks && newShift.breaks.length > 0) {
-      const breakPromises = newShift.breaks.map(breakItem =>
+    if (newShift.breakTypes && newShift.breakTypes.length > 0) {
+      const breakPromises = newShift.breakTypes.map(breakItem =>
         fetch(`${BaseUrl}/break/break-types`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -123,8 +123,8 @@ export const updateShift = async (newShift: Shift) => {
         employees: shiftData.employees || [],
     };
       // Handle breaks (similar to addShift)
-      if (newShift.breaks && newShift.breaks.length > 0) {
-        const breakPromises = newShift.breaks.map(breakItem =>
+      if (newShift.breakTypes && newShift.breakTypes.length > 0) {
+        const breakPromises = newShift.breakTypes.map(breakItem =>
           breakItem.id && !breakItem.id.startsWith('temp-')
             ? fetch(`${BaseUrl}/break/break-types/${breakItem.id}`, {
                 method: 'PUT',

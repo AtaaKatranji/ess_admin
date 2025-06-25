@@ -537,13 +537,13 @@ export default function ShiftForm({open, onOpenChange, isEditing, shift, onSave 
           <CardTitle className="text-lg font-medium text-gray-800 flex items-center justify-between">
             <span>Break Types</span>
             <Badge variant="secondary" className="text-xs">
-              {newShift.breaks?.length || 0} configured
+              {newShift.breakTypes?.length || 0} configured
             </Badge>
           </CardTitle>
         </CardHeader>
         <CardContent className="p-6">
           <div className="space-y-4">
-            {newShift.breaks?.map((breakItem, index) => (
+            {newShift.breakTypes?.map((breakItem, index) => (
               <div
                 key={breakItem.id}
                 className="bg-white border-2 border-gray-100 rounded-xl p-4 hover:border-gray-200 transition-colors"
@@ -558,9 +558,9 @@ export default function ShiftForm({open, onOpenChange, isEditing, shift, onSave 
                       id={`break-name-${index}`}
                       value={breakItem.name}
                       onChange={(e) => {
-                        const updatedBreaks = [...newShift.breaks!]
+                        const updatedBreaks = [...newShift.breakTypes!]
                         updatedBreaks[index].name = e.target.value
-                        setNewShift({ ...newShift, breaks: updatedBreaks })
+                        setNewShift({ ...newShift, breakTypes: updatedBreaks })
                       }}
                       placeholder="e.g., Lunch Break, Coffee Break"
                       className="h-10 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
@@ -582,9 +582,9 @@ export default function ShiftForm({open, onOpenChange, isEditing, shift, onSave 
                         type="number"
                         value={breakItem.duration}
                         onChange={(e) => {
-                          const updatedBreaks = [...newShift.breaks!]
+                          const updatedBreaks = [...newShift.breakTypes!]
                           updatedBreaks[index].duration = Number.parseInt(e.target.value, 10)
-                          setNewShift({ ...newShift, breaks: updatedBreaks })
+                          setNewShift({ ...newShift, breakTypes: updatedBreaks })
                         }}
                         placeholder="30"
                         min="1"
@@ -610,9 +610,9 @@ export default function ShiftForm({open, onOpenChange, isEditing, shift, onSave 
                       type="number"
                       value={breakItem.maxUsagePerDay || 1}
                       onChange={(e) => {
-                        const updatedBreaks = [...newShift.breaks!]
+                        const updatedBreaks = [...newShift.breakTypes!]
                         updatedBreaks[index].maxUsagePerDay = Number.parseInt(e.target.value, 10) || 1
-                        setNewShift({ ...newShift, breaks: updatedBreaks })
+                        setNewShift({ ...newShift, breakTypes: updatedBreaks })
                       }}
                       placeholder="1"
                       min="1"
@@ -626,9 +626,9 @@ export default function ShiftForm({open, onOpenChange, isEditing, shift, onSave 
                     <Select
                       value={breakItem.icon}
                       onValueChange={(value) => {
-                        const updatedBreaks = [...newShift.breaks!]
+                        const updatedBreaks = [...newShift.breakTypes!]
                         updatedBreaks[index].icon = value
-                        setNewShift({ ...newShift, breaks: updatedBreaks })
+                        setNewShift({ ...newShift, breakTypes: updatedBreaks })
                       }}
                     >
                       <SelectTrigger className="h-10 border-gray-300 focus:border-blue-500 focus:ring-blue-500">
@@ -650,8 +650,8 @@ export default function ShiftForm({open, onOpenChange, isEditing, shift, onSave 
                       variant="outline"
                       size="sm"
                       onClick={() => {
-                        const updatedBreaks = newShift.breaks!.filter((_, i) => i !== index)
-                        setNewShift({ ...newShift, breaks: updatedBreaks })
+                        const updatedBreaks = newShift.breakTypes!.filter((_, i) => i !== index)
+                        setNewShift({ ...newShift, breakTypes: updatedBreaks })
                       }}
                       className="h-10 w-10 p-0 border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300"
                     >
@@ -677,8 +677,8 @@ export default function ShiftForm({open, onOpenChange, isEditing, shift, onSave 
                 onClick={() => {
                   setNewShift({
                     ...newShift,
-                    breaks: [
-                      ...(newShift.breaks || []),
+                    breakTypes: [
+                      ...(newShift.breakTypes || []),
                       {
                         id: `temp-${Date.now()}`,
                         name: "",
@@ -701,18 +701,18 @@ export default function ShiftForm({open, onOpenChange, isEditing, shift, onSave 
           </div>
 
           {/* Summary */}
-          {newShift.breaks && newShift.breaks.length > 0 && (
+          {newShift.breakTypes && newShift.breakTypes.length > 0 && (
             <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
               <h4 className="text-sm font-medium text-blue-900 mb-2">Break Summary</h4>
               <div className="text-sm text-blue-800">
                 <p>
-                  Total break types configured: <strong>{newShift.breaks.length}</strong>
+                  Total break types configured: <strong>{newShift.breakTypes.length}</strong>
                 </p>
                 <p>
                   Total possible break time per day:{" "}
                   <strong>
-                    {newShift.breaks.reduce(
-                      (total, breakItem) => total + breakItem.duration * (breakItem.maxUsagePerDay || 1),
+                    {newShift.breakTypes.reduce(
+                      (total: number, breakItem: { duration: number; maxUsagePerDay: number }) => total + breakItem.duration * (breakItem.maxUsagePerDay || 1),
                       0,
                     )}{" "}
                     minutes
