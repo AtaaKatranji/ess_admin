@@ -17,6 +17,7 @@ import ShiftForm from '@/app/components/shift-dialog'
 const BaseURL = process.env.NEXT_PUBLIC_API_URL;
 import { Shift } from '@/app/types/Shift'
 import * as shiftAPI from '@/app/api/shifts/shifts'
+
 type Employee = {
   id: string; // Changed from id to id for MySQL
   name: string;
@@ -73,165 +74,6 @@ export default function ShiftsPage() {
     fetchEmp()
   }, [institutionKey])
 
-  // const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   setNewShift({ ...newShift, [e.target.name]: e.target.value })
-  // }
-  // const handleNameBreakChange = (e: React.ChangeEvent<HTMLInputElement>, index: string) => {
-  //   const updatedBreaks = [...newShift.breaks!];
-  //   updatedBreaks[Number(index)].name = e.target.value; // Type assertion to number
-  //   setNewShift({ ...newShift, breaks: updatedBreaks });
-  // };
-
-  // const handleDayToggle = (day: string) => {
-  //   setNewShift(prev => ({
-  //     ...prev,
-  //     days: prev.days.includes(day)
-  //       ? prev.days.filter(d => d !== day)
-  //       : [...prev.days, day],
-  //   }))
-  // }
-  // const addShift = async () => {
-  //   if (!newShift.name || !newShift.startTime || !newShift.endTime || newShift.days.length === 0) {
-  //     toast.error('Please fill all required fields')
-  //     return
-  //   }
-
-  //   try {
-  //     const shiftResponse = await fetch(`${BaseURL}/shifts/`, {
-  //       method: 'POST',
-  //       headers: { 'Content-Type': 'application/json' },
-  //       body: JSON.stringify(newShift), // No need to set employees here
-  //     })
-
-  //     if (!shiftResponse.ok) {
-  //       const errorData = await shiftResponse.json()
-  //       throw new Error(errorData.message || 'Failed to add shift')
-  //     }
-
-  //     const shiftData = await shiftResponse.json()
-  //     console.log('Created shift:', shiftData)
-
-  //     // Handle breaks
-  //     if (newShift.breaks && newShift.breaks.length > 0) {
-  //       const breakPromises = newShift.breaks.map(breakItem =>
-  //         fetch(`${BaseURL}/break/break-types`, {
-  //           method: 'POST',
-  //           headers: { 'Content-Type': 'application/json' },
-  //           body: JSON.stringify({ ...breakItem, shiftId: shiftData.id })
-  //         })
-  //       )
-  //       await Promise.all(breakPromises)
-  //     }
-
-  //     setShifts([...shifts, { ...shiftData, employees: [] }])
-  //     resetNewShift()
-  //     setIsOpen(false)
-  //     toast.success('Shift added successfully', { autoClose: 1500 })
-  //   } catch (error) {
-  //     console.error('Error adding shift:', error)
-  //     toast.error(`Failed to add shift: ${error instanceof Error ? error.message : 'Unknown error'}`, { autoClose: 1500 })
-  //   }
-  // }
-  // const updateShift = async () => {
-  //   if (!newShift.id || !newShift.name || !newShift.startTime || !newShift.endTime || newShift.days.length === 0) {
-  //     toast.error('Please fill all required fields')
-  //     return
-  //   }
-
-  //   try {
-  //     console.log('Sending update data:', JSON.stringify(newShift)); // Log what’s sent
-  //     const shiftResponse = await fetch(`${BaseURL}/shifts/${newShift.id}`, {
-  //       method: 'PUT',
-  //       headers: { 'Content-Type': 'application/json' },
-  //       body: JSON.stringify(newShift),
-  //     })
-
-  //     if (!shiftResponse.ok) {
-  //       const errorData = await shiftResponse.json()
-  //       throw new Error(errorData.message || 'Failed to update shift')
-  //     }
-
-  //     const shiftData = await shiftResponse.json()
-  //     console.log('Received updated shift:', shiftData);
-
-  //     // Ensure days is an array
-  //     const sanitizedShift = {
-  //       ...shiftData,
-  //       days: Array.isArray(shiftData.days) ? shiftData.days : JSON.parse(shiftData.days || '[]'),
-  //       employees: shiftData.employees || [],
-  //   };
-  //     // Handle breaks (similar to addShift)
-  //     if (newShift.breaks && newShift.breaks.length > 0) {
-  //       const breakPromises = newShift.breaks.map(breakItem =>
-  //         breakItem.id && !breakItem.id.startsWith('temp-')
-  //           ? fetch(`${BaseURL}/break/break-types/${breakItem.id}`, {
-  //               method: 'PUT',
-  //               headers: { 'Content-Type': 'application/json' },
-  //               body: JSON.stringify({ ...breakItem, shiftId: newShift.id })
-  //             })
-  //           : fetch(`${BaseURL}/break/break-types`, {
-  //               method: 'POST',
-  //               headers: { 'Content-Type': 'application/json' },
-  //               body: JSON.stringify({ ...breakItem, shiftId: newShift.id })
-  //             })
-  //       )
-  //       await Promise.all(breakPromises)
-  //     }
-
-  //     setShifts(prevShifts => {
-  //       const newShifts = prevShifts.map(shift => shift.id === sanitizedShift.id ? sanitizedShift : shift);
-  //       console.log('Updated shifts:', newShifts);
-  //       return newShifts;
-  //   });
-  //     resetNewShift()
-  //     setIsOpen(false)
-  //     setIsEditing(false)
-  //     toast.success('Shift updated successfully', { autoClose: 1500 })
-  //   } catch (error) {
-  //     console.error('Error updating shift:', error)
-  //     toast.error(`Failed to update shift: ${error instanceof Error ? error.message : 'Unknown error'}`, { autoClose: 1500 })
-  //   }
-  // }
-  // const handleSubmit = (e: React.FormEvent) => {
-  //   e.preventDefault();
-  //   if (isEditing) {
-  //     updateShift();
-  //   } else {
-  //     addShift();
-  //   }
-
-  //   // Reset the newShift state to its initial values
-  //   setNewShift({
-  //     name: '',
-  //     startTime: '',
-  //     endTime: '',
-  //     days: [],
-  //     institutionKey: institutionKey,
-  //     lateLimit: 1,
-  //     lateMultiplier: 1,
-  //     extraLimit: 1,
-  //     extraMultiplier: 1,
-  //     breaks: [],
-  //   });
-  //   setIsOpen(false);
-  //   setIsEditing(false);
-  // };
-  // const resetNewShift = () => {
-  //   setNewShift({
-  //     name: '',
-  //     mode: 'standard',
-  //     startTime: '',
-  //     endTime: '',
-  //     overrides: {},
-  //     days: [],
-  //     institutionKey: institutionKey,
-  //     lateLimit: 1,
-  //     lateMultiplier: 1,
-  //     extraLimit: 1,
-  //     extraMultiplier: 1,
-  //     breaks: [],
-  //   })
-  // }
   const handleEditShift = async (shift: Shift) => {
     setEditingShift(shift)  // shift from your list
     setDialogOpen(true) 
@@ -311,7 +153,26 @@ export default function ShiftsPage() {
       body: JSON.stringify({ toShiftId, employeeId }),
     })
     const data = await response.json()
-    setShifts(shifts.map(shift => shift.id === data.id ? data : shift))
+    console.log(data);
+    const dataShiftSync = await shiftAPI.fetchShifts(institutionKey);
+    setShifts(dataShiftSync);
+    // setShifts(shifts.map(shift => {
+    //   if (shift.id === fromShiftId) {
+    //     // Remove employee from old shift
+    //     return {
+    //       ...shift,
+    //       employees: shift.employees.filter(emp => emp.id !== employeeId)
+    //     };
+    //   }
+    //   if (shift.id === toShiftId) {
+    //     // Add employee to new shift (might need to push the updated employee object)
+    //     return {
+    //       ...shift,
+    //       employees: [...shift.employees, data.employee] // or use data.updatedEmployees
+    //     };
+    //   }
+    //   return shift;
+    // }));
   }
   // const fetchBreaksForShift = async (shiftId : string) => {
   //   try {

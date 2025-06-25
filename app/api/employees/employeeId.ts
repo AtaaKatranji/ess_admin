@@ -1,26 +1,6 @@
-
 import moment from "moment";
 
 const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
-
-// interface Employee {
-//   id: number;
-//   name: string;
-//   phoneNumber: string;
-//   institutionKey: string;
-//   password: string;
-//   role: string;
-//   gender: string;
-//   shiftId: number | null; // null if not assigned
-//   institutionId: number;
-//   createdAt: string;
-//   updatedAt: string;
-//   shift?: {
-//     name: string;
-//   };
-//   shiftName?: string;
-// }
-
 
 export const fetchEmployees = async (institutionKey: string) => {
   try {
@@ -48,7 +28,6 @@ export const fetchEmployees = async (institutionKey: string) => {
     throw error;
   }
 };
-
 export const fetchCheckInOutData = async (shiftId : string) => {
   try {
     const response = await fetch(`${BaseUrl}/checks/checkinout?shiftId=${shiftId}`);
