@@ -126,7 +126,7 @@ export const updateShift = async (newShift: Shift) => {
       // Handle breaks (similar to addShift)
       if (newShift.breakTypes && newShift.breakTypes.length > 0) {
         const breakPromises = newShift.breakTypes.map(breakItem =>
-          breakItem.id && String(!breakItem.id).startsWith('temp-')
+          breakItem.id && typeof breakItem.id === 'string' && breakItem.id.startsWith('temp-')
             ? fetch(`${BaseUrl}/break/break-types/${breakItem.id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },

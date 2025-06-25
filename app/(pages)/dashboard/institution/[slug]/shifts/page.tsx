@@ -212,7 +212,16 @@ const handleSave = async (data : Shift) => {
     }
   }
   // Fetch and update the list
-  setShifts((prevShifts) => [...prevShifts, newShift]);
+  setShifts((prevShifts) => {
+    const exists = prevShifts.some(s => s.id === newShift.id);
+    if (exists) {
+      // Replace the existing shift
+      return prevShifts.map(s => s.id === newShift.id ? newShift : s);
+    } else {
+      // Add new shift
+      return [...prevShifts, newShift];
+    }
+  });
   // const refreshedShifts = await shiftAPI.fetchShifts(institutionKey);
   // setShifts(refreshedShifts);
   setDialogOpen(false);
