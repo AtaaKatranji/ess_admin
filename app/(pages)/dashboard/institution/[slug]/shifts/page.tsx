@@ -174,29 +174,9 @@ export default function ShiftsPage() {
     //   return shift;
     // }));
   }
-  // const fetchBreaksForShift = async (shiftId : string) => {
-  //   try {
-  //     const response = await fetch(`${BaseURL}/break/break-types/shift/${shiftId}`);
-    
-  //     if (!response.ok) {
-  //       throw new Error('Failed to fetch breaks');
-  //     }
-  //     const data = await response.json();
-  //     return data;
-  //   } catch (error) {
-  //     console.error('Error fetching breaks:', error);
-  //     return [];
-  //   }
-  // };
+
   // New helper functions
-  // const parseOverrides = (overrides: string) => {
-  //   if (!overrides) return {}
-  //   try {
-  //     return JSON.parse(overrides)
-  //   } catch {
-  //     return {}
-  //   }
-  // }
+
   const parseOverrides = (
     overrides: { [day: string]: { start: string; end: string } } | string | undefined
   ) => {
@@ -273,14 +253,14 @@ const handleSave = async (data : Shift) => {
           <PlusCircle className="mr-2 h-4 w-4" />
           Add Shift
         </Button>
-        <ShiftForm open={dialogOpen}
+        
+      </div>
+      <ShiftForm open={dialogOpen}
           onOpenChange={setDialogOpen}
           isEditing={!!editingShift}
           shift={editingShift}
           onSave={ handleSave}
           institutionKey={institutionKey} />
-      </div>
-       
       <div className="mb-8">
         <h2 className="text-xl font-semibold mb-4">Manage Employees</h2>
         <div className="flex gap-2">

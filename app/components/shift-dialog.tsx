@@ -12,7 +12,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
-import { PlusCircle, Trash2, Save, Clock, Settings, AlertCircle } from "lucide-react"
+import { PlusCircle, Trash2, Save, Clock, Settings, AlertCircle, Users, Coffee } from "lucide-react"
 import { Shift } from "@/app/types/Shift";
 // import { toast } from "react-toastify"
 
@@ -114,7 +114,7 @@ export default function ShiftForm({open, onOpenChange, isEditing, shift, onSave 
       }
     })
   }
-
+ 
   // const resetNewShift = () => {
   //   setNewShift(initialShift)
   //   setIsEditing(false)
@@ -436,7 +436,7 @@ export default function ShiftForm({open, onOpenChange, isEditing, shift, onSave 
             </Card>
 
             {/* Breaks Section */}
-            <Card>
+            {/* <Card>
               <CardHeader>
                 <CardTitle className="text-lg">Breaks</CardTitle>
               </CardHeader>
@@ -519,8 +519,211 @@ export default function ShiftForm({open, onOpenChange, isEditing, shift, onSave 
                   </Button>
                 </div>
               </CardContent>
-            </Card>
+            </Card> */}
+<div className="space-y-6">
+      <div className="border-l-4 border-blue-500 pl-4">
+        <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+          <Coffee className="h-5 w-5 text-blue-500" />
+          Break Configuration
+        </h2>
+        <p className="text-sm text-gray-600 mt-1">
+          Define the types of breaks available during this shift. Each break type can be used multiple times per day
+          based on your settings.
+        </p>
+      </div>
 
+      <Card className="border-2 border-gray-200 shadow-sm">
+        <CardHeader className="bg-gray-50/50 border-b">
+          <CardTitle className="text-lg font-medium text-gray-800 flex items-center justify-between">
+            <span>Break Types</span>
+            <Badge variant="secondary" className="text-xs">
+              {newShift.breaks?.length || 0} configured
+            </Badge>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-6">
+          <div className="space-y-4">
+            {newShift.breaks?.map((breakItem, index) => (
+              <div
+                key={breakItem.id}
+                className="bg-white border-2 border-gray-100 rounded-xl p-4 hover:border-gray-200 transition-colors"
+              >
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
+                  {/* Break Name */}
+                  <div className="md:col-span-4">
+                    <Label htmlFor={`break-name-${index}`} className="text-sm font-medium text-gray-700 mb-2 block">
+                      Break Name *
+                    </Label>
+                    <Input
+                      id={`break-name-${index}`}
+                      value={breakItem.name}
+                      onChange={(e) => {
+                        const updatedBreaks = [...newShift.breaks!]
+                        updatedBreaks[index].name = e.target.value
+                        setNewShift({ ...newShift, breaks: updatedBreaks })
+                      }}
+                      placeholder="e.g., Lunch Break, Coffee Break"
+                      className="h-10 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                    />
+                  </div>
+
+                  {/* Duration */}
+                  <div className="md:col-span-2">
+                    <Label
+                      htmlFor={`break-duration-${index}`}
+                      className="text-sm font-medium text-gray-700 mb-2 block flex items-center gap-1"
+                    >
+                      <Clock className="h-3 w-3" />
+                      Duration *
+                    </Label>
+                    <div className="relative">
+                      <Input
+                        id={`break-duration-${index}`}
+                        type="number"
+                        value={breakItem.duration}
+                        onChange={(e) => {
+                          const updatedBreaks = [...newShift.breaks!]
+                          updatedBreaks[index].duration = Number.parseInt(e.target.value, 10)
+                          setNewShift({ ...newShift, breaks: updatedBreaks })
+                        }}
+                        placeholder="30"
+                        min="1"
+                        className="h-10 border-gray-300 focus:border-blue-500 focus:ring-blue-500 pr-12"
+                      />
+                      <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-xs text-gray-500">
+                        min
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Max Usage */}
+                  <div className="md:col-span-2">
+                    <Label
+                      htmlFor={`break-usage-${index}`}
+                      className="text-sm font-medium text-gray-700 mb-2 block flex items-center gap-1"
+                    >
+                      <Users className="h-3 w-3" />
+                      Max/Day *
+                    </Label>
+                    <Input
+                      id={`break-usage-${index}`}
+                      type="number"
+                      value={breakItem.maxUsagePerDay || 1}
+                      onChange={(e) => {
+                        const updatedBreaks = [...newShift.breaks!]
+                        updatedBreaks[index].maxUsagePerDay = Number.parseInt(e.target.value, 10) || 1
+                        setNewShift({ ...newShift, breaks: updatedBreaks })
+                      }}
+                      placeholder="1"
+                      min="1"
+                      className="h-10 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                    />
+                  </div>
+
+                  {/* Icon */}
+                  <div className="md:col-span-3">
+                    <Label className="text-sm font-medium text-gray-700 mb-2 block">Icon</Label>
+                    <Select
+                      value={breakItem.icon}
+                      onValueChange={(value) => {
+                        const updatedBreaks = [...newShift.breaks!]
+                        updatedBreaks[index].icon = value
+                        setNewShift({ ...newShift, breaks: updatedBreaks })
+                      }}
+                    >
+                      <SelectTrigger className="h-10 border-gray-300 focus:border-blue-500 focus:ring-blue-500">
+                        <SelectValue placeholder="Choose icon" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="coffee">☕ Coffee</SelectItem>
+                        <SelectItem value="food">🍴 Food</SelectItem>
+                        <SelectItem value="tea">🍵 Tea</SelectItem>
+                        <SelectItem value="rest">🛋️ Rest</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Delete Button */}
+                  <div className="md:col-span-1 flex justify-end">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        const updatedBreaks = newShift.breaks!.filter((_, i) => i !== index)
+                        setNewShift({ ...newShift, breaks: updatedBreaks })
+                      }}
+                      className="h-10 w-10 p-0 border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Helper text */}
+                <div className="mt-3 text-xs text-gray-500 bg-gray-50 rounded-lg p-2">
+                  <strong>Tip:</strong> This break can be taken up to {breakItem.maxUsagePerDay || 1} time
+                  {(breakItem.maxUsagePerDay || 1) > 1 ? "s" : ""} per day, each lasting {breakItem.duration || 0}{" "}
+                  minutes.
+                </div>
+              </div>
+            ))}
+
+            {/* Add Break Button */}
+            <div className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-blue-400 hover:bg-blue-50/30 transition-colors">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  setNewShift({
+                    ...newShift,
+                    breaks: [
+                      ...(newShift.breaks || []),
+                      {
+                        id: `temp-${Date.now()}`,
+                        name: "",
+                        duration: 0,
+                        icon: "coffee",
+                        maxUsagePerDay: 1,
+                      },
+                    ],
+                  })
+                }}
+                className="h-12 px-6 border-blue-300 text-blue-700 hover:bg-blue-50 hover:border-blue-400"
+              >
+                <PlusCircle className="mr-2 h-5 w-5" />
+                Add Another Break Type
+              </Button>
+              <p className="text-xs text-gray-500 mt-2">
+                Add different types of breaks that employees can take during this shift
+              </p>
+            </div>
+          </div>
+
+          {/* Summary */}
+          {newShift.breaks && newShift.breaks.length > 0 && (
+            <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <h4 className="text-sm font-medium text-blue-900 mb-2">Break Summary</h4>
+              <div className="text-sm text-blue-800">
+                <p>
+                  Total break types configured: <strong>{newShift.breaks.length}</strong>
+                </p>
+                <p>
+                  Total possible break time per day:{" "}
+                  <strong>
+                    {newShift.breaks.reduce(
+                      (total, breakItem) => total + breakItem.duration * (breakItem.maxUsagePerDay || 1),
+                      0,
+                    )}{" "}
+                    minutes
+                  </strong>
+                </p>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
             <DialogFooter>
               <Button type="button" variant="secondary" onClick={() => onOpenChange(false)}>
                 Cancel
