@@ -431,7 +431,7 @@ const editBreakType = (breakType: Break) => {
                             className="flex items-center justify-between cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors"
                             onClick={() => toggleEmployeesExpanded(Number(shift.id!))}
                           >
-                            <h4 className="text-lg font-medium">
+                            <h4 className="text-lg font-medium flex items-center gap-2">
                             <Users className="h-5 w-5" />
                               Assigned Employees ({shift.employees?.length || 0})</h4>
                             <ChevronDown

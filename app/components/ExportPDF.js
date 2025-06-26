@@ -31,14 +31,14 @@ const exportMonthlyReportPDF = (data) => {
 // Set font to normal for "Employee:"
 const employeeLabel = "Employee: ";
 doc.setFont(undefined, 'normal');
-doc.text(employeeLabel, 14, 16);
+doc.text(employeeLabel, 10, 12);
 
 // Calculate width of the label to position the bold name correctly
 const employeeLabelWidth = doc.getTextWidth(employeeLabel);
 
 // Set font to bold for employee name
 doc.setFont(undefined, 'bold');
-doc.text(data.summary.employeeName, 14 + employeeLabelWidth, 16);
+doc.text(data.summary.employeeName, 10 + employeeLabelWidth, 12);
   let totalHours = Number(data.summary.totalHours) || 0;
   if (Number(data.summary.extraAdjusmentHours) > 0) {
       totalHours += Number(data.summary.extraAdjusmentHours) || 0;
@@ -50,6 +50,7 @@ doc.text(data.summary.employeeName, 14 + employeeLabelWidth, 16);
       ["Early Arrival Hours", data.summary.earlyArrivalHours],
       ["Extra Attendance Hours", data.summary.extraAttendanceHours],
       ["Total Days Attendanced", data.summary.totalDays],
+      ["Total Days Absents", data.summary.totalAbsents],
       ["Total Days Holidays", data.summary.totalHolidays],
       ["Paid Leaves", data.summary.totalLeaves || 0], // Fix mismatch
       ["Unpaid Leaves", 0], // Fix mismatch

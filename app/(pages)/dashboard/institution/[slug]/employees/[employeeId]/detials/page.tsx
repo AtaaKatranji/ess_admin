@@ -180,17 +180,13 @@ const EmployeeDetails = () => {
         const year = normalizedDate.getFullYear();
         const month = String(normalizedDate.getMonth() + 1).padStart(2, "0");
         const dateToSend = `${year}-${month}-${normalizedDate.getDate()}`;
-        console.log("selectedMonth:", selectedMonth, typeof selectedMonth);
-        console.log("dateToSend:", dateToSend, typeof dateToSend);
         const response = await fetch(`${BaseUrl}/checks/summary`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ employeeId, date: dateToSend, dateString: selectedMonth }),
         });
         if (!response.ok) throw new Error("Failed to fetch report");
-        const data = await response.json();
-        console.log('Full response:', JSON.stringify(data, null, 2)); // Log full response
-        console.log('Details length:', data.details.length); // Log number of days
+        const data = await response.json(); // Log number of days
         setData(prev => ({ ...prev, employeeName: data.summary.employeeName }));
         exportMonthlyReportPDF(data);
         toast.info("Monthly report exported as PDF!");
