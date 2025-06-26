@@ -19,11 +19,13 @@ const exportMonthlyReportPDF = (data) => {
   
   // Draw bold month name
   doc.setFont(undefined, 'bold');
+  doc.setFontSize(11); 
   doc.text(monthNameText, centerX, 10);
   
   // Draw regular " Attendance Report" right after bold text
   const monthNameWidth = doc.getTextWidth(monthNameText);
   doc.setFont(undefined, 'normal');
+  doc.setFontSize(11); 
   doc.text(reportText, centerX + monthNameWidth, 10);
 
 // 2. Print "Employee: John Doe" with "Employee:" regular, "John Doe" bold
@@ -31,14 +33,16 @@ const exportMonthlyReportPDF = (data) => {
 // Set font to normal for "Employee:"
 const employeeLabel = "Employee: ";
 doc.setFont(undefined, 'normal');
-doc.text(employeeLabel, 10, 12);
+doc.setFontSize(9); 
+doc.text(employeeLabel, 14,16);
 
 // Calculate width of the label to position the bold name correctly
 const employeeLabelWidth = doc.getTextWidth(employeeLabel);
 
 // Set font to bold for employee name
 doc.setFont(undefined, 'bold');
-doc.text(data.summary.employeeName, 10 + employeeLabelWidth, 12);
+doc.setFontSize(9); 
+doc.text(data.summary.employeeName, 15 + employeeLabelWidth, 16);
   let totalHours = Number(data.summary.totalHours) || 0;
   if (Number(data.summary.extraAdjusmentHours) > 0) {
       totalHours += Number(data.summary.extraAdjusmentHours) || 0;
