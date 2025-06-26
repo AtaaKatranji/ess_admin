@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect} from 'react'
-import { PlusCircle, Trash2, UserPlus, ArrowRightLeft, Edit, Clock, Calendar, Settings, ChevronDown, Plus, Timer, Coffee, Utensils, Pause, Users } from 'lucide-react'
+import { PlusCircle, Trash2, UserPlus, ArrowRightLeft, Edit, Clock, Calendar, Settings, ChevronDown, Plus, Timer, Coffee, Utensils, Pause, Users, FileChartColumn } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 // import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -17,6 +17,8 @@ import ShiftForm from '@/app/components/shift-dialog'
 const BaseURL = process.env.NEXT_PUBLIC_API_URL;
 import { Break, Shift } from '@/app/types/Shift'
 import * as shiftAPI from '@/app/api/shifts/shifts'
+import Link from 'next/link'
+import ShiftReport from '@/app/components/ShiftReports'
 
 type Employee = {
   id: string; // Changed from id to id for MySQL
@@ -63,6 +65,7 @@ export default function ShiftsPage() {
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editingShift, setEditingShift] = useState<Shift | null>(null)
   const [isBreaksExpanded, setIsBreaksExpanded] = useState(true)
+  const [showReports, setShowReports] = useState(false)
 
 
   // Fetch shifts from the API
@@ -265,6 +268,7 @@ const editBreakType = (breakType: Break) => {
 
       <div className='flex justify-between'>
         <h1 className="text-2xl font-bold mb-4">Shift Management</h1>
+        <div>
         <Button type="button" onClick={() => { 
           setEditingShift(null);
           setDialogOpen(true);
@@ -272,6 +276,15 @@ const editBreakType = (breakType: Break) => {
           <PlusCircle className="mr-2 h-4 w-4" />
           Add Shift
         </Button>
+        <Link href="/shift-reports">
+        <Button type="button" onClick={() => { 
+          setShowReports(true);
+          }}>
+          <FileChartColumn className="mr-2 h-4 w-4" />
+          Reports
+        </Button>
+        </Link>
+        </div>
         
       </div>
       <ShiftForm open={dialogOpen}
@@ -280,6 +293,7 @@ const editBreakType = (breakType: Break) => {
           shift={editingShift}
           onSave={ handleSave}
           institutionKey={institutionKey} />
+      <ShiftReport open={showReports} onOpenChange={setShowReports} />
       <div className="mb-8">
         <h2 className="text-xl font-semibold mb-4">Manage Employees</h2>
         <div className="flex gap-2">
