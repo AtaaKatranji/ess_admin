@@ -129,7 +129,7 @@ export default function ShiftReport({open, onOpenChange}: ShiftReportProps) {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-        <Button variant="ghost" onClick={() => onOpenChange(false)}>
+        <Button variant="ghost" onClick={() =>{ console.log("show reports out", open);onOpenChange(false)}}>
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Shifts
         </Button>

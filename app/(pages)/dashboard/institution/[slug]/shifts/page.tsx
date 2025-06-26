@@ -278,6 +278,7 @@ const editBreakType = (breakType: Break) => {
         </Button>
         <Link href="/shift-reports">
         <Button type="button" onClick={() => { 
+          console.log("show reports out", showReports);
           setShowReports(true);
           }}>
           <FileChartColumn className="mr-2 h-4 w-4" />
@@ -293,6 +294,7 @@ const editBreakType = (breakType: Break) => {
           shift={editingShift}
           onSave={ handleSave}
           institutionKey={institutionKey} />
+        
       <ShiftReport open={showReports} onOpenChange={setShowReports} />
       <div className="mb-8">
         <h2 className="text-xl font-semibold mb-4">Manage Employees</h2>
