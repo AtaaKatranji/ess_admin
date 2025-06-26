@@ -297,7 +297,6 @@ const editBreakType = (breakType: Break) => {
           onSave={ handleSave}
           institutionKey={institutionKey} />
         
-      <ShiftReport open={showReports} onOpenChange={setShowReports} />
       <div className="mb-8">
         <h2 className="text-xl font-semibold mb-4">Manage Employees</h2>
         <div className="flex gap-2">
