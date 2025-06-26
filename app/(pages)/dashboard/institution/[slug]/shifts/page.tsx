@@ -276,7 +276,7 @@ const editBreakType = (breakType: Break) => {
           <PlusCircle className="mr-2 h-4 w-4" />
           Add Shift
         </Button>
-        <Link href="/shift-reports">
+ 
         <Button type="button" onClick={() => { 
           console.log("show reports out", showReports);
           setShowReports(true);
@@ -284,7 +284,7 @@ const editBreakType = (breakType: Break) => {
           <FileChartColumn className="mr-2 h-4 w-4" />
           Reports
         </Button>
-        </Link>
+
         </div>
         
       </div>
