@@ -3,22 +3,30 @@ import 'jspdf-autotable';
 
 const exportShiftMonthlyReportPDF = (data) => {
     const doc = new jsPDF();
-  
+
     // Header
+    const title = `${data.monthName} Shift Report`;
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const textWidth = doc.getTextWidth(title);
+    const centerX = (pageWidth - textWidth) / 2;
+
     doc.setFont('bold');
-    doc.text(`${data.monthName} Shift Report`, centerX, 10);
+    doc.text(title, centerX, 10);
     doc.setFont('normal');
     doc.text(`Shift: ${data.shiftName}`, 14, 16);
     doc.text(`Type: ${data.shiftType}`, 14, 22);
     doc.text(`Schedule: ${data.scheduleDescription}`, 14, 28);
-  
+
+    // Prepare summary metrics for table
+    const summaryMetricsTable = data.summaryMetrics.map(({ label, value }) => [label, value]);
+
     // Summary Table
     doc.autoTable({
       head: [["Metric", "Value"]],
-      body: data.summaryMetrics, // as array of [label, value]
+      body: summaryMetricsTable, // must be array of [label, value]
       startY: 32
     });
-  
+
     // Employee Assignment Table
     doc.autoTable({
       head: [["Employee", "Days Scheduled", "Days Attended", "Days Absent", "Holidays", "Total Hours"]],
@@ -32,10 +40,8 @@ const exportShiftMonthlyReportPDF = (data) => {
       ]),
       startY: doc.lastAutoTable.finalY + 8,
     });
-  
 
-  
     doc.save(`${data.monthName}_Shift_Report_${data.shiftName}.pdf`);
-  }
-  
-  export default exportShiftMonthlyReportPDF;
+}
+
+export default exportShiftMonthlyReportPDF;
