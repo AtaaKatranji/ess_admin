@@ -1,20 +1,34 @@
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 
-// Helper function
-function formatShiftTimes(shiftTimes) {
-    const timeGroups = {};
-    Object.entries(shiftTimes).forEach(([day, {start, end}]) => {
-        const timeKey = `${start}-${end}`;
-        if (!timeGroups[timeKey]) timeGroups[timeKey] = [];
-        timeGroups[timeKey].push(day);
-    });
-    return Object.entries(timeGroups)
-        .map(([time, days]) =>
-            `${days.join(', ')}: ${time.replace('-', '–').replace(/:00/g, '')}`
-        ).join('\n');
+// Helper to create the head & body for the schedule table
+function getScheduleTable(shiftTimes) {
+    // Extract the days in order (Monday-Sunday)
+    const daysOrder = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+    const days = daysOrder.filter(day => shiftTimes[day]);
+    
+    // Head row: Days of week (each spans 2 columns)
+    const head = [
+        days.map(day => ({ content: day, colSpan: 2, styles: { halign: 'center', fontStyle: 'bold' }}))
+    ];
+    // Second row: "Start" and "End" for each day
+    head.push(
+        days.flatMap([
+            { content: "Start", styles: { halign: 'center', fontStyle: 'italic' } },
+            { content: "End", styles: { halign: 'center', fontStyle: 'italic' } }
+        ])
+    );
+    // Body: Just one row, the times
+    const body = [
+        days.flatMap(day => [
+            shiftTimes[day]?.start?.slice(0,5) || "-",
+            shiftTimes[day]?.end?.slice(0,5) || "-"
+        ])
+    ];
+    return { head, body };
 }
 
+// --- Your PDF export function
 const exportShiftMonthlyReportPDF = (data) => {
     const doc = new jsPDF();
 
@@ -30,38 +44,30 @@ const exportShiftMonthlyReportPDF = (data) => {
     doc.text(`Shift: ${data.shiftName}`, 14, 16);
     doc.text(`Type: ${data.shiftType}`, 14, 22);
 
-    // Display nicely formatted shift times
-    const shiftTimesStr = formatShiftTimes(data.shiftTimes);
-    doc.text("Schedule:", 14, 28);
-    doc.setFontSize(9); // Smaller font for schedule details
-    doc.text(shiftTimesStr, 26, 33); // Indented and on next line(s)
-    doc.setFontSize(10); // Reset
+    // Add the schedule as a table
+    const { head, body } = getScheduleTable(data.shiftTimes);
+    doc.autoTable({
+        head,
+        body,
+        startY: 28,
+        theme: 'grid',
+        styles: { fontSize: 9, cellPadding: 2, valign: 'middle', halign: 'center' },
+        headStyles: { fillColor: [243, 244, 246], textColor: 60 }
+    });
 
-    // Prepare summary metrics for table
+    // The rest of your PDF code below...
+    // (Summary, employee table, etc.)
+    // For example:
     const summaryMetricsTable = data.summaryMetrics.map(({ label, value }) => [label, value]);
-
-    // Summary Table
     doc.autoTable({
       head: [["Metric", "Value"]],
-      body: summaryMetricsTable, // must be array of [label, value]
-      startY: 38
+      body: summaryMetricsTable,
+      startY: doc.lastAutoTable.finalY + 8
     });
 
-    // Employee Assignment Table
-    doc.autoTable({
-      head: [["Employee", "Days Scheduled", "Days Attended", "Days Absent", "Holidays", "Total Hours"]],
-      body: data.employees.map(e => [
-        e.name,
-        e.daysScheduled,
-        e.daysAttended,
-        e.daysAbsent,
-        e.holidays,
-        e.totalHours === "NaN" ? "-" : Number(e.totalHours).toFixed(2)
-      ]),
-      startY: doc.lastAutoTable.finalY + 8,
-    });
+    // ...continue as before
 
     doc.save(`${data.monthName}_Shift_Report_${data.shiftName}.pdf`);
-}
+};
 
 export default exportShiftMonthlyReportPDF;
