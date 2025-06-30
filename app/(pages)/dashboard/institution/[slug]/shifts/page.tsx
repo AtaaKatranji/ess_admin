@@ -265,12 +265,12 @@ const editBreakType = (breakType: Break) => {
     <div className="container mx-auto p-4">
       <ToastContainer />
       {showReports ? (
-      <ShiftReport open={showReports} onOpenChange={setShowReports} />
+      <ShiftReport open={showReports} onOpenChange={setShowReports} institutionKey={institutionKey} shiftId={shifts[0].id!} />
     ) : (
       <div>
       <div className='flex justify-between'>
         <h1 className="text-2xl font-bold mb-4">Shift Management</h1>
-        <div>
+        <div className="flex gap-2">
         <Button type="button" onClick={() => { 
           setEditingShift(null);
           setDialogOpen(true);

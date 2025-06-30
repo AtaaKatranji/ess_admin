@@ -20,11 +20,18 @@ const exportShiftMonthlyReportPDF = (data) => {
     });
   
     // Employee Assignment Table
-    // doc.autoTable({
-    //   head: [["Employee", "Days Scheduled", "Days Attended", "Days Absent", "Holidays", "Total Hours", "Late (h)", "Early Leave (h)"]],
-    //   body: data.employees.map(e => [...]),
-    //   startY: doc.lastAutoTable.finalY + 8,
-    // });
+    doc.autoTable({
+      head: [["Employee", "Days Scheduled", "Days Attended", "Days Absent", "Holidays", "Total Hours"]],
+      body: data.employees.map(e => [
+        e.name,
+        e.daysScheduled,
+        e.daysAttended,
+        e.daysAbsent,
+        e.holidays,
+        e.totalHours === "NaN" ? "-" : Number(e.totalHours).toFixed(2)
+      ]),
+      startY: doc.lastAutoTable.finalY + 8,
+    });
   
 
   

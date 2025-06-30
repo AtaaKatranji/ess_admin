@@ -36,5 +36,32 @@ export type  Break = {
     isDirty: boolean;
   }
  
-
+  interface EmployeeShift {
+    id: string,
+    name: string;
+    role: string;
+    daysScheduled: number;
+    daysAttended: number;
+    daysAbsent: number;
+    overTimeHours: number
+    holidays: number;
+    totalHours: string;
+    lateHours: string;
+    earlyLeaveHours: string;
+    leaves: number;
+  }
+  interface SummaryMetric {
+    label: string;
+    value: number | string;
+  }
+export  type ShiftTimes = { [day: string]: { start: string; end: string } };
+export  interface ShiftReportType {
+    monthName: string;
+    shiftName: string;
+    shiftType: string;
+    shiftTimes: ShiftTimes;
+    scheduleDescription: string;
+    summaryMetrics: SummaryMetric[];
+    employees: EmployeeShift[];
+  }
 

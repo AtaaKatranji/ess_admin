@@ -201,3 +201,26 @@ export  const deleteBreak = async (breakId: string) => {
       return false;
     }
   };
+
+export const fetchShiftReport = async (shiftId: string, month: string, institutionKey: string) => {
+  try {
+    const response = await fetch(`${BaseUrl}/shifts/summary`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({shiftId, month, institutionKey}), // Wrap in an object
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch shift report');
+    }
+
+    const data = await response.json();
+    console.log("data of shift report",data);
+    return data;
+  } catch (error) {
+    console.error('Error fetching shift report:', error);
+    throw error;
+  }
+};

@@ -7,6 +7,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge"
 import { Calendar, Clock, Users, FileDown, TrendingUp, ArrowLeft } from "lucide-react"
 import exportShiftReportPDF from "@/app/components/ShiftReportPDF"
+import * as shiftAPI from '@/app/api/shifts/shifts'
+import { ShiftReportType, ShiftTimes } from '@/app/types/Shift'
 
 // Sample data - replace with your actual data source
 const sampleShiftData = {
@@ -100,16 +102,28 @@ const sampleShiftData = {
 type ShiftReportProps = {
     open: boolean
     onOpenChange: (open: boolean) => void
+    shiftId: string
+    institutionKey: string
 
   }
-export default function ShiftReport({open, onOpenChange}: ShiftReportProps) {
+export default function ShiftReport({open, onOpenChange, shiftId, institutionKey}: ShiftReportProps) {
   const [selectedMonth, setSelectedMonth] = useState("2025-06")
-  const [selectedShift, setSelectedShift] = useState("SHIFT_001")
-  useEffect(() => {
-    
-  }, [ open])
+  const [selectedShift, setSelectedShift] = useState(shiftId)
+  const [shiftData, setShiftData] = useState<ShiftReportType | null>(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() =>  {
+    if (!selectedShift || !selectedMonth) return
+    setLoading(true)
+    shiftAPI.fetchShiftReport(selectedShift, selectedMonth, institutionKey)
+      .then((data: ShiftReportType) => setShiftData(data))
+      .catch((err) => {setShiftData(null);setError(err.message || "Failed to load data."); }) 
+      .finally(() => setLoading(false))
+       
+  }, [selectedShift, selectedMonth, institutionKey])
   const handleExportPDF = () => {
-    exportShiftReportPDF(sampleShiftData)
+    exportShiftReportPDF(shiftData)
   }
 
   const getAttendanceRateColor = (rate: number) => {
@@ -123,7 +137,22 @@ export default function ShiftReport({open, onOpenChange}: ShiftReportProps) {
     if (rate >= 80) return "bg-yellow-100 text-yellow-800"
     return "bg-red-100 text-red-800"
   }
+  const getSummaryValue = (label: string) =>
+    shiftData?.summaryMetrics.find(m => m.label === label)?.value ?? '';
 
+  function formatShiftTimes(shiftTimes: ShiftTimes) {
+    // days order for display
+    const daysOrder = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    return daysOrder
+      .filter(day => shiftTimes[day])
+      .map(day => {
+        const { start, end } = shiftTimes[day];
+        // Shorten day names: "Monday" -> "Mon"
+        const shortDay = day.slice(0, 3);
+        return `${shortDay}: ${start}–${end}`;
+      })
+      .join(', ');
+  }
   return (
     <div className="container mx-auto p-6 space-y-6">
       {/* Header */}
@@ -163,181 +192,203 @@ export default function ShiftReport({open, onOpenChange}: ShiftReportProps) {
           </Button>
         </div>
       </div>
+      {loading ? (
+        <div className="flex items-center justify-center h-40">
+           <svg className="animate-spin h-6 w-6 text-blue-500 mr-2" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+            <path
+              className="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+            />
+          </svg>
+        </div>
+      ) : shiftData ? (
+        // ...render shift report as normal here...
+        <div>
+          {/* Shift Overview */}
+          <Card>
+            <CardHeader>
+              <div className="flex justify-between items-start">
+                <div>
+                  <CardTitle className="text-xl">{shiftData.shiftName}</CardTitle>
+                  <CardDescription className="mt-1">
+                    {sampleShiftData.department} 
+                    {/* • Supervised by {shiftData.supervisor} */}
+                  </CardDescription>
+                </div>
+                <Badge variant="outline" className="text-sm">
+                  <Clock className="w-3 h-3 mr-1" />
+                  {formatShiftTimes(shiftData.shiftTimes)}
+                </Badge>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="text-center p-3 bg-blue-50 rounded-lg">
+                  <Users className="w-6 h-6 mx-auto text-blue-600 mb-1" />
+                  <div className="text-2xl font-bold text-blue-600"> {getSummaryValue("Total Employees Assigned")}</div>
+                  <div className="text-sm text-gray-600">Total Employees</div>
+                </div>
+                <div className="text-center p-3 bg-green-50 rounded-lg">
+                  <TrendingUp className="w-6 h-6 mx-auto text-green-600 mb-1" />
+                  <div className="text-2xl font-bold text-green-600"> {getSummaryValue("Average Attendance Rate")}%</div>
+                  <div className="text-sm text-gray-600">Avg Attendance</div>
+                </div>
+                <div className="text-center p-3 bg-purple-50 rounded-lg">
+                  <Clock className="w-6 h-6 mx-auto text-purple-600 mb-1" />
+                  <div className="text-2xl font-bold text-purple-600">
+                  {getSummaryValue("Total Hours Worked")}%
+                  </div>
+                  <div className="text-sm text-gray-600">Hours Worked</div>
+                </div>
+                <div className="text-center p-3 bg-orange-50 rounded-lg">
+                  <Calendar className="w-6 h-6 mx-auto text-orange-600 mb-1" />
+                  <div className="text-2xl font-bold text-orange-600">{getSummaryValue("Average Daily Attendance")}%</div>
+                  <div className="text-sm text-gray-600">Daily Avg Present</div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
-      {/* Shift Overview */}
-      <Card>
-        <CardHeader>
-          <div className="flex justify-between items-start">
-            <div>
-              <CardTitle className="text-xl">{sampleShiftData.shiftName}</CardTitle>
-              <CardDescription className="mt-1">
-                {sampleShiftData.department} • Supervised by {sampleShiftData.supervisor}
-              </CardDescription>
-            </div>
-            <Badge variant="outline" className="text-sm">
-              <Clock className="w-3 h-3 mr-1" />
-              {sampleShiftData.shiftTime}
-            </Badge>
+          {/* Shift Statistics */}
+          <div className="grid md:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Shift Performance Metrics</CardTitle>
+                <CardDescription>Key performance indicators for {shiftData.monthName}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center py-2 border-b">
+                    <span className="text-gray-600">Total Scheduled Hours</span>
+                    <span className="font-semibold">{getSummaryValue("Total Hours Scheduled")}</span>
+                  </div>
+                  <div className="flex justify-between items-center py-2 border-b">
+                    <span className="text-gray-600">Actual Worked Hours</span>
+                    <span className="font-semibold text-green-600">
+                    {getSummaryValue("Total Hours Worked")}
+                    </span>
+                  </div>
+                  {/* <div className="flex justify-between items-center py-2 border-b">
+                    <span className="text-gray-600">Total Late Hours</span>
+                    <span className="font-semibold text-red-600">{shiftData.summary.totalLateHours}</span>
+                  </div>
+                  <div className="flex justify-between items-center py-2 border-b">
+                    <span className="text-gray-600">Total Early Leave Hours</span>
+                    <span className="font-semibold text-orange-600">{shiftData.summary.totalEarlyLeaveHours}</span>
+                  </div>
+                  <div className="flex justify-between items-center py-2 border-b">
+                    <span className="text-gray-600">Total Overtime Hours</span>
+                    <span className="font-semibold text-blue-600">{shiftData.summary.totalOvertimeHours}</span>
+                  </div>
+                  <div className="flex justify-between items-center py-2">
+                    <span className="text-gray-600">Total Absent Days</span>
+                    <span className="font-semibold text-red-600">{shiftData.summary.totalAbsentDays}</span>
+                  </div>*/}
+                </div> 
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Attendance Overview</CardTitle>
+                <CardDescription>Monthly attendance breakdown</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {/* <div className="flex justify-between items-center py-2 border-b">
+                    <span className="text-gray-600">Active Employees</span>
+                    <span className="font-semibold">
+                      {shiftData.summary.activeEmployees} / {shiftData.summary.totalEmployees}
+                    </span>
+                  </div> */}
+                  <div className="flex justify-between items-center py-2 border-b">
+                    <span className="text-gray-600">Average Daily Attendance</span>
+                    <span className="font-semibold">{getSummaryValue("Average Daily Attendance")}%</span>
+                  </div>
+                  {/* <div className="flex justify-between items-center py-2 border-b">
+                    <span className="text-gray-600">Total Holiday Days</span>
+                    <span className="font-semibold text-blue-600">{shiftData.summary.totalHolidayDays}</span>
+                  </div> */}
+                  <div className="flex justify-between items-center py-2">
+                    <span className="text-gray-600">Shift Efficiency</span>
+                    <span
+                      className={`font-semibold ${getAttendanceRateColor(Number(getSummaryValue("Average Attendance Rate")))}`}
+                    >
+                      {(
+                        (Number(getSummaryValue("Total Hours Worked")) / Number(getSummaryValue("Total Hours Scheduled"))) *
+                        100
+                      ).toFixed(1)}
+                      %
+                    </span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="text-center p-3 bg-blue-50 rounded-lg">
-              <Users className="w-6 h-6 mx-auto text-blue-600 mb-1" />
-              <div className="text-2xl font-bold text-blue-600">{sampleShiftData.summary.totalEmployees}</div>
-              <div className="text-sm text-gray-600">Total Employees</div>
-            </div>
-            <div className="text-center p-3 bg-green-50 rounded-lg">
-              <TrendingUp className="w-6 h-6 mx-auto text-green-600 mb-1" />
-              <div className="text-2xl font-bold text-green-600">{sampleShiftData.summary.averageAttendanceRate}%</div>
-              <div className="text-sm text-gray-600">Avg Attendance</div>
-            </div>
-            <div className="text-center p-3 bg-purple-50 rounded-lg">
-              <Clock className="w-6 h-6 mx-auto text-purple-600 mb-1" />
-              <div className="text-2xl font-bold text-purple-600">
-                {sampleShiftData.summary.actualWorkedHours.toLocaleString()}
-              </div>
-              <div className="text-sm text-gray-600">Hours Worked</div>
-            </div>
-            <div className="text-center p-3 bg-orange-50 rounded-lg">
-              <Calendar className="w-6 h-6 mx-auto text-orange-600 mb-1" />
-              <div className="text-2xl font-bold text-orange-600">{sampleShiftData.summary.averageDailyAttendance}</div>
-              <div className="text-sm text-gray-600">Daily Avg Present</div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
 
-      {/* Shift Statistics */}
-      <div className="grid md:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Shift Performance Metrics</CardTitle>
-            <CardDescription>Key performance indicators for {sampleShiftData.month}</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex justify-between items-center py-2 border-b">
-                <span className="text-gray-600">Total Scheduled Hours</span>
-                <span className="font-semibold">{sampleShiftData.summary.totalShiftHours.toLocaleString()}</span>
+          {/* Employee Details */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Assigned Employees</CardTitle>
+              <CardDescription>Individual performance breakdown for all shift members</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b">
+                      <th className="text-left py-3 px-2 font-semibold">Employee</th>
+                      <th className="text-left py-3 px-2 font-semibold">Position</th>
+                      <th className="text-center py-3 px-2 font-semibold">Total Hours</th>
+                      <th className="text-center py-3 px-2 font-semibold">Attendance</th>
+                      <th className="text-center py-3 px-2 font-semibold">Absent</th>
+                      <th className="text-center py-3 px-2 font-semibold">Late Hours</th>
+                      <th className="text-center py-3 px-2 font-semibold">Overtime</th>
+                      <th className="text-center py-3 px-2 font-semibold">Rate</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {shiftData.employees.map((employee) => (
+                      <tr key={employee.id} className="border-b hover:bg-gray-50">
+                        <td className="py-3 px-2">
+                          <div className="font-medium">{employee.name}</div>
+                        </td>
+                        <td className="py-3 px-2 text-gray-600">{employee.role}</td>
+                        <td className="py-3 px-2 text-center font-medium">{employee.totalHours}</td>
+                        <td className="py-3 px-2 text-center">{employee.daysAttended}</td>
+                        <td className="py-3 px-2 text-center">
+                          <span className={employee.daysAbsent > 3 ? "text-red-600 font-medium" : ""}>
+                            {employee.daysAbsent}
+                          </span>
+                        </td>
+                        <td className="py-3 px-2 text-center">
+                          <span className={Number(employee.lateHours) > 5 ? "text-red-600 font-medium" : ""}>
+                            {employee.lateHours}
+                          </span>
+                        </td>
+                        <td className="py-3 px-2 text-center text-blue-600 font-medium">{employee.overTimeHours}</td>
+                        <td className="py-3 px-2 text-center">
+                          <Badge className={getAttendanceRateBadge(Number(employee.totalHours)/employee.daysAttended)}>
+                            {Number(employee.totalHours)/employee.daysAttended}%
+                          </Badge>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
-              <div className="flex justify-between items-center py-2 border-b">
-                <span className="text-gray-600">Actual Worked Hours</span>
-                <span className="font-semibold text-green-600">
-                  {sampleShiftData.summary.actualWorkedHours.toLocaleString()}
-                </span>
-              </div>
-              <div className="flex justify-between items-center py-2 border-b">
-                <span className="text-gray-600">Total Late Hours</span>
-                <span className="font-semibold text-red-600">{sampleShiftData.summary.totalLateHours}</span>
-              </div>
-              <div className="flex justify-between items-center py-2 border-b">
-                <span className="text-gray-600">Total Early Leave Hours</span>
-                <span className="font-semibold text-orange-600">{sampleShiftData.summary.totalEarlyLeaveHours}</span>
-              </div>
-              <div className="flex justify-between items-center py-2 border-b">
-                <span className="text-gray-600">Total Overtime Hours</span>
-                <span className="font-semibold text-blue-600">{sampleShiftData.summary.totalOvertimeHours}</span>
-              </div>
-              <div className="flex justify-between items-center py-2">
-                <span className="text-gray-600">Total Absent Days</span>
-                <span className="font-semibold text-red-600">{sampleShiftData.summary.totalAbsentDays}</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Attendance Overview</CardTitle>
-            <CardDescription>Monthly attendance breakdown</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex justify-between items-center py-2 border-b">
-                <span className="text-gray-600">Active Employees</span>
-                <span className="font-semibold">
-                  {sampleShiftData.summary.activeEmployees} / {sampleShiftData.summary.totalEmployees}
-                </span>
-              </div>
-              <div className="flex justify-between items-center py-2 border-b">
-                <span className="text-gray-600">Average Daily Attendance</span>
-                <span className="font-semibold">{sampleShiftData.summary.averageDailyAttendance}</span>
-              </div>
-              <div className="flex justify-between items-center py-2 border-b">
-                <span className="text-gray-600">Total Holiday Days</span>
-                <span className="font-semibold text-blue-600">{sampleShiftData.summary.totalHolidayDays}</span>
-              </div>
-              <div className="flex justify-between items-center py-2">
-                <span className="text-gray-600">Shift Efficiency</span>
-                <span
-                  className={`font-semibold ${getAttendanceRateColor(sampleShiftData.summary.averageAttendanceRate)}`}
-                >
-                  {(
-                    (sampleShiftData.summary.actualWorkedHours / sampleShiftData.summary.totalShiftHours) *
-                    100
-                  ).toFixed(1)}
-                  %
-                </span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Employee Details */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Assigned Employees</CardTitle>
-          <CardDescription>Individual performance breakdown for all shift members</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b">
-                  <th className="text-left py-3 px-2 font-semibold">Employee</th>
-                  <th className="text-left py-3 px-2 font-semibold">Position</th>
-                  <th className="text-center py-3 px-2 font-semibold">Total Hours</th>
-                  <th className="text-center py-3 px-2 font-semibold">Attendance</th>
-                  <th className="text-center py-3 px-2 font-semibold">Absent</th>
-                  <th className="text-center py-3 px-2 font-semibold">Late Hours</th>
-                  <th className="text-center py-3 px-2 font-semibold">Overtime</th>
-                  <th className="text-center py-3 px-2 font-semibold">Rate</th>
-                </tr>
-              </thead>
-              <tbody>
-                {sampleShiftData.employees.map((employee) => (
-                  <tr key={employee.id} className="border-b hover:bg-gray-50">
-                    <td className="py-3 px-2">
-                      <div className="font-medium">{employee.name}</div>
-                    </td>
-                    <td className="py-3 px-2 text-gray-600">{employee.position}</td>
-                    <td className="py-3 px-2 text-center font-medium">{employee.totalHours}</td>
-                    <td className="py-3 px-2 text-center">{employee.attendanceDays}</td>
-                    <td className="py-3 px-2 text-center">
-                      <span className={employee.absentDays > 3 ? "text-red-600 font-medium" : ""}>
-                        {employee.absentDays}
-                      </span>
-                    </td>
-                    <td className="py-3 px-2 text-center">
-                      <span className={employee.lateHours > 5 ? "text-red-600 font-medium" : ""}>
-                        {employee.lateHours}
-                      </span>
-                    </td>
-                    <td className="py-3 px-2 text-center text-blue-600 font-medium">{employee.overtimeHours}</td>
-                    <td className="py-3 px-2 text-center">
-                      <Badge className={getAttendanceRateBadge(employee.attendanceRate)}>
-                        {employee.attendanceRate}%
-                      </Badge>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </CardContent>
-      </Card>
+            </CardContent>
+          </Card>
+        </div>
+      ) : (
+        
+        <div className="text-center text-gray-500 py-10">
+          {error && <div className="text-red-500">{error}</div>}
+          No data to display</div>
+      )}
+      
     </div>
   )
 }
