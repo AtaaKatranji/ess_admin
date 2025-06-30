@@ -13,7 +13,7 @@ function getScheduleTable(shiftTimes) {
     ];
     // Second row: "Start" and "End" for each day
     head.push(
-        days.flatMap([
+        days.flatMap(day =>[
             { content: "Start", styles: { halign: 'center', fontStyle: 'italic' } },
             { content: "End", styles: { halign: 'center', fontStyle: 'italic' } }
         ])
