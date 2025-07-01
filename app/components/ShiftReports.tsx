@@ -11,94 +11,94 @@ import * as shiftAPI from '@/app/api/shifts/shifts'
 import { ShiftReportType, ShiftTimes } from '@/app/types/Shift'
 
 // Sample data - replace with your actual data source
-const sampleShiftData = {
-  shiftId: "SHIFT_001",
-  shiftName: "Morning Shift",
-  shiftTime: "08:00 - 16:00",
-  department: "Operations",
-  supervisor: "Sarah Johnson",
-  month: "June 2025",
-  summary: {
-    totalEmployees: 12,
-    activeEmployees: 10,
-    averageAttendanceRate: 85.5,
-    totalShiftHours: 1920, // 8 hours * 12 employees * 20 working days
-    actualWorkedHours: 1641.6,
-    totalLateHours: 45.2,
-    totalEarlyLeaveHours: 12.8,
-    totalOvertimeHours: 28.5,
-    totalAbsentDays: 18,
-    totalHolidayDays: 48, // 4 holidays * 12 employees
-    averageDailyAttendance: 10.2,
-  },
-  employees: [
-    {
-      id: 1,
-      name: "Ataa Katranji",
-      position: "Senior Operator",
-      totalHours: 126.03,
-      attendanceDays: 18,
-      absentDays: 5,
-      holidayDays: 4,
-      lateHours: 8.58,
-      earlyLeaveHours: 0.37,
-      overtimeHours: 0.95,
-      attendanceRate: 78.3,
-    },
-    {
-      id: 2,
-      name: "Ahmed Hassan",
-      position: "Operator",
-      totalHours: 142.5,
-      attendanceDays: 20,
-      absentDays: 2,
-      holidayDays: 4,
-      lateHours: 3.2,
-      earlyLeaveHours: 1.1,
-      overtimeHours: 6.5,
-      attendanceRate: 90.9,
-    },
-    {
-      id: 3,
-      name: "Fatima Al-Zahra",
-      position: "Quality Inspector",
-      totalHours: 138.75,
-      attendanceDays: 19,
-      absentDays: 3,
-      holidayDays: 4,
-      lateHours: 2.8,
-      earlyLeaveHours: 0.5,
-      overtimeHours: 4.75,
-      attendanceRate: 86.4,
-    },
-    {
-      id: 4,
-      name: "Omar Khalil",
-      position: "Technician",
-      totalHours: 134.2,
-      attendanceDays: 19,
-      absentDays: 3,
-      holidayDays: 4,
-      lateHours: 5.1,
-      earlyLeaveHours: 2.3,
-      overtimeHours: 2.2,
-      attendanceRate: 86.4,
-    },
-    {
-      id: 5,
-      name: "Layla Mahmoud",
-      position: "Supervisor Assistant",
-      totalHours: 145.8,
-      attendanceDays: 21,
-      absentDays: 1,
-      holidayDays: 4,
-      lateHours: 1.5,
-      earlyLeaveHours: 0.2,
-      overtimeHours: 9.8,
-      attendanceRate: 95.5,
-    },
-  ],
-}
+// const sampleShiftData = {
+//   shiftId: "SHIFT_001",
+//   shiftName: "Morning Shift",
+//   shiftTime: "08:00 - 16:00",
+//   department: "Operations",
+//   supervisor: "Sarah Johnson",
+//   month: "June 2025",
+//   summary: {
+//     totalEmployees: 12,
+//     activeEmployees: 10,
+//     averageAttendanceRate: 85.5,
+//     totalShiftHours: 1920, // 8 hours * 12 employees * 20 working days
+//     actualWorkedHours: 1641.6,
+//     totalLateHours: 45.2,
+//     totalEarlyLeaveHours: 12.8,
+//     totalOvertimeHours: 28.5,
+//     totalAbsentDays: 18,
+//     totalHolidayDays: 48, // 4 holidays * 12 employees
+//     averageDailyAttendance: 10.2,
+//   },
+//   employees: [
+//     {
+//       id: 1,
+//       name: "Ataa Katranji",
+//       position: "Senior Operator",
+//       totalHours: 126.03,
+//       attendanceDays: 18,
+//       absentDays: 5,
+//       holidayDays: 4,
+//       lateHours: 8.58,
+//       earlyLeaveHours: 0.37,
+//       overtimeHours: 0.95,
+//       attendanceRate: 78.3,
+//     },
+//     {
+//       id: 2,
+//       name: "Ahmed Hassan",
+//       position: "Operator",
+//       totalHours: 142.5,
+//       attendanceDays: 20,
+//       absentDays: 2,
+//       holidayDays: 4,
+//       lateHours: 3.2,
+//       earlyLeaveHours: 1.1,
+//       overtimeHours: 6.5,
+//       attendanceRate: 90.9,
+//     },
+//     {
+//       id: 3,
+//       name: "Fatima Al-Zahra",
+//       position: "Quality Inspector",
+//       totalHours: 138.75,
+//       attendanceDays: 19,
+//       absentDays: 3,
+//       holidayDays: 4,
+//       lateHours: 2.8,
+//       earlyLeaveHours: 0.5,
+//       overtimeHours: 4.75,
+//       attendanceRate: 86.4,
+//     },
+//     {
+//       id: 4,
+//       name: "Omar Khalil",
+//       position: "Technician",
+//       totalHours: 134.2,
+//       attendanceDays: 19,
+//       absentDays: 3,
+//       holidayDays: 4,
+//       lateHours: 5.1,
+//       earlyLeaveHours: 2.3,
+//       overtimeHours: 2.2,
+//       attendanceRate: 86.4,
+//     },
+//     {
+//       id: 5,
+//       name: "Layla Mahmoud",
+//       position: "Supervisor Assistant",
+//       totalHours: 145.8,
+//       attendanceDays: 21,
+//       absentDays: 1,
+//       holidayDays: 4,
+//       lateHours: 1.5,
+//       earlyLeaveHours: 0.2,
+//       overtimeHours: 9.8,
+//       attendanceRate: 95.5,
+//     },
+//   ],
+// }
 type ShiftReportProps = {
     open: boolean
     onOpenChange: (open: boolean) => void
@@ -193,8 +193,8 @@ export default function ShiftReport({open, onOpenChange, shiftId, institutionKey
   // }
   function formatShiftTimes(shiftTimes: ShiftTimes) {
     const daysOrder = [
-      'Monday', 'Tuesday', 'Wednesday', 'Thursday',
-      'Friday', 'Saturday', 'Sunday'
+      'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday',
+      'Friday', 
     ];
   
     // Map time string to a list of days
@@ -205,7 +205,7 @@ export default function ShiftReport({open, onOpenChange, shiftId, institutionKey
       if (shift) {
         const time = `${shift.start}-${shift.end}`;
         if (!timeGroups[time]) timeGroups[time] = [];
-        timeGroups[time].push(day.toLowerCase());
+        timeGroups[time].push(day+',');
       }
     }
   
@@ -256,7 +256,7 @@ export default function ShiftReport({open, onOpenChange, shiftId, institutionKey
       </div>
       
       {loading ? (
-        <div className="flex items-center justify-center h-40">
+        <div className="flex items-center justify-center h-40 space-y-6">
            <svg className="animate-spin h-6 w-6 text-blue-500 mr-2" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
             <path
@@ -268,15 +268,16 @@ export default function ShiftReport({open, onOpenChange, shiftId, institutionKey
         </div>
       ) : shiftData ? (
         // ...render shift report as normal here...
-        <div>
+        <div className="space-y-6">
           <div className="bg-white rounded-lg shadow-sm border p-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">{shiftData?.monthName} Shift Report</h1>
+              <h1 className="text-3xl font-bold text-gray-900"><span className="text-sm">Shift:</span> {shiftData?.shiftName}</h1>
               <div className="flex items-center gap-4 mt-2 text-sm text-gray-600">
                 <div className="flex items-center gap-1">
-                  <FileText className="w-4 h-4" />
-                  <span>Shift: {shiftData?.shiftName}</span>
+                  <Calendar className="w-4 h-4" />
+                  {/* <span>Shift: {shiftData?.shiftName}</span> */}
+                  <span>month: {shiftData?.monthName}</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <Badge variant="outline">{shiftData?.shiftType}</Badge>
@@ -293,49 +294,24 @@ export default function ShiftReport({open, onOpenChange, shiftId, institutionKey
           </div>
         </div>
           {/* Shift Overview */}
-          <Card>
-            <CardHeader>
-              <div className="flex justify-between items-start">
-                <div>
-                  <CardTitle className="text-xl">{shiftData.shiftName}</CardTitle>
-                  <CardDescription className="mt-1">
-                    {sampleShiftData.department} 
-                    {/* • Supervised by {shiftData.supervisor} */}
-                  </CardDescription>
-                </div>
-                <Badge variant="outline" className="text-sm">
-                  <Clock className="w-3 h-3 mr-1" />
-                  {formatShiftTimes(shiftData.shiftTimes)}
-                </Badge>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="text-center p-3 bg-blue-50 rounded-lg">
-                  <Users className="w-6 h-6 mx-auto text-blue-600 mb-1" />
-                  <div className="text-2xl font-bold text-blue-600"> {getSummaryValue("Total Employees Assigned")}</div>
-                  <div className="text-sm text-gray-600">Total Employees</div>
-                </div>
-                <div className="text-center p-3 bg-green-50 rounded-lg">
-                  <TrendingUp className="w-6 h-6 mx-auto text-green-600 mb-1" />
-                  <div className="text-2xl font-bold text-green-600"> {getSummaryValue("Average Attendance Rate")}%</div>
-                  <div className="text-sm text-gray-600">Avg Attendance</div>
-                </div>
-                <div className="text-center p-3 bg-purple-50 rounded-lg">
-                  <Clock className="w-6 h-6 mx-auto text-purple-600 mb-1" />
-                  <div className="text-2xl font-bold text-purple-600">
-                  {getSummaryValue("Total Hours Worked")}%
-                  </div>
-                  <div className="text-sm text-gray-600">Hours Worked</div>
-                </div>
-                <div className="text-center p-3 bg-orange-50 rounded-lg">
-                  <Calendar className="w-6 h-6 mx-auto text-orange-600 mb-1" />
-                  <div className="text-2xl font-bold text-orange-600">{getSummaryValue("Average Daily Attendance")}%</div>
-                  <div className="text-sm text-gray-600">Daily Avg Present</div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {shiftData.summaryMetrics.slice(0, 4).map((metric, index) => {
+            const icons = [Calendar, Users, Clock, TrendingUp]
+            const Icon = icons[index] || FileText
+
+            return (
+              <Card key={metric.label}>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium text-gray-600">{metric.label}</CardTitle>
+                  <Icon className="h-4 w-4 text-gray-400" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{metric.value === "NaN" ? "N/A" : metric.value}</div>
+                </CardContent>
+              </Card>
+            )
+          })}
+        </div>
 
           {/* Shift Statistics */}
           <div className="grid md:grid-cols-2 gap-6">
