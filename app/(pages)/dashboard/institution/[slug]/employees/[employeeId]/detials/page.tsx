@@ -184,6 +184,7 @@ const EmployeeDetails = () => {
       toast.error(`Failed to load data: ${error}`);
     } finally {
       setIsLoading(false);
+      console.log("data in effect see if it works",data);
     }
   }, [employeeId]);
   const exportMonthlyReport = useCallback(async () => {
