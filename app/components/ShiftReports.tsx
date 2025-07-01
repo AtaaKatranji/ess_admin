@@ -140,55 +140,102 @@ export default function ShiftReport({open, onOpenChange, shiftId, institutionKey
   const getSummaryValue = (label: string) =>
     shiftData?.summaryMetrics.find(m => m.label === label)?.value ?? '';
 
-  function formatShiftTimes(shiftTimes: ShiftTimes) {
-    const daysOrder = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-    const shortDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  // function formatShiftTimes(shiftTimes: ShiftTimes) {
+  //   const daysOrder = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  //   const shortDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
   
-    // Collect { dayIdx, shortDay, time } for days with shifts
+  //   // Collect { dayIdx, shortDay, time } for days with shifts
+  //   const shifts = daysOrder
+  //     .map((day, idx) => {
+  //       const times = shiftTimes[day];
+  //       if (times) {
+  //         return {
+  //           idx,
+  //           shortDay: shortDays[idx],
+  //           time: `${times.start}–${times.end}`,
+  //         };
+  //       }
+  //       return null;
+  //     })
+  //     .filter(Boolean) as { idx: number, shortDay: string, time: string }[];
+  
+  //   // Group consecutive days with the same shift time
+  //   const groups: { startIdx: number, endIdx: number, time: string }[] = [];
+  //   let groupStart = 0;
+  
+  //   while (groupStart < shifts.length) {
+  //     let groupEnd = groupStart;
+  //     while (
+  //       groupEnd + 1 < shifts.length &&
+  //       shifts[groupEnd + 1].time === shifts[groupStart].time &&
+  //       shifts[groupEnd + 1].idx === shifts[groupEnd].idx + 1
+  //     ) {
+  //       groupEnd++;
+  //     }
+  //     groups.push({
+  //       startIdx: groupStart,
+  //       endIdx: groupEnd,
+  //       time: shifts[groupStart].time,
+  //     });
+  //     groupStart = groupEnd + 1;
+  //   }
+  
+  //   // Format output
+  //   return groups
+  //     .map(({ startIdx, endIdx, time }) => {
+  //       const startDay = shifts[startIdx].shortDay;
+  //       const endDay = shifts[endIdx].shortDay;
+  //       return startIdx === endIdx
+  //         ? `${startDay}: ${time}`
+  //         : `${startDay}–${endDay}: ${time}`;
+  //     })
+  //     .join(', ');
+  // }
+  function formatShiftTimes(shiftTimes: ShiftTimes) {
+    const daysOrder = [
+      'Monday', 'Tuesday', 'Wednesday', 'Thursday',
+      'Friday', 'Saturday', 'Sunday'
+    ];
+  
+    // Collect { day, idx, time } for days with shifts
     const shifts = daysOrder
       .map((day, idx) => {
         const times = shiftTimes[day];
         if (times) {
           return {
             idx,
-            shortDay: shortDays[idx],
-            time: `${times.start}–${times.end}`,
+            day,
+            time: `${times.start.replace(/:00$/, '')}-${times.end.replace(/:00$/, '')}`
           };
         }
         return null;
       })
-      .filter(Boolean) as { idx: number, shortDay: string, time: string }[];
+      .filter(Boolean) as { idx: number, day: string, time: string }[];
   
-    // Group consecutive days with the same shift time
-    const groups: { startIdx: number, endIdx: number, time: string }[] = [];
-    let groupStart = 0;
-  
-    while (groupStart < shifts.length) {
-      let groupEnd = groupStart;
+    // Group consecutive days with the same time
+    const groups: { days: string[], time: string }[] = [];
+    let i = 0;
+    while (i < shifts.length) {
+      const groupDays = [shifts[i].day];
+      const time = shifts[i].time;
+      let j = i + 1;
       while (
-        groupEnd + 1 < shifts.length &&
-        shifts[groupEnd + 1].time === shifts[groupStart].time &&
-        shifts[groupEnd + 1].idx === shifts[groupEnd].idx + 1
+        j < shifts.length &&
+        shifts[j].time === time &&
+        shifts[j].idx === shifts[j - 1].idx + 1
       ) {
-        groupEnd++;
+        groupDays.push(shifts[j].day);
+        j++;
       }
-      groups.push({
-        startIdx: groupStart,
-        endIdx: groupEnd,
-        time: shifts[groupStart].time,
-      });
-      groupStart = groupEnd + 1;
+      groups.push({ days: groupDays, time });
+      i = j;
     }
   
     // Format output
     return groups
-      .map(({ startIdx, endIdx, time }) => {
-        const startDay = shifts[startIdx].shortDay;
-        const endDay = shifts[endIdx].shortDay;
-        return startIdx === endIdx
-          ? `${startDay}: ${time}`
-          : `${startDay}–${endDay}: ${time}`;
-      })
+      .map(({ days, time }) =>
+        `${days.map(day => day.toLowerCase()).join(' ')} : ${time}`
+      )
       .join(', ');
   }
   return (
