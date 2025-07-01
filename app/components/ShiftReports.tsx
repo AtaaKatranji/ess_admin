@@ -117,6 +117,7 @@ export default function ShiftReport({open, onOpenChange, shiftId, institutionKey
   const [error, setError] = useState<string | null>(null);
   const [shifts, setShifts] = useState<Shift[]>([]);
   useEffect(() =>  {
+    setLoading(true)
     const fetchAndSetShifts = async () => {
       try {
         if (!institutionKey) return; // If slug is undefined, do nothing
@@ -125,16 +126,19 @@ export default function ShiftReport({open, onOpenChange, shiftId, institutionKey
         const data = await fetchShifts(institutionKey);
 
         setShifts(data);
+        
         if (data.length > 0) {
-          setSelectedShift(data[0]);
+          setSelectedShift(data[0].id);
+        } else {
+        setSelectedShift(data.id);  
         }
       } catch (err) {
         console.error("Error fetching shifts:", err);
       }
     };
     fetchAndSetShifts();
-    if (!selectedShift || !selectedMonth) return
-    setLoading(true)
+
+
     shiftAPI.fetchShiftReport(selectedShift, selectedMonth, institutionKey)
       .then((data: ShiftReportType) => setShiftData(data))
       .catch((err) => {setShiftData(null);setError(err.message || "Failed to load data."); }) 
