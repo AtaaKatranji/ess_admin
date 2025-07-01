@@ -5,10 +5,13 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
-import { Calendar, Clock, Users, FileDown, TrendingUp, ArrowLeft, FileText } from "lucide-react"
+import { Calendar, Clock, Users, FileDown, TrendingUp, ArrowLeft, FileText, Table } from "lucide-react"
 import exportShiftReportPDF from "@/app/components/ShiftReportPDF"
 import * as shiftAPI from '@/app/api/shifts/shifts'
 import { ShiftReportType, ShiftTimes } from '@/app/types/Shift'
+import { TableBody } from "@mui/material"
+import { TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Progress } from "@/components/ui/progress"
 
 // Sample data - replace with your actual data source
 // const sampleShiftData = {
@@ -137,60 +140,19 @@ export default function ShiftReport({open, onOpenChange, shiftId, institutionKey
     if (rate >= 80) return "bg-yellow-100 text-yellow-800"
     return "bg-red-100 text-red-800"
   }
-  const getSummaryValue = (label: string) =>
-    shiftData?.summaryMetrics.find(m => m.label === label)?.value ?? '';
+  const getStatusBadge = (attendanceRate: number) => {
+    if (attendanceRate >= 90) return <Badge className="bg-green-100 text-green-800">Excellent</Badge>
+    if (attendanceRate >= 75) return <Badge className="bg-blue-100 text-blue-800">Good</Badge>
+    if (attendanceRate >= 60) return <Badge className="bg-yellow-100 text-yellow-800">Fair</Badge>
+    return <Badge className="bg-red-100 text-red-800">Poor</Badge>
+  }
+  
+  // const getSummaryValue = (label: string) =>
+  //   shiftData?.summaryMetrics.find(m => m.label === label)?.value ?? '';
 
-  // function formatShiftTimes(shiftTimes: ShiftTimes) {
-  //   const daysOrder = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-  //   const shortDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-  
-  //   // Collect { dayIdx, shortDay, time } for days with shifts
-  //   const shifts = daysOrder
-  //     .map((day, idx) => {
-  //       const times = shiftTimes[day];
-  //       if (times) {
-  //         return {
-  //           idx,
-  //           shortDay: shortDays[idx],
-  //           time: `${times.start}–${times.end}`,
-  //         };
-  //       }
-  //       return null;
-  //     })
-  //     .filter(Boolean) as { idx: number, shortDay: string, time: string }[];
-  
-  //   // Group consecutive days with the same shift time
-  //   const groups: { startIdx: number, endIdx: number, time: string }[] = [];
-  //   let groupStart = 0;
-  
-  //   while (groupStart < shifts.length) {
-  //     let groupEnd = groupStart;
-  //     while (
-  //       groupEnd + 1 < shifts.length &&
-  //       shifts[groupEnd + 1].time === shifts[groupStart].time &&
-  //       shifts[groupEnd + 1].idx === shifts[groupEnd].idx + 1
-  //     ) {
-  //       groupEnd++;
-  //     }
-  //     groups.push({
-  //       startIdx: groupStart,
-  //       endIdx: groupEnd,
-  //       time: shifts[groupStart].time,
-  //     });
-  //     groupStart = groupEnd + 1;
-  //   }
-  
-  //   // Format output
-  //   return groups
-  //     .map(({ startIdx, endIdx, time }) => {
-  //       const startDay = shifts[startIdx].shortDay;
-  //       const endDay = shifts[endIdx].shortDay;
-  //       return startIdx === endIdx
-  //         ? `${startDay}: ${time}`
-  //         : `${startDay}–${endDay}: ${time}`;
-  //     })
-  //     .join(', ');
-  // }
+  const getAttendanceRate = (attended: number, scheduled: number) => {
+    return Math.round((attended / scheduled) * 100)
+  }
   function formatShiftTimes(shiftTimes: ShiftTimes) {
     const daysOrder = [
       'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday',
@@ -300,10 +262,10 @@ export default function ShiftReport({open, onOpenChange, shiftId, institutionKey
               const Icon = icons[index] || FileText;
 
               const bgColors = [
-                'bg-blue-100 text-blue-800',
-                'bg-green-100 text-green-800',
-                'bg-yellow-100 text-yellow-800',
-                'bg-purple-100 text-purple-800',
+                'bg-blue-50 text-blue-800',
+                'bg-green-50 text-green-800',
+                'bg-yellow-50 text-yellow-800',
+                'bg-purple-50 text-purple-800',
               ];
 
               const iconBg = bgColors[index % bgColors.length]; // fallback if more than 4
@@ -325,6 +287,18 @@ export default function ShiftReport({open, onOpenChange, shiftId, institutionKey
           </div>
 
           {/* Shift Statistics */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {shiftData.summaryMetrics.slice(4).map((metric) => (
+            <Card key={metric.label}>
+              <CardHeader>
+                <CardTitle className="text-sm font-medium text-gray-600">{metric.label}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-lg font-semibold">{metric.value}</div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
           <div className="grid md:grid-cols-2 gap-6">
             <Card>
               <CardHeader>
@@ -332,7 +306,7 @@ export default function ShiftReport({open, onOpenChange, shiftId, institutionKey
                 <CardDescription>Key performance indicators for {shiftData.monthName}</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
+                {/* <div className="space-y-4">
                   <div className="flex justify-between items-center py-2 border-b">
                     <span className="text-gray-600">Total Scheduled Hours</span>
                     <span className="font-semibold">{getSummaryValue("Total Hours Scheduled")}</span>
@@ -342,7 +316,7 @@ export default function ShiftReport({open, onOpenChange, shiftId, institutionKey
                     <span className="font-semibold text-green-600">
                     {getSummaryValue("Total Hours Worked")}
                     </span>
-                  </div>
+                  </div> */}
                   {/* <div className="flex justify-between items-center py-2 border-b">
                     <span className="text-gray-600">Total Late Hours</span>
                     <span className="font-semibold text-red-600">{shiftData.summary.totalLateHours}</span>
@@ -358,47 +332,81 @@ export default function ShiftReport({open, onOpenChange, shiftId, institutionKey
                   <div className="flex justify-between items-center py-2">
                     <span className="text-gray-600">Total Absent Days</span>
                     <span className="font-semibold text-red-600">{shiftData.summary.totalAbsentDays}</span>
-                  </div>*/}
-                </div> 
+                  </div>
+                </div> */}
               </CardContent>
             </Card>
-
             <Card>
-              <CardHeader>
-                <CardTitle>Attendance Overview</CardTitle>
-                <CardDescription>Monthly attendance breakdown</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {/* <div className="flex justify-between items-center py-2 border-b">
-                    <span className="text-gray-600">Active Employees</span>
-                    <span className="font-semibold">
-                      {shiftData.summary.activeEmployees} / {shiftData.summary.totalEmployees}
-                    </span>
-                  </div> */}
-                  <div className="flex justify-between items-center py-2 border-b">
-                    <span className="text-gray-600">Average Daily Attendance</span>
-                    <span className="font-semibold">{getSummaryValue("Average Daily Attendance")}%</span>
-                  </div>
-                  {/* <div className="flex justify-between items-center py-2 border-b">
-                    <span className="text-gray-600">Total Holiday Days</span>
-                    <span className="font-semibold text-blue-600">{shiftData.summary.totalHolidayDays}</span>
-                  </div> */}
-                  <div className="flex justify-between items-center py-2">
-                    <span className="text-gray-600">Shift Efficiency</span>
-                    <span
-                      className={`font-semibold ${getAttendanceRateColor(Number(getSummaryValue("Average Attendance Rate")))}`}
-                    >
-                      {(
-                        (Number(getSummaryValue("Total Hours Worked")) / Number(getSummaryValue("Total Hours Scheduled"))) *
-                        100
-                      ).toFixed(1)}
-                      %
-                    </span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Users className="w-5 h-5" />
+              Employee Attendance Details
+            </CardTitle>
+            <CardDescription>Detailed breakdown of employee attendance and performance metrics</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Employee</TableHead>
+                    <TableHead>Attendance Rate</TableHead>
+                    <TableHead>Days Attended</TableHead>
+                    <TableHead>Days Absent</TableHead>
+                    <TableHead>Total Hours</TableHead>
+                    <TableHead>Late Hours</TableHead>
+                    <TableHead>Early Leave</TableHead>
+                    <TableHead>Overtime</TableHead>
+                    <TableHead>Status</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {shiftData.employees.map((employee) => {
+                    const attendanceRate = getAttendanceRate(employee.daysAttended, employee.daysScheduled)
+
+                    return (
+                      <TableRow key={employee.id}>
+                        <TableCell className="font-medium">{employee.name}</TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <Progress value={attendanceRate} className="w-16" color={getAttendanceRateColor(attendanceRate)} />
+                            <span className="text-sm">{attendanceRate}%</span>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <span className="text-green-600 font-medium">{employee.daysAttended}</span>
+                        </TableCell>
+                        <TableCell>
+                          <span className={employee.daysAbsent > 0 ? "text-red-600 font-medium" : "text-gray-500"}>
+                            {employee.daysAbsent}
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          {employee.totalHours === "NaN"
+                            ? "N/A"
+                            : `${Number.parseFloat(employee.totalHours).toFixed(1)}h`}
+                        </TableCell>
+                        <TableCell>
+                          <span className="text-orange-600">{Number.parseFloat(employee.lateHours).toFixed(1)}h</span>
+                        </TableCell>
+                        <TableCell>
+                          <span className="text-orange-600">
+                            {Number.parseFloat(employee.earlyLeaveHours).toFixed(1)}h
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          <span className="text-blue-600">{employee.overTimeHours.toFixed(1)}h</span>
+                        </TableCell>
+                        <TableCell>{getStatusBadge(attendanceRate)}</TableCell>
+                      </TableRow>
+                    )
+                  })}
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
+            
           </div>
 
           {/* Employee Details */}
