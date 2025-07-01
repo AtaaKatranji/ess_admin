@@ -83,6 +83,7 @@ const EmployeeDetails = () => {
     unpaidLeaves: null as number | null,
     leaves: [] as Leave[],
     employeeName: "",
+    shiftId: "",
     holidays: [] as Holiday[],
     worksDays: [],
     
@@ -163,6 +164,7 @@ const EmployeeDetails = () => {
         leaves: leavesRes.leaves?.leaves || [],
         holidays: holidaysRes || [],
         employeeName: empName.name || "",
+        shiftId: empName.shiftId || "",
       });
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -350,7 +352,7 @@ const EmployeeDetails = () => {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       <AnnualLeaveCard employeeId={employeeId} />
-      <OccasionCard holidays={data.holidays} shiftStart={data.startTime} shiftEnd={data.endTime} workDays={data.worksDays}/>
+      <OccasionCard holidays={data.holidays} shiftId = {data.shiftId}/>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card>
