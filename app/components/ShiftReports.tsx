@@ -193,7 +193,22 @@ export default function ShiftReport({open, onOpenChange, shiftId, institutionKey
           </Button>
         </div>
       </div>
-      <div className="bg-white rounded-lg shadow-sm border p-6">
+      
+      {loading ? (
+        <div className="flex items-center justify-center h-40">
+           <svg className="animate-spin h-6 w-6 text-blue-500 mr-2" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+            <path
+              className="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+            />
+          </svg>
+        </div>
+      ) : shiftData ? (
+        // ...render shift report as normal here...
+        <div>
+          <div className="bg-white rounded-lg shadow-sm border p-6">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold text-gray-900">{shiftData?.monthName} Shift Report</h1>
@@ -216,20 +231,6 @@ export default function ShiftReport({open, onOpenChange, shiftId, institutionKey
             </div>
           </div>
         </div>
-      {loading ? (
-        <div className="flex items-center justify-center h-40">
-           <svg className="animate-spin h-6 w-6 text-blue-500 mr-2" viewBox="0 0 24 24">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-            <path
-              className="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-            />
-          </svg>
-        </div>
-      ) : shiftData ? (
-        // ...render shift report as normal here...
-        <div>
           {/* Shift Overview */}
           <Card>
             <CardHeader>
