@@ -117,6 +117,7 @@ const EmployeeDetails = () => {
       const shiftsResRaw = await fetchTimeShifts(employeeId);
       const shifts = Array.isArray(shiftsResRaw) ? shiftsResRaw[0] : shiftsResRaw;      
       const formattedMonth = moment(month).format('YYYY-MM-01');
+      console.log("test fomat selscted month",format(selectedMonth, "yyyy"),format(selectedMonth, "MM") )
       const [hoursRes, leavesRes, summaryRes, timeShiftRes, holidaysRes,empName] = await Promise.all([
         fetch(`${BaseUrl}/checks/calculate-hours`, {
           method: "POST",
