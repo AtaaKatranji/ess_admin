@@ -179,12 +179,13 @@ const EmployeeDetails = () => {
           overrides: shifts?.overrides || {},
         }
       });
+      console.log("data in effect see if it works",data);
     } catch (error) {
       console.error("Error fetching data:", error);
       toast.error(`Failed to load data: ${error}`);
     } finally {
       setIsLoading(false);
-      console.log("data in effect see if it works",data);
+      
     }
   }, [employeeId]);
   const exportMonthlyReport = useCallback(async () => {
