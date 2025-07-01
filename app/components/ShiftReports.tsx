@@ -141,15 +141,53 @@ export default function ShiftReport({open, onOpenChange, shiftId, institutionKey
     shiftData?.summaryMetrics.find(m => m.label === label)?.value ?? '';
 
   function formatShiftTimes(shiftTimes: ShiftTimes) {
-    // days order for display
     const daysOrder = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-    return daysOrder
-      .filter(day => shiftTimes[day])
-      .map(day => {
-        const { start, end } = shiftTimes[day];
-        // Shorten day names: "Monday" -> "Mon"
-        const shortDay = day.slice(0, 3);
-        return `${shortDay}: ${start}–${end}`;
+    const shortDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  
+    // Collect { dayIdx, shortDay, time } for days with shifts
+    const shifts = daysOrder
+      .map((day, idx) => {
+        const times = shiftTimes[day];
+        if (times) {
+          return {
+            idx,
+            shortDay: shortDays[idx],
+            time: `${times.start}–${times.end}`,
+          };
+        }
+        return null;
+      })
+      .filter(Boolean) as { idx: number, shortDay: string, time: string }[];
+  
+    // Group consecutive days with the same shift time
+    const groups: { startIdx: number, endIdx: number, time: string }[] = [];
+    let groupStart = 0;
+  
+    while (groupStart < shifts.length) {
+      let groupEnd = groupStart;
+      while (
+        groupEnd + 1 < shifts.length &&
+        shifts[groupEnd + 1].time === shifts[groupStart].time &&
+        shifts[groupEnd + 1].idx === shifts[groupEnd].idx + 1
+      ) {
+        groupEnd++;
+      }
+      groups.push({
+        startIdx: groupStart,
+        endIdx: groupEnd,
+        time: shifts[groupStart].time,
+      });
+      groupStart = groupEnd + 1;
+    }
+  
+    // Format output
+    return groups
+      .map(({ startIdx, endIdx, time }) => {
+        const startDay = shifts[startIdx].shortDay;
+        const endDay = shifts[endIdx].shortDay;
+        return startIdx === endIdx
+          ? `${startDay}: ${time}`
+          : `${startDay}–${endDay}: ${time}`;
       })
       .join(', ');
   }
