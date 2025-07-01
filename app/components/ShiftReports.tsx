@@ -8,11 +8,11 @@ import { Badge } from "@/components/ui/badge"
 import { Calendar, Clock, Users, FileDown, TrendingUp, ArrowLeft, FileText,  } from "lucide-react"
 import exportShiftReportPDF from "@/app/components/ShiftReportPDF"
 import * as shiftAPI from '@/app/api/shifts/shifts'
-import { ShiftReportType, ShiftTimes } from '@/app/types/Shift'
+import { Shift, ShiftReportType, ShiftTimes } from '@/app/types/Shift'
 import { TableBody } from "@mui/material"
 import { Table, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Progress } from "@/components/ui/progress"
-
+import { fetchShifts } from '@/app/api/shifts/shifts'
 // Sample data - replace with your actual data source
 // const sampleShiftData = {
 //   shiftId: "SHIFT_001",
@@ -115,8 +115,24 @@ export default function ShiftReport({open, onOpenChange, shiftId, institutionKey
   const [shiftData, setShiftData] = useState<ShiftReportType | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null);
-
+  const [shifts, setShifts] = useState<Shift[]>([]);
   useEffect(() =>  {
+    const fetchAndSetShifts = async () => {
+      try {
+        if (!institutionKey) return; // If slug is undefined, do nothing
+        
+        console.log("in overview page",institutionKey);
+        const data = await fetchShifts(institutionKey);
+
+        setShifts(data);
+        if (data.length > 0) {
+          setSelectedShift(data[0]);
+        }
+      } catch (err) {
+        console.error("Error fetching shifts:", err);
+      }
+    };
+    fetchAndSetShifts();
     if (!selectedShift || !selectedMonth) return
     setLoading(true)
     shiftAPI.fetchShiftReport(selectedShift, selectedMonth, institutionKey)
@@ -176,6 +192,18 @@ export default function ShiftReport({open, onOpenChange, shiftId, institutionKey
       .map(([time, days]) => `${days.join(' ')} : ${time}`)
       .join(', ');
   }
+  const generateLastMonths = (count = 6) => {
+    const months = [];
+    const today = new Date();
+    for (let i = 0; i < count; i++) {
+      const date = new Date(today.getFullYear(), today.getMonth() - i, 1);
+      const value = date.toISOString().slice(0, 7); // "YYYY-MM"
+      const label = date.toLocaleDateString("en-US", { year: 'numeric', month: 'long' }); // "June 2025"
+      months.push({ value, label });
+    }
+    return months;
+  };
+  const months = generateLastMonths();
   return (
     <div className="container mx-auto p-6 space-y-6">
       {/* Header */}
@@ -195,9 +223,11 @@ export default function ShiftReport({open, onOpenChange, shiftId, institutionKey
               <SelectValue placeholder="Select Month" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="2025-06">June 2025</SelectItem>
-              <SelectItem value="2025-05">May 2025</SelectItem>
-              <SelectItem value="2025-04">April 2025</SelectItem>
+              {months.map((month) => (
+                <SelectItem key={month.value} value={month.value}>
+                  {month.label}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
           <Select value={selectedShift} onValueChange={setSelectedShift}>
@@ -205,12 +235,14 @@ export default function ShiftReport({open, onOpenChange, shiftId, institutionKey
               <SelectValue placeholder="Select Shift" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="SHIFT_001">Morning Shift</SelectItem>
-              <SelectItem value="SHIFT_002">Evening Shift</SelectItem>
-              <SelectItem value="SHIFT_003">Night Shift</SelectItem>
+            {shifts.map((shift) => (
+              <SelectItem key={shift.id} value={shift.id!}>
+                {shift.name}
+              </SelectItem>
+            ))}
             </SelectContent>
           </Select>
-          <Button onClick={handleExportPDF} className="bg-blue-600 hover:bg-blue-700">
+          <Button onClick={handleExportPDF} className="bg-black-600 hover:bg-black-400">
             <FileDown className="w-4 h-4 mr-2" />
             Export PDF
           </Button>
@@ -299,47 +331,6 @@ export default function ShiftReport({open, onOpenChange, shiftId, institutionKey
             </Card>
           ))}
         </div>
-          <div className="grid md:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Shift Performance Metrics</CardTitle>
-                <CardDescription>Key performance indicators for {shiftData.monthName}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                {/* <div className="space-y-4">
-                  <div className="flex justify-between items-center py-2 border-b">
-                    <span className="text-gray-600">Total Scheduled Hours</span>
-                    <span className="font-semibold">{getSummaryValue("Total Hours Scheduled")}</span>
-                  </div>
-                  <div className="flex justify-between items-center py-2 border-b">
-                    <span className="text-gray-600">Actual Worked Hours</span>
-                    <span className="font-semibold text-green-600">
-                    {getSummaryValue("Total Hours Worked")}
-                    </span>
-                  </div> */}
-                  {/* <div className="flex justify-between items-center py-2 border-b">
-                    <span className="text-gray-600">Total Late Hours</span>
-                    <span className="font-semibold text-red-600">{shiftData.summary.totalLateHours}</span>
-                  </div>
-                  <div className="flex justify-between items-center py-2 border-b">
-                    <span className="text-gray-600">Total Early Leave Hours</span>
-                    <span className="font-semibold text-orange-600">{shiftData.summary.totalEarlyLeaveHours}</span>
-                  </div>
-                  <div className="flex justify-between items-center py-2 border-b">
-                    <span className="text-gray-600">Total Overtime Hours</span>
-                    <span className="font-semibold text-blue-600">{shiftData.summary.totalOvertimeHours}</span>
-                  </div>
-                  <div className="flex justify-between items-center py-2">
-                    <span className="text-gray-600">Total Absent Days</span>
-                    <span className="font-semibold text-red-600">{shiftData.summary.totalAbsentDays}</span>
-                  </div>
-                </div> */}
-              </CardContent>
-            </Card>
-            
-            
-          </div>
-
           {/* Employee Details */}
           <Card>
               <CardHeader>
