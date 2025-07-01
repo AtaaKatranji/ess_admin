@@ -246,7 +246,7 @@ export default function ShiftReport({open, onOpenChange, shiftId, institutionKey
             ))}
             </SelectContent>
           </Select>
-          <Button onClick={handleExportPDF} className="bg-black-600 hover:bg-black-400">
+          <Button onClick={handleExportPDF} className="bg-blackhover:bg-gray-100">
             <FileDown className="w-4 h-4 mr-2" />
             Export PDF
           </Button>

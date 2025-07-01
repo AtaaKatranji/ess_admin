@@ -133,7 +133,8 @@ const EmployeeDetails = () => {
             shiftEnd: data.endTime || shifts?.endTime,
           }),
         }).then(res => res.ok ? res.json() : Promise.reject("Failed to fetch time shift")),
-        fetch(`${BaseUrl}/holidays/institution/${uniqueKey}`)
+        
+        fetch(`${BaseUrl}/holidays/institution/${uniqueKey}?year=${format(selectedMonth, "yyyy")}&month=${format(selectedMonth, "MM")}`)
         .then(res => res.ok ? res.json() : Promise.reject("Failed to fetch holidays")),
         fetch(`${BaseUrl}/api/users/personal?employeeId=${employeeId}`).then(res => res.ok ? res.json() : Promise.reject("Failed to fetch employee's name")),
       ]);
@@ -200,6 +201,7 @@ const EmployeeDetails = () => {
 
   useEffect(() => {
     // fetchData();
+    console.log("in effect",selectedMonth, format(selectedMonth, "yyyy"), format(selectedMonth, "MM"));
     fetchAllData(selectedMonth);
 
 
