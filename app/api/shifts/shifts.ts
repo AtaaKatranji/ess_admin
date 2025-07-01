@@ -2,6 +2,7 @@ const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
 import { Shift } from '@/app/types/Shift';
 
 
+
 export const fetchShifts = async (institutionKey: string) => {
   try {
     const response = await fetch(`${BaseUrl}/shifts/institution?institutionKey=${institutionKey}`, {
@@ -42,6 +43,8 @@ export const fetchTimeShifts = async (employeeId: string) => {
       // Return start and end time of the single shift
       console.log(data.shifts[0].startTime,data.shifts[0].endTime,data.shifts[0].days)
       return {
+        mode: data.shifts[0].mode,
+        overrides: data.shifts[0].overrides,
         startTime: data.shifts[0].startTime,
         endTime: data.shifts[0].endTime,
         days: data.shifts[0].days

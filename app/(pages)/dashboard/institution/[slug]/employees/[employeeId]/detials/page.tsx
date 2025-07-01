@@ -117,7 +117,7 @@ const EmployeeDetails = () => {
       const shiftsResRaw = await fetchTimeShifts(employeeId);
       const shifts = Array.isArray(shiftsResRaw) ? shiftsResRaw[0] : shiftsResRaw;      
       const formattedMonth = moment(month).format('YYYY-MM-01');
-      const [hoursRes, leavesRes, summaryRes, timeShiftRes, holidaysRes,empName,shiftRes] = await Promise.all([
+      const [hoursRes, leavesRes, summaryRes, timeShiftRes, holidaysRes,empName] = await Promise.all([
         fetch(`${BaseUrl}/checks/calculate-hours`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -145,7 +145,6 @@ const EmployeeDetails = () => {
         fetch(`${BaseUrl}/holidays/institution/${uniqueKey}?year=${format(selectedMonth, "yyyy")}&month=${format(selectedMonth, "MM")}`)
         .then(res => res.ok ? res.json() : Promise.reject("Failed to fetch holidays")),
         fetch(`${BaseUrl}/api/users/personal?employeeId=${employeeId}`).then(res => res.ok ? res.json() : Promise.reject("Failed to fetch employee's name")),
-        fetch(`${BaseUrl}/shifts/time?employeeId=${employeeId}`).then(res => res.ok ? res.json() : Promise.reject("Failed to fetch time shift")),
       ]);
 
       const summary = Object.entries((summaryRes as MonthlyAttendanceResponse).monthlyAttendance).map(([month, stats]) => ({
@@ -173,14 +172,14 @@ const EmployeeDetails = () => {
         holidays: holidaysRes || [],
         employeeName: empName.name || "",
         shift: {
-          mode: shiftRes.shifts?.mode || "",
-          startTime: shiftRes.shifts?.startTime || "",
-          endTime: shiftRes.shifts?.endTime || "",
-          days: shiftRes.shifts?.days || [],
-          overrides: shiftRes.shifts?.overrides || {},
+          mode: shifts?.mode || "",
+          startTime: shifts?.startTime || "",
+          endTime: shifts?.endTime || "",
+          days: shifts?.days || [],
+          overrides: shifts?.overrides || {},
         }
       });
-      console.log("data in effect see if it works",data);
+      console.log("data in effect see if it works",data.shift);
     } catch (error) {
       console.error("Error fetching data:", error);
       toast.error(`Failed to load data: ${error}`);
