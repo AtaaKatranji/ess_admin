@@ -197,45 +197,21 @@ export default function ShiftReport({open, onOpenChange, shiftId, institutionKey
       'Friday', 'Saturday', 'Sunday'
     ];
   
-    // Collect { day, idx, time } for days with shifts
-    const shifts = daysOrder
-      .map((day, idx) => {
-        const times = shiftTimes[day];
-        if (times) {
-          return {
-            idx,
-            day,
-            time: `${times.start.replace(/:00$/, '')}-${times.end.replace(/:00$/, '')}`
-          };
-        }
-        return null;
-      })
-      .filter(Boolean) as { idx: number, day: string, time: string }[];
+    // Map time string to a list of days
+    const timeGroups: { [time: string]: string[] } = {};
   
-    // Group consecutive days with the same time
-    const groups: { days: string[], time: string }[] = [];
-    let i = 0;
-    while (i < shifts.length) {
-      const groupDays = [shifts[i].day];
-      const time = shifts[i].time;
-      let j = i + 1;
-      while (
-        j < shifts.length &&
-        shifts[j].time === time &&
-        shifts[j].idx === shifts[j - 1].idx + 1
-      ) {
-        groupDays.push(shifts[j].day);
-        j++;
+    for (const day of daysOrder) {
+      const shift = shiftTimes[day];
+      if (shift) {
+        const time = `${shift.start}-${shift.end}`;
+        if (!timeGroups[time]) timeGroups[time] = [];
+        timeGroups[time].push(day.toLowerCase());
       }
-      groups.push({ days: groupDays, time });
-      i = j;
     }
   
-    // Format output
-    return groups
-      .map(({ days, time }) =>
-        `${days.map(day => day.toLowerCase()).join(' ')} : ${time}`
-      )
+    // Format each group
+    return Object.entries(timeGroups)
+      .map(([time, days]) => `${days.join(' ')} : ${time}`)
       .join(', ');
   }
   return (
