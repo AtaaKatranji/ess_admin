@@ -18,6 +18,7 @@ type HolidayHoursCardProps = {
 const HolidayHoursCard: React.FC<HolidayHoursCardProps> = ({ holidays, shiftType }) => {
   const dayNamesFull = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   console.log("shiftType in holiday hours card", shiftType);
+  console.log("holidays in holiday hours card", holidays);
   // Helper to get hours between two "HH:mm" times
   function hoursBetween(start: string, end: string) {
     const [startH, startM] = start.split(':').map(Number);
