@@ -121,7 +121,7 @@ export default function ShiftReport({open, onOpenChange, shiftId, institutionKey
       try {
         if (!institutionKey) return; // If slug is undefined, do nothing
         
-        console.log("in overview page",institutionKey);
+        console.log("in shift report page",institutionKey);
         const data = await fetchShifts(institutionKey);
 
         setShifts(data);
