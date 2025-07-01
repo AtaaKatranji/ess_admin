@@ -295,23 +295,34 @@ export default function ShiftReport({open, onOpenChange, shiftId, institutionKey
         </div>
           {/* Shift Overview */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {shiftData.summaryMetrics.slice(0, 4).map((metric, index) => {
-            const icons = [Calendar, Users, Clock, TrendingUp]
-            const Icon = icons[index] || FileText
+            {shiftData.summaryMetrics.slice(0, 4).map((metric, index) => {
+              const icons = [Calendar, Users, Clock, TrendingUp];
+              const Icon = icons[index] || FileText;
 
-            return (
-              <Card key={metric.label}>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-gray-600">{metric.label}</CardTitle>
-                  <Icon className="h-4 w-4 text-gray-400" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{metric.value === "NaN" ? "N/A" : metric.value}</div>
-                </CardContent>
-              </Card>
-            )
-          })}
-        </div>
+              const bgColors = [
+                'bg-blue-100 text-blue-800',
+                'bg-green-100 text-green-800',
+                'bg-yellow-100 text-yellow-800',
+                'bg-purple-100 text-purple-800',
+              ];
+
+              const iconBg = bgColors[index % bgColors.length]; // fallback if more than 4
+
+              return (
+                <Card key={metric.label} className={`${iconBg} p-4`}>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">{metric.label}</CardTitle>
+                    <Icon className="h-5 w-5" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">
+                      {metric.value === 'NaN' ? 'N/A' : metric.value}
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
 
           {/* Shift Statistics */}
           <div className="grid md:grid-cols-2 gap-6">
