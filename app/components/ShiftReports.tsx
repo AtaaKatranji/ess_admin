@@ -5,12 +5,12 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
-import { Calendar, Clock, Users, FileDown, TrendingUp, ArrowLeft, FileText, Table } from "lucide-react"
+import { Calendar, Clock, Users, FileDown, TrendingUp, ArrowLeft, FileText,  } from "lucide-react"
 import exportShiftReportPDF from "@/app/components/ShiftReportPDF"
 import * as shiftAPI from '@/app/api/shifts/shifts'
 import { ShiftReportType, ShiftTimes } from '@/app/types/Shift'
 import { TableBody } from "@mui/material"
-import { TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Table, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Progress } from "@/components/ui/progress"
 
 // Sample data - replace with your actual data source
@@ -135,18 +135,18 @@ export default function ShiftReport({open, onOpenChange, shiftId, institutionKey
     return "text-red-600"
   }
 
-  const getAttendanceRateBadge = (rate: number) => {
-    if (rate >= 90) return "bg-green-100 text-green-800"
-    if (rate >= 80) return "bg-yellow-100 text-yellow-800"
-    return "bg-red-100 text-red-800"
-  }
+  // const getAttendanceRateBadge = (rate: number) => {
+  //   if (rate >= 90) return "bg-green-100 text-green-800"
+  //   if (rate >= 80) return "bg-yellow-100 text-yellow-800"
+  //   return "bg-red-100 text-red-800"
+  // }
   const getStatusBadge = (attendanceRate: number) => {
     if (attendanceRate >= 90) return <Badge className="bg-green-100 text-green-800">Excellent</Badge>
     if (attendanceRate >= 75) return <Badge className="bg-blue-100 text-blue-800">Good</Badge>
     if (attendanceRate >= 60) return <Badge className="bg-yellow-100 text-yellow-800">Fair</Badge>
     return <Badge className="bg-red-100 text-red-800">Poor</Badge>
   }
-  
+
   // const getSummaryValue = (label: string) =>
   //   shiftData?.summaryMetrics.find(m => m.label === label)?.value ?? '';
 
@@ -336,81 +336,82 @@ export default function ShiftReport({open, onOpenChange, shiftId, institutionKey
                 </div> */}
               </CardContent>
             </Card>
-            <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Users className="w-5 h-5" />
-              Employee Attendance Details
-            </CardTitle>
-            <CardDescription>Detailed breakdown of employee attendance and performance metrics</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Employee</TableHead>
-                    <TableHead>Attendance Rate</TableHead>
-                    <TableHead>Days Attended</TableHead>
-                    <TableHead>Days Absent</TableHead>
-                    <TableHead>Total Hours</TableHead>
-                    <TableHead>Late Hours</TableHead>
-                    <TableHead>Early Leave</TableHead>
-                    <TableHead>Overtime</TableHead>
-                    <TableHead>Status</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {shiftData.employees.map((employee) => {
-                    const attendanceRate = getAttendanceRate(employee.daysAttended, employee.daysScheduled)
-
-                    return (
-                      <TableRow key={employee.id}>
-                        <TableCell className="font-medium">{employee.name}</TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <Progress value={attendanceRate} className="w-16" color={getAttendanceRateColor(attendanceRate)} />
-                            <span className="text-sm">{attendanceRate}%</span>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <span className="text-green-600 font-medium">{employee.daysAttended}</span>
-                        </TableCell>
-                        <TableCell>
-                          <span className={employee.daysAbsent > 0 ? "text-red-600 font-medium" : "text-gray-500"}>
-                            {employee.daysAbsent}
-                          </span>
-                        </TableCell>
-                        <TableCell>
-                          {employee.totalHours === "NaN"
-                            ? "N/A"
-                            : `${Number.parseFloat(employee.totalHours).toFixed(1)}h`}
-                        </TableCell>
-                        <TableCell>
-                          <span className="text-orange-600">{Number.parseFloat(employee.lateHours).toFixed(1)}h</span>
-                        </TableCell>
-                        <TableCell>
-                          <span className="text-orange-600">
-                            {Number.parseFloat(employee.earlyLeaveHours).toFixed(1)}h
-                          </span>
-                        </TableCell>
-                        <TableCell>
-                          <span className="text-blue-600">{employee.overTimeHours.toFixed(1)}h</span>
-                        </TableCell>
-                        <TableCell>{getStatusBadge(attendanceRate)}</TableCell>
-                      </TableRow>
-                    )
-                  })}
-                </TableBody>
-              </Table>
-            </div>
-          </CardContent>
-        </Card>
+            
             
           </div>
 
           {/* Employee Details */}
           <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Users className="w-5 h-5" />
+                  Employee Attendance Details
+                </CardTitle>
+                <CardDescription>Detailed breakdown of employee attendance and performance metrics</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Employee</TableHead>
+                        <TableHead>Attendance Rate</TableHead>
+                        <TableHead>Days Attended</TableHead>
+                        <TableHead>Days Absent</TableHead>
+                        <TableHead>Total Hours</TableHead>
+                        <TableHead>Late Hours</TableHead>
+                        <TableHead>Early Leave</TableHead>
+                        <TableHead>Overtime</TableHead>
+                        <TableHead>Status</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {shiftData.employees.map((employee) => {
+                        const attendanceRate = getAttendanceRate(employee.daysAttended, employee.daysScheduled)
+
+                        return (
+                          <TableRow key={employee.id}>
+                            <TableCell className="font-medium">{employee.name}</TableCell>
+                            <TableCell>
+                              <div className="flex items-center gap-2">
+                                <Progress value={attendanceRate} className="w-16" color={getAttendanceRateColor(attendanceRate)} />
+                                <span className="text-sm">{attendanceRate}%</span>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <span className="text-green-600 font-medium">{employee.daysAttended}</span>
+                            </TableCell>
+                            <TableCell>
+                              <span className={employee.daysAbsent > 0 ? "text-red-600 font-medium" : "text-gray-500"}>
+                                {employee.daysAbsent}
+                              </span>
+                            </TableCell>
+                            <TableCell>
+                              {employee.totalHours === "NaN"
+                                ? "N/A"
+                                : `${Number.parseFloat(employee.totalHours).toFixed(1)}h`}
+                            </TableCell>
+                            <TableCell>
+                              <span className="text-orange-600">{Number.parseFloat(employee.lateHours).toFixed(1)}h</span>
+                            </TableCell>
+                            <TableCell>
+                              <span className="text-orange-600">
+                                {Number.parseFloat(employee.earlyLeaveHours).toFixed(1)}h
+                              </span>
+                            </TableCell>
+                            <TableCell>
+                              <span className="text-blue-600">{employee.overTimeHours.toFixed(1)}h</span>
+                            </TableCell>
+                            <TableCell>{getStatusBadge(attendanceRate)}</TableCell>
+                          </TableRow>
+                        )
+                      })}
+                    </TableBody>
+                  </Table>
+                </div>
+              </CardContent>
+            </Card>
+          {/* <Card>
             <CardHeader>
               <CardTitle>Assigned Employees</CardTitle>
               <CardDescription>Individual performance breakdown for all shift members</CardDescription>
@@ -461,7 +462,7 @@ export default function ShiftReport({open, onOpenChange, shiftId, institutionKey
                 </table>
               </div>
             </CardContent>
-          </Card>
+          </Card> */}
         </div>
       ) : (
         
