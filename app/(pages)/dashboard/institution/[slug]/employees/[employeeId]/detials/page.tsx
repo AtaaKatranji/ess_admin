@@ -59,6 +59,13 @@ type Comp = {
 //   description?: string;
 //   institutionId: number;
 // };
+type ShiftType = {
+  mode: 'standard' | 'advanced';
+  startTime: string; // e.g., "08:00:00"
+  endTime: string;   // e.g., "16:00:00"
+  days: string[];    // ['Monday', ...]
+  overrides?: Record<string, { start: string; end: string }>; // Advanced
+};
 
 interface MonthlyAttendanceResponse {
   employeeId: string;
@@ -83,9 +90,9 @@ const EmployeeDetails = () => {
     unpaidLeaves: null as number | null,
     leaves: [] as Leave[],
     employeeName: "",
-    shiftId: "",
     holidays: [] as Holiday[],
     worksDays: [],
+    shift: null as ShiftType | null,
     
   });
   const [isLoading, setIsLoading] = useState(true);
@@ -164,7 +171,13 @@ const EmployeeDetails = () => {
         leaves: leavesRes.leaves?.leaves || [],
         holidays: holidaysRes || [],
         employeeName: empName.name || "",
-        shiftId: empName.shiftId || "",
+        shift: {
+          mode: shifts?.mode || "",
+          startTime: shifts?.startTime || "",
+          endTime: shifts?.endTime || "",
+          days: shifts?.days || [],
+          overrides: shifts?.overrides || {},
+        }
       });
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -352,7 +365,7 @@ const EmployeeDetails = () => {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       <AnnualLeaveCard employeeId={employeeId} />
-      <OccasionCard holidays={data.holidays} shiftId = {data.shiftId}/>
+      <OccasionCard holidays={data.holidays} shiftType = {data.shift!}/>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card>
