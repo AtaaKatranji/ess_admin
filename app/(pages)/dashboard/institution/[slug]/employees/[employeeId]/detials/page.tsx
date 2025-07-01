@@ -117,7 +117,7 @@ const EmployeeDetails = () => {
       const shiftsResRaw = await fetchTimeShifts(employeeId);
       const shifts = Array.isArray(shiftsResRaw) ? shiftsResRaw[0] : shiftsResRaw;      
       const formattedMonth = moment(month).format('YYYY-MM-01');
-      console.log("test fomat selscted month",format(selectedMonth, "yyyy"),format(selectedMonth, "MM") )
+      console.log("test fomat selscted month",format(month, "yyyy"),format(month, "MM") )
       const [hoursRes, leavesRes, summaryRes, timeShiftRes, holidaysRes,empName] = await Promise.all([
         fetch(`${BaseUrl}/checks/calculate-hours`, {
           method: "POST",
@@ -143,7 +143,7 @@ const EmployeeDetails = () => {
           }),
         }).then(res => res.ok ? res.json() : Promise.reject("Failed to fetch time shift")),
         
-        fetch(`${BaseUrl}/holidays/institution/${uniqueKey}?year=${format(selectedMonth, "yyyy")}&month=${format(selectedMonth, "MM")}`)
+        fetch(`${BaseUrl}/holidays/institution/${uniqueKey}?year=${format(month, "yyyy")}&month=${format(month, "MM")}`)
         .then(res => res.ok ? res.json() : Promise.reject("Failed to fetch holidays")),
         fetch(`${BaseUrl}/api/users/personal?employeeId=${employeeId}`).then(res => res.ok ? res.json() : Promise.reject("Failed to fetch employee's name")),
       ]);
