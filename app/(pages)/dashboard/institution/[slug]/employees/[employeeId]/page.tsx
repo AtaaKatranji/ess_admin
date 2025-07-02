@@ -26,11 +26,9 @@ const EmployeeDashboard = () => {
   const handleLogout = () => {
     // Clear any authentication/session state here if necessary
     // For example, remove tokens, clear cookies, etc.
-
-    console.log(`Logging out from institution ${slug}`);
-
     // Redirect to the dashboard
-    router.back();
+    //router.back();
+    router.push(`/dashboard/institution/${slug}/employees`);
   };
   // Define the content to display based on the active section
   const renderContent = () => {
