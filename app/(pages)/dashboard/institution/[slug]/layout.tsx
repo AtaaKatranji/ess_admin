@@ -56,7 +56,7 @@ export default function InstitutionLayout( ) {
   // };
 
   return (
-    <div className="flex flex-col md:flex-row h-screen bg-gray-100">
+    <div className="flex flex-col md:flex-row h-screen overflow-hidden bg-gray-100">
       <SideBarIns
         activeSection={activeSection}
         onSectionChange={handleSectionChange}
