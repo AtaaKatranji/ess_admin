@@ -90,7 +90,7 @@ const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ( {activeSecti
 
   if (isloading) {
     return (
-      <div className="h-screen flex items-center justify-center">
+      <div className="h-full flex items-center justify-center">
         {/* Loading Spinner */}
         <Circles height="80" width="80" color="#002E3BFF" ariaLabel="loading" />
       </div>
@@ -102,7 +102,7 @@ const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ( {activeSecti
   }
 
   return (
-    <div className="flex flex-col md:flex-row h-screen bg-gray-100">
+    <div className="flex flex-col md:flex-row h-full bg-gray-100">
       {/* Mobile header */}
       <header className="md:hidden bg-gray-800 text-white p-4 flex justify-between items-center">
         <h1 className="text-xl font-bold">{institutionInfo.name}</h1>
@@ -115,7 +115,7 @@ const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ( {activeSecti
       {/* <aside
         className={`${
           isSidebarOpen ? 'translate-x-0 ' : '-translate-x-full'
-        } md:translate-x-0 transition-transform duration-300 ease-in-out fixed md:static top-0 left-0 z-40 w-64 h-screen bg-gray-800 text-white  flex flex-col  justify-between`}
+        } md:translate-x-0 transition-transform duration-300 ease-in-out fixed md:static top-0 left-0 z-40 w-64 h-full bg-gray-800 text-white  flex flex-col  justify-between`}
         style={{
           backgroundImage: `linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.8)), url('')`, // Gradient overlay and image
           backgroundPosition: 'bottom',
