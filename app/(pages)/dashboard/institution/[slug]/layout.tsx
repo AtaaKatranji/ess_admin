@@ -5,7 +5,7 @@ import SideBarIns from "@/app/components/SideBarIns";
 import InstitutionDashboard from "@/app/components/InstitutionDashboard";
 import { useParams } from 'next/navigation';
 import { toast, ToastContainer } from "react-toastify";
-import  { useRouter } from "next/router";
+import  { useRouter } from "next/navigation";
 import { fetchInstitution } from "@/app/api/institutions/institutions";
 import { Institution } from "@/app/types/Employee";
 import { InstitutionProvider } from "@/app/context/InstitutionContext";
