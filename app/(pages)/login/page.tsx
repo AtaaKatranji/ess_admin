@@ -24,7 +24,7 @@ export default function AdminLogin() {
   interface AuthResponse {
     message: string;
     token: string; // Add the token property
-    data: {adminId: string};
+    data: { adminId: string; role: 'admin' | 'manager' };
   }
 
   const handleSubmit = async (event: React.FormEvent) => {

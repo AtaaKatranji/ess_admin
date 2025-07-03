@@ -17,6 +17,7 @@ const AbsentTab = ({ employeeId, selectedMonth }: { employeeId: string, selected
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/checks/absences?employeeId=${employeeId}&month=${formattedMonth}`);
         const data = await response.json();
         setAbsentDays(data.absentDates || []);
+        console.log("absentDays", data.absentDates)
       } catch (error) {
         console.error('Error fetching absences:', error);
       } finally {
