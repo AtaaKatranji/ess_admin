@@ -1,22 +1,22 @@
 "use client";
 
-import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
+
 import React, { useEffect, useState } from 'react';
-import { Home, Users, FileText, Settings, Menu, SquareArrowLeftIcon, Table } from 'lucide-react';
+
+
+
+
+import { fetchInstitution } from '@/app/api/institutions/institutions';
+import { Circles } from 'react-loader-spinner';
+import { useInstitution } from '../context/InstitutionContext';
+
+import ShiftsPage from '@/app/(pages)/dashboard/institution/[slug]/shifts/page'
+
+import PublicHolidaysPage from '../(pages)/dashboard/institution/[slug]/holidays/page';
 import OverviewPage from '@/app/(pages)/dashboard/institution/[slug]/overviwe/page';
 import EmployeeRequests from '@/app/(pages)/dashboard/institution/[slug]/requests/page'
 import SettingsPage from '@/app/(pages)/dashboard/institution/[slug]/settings/page'
 import EmployeeList from '@/app/(pages)/dashboard/institution/[slug]/employees/page';
-
-import { CalendarDaysIcon } from '@heroicons/react/16/solid';
-import { fetchInstitution } from '@/app/api/institutions/institutions';
-import { Circles } from 'react-loader-spinner';
-import { toast, ToastContainer } from 'react-toastify';
-import ShiftsPage from '@/app/(pages)/dashboard/institution/[slug]/shifts/page'
-import { useInstitution } from '../context/InstitutionContext';
-import PublicHolidaysPage from '../(pages)/dashboard/institution/[slug]/holidays/page';
-
 interface SSIDInfo {
   wifiName: string;
   macAddress: string;
@@ -30,15 +30,13 @@ interface Institution {
   macAddresses: SSIDInfo[];
   slug: string;
 }
-
-const InstitutionDashboard: React.FC = () => {
+interface InstitutionDashboardProps {
+  activeSection: string;
+  slug: string
+}
+const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ( {activeSection, slug}  ) => {
     const { setInstitutionKey } = useInstitution();
-  const params = useParams(); // Updated for Next.js 15
-  const router = useRouter(); // Updated for Next.js 15
-  const slug = Array.isArray(params.slug) ? params.slug[0] : params.slug;
-
-  const [activeSection, setActiveSection] = useState('overview');
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+ 
   const [isloading, setIsLoading] = useState(true);
   const [institutionInfo, setInstitutionInfo] = useState<Institution>({
     name: '',
@@ -48,33 +46,6 @@ const InstitutionDashboard: React.FC = () => {
     macAddresses: [],
     slug: '',
   });
-   //const [institutionKey, setInstitutionKey] = useState('abc');
-
-  const handleNavigation = (section: string) => {
-    setActiveSection(section);
-    console.log(
-      "before pass it : ",institutionInfo.uniqueKey
-    );
-      router.push(`/dashboard/institution/${slug}/${section}`);
-
- 
-    setIsSidebarOpen(false);
-  };
-
-  const handleExitInstitution = () => {
-    setIsLoading(true);
-    toast.info(`Exiting institution ${slug}`);
-    setTimeout(() => {
-      router.push(`/dashboard?adminId=${institutionInfo.adminId}`);
-      setIsLoading(false);
-    }, 1500);
-  };
-
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
-  };
-
-
 
   const renderContent = () => {
     switch (activeSection) {
@@ -135,13 +106,13 @@ const InstitutionDashboard: React.FC = () => {
       {/* Mobile header */}
       <header className="md:hidden bg-gray-800 text-white p-4 flex justify-between items-center">
         <h1 className="text-xl font-bold">{institutionInfo.name}</h1>
-        <button onClick={toggleSidebar} className="text-white focus:outline-none">
+        {/* <button onClick={toggleSidebar} className="text-white focus:outline-none">
           <Menu className="h-6 w-6" />
-        </button>
+        </button> */}
       </header>
 
       {/* Sidebar */}
-      <aside
+      {/* <aside
         className={`${
           isSidebarOpen ? 'translate-x-0 ' : '-translate-x-full'
         } md:translate-x-0 transition-transform duration-300 ease-in-out fixed md:static top-0 left-0 z-40 w-64 h-screen bg-gray-800 text-white  flex flex-col  justify-between`}
@@ -218,18 +189,18 @@ const InstitutionDashboard: React.FC = () => {
             Exit Institution
           </button>
         </div>
-      </aside>
+      </aside> */}
 
       {/* Main content */}
       <main className="flex-1 p-2 md:p-4 overflow-y-auto">
-        <ToastContainer />
+        
         {renderContent()}
       </main>
 
       {/* Overlay for mobile */}
-      {isSidebarOpen && (
+      {/* {isSidebarOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-30 md:hidden" onClick={() => setIsSidebarOpen(false)}></div>
-      )}
+      )} */}
     </div>
   );
 };

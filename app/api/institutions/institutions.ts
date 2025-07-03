@@ -134,6 +134,9 @@ export  const fetchInstitution = async (slug: string) => {
     }
 
     const data = await response.json();
+    if (typeof data.macAddresses === "string") {
+      data.macAddresses = JSON.parse(data.macAddresses);
+    }
     return(data);
       // Set institution data
   } catch (error) {
