@@ -1,3 +1,4 @@
+"use client"
 import { useParams } from 'next/navigation';
 import InstitutionDashboard from '@/app/components/InstitutionDashboard';
 
