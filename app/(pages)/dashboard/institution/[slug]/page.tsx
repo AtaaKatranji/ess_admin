@@ -1,3 +1,5 @@
+import InstitutionDashboard from "@/app/components/InstitutionDashboard";
+
 export default function Page() {
-    return <></>;
+  return <InstitutionDashboard activeSection="overview" slug="company-2" />;
   }
