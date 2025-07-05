@@ -17,6 +17,7 @@ import OverviewPage from '@/app/(pages)/dashboard/institution/[slug]/overviwe/pa
 import EmployeeRequests from '@/app/(pages)/dashboard/institution/[slug]/requests/page'
 import SettingsPage from '@/app/(pages)/dashboard/institution/[slug]/settings/page'
 import EmployeeList from '@/app/(pages)/dashboard/institution/[slug]/employees/page';
+import { useParams } from 'next/navigation';
 interface SSIDInfo {
   wifiName: string;
   macAddress: string;
@@ -32,9 +33,10 @@ interface Institution {
 }
 interface InstitutionDashboardProps {
   activeSection: string;
-  slug: string
 }
-const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ( {activeSection, slug}  ) => {
+const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ( {activeSection}  ) => {
+  const params = useParams();
+  const slug = Array.isArray(params.slug) ? params.slug[0] : params.slug;
     const { setInstitutionKey } = useInstitution();
  
   const [isloading, setIsLoading] = useState(true);
