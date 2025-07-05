@@ -2,7 +2,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import SideBarIns from "@/app/components/SideBarIns";
-import InstitutionDashboard from "@/app/components/InstitutionDashboard";
+//import InstitutionDashboard from "@/app/components/InstitutionDashboard";
 import { useParams } from 'next/navigation';
 import { toast, ToastContainer } from "react-toastify";
 import  { useRouter } from "next/navigation";
@@ -11,7 +11,7 @@ import { Institution } from "@/app/types/Employee";
 import { InstitutionProvider } from "@/app/context/InstitutionContext";
 
 
-export default function InstitutionLayout( ) {
+export default function InstitutionLayout( { children }: { children: React.ReactNode }) {
   const params = useParams();
   const slug = Array.isArray(params.slug) ? params.slug[0] : params.slug;
   const router = useRouter();
@@ -68,7 +68,8 @@ export default function InstitutionLayout( ) {
 
       <main className="flex-1 p-2 md:p-4 overflow-y-auto">
         <InstitutionProvider>
-         <InstitutionDashboard activeSection={activeSection} slug={slug!} />
+         {/* <InstitutionDashboard activeSection={activeSection} slug={slug!} /> */}
+         {children}
          <ToastContainer />
         </InstitutionProvider>
       </main>
