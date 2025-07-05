@@ -5,6 +5,7 @@ import { Home, Users, Table, FileText, Settings } from "lucide-react";
 import { CalendarDays as CalendarDaysIcon, SquareArrowLeft as SquareArrowLeftIcon } from "lucide-react";
 
 import React from "react";
+import { useParams, useRouter } from "next/navigation";
 
 interface SidebarProps {
   activeSection: string;
@@ -21,6 +22,14 @@ const SidebarIns: React.FC<SidebarProps> = ({
   isSidebarOpen,
   
 }) => {
+  // Inside your SidebarIns function:
+const router = useRouter();
+const params = useParams();
+const slug = Array.isArray(params.slug) ? params.slug[0] : params.slug;
+
+const handleSectionClick = (section: string) => {
+  router.push(`/dashboard/institution/${slug}/${section}`);
+};
   return (
     <aside
       className={`${
@@ -40,7 +49,8 @@ const SidebarIns: React.FC<SidebarProps> = ({
         </h1>
         <Link href="#" legacyBehavior>
           <a
-            onClick={() => onSectionChange("overview")}
+            // onClick={() => onSectionChange("overview")}
+            onClick={() => handleSectionClick("overview")}
             className={`flex items-center py-2 px-4 ${
               activeSection === "overview" ? "bg-blue-600 rounded" : ""
             }`}
