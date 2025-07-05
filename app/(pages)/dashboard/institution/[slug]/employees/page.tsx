@@ -95,7 +95,7 @@ const EmployeeList: React.FC = () => {
     selectedShift === "all" ? employees : employees.filter((emp) => emp.shiftId === selectedShift)
 
   const handleViewDetails = (employeeId: string) => {
-    router.push(`/dashboard/institution/${slug}/employees/${employeeId}`)
+    router.push(`/dashboard/institution/${slug}/employees/${employeeId}/details`)
   }
 
   return (
