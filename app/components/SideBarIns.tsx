@@ -59,7 +59,7 @@ const handleSectionClick = (section: string) => {
             Overview
           </a>
         </Link>
-        <Link href="#" legacyBehavior>
+        {/* <Link href="#" legacyBehavior>
           <a
             //onClick={() => onSectionChange("employees")}
             onClick={() => handleSectionClick("employees")}
@@ -70,7 +70,13 @@ const handleSectionClick = (section: string) => {
             <Users className="mr-2 h-5 w-5" />
             Employees
           </a>
-        </Link>
+        </Link> */}
+        <Link href={`/dashboard/institution/${slug}/employees`} legacyBehavior>
+  <a className={activeSection === "employees" ? "bg-blue-600 rounded" : ""}>
+    <Users className="mr-2 h-5 w-5" />
+    Employees
+  </a>
+</Link>
         <Link href="#" legacyBehavior>
           <a
             //onClick={() => onSectionChange("shifts")}
