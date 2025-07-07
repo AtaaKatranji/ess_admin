@@ -6,6 +6,8 @@ import { CalendarDays as CalendarDaysIcon, SquareArrowLeft as SquareArrowLeftIco
 
 import React from "react";
 import { useParams } from "next/navigation";
+import { useEmployee } from "../context/EmployeeContext";
+import router from "next/router";
 
 interface SidebarProps {
   activeSection: string;
@@ -23,10 +25,17 @@ const SidebarIns: React.FC<SidebarProps> = ({
   
 }) => {
   // Inside your SidebarIns function:
-
+  const { employeeId } = useEmployee();
 const params = useParams();
 const slug = Array.isArray(params.slug) ? params.slug[0] : params.slug;
 
+const employeeSubMenu = employeeId
+? [
+    { label: 'Information', href: `/dashboard/institution/${slug}/employees/${employeeId}/info` },
+    { label: 'Tasks', href: `/dashboard/institution/${slug}/employees/${employeeId}/tasks` },
+    { label: 'Covenant', href: `/dashboard/institution/${slug}/employees/${employeeId}/covenant` },
+  ]
+: [];
 
   return (
     <aside
@@ -56,17 +65,38 @@ const slug = Array.isArray(params.slug) ? params.slug[0] : params.slug;
             Overview
           </a>
         </Link>
-        <Link href={`/dashboard/institution/${slug}/employees`} legacyBehavior>
-          <a
-            onClick={() => onSectionChange("employees")}
-            className={`flex items-center py-2 px-4 ${
-              activeSection === "employees" ? "bg-blue-600 rounded" : ""
-            }`}
-          >
-            <Users className="mr-2 h-5 w-5" />
-            Employees
-          </a>
-        </Link>
+        <div>
+          <Link href={`/dashboard/institution/${slug}/employees`} legacyBehavior>
+            <a
+              onClick={() => onSectionChange('employees')}
+              className={`flex items-center py-2 px-4 ${
+                activeSection === 'employees' ? 'bg-blue-600 rounded' : ''
+              }`}
+            >
+              <Users className="mr-2 h-5 w-5" />
+              Employees
+            </a>
+          </Link>
+
+          {/* Employee Submenu */}
+          {employeeSubMenu.length > 0 && (
+            <ul className="ml-8 mt-2 space-y-2 border-l-2 border-gray-600 pl-2">
+              {employeeSubMenu.map((subItem) => (
+                <li key={subItem.href}>
+                  <Link href={subItem.href} legacyBehavior>
+                    <a
+                      className={`block py-1 px-2 text-sm rounded ${
+                        router.pathname === subItem.href ? 'bg-blue-500' : 'hover:bg-gray-700'
+                      }`}
+                    >
+                      {subItem.label}
+                    </a>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
         <Link href={`/dashboard/institution/${slug}/shifts`} legacyBehavior>
           <a
             onClick={() => onSectionChange("shifts")}

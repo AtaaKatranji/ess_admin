@@ -9,6 +9,7 @@ import  { useRouter } from "next/navigation";
 import { fetchInstitution } from "@/app/api/institutions/institutions";
 import { Institution } from "@/app/types/Employee";
 import { InstitutionProvider } from "@/app/context/InstitutionContext";
+import { EmployeeProvider } from "@/app/context/EmployeeContext";
 
 
 export default function InstitutionLayout( { children }: { children: React.ReactNode }) {
@@ -68,9 +69,11 @@ export default function InstitutionLayout( { children }: { children: React.React
 
       <main className="flex-1 p-2 md:p-4 overflow-y-auto">
         <InstitutionProvider>
+        <EmployeeProvider>
          {/* <InstitutionDashboard activeSection={activeSection} slug={slug!} /> */}
          {children}
          <ToastContainer />
+         </EmployeeProvider>
         </InstitutionProvider>
       </main>
     </div>

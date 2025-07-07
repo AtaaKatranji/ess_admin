@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 
+import { useEmployee } from "@/app/context/EmployeeContext";
 interface Employee {
   id: string
   name: string
@@ -45,6 +46,7 @@ const EmployeeList: React.FC = () => {
   const [shiftOptions, setShiftOptions] = useState<Shift[]>([])
   const router = useRouter()
   const params = useParams()
+  const { setEmployeeId } = useEmployee(); 
   const slug = Array.isArray(params?.slug) ? params.slug[0] : params?.slug
 
   const fetchData = async () => {
@@ -95,6 +97,7 @@ const EmployeeList: React.FC = () => {
     selectedShift === "all" ? employees : employees.filter((emp) => emp.shiftId === selectedShift)
 
   const handleViewDetails = (employeeId: string) => {
+    setEmployeeId(employeeId);
     router.push(`/dashboard/institution/${slug}/employees/${employeeId}/details`)
   }
 
