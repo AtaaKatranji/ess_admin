@@ -5,7 +5,7 @@ import { Home, Users, Table, FileText, Settings } from "lucide-react";
 import { CalendarDays as CalendarDaysIcon, SquareArrowLeft as SquareArrowLeftIcon } from "lucide-react";
 
 import React from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 
 interface SidebarProps {
   activeSection: string;
@@ -23,13 +23,11 @@ const SidebarIns: React.FC<SidebarProps> = ({
   
 }) => {
   // Inside your SidebarIns function:
-const router = useRouter();
+
 const params = useParams();
 const slug = Array.isArray(params.slug) ? params.slug[0] : params.slug;
 
-const handleSectionClick = (section: string) => {
-  router.push(`/dashboard/institution/${slug}/${section}`);
-};
+
   return (
     <aside
       className={`${
