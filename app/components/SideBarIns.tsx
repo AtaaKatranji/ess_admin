@@ -5,9 +5,9 @@ import { Home, Users, Table, FileText, Settings } from "lucide-react";
 import { CalendarDays as CalendarDaysIcon, SquareArrowLeft as SquareArrowLeftIcon } from "lucide-react";
 
 import React from "react";
-import { useParams } from "next/navigation";
+import { useParams, usePathname} from "next/navigation";
 import { useEmployee } from "../context/EmployeeContext";
-import router from "next/router";
+
 
 interface SidebarProps {
   activeSection: string;
@@ -28,6 +28,8 @@ const SidebarIns: React.FC<SidebarProps> = ({
   const { employeeId } = useEmployee();
 const params = useParams();
 const slug = Array.isArray(params.slug) ? params.slug[0] : params.slug;
+
+const pathname = usePathname();
 
 const employeeSubMenu = employeeId
 ? [
@@ -86,7 +88,7 @@ const employeeSubMenu = employeeId
                   <Link href={subItem.href} legacyBehavior>
                     <a
                       className={`block py-1 px-2 text-sm rounded ${
-                        router.pathname === subItem.href ? 'bg-blue-500' : 'hover:bg-gray-700'
+                        pathname === subItem.href ? 'bg-blue-500' : 'hover:bg-gray-700'
                       }`}
                     >
                       {subItem.label}
