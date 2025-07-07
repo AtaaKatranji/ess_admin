@@ -64,7 +64,7 @@ const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ( {activeSecti
       case 'settings':
         return <SettingsPage />;
       default:
-        return <div>Select a section from the menu</div>;
+        return <OverviewPage />;
     }
   };
 
