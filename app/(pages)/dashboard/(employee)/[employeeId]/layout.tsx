@@ -40,11 +40,11 @@ export default function EmployeeDashboardLayout({ children }: { children: React.
         }}>
         <nav className="p-4 space-y-4">
           <h1 className="text-xl font-bold mb-6 hidden md:block">{slug}</h1>
-          <Link href={`/dashboard/institution/${slug}/employees/${employeeId}/details`} className={`flex items-center py-2 px-4 ${isActive('details') ? 'bg-blue-600 rounded' : ''}`}>
+          <Link href={`/dashboard/${employeeId}/details`} className={`flex items-center py-2 px-4 ${isActive('details') ? 'bg-blue-600 rounded' : ''}`}>
             <ListCollapse className="mr-2 h-5 w-5" />
             Information
           </Link>
-          <Link href={`/dashboard/institution/${slug}/employees/${employeeId}/tasks`} className={`flex items-center py-2 px-4 ${isActive('tasks') ? 'bg-blue-600 rounded' : ''}`}>
+          <Link href={`/dashboard/${employeeId}/tasks`} className={`flex items-center py-2 px-4 ${isActive('tasks') ? 'bg-blue-600 rounded' : ''}`}>
             <ClipboardEdit className="mr-2 h-5 w-5" />
             Tasks
           </Link>
