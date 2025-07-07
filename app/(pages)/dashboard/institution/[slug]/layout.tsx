@@ -57,6 +57,7 @@ export default function InstitutionLayout( { children }: { children: React.React
   // };
 
   return (
+    <EmployeeProvider>
     <div className="flex flex-col md:flex-row h-screen overflow-hidden bg-gray-100">
       <SideBarIns
         activeSection={activeSection}
@@ -69,13 +70,14 @@ export default function InstitutionLayout( { children }: { children: React.React
 
       <main className="flex-1 p-2 md:p-4 overflow-y-auto">
         <InstitutionProvider>
-        <EmployeeProvider>
+ 
          {/* <InstitutionDashboard activeSection={activeSection} slug={slug!} /> */}
          {children}
          <ToastContainer />
-         </EmployeeProvider>
+
         </InstitutionProvider>
       </main>
     </div>
+    </EmployeeProvider>
   );
 }
