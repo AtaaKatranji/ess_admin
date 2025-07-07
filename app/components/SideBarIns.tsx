@@ -61,7 +61,8 @@ const handleSectionClick = (section: string) => {
         </Link>
         <Link href="#" legacyBehavior>
           <a
-            onClick={() => onSectionChange("employees")}
+            //onClick={() => onSectionChange("employees")}
+            onClick={() => handleSectionClick("employees")}
             className={`flex items-center py-2 px-4 ${
               activeSection === "employees" ? "bg-blue-600 rounded" : ""
             }`}
@@ -72,7 +73,8 @@ const handleSectionClick = (section: string) => {
         </Link>
         <Link href="#" legacyBehavior>
           <a
-            onClick={() => onSectionChange("shifts")}
+            //onClick={() => onSectionChange("shifts")}
+            onClick={() => handleSectionClick("shifts")}
             className={`flex items-center py-2 px-4 ${
               activeSection === "shifts" ? "bg-blue-600 rounded" : ""
             }`}
