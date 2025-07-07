@@ -47,10 +47,9 @@ const handleSectionClick = (section: string) => {
         <h1 className="text-xl font-bold mb-6 hidden md:block">
           Institution Dashboard
         </h1>
-        <Link href="#" legacyBehavior>
+        <Link href={`/dashboard/institution/${slug}/overview`} legacyBehavior>
           <a
-            // onClick={() => onSectionChange("overview")}
-            onClick={() => handleSectionClick("overview")}
+            onClick={() => onSectionChange("overview")}
             className={`flex items-center py-2 px-4 ${
               activeSection === "overview" ? "bg-blue-600 rounded" : ""
             }`}
@@ -59,10 +58,9 @@ const handleSectionClick = (section: string) => {
             Overview
           </a>
         </Link>
-        {/* <Link href="#" legacyBehavior>
+        <Link href={`/dashboard/institution/${slug}/employees`} legacyBehavior>
           <a
-            //onClick={() => onSectionChange("employees")}
-            onClick={() => handleSectionClick("employees")}
+            onClick={() => onSectionChange("employees")}
             className={`flex items-center py-2 px-4 ${
               activeSection === "employees" ? "bg-blue-600 rounded" : ""
             }`}
@@ -70,17 +68,10 @@ const handleSectionClick = (section: string) => {
             <Users className="mr-2 h-5 w-5" />
             Employees
           </a>
-        </Link> */}
-        <Link href={`/dashboard/institution/${slug}/employees`} legacyBehavior>
-  <a className={activeSection === "employees" ? "bg-blue-600 rounded" : ""}>
-    <Users className="mr-2 h-5 w-5" />
-    Employees
-  </a>
-</Link>
-        <Link href="#" legacyBehavior>
+        </Link>
+        <Link href={`/dashboard/institution/${slug}/shifts`} legacyBehavior>
           <a
-            //onClick={() => onSectionChange("shifts")}
-            onClick={() => handleSectionClick("shifts")}
+            onClick={() => onSectionChange("shifts")}
             className={`flex items-center py-2 px-4 ${
               activeSection === "shifts" ? "bg-blue-600 rounded" : ""
             }`}
@@ -89,7 +80,7 @@ const handleSectionClick = (section: string) => {
             Shifts
           </a>
         </Link>
-        <Link href="#" legacyBehavior>
+        <Link href={`/dashboard/institution/${slug}/requests`} legacyBehavior>
           <a
             onClick={() => onSectionChange("requests")}
             className={`flex items-center py-2 px-4 ${
@@ -100,7 +91,7 @@ const handleSectionClick = (section: string) => {
             Requests
           </a>
         </Link>
-        <Link href="#" legacyBehavior>
+        <Link href={`/dashboard/institution/${slug}/holidays`} legacyBehavior>
           <a
             onClick={() => onSectionChange("holidays")}
             className={`flex items-center py-2 px-4 ${
@@ -111,7 +102,7 @@ const handleSectionClick = (section: string) => {
             Holidays
           </a>
         </Link>
-        <Link href="#" legacyBehavior>
+        <Link href={`/dashboard/institution/${slug}/settings`} legacyBehavior>
           <a
             onClick={() => onSectionChange("settings")}
             className={`flex items-center py-2 px-4 ${
