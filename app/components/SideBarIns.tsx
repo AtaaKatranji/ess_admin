@@ -45,7 +45,7 @@ const slug = Array.isArray(params.slug) ? params.slug[0] : params.slug;
         <h1 className="text-xl font-bold mb-6 hidden md:block">
           Institution Dashboard
         </h1>
-        <Link href={`/dashboard/institution/${slug}/overview`} legacyBehavior>
+        <Link href={`/dashboard/institution/${slug}/`} legacyBehavior>
           <a
             onClick={() => onSectionChange("overview")}
             className={`flex items-center py-2 px-4 ${
