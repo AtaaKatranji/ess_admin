@@ -114,7 +114,7 @@ type ShiftReportProps = {
     const today = new Date();
     for (let i = 0; i < count; i++) {
       const date = new Date(today.getFullYear(), today.getMonth() - i, 1);
-      const value = date.toISOString().slice(0, 7); // "YYYY-MM"
+      const value = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`; // "YYYY-MM"
       const label = date.toLocaleDateString("en-US", { year: 'numeric', month: 'long' }); // "June 2025"
       months.push({ value, label });
     }
