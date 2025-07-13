@@ -122,6 +122,7 @@ type ShiftReportProps = {
   };
   const months = generateLastMonths();
 export default function ShiftReport({open, onOpenChange, shiftId, institutionKey}: ShiftReportProps) {
+  console.log("months",months);
   const [selectedMonth, setSelectedMonth] = useState(months[0].value)
   const [selectedShift, setSelectedShift] = useState(shiftId)
   const [shiftData, setShiftData] = useState<ShiftReportType | null>(null)
