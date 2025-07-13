@@ -59,7 +59,7 @@ const isActive = (href: string) => pathname === href || pathname.startsWith(href
         </h1>
         <Link href={`/dashboard/institution/${slug}/`} legacyBehavior>
           <a
-            onClick={() => onSectionChange("overview")}
+            // onClick={() => onSectionChange("overview")}
             className={`flex items-center py-2 px-4 ${
               isActive(`/dashboard/institution/${slug}/`) ? "bg-blue-600 rounded" : ""
             }`}
@@ -71,7 +71,7 @@ const isActive = (href: string) => pathname === href || pathname.startsWith(href
         <div>
           <Link href={`/dashboard/institution/${slug}/employees`} legacyBehavior>
             <a
-              onClick={() => onSectionChange('employees')}
+              // onClick={() => onSectionChange('employees')}
               className={`flex items-center py-2 px-4 ${
                 isActive(`/dashboard/institution/${slug}/employees`) ? 'bg-blue-600 rounded' : ''
               }`}
