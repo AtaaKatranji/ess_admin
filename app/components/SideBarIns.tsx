@@ -33,7 +33,7 @@ const pathname = usePathname();
 
 const employeeSubMenu = employeeId
 ? [
-    { label: 'Information', href: `/dashboard/institution/${slug}/employees/${employeeId}/info` },
+    { label: 'Information', href: `/dashboard/institution/${slug}/employees/${employeeId}/details` },
     { label: 'Tasks', href: `/dashboard/institution/${slug}/employees/${employeeId}/tasks` },
     { label: 'Covenant', href: `/dashboard/institution/${slug}/employees/${employeeId}/covenant` },
   ]

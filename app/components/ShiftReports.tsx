@@ -109,8 +109,20 @@ type ShiftReportProps = {
     institutionKey: string
 
   }
+  const generateLastMonths = (count = 6) => {
+    const months = [];
+    const today = new Date();
+    for (let i = 0; i < count; i++) {
+      const date = new Date(today.getFullYear(), today.getMonth() - i, 1);
+      const value = date.toISOString().slice(0, 7); // "YYYY-MM"
+      const label = date.toLocaleDateString("en-US", { year: 'numeric', month: 'long' }); // "June 2025"
+      months.push({ value, label });
+    }
+    return months;
+  };
+  const months = generateLastMonths();
 export default function ShiftReport({open, onOpenChange, shiftId, institutionKey}: ShiftReportProps) {
-  const [selectedMonth, setSelectedMonth] = useState("2025-06")
+  const [selectedMonth, setSelectedMonth] = useState(months[0].value)
   const [selectedShift, setSelectedShift] = useState(shiftId)
   const [shiftData, setShiftData] = useState<ShiftReportType | null>(null)
   const [loading, setLoading] = useState(false)
@@ -196,28 +208,17 @@ export default function ShiftReport({open, onOpenChange, shiftId, institutionKey
       .map(([time, days]) => `${days.join(' ')} : ${time}`)
       .join(', ');
   }
-  const generateLastMonths = (count = 6) => {
-    const months = [];
-    const today = new Date();
-    for (let i = 0; i < count; i++) {
-      const date = new Date(today.getFullYear(), today.getMonth() - i, 1);
-      const value = date.toISOString().slice(0, 7); // "YYYY-MM"
-      const label = date.toLocaleDateString("en-US", { year: 'numeric', month: 'long' }); // "June 2025"
-      months.push({ value, label });
-    }
-    return months;
-  };
-  const months = generateLastMonths();
+
   return (
     <div className="container mx-auto p-6 space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        
-        <div>
-        <Button variant="ghost" onClick={() =>{ console.log("show reports out", open);onOpenChange(false)}}>
+      {/* Header */}  <Button variant="ghost" onClick={() =>{ console.log("show reports out", open);onOpenChange(false)}}>
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Shifts
         </Button>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    
+        <div>
+        
           <h1 className="text-3xl font-bold text-gray-900">Shift Reports</h1>
           <p className="text-gray-600 mt-1">Comprehensive shift performance and attendance analytics</p>
         </div>
