@@ -128,35 +128,34 @@ export default function ShiftReport({open, onOpenChange, shiftId, institutionKey
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null);
   const [shifts, setShifts] = useState<Shift[]>([]);
-  useEffect(() =>  {
-    setLoading(true)
+  useEffect(() => {
+    if (!institutionKey) return;
     const fetchAndSetShifts = async () => {
       try {
-        if (!institutionKey) return; // If slug is undefined, do nothing
-        
-        console.log("in shift report page",institutionKey);
         const data = await fetchShifts(institutionKey);
-
         setShifts(data);
-        
-        if (data.length > 0) {
-          setSelectedShift(data[0].id);
-        } else {
-        setSelectedShift(data.id);  
+        if (data.length > 0 && !selectedShift) {
+          setSelectedShift(data[0].id); // Only set default if not set already
         }
       } catch (err) {
         console.error("Error fetching shifts:", err);
       }
     };
     fetchAndSetShifts();
+  }, [institutionKey]);
 
-
+  // 2. Fetch report when selectedMonth, selectedShift, or institutionKey changes
+  useEffect(() => {
+    if (!selectedShift || !selectedMonth || !institutionKey) return;
+    setLoading(true);
     shiftAPI.fetchShiftReport(selectedShift, selectedMonth, institutionKey)
       .then((data: ShiftReportType) => setShiftData(data))
-      .catch((err) => {setShiftData(null);setError(err.message || "Failed to load data."); }) 
-      .finally(() => setLoading(false))
-       
-  }, [selectedShift, selectedMonth, institutionKey])
+      .catch((err) => {
+        setShiftData(null);
+        setError(err.message || "Failed to load data.");
+      })
+      .finally(() => setLoading(false));
+  }, [selectedShift, selectedMonth, institutionKey]);
   const handleExportPDF = () => {
     exportShiftReportPDF(shiftData)
   }
