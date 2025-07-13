@@ -143,10 +143,11 @@ export default function ShiftReport({open, onOpenChange, shiftId, institutionKey
     };
     fetchAndSetShifts();
   }, [institutionKey]);
-
+  console.log("before fetch shift report page",selectedMonth);
   // 2. Fetch report when selectedMonth, selectedShift, or institutionKey changes
   useEffect(() => {
     if (!selectedShift || !selectedMonth || !institutionKey) return;
+    console.log("in shift report page 1",selectedMonth);
     setLoading(true);
     shiftAPI.fetchShiftReport(selectedShift, selectedMonth, institutionKey)
       .then((data: ShiftReportType) => setShiftData(data))
@@ -155,6 +156,8 @@ export default function ShiftReport({open, onOpenChange, shiftId, institutionKey
         setError(err.message || "Failed to load data.");
       })
       .finally(() => setLoading(false));
+
+      console.log("in shift report page 2",shiftData);
   }, [selectedShift, selectedMonth, institutionKey]);
   const handleExportPDF = () => {
     exportShiftReportPDF(shiftData)
