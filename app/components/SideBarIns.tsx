@@ -38,7 +38,8 @@ const employeeSubMenu = employeeId
     { label: 'Covenant', href: `/dashboard/institution/${slug}/employees/${employeeId}/covenant` },
   ]
 : [];
-
+// Utility for highlight
+const isActive = (href: string) => pathname === href || pathname.startsWith(href);
   return (
     <aside
       className={`${
@@ -60,7 +61,7 @@ const employeeSubMenu = employeeId
           <a
             onClick={() => onSectionChange("overview")}
             className={`flex items-center py-2 px-4 ${
-              activeSection === "overview" ? "bg-blue-600 rounded" : ""
+              isActive(`/dashboard/institution/${slug}/`) ? "bg-blue-600 rounded" : ""
             }`}
           >
             <Home className="mr-2 h-5 w-5" />
@@ -72,7 +73,7 @@ const employeeSubMenu = employeeId
             <a
               onClick={() => onSectionChange('employees')}
               className={`flex items-center py-2 px-4 ${
-                activeSection === 'employees' ? 'bg-blue-600 rounded' : ''
+                isActive(`/dashboard/institution/${slug}/employees`) ? 'bg-blue-600 rounded' : ''
               }`}
             >
               <Users className="mr-2 h-5 w-5" />
