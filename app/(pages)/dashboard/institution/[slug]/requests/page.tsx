@@ -151,7 +151,7 @@ const handleApproveHourlyLeave = async (id: string) => {
     console.log("status: ",updatedHourlyLeave.status)
     setHourlyLeaves(
       hourlyLeaves.map((leave) =>
-        leave.breakDetails.id === id ? { ...leave, status: updatedHourlyLeave.status } : leave
+        leave.breakDetails.id === id ? { ...leave, breakDetails: { ...leave.breakDetails, status: updatedHourlyLeave.status } } : leave
       )
     );
   } catch (error) {
