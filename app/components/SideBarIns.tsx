@@ -10,16 +10,16 @@ import { useEmployee } from "../context/EmployeeContext";
 
 
 interface SidebarProps {
-  activeSection: string;
-  onSectionChange: (section: string) => void;
+  // activeSection: string;
+  // onSectionChange: (section: string) => void;
   onExitInstitution: () => void;
   isSidebarOpen: boolean;
   toggleSidebar: () => void;
 }
 
 const SidebarIns: React.FC<SidebarProps> = ({
-  activeSection,
-  onSectionChange,
+  // activeSection,
+  // onSectionChange,
   onExitInstitution,
   isSidebarOpen,
   
@@ -102,9 +102,9 @@ const isActive = (href: string) => pathname === href || pathname.startsWith(href
         </div>
         <Link href={`/dashboard/institution/${slug}/shifts`} legacyBehavior>
           <a
-            onClick={() => onSectionChange("shifts")}
+            //onClick={() => onSectionChange("shifts")}
             className={`flex items-center py-2 px-4 ${
-              activeSection === "shifts" ? "bg-blue-600 rounded" : ""
+              isActive(`/dashboard/institution/${slug}/shifts`) ? "bg-blue-600 rounded" : ""
             }`}
           >
             <Table className="mr-2 h-5 w-5" />
@@ -113,9 +113,9 @@ const isActive = (href: string) => pathname === href || pathname.startsWith(href
         </Link>
         <Link href={`/dashboard/institution/${slug}/requests`} legacyBehavior>
           <a
-            onClick={() => onSectionChange("requests")}
+            //onClick={() => onSectionChange("requests")}
             className={`flex items-center py-2 px-4 ${
-              activeSection === "requests" ? "bg-blue-600 rounded" : ""
+              isActive(`/dashboard/institution/${slug}/requests`) ? "bg-blue-600 rounded" : ""
             }`}
           >
             <FileText className="mr-2 h-5 w-5" />
@@ -124,9 +124,9 @@ const isActive = (href: string) => pathname === href || pathname.startsWith(href
         </Link>
         <Link href={`/dashboard/institution/${slug}/holidays`} legacyBehavior>
           <a
-            onClick={() => onSectionChange("holidays")}
+            //onClick={() => onSectionChange("holidays")}
             className={`flex items-center py-2 px-4 ${
-              activeSection === "holidays" ? "bg-blue-600 rounded" : ""
+              isActive(`/dashboard/institution/${slug}/holidays`) ? "bg-blue-600 rounded" : ""
             }`}
           >
             <CalendarDaysIcon className="mr-2 h-5 w-5" />
@@ -135,9 +135,9 @@ const isActive = (href: string) => pathname === href || pathname.startsWith(href
         </Link>
         <Link href={`/dashboard/institution/${slug}/settings`} legacyBehavior>
           <a
-            onClick={() => onSectionChange("settings")}
+            //onClick={() => onSectionChange("settings")}
             className={`flex items-center py-2 px-4 ${
-              activeSection === "settings" ? "bg-blue-600 rounded" : ""
+              isActive(`/dashboard/institution/${slug}/settings`) ? "bg-blue-600 rounded" : ""
             }`}
           >
             <Settings className="mr-2 h-5 w-5" />

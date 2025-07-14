@@ -17,7 +17,7 @@ export default function InstitutionLayout( { children }: { children: React.React
   const slug = Array.isArray(params.slug) ? params.slug[0] : params.slug;
   const router = useRouter();
 
-  const [activeSection, setActiveSection] = useState("overview");
+  // const [activeSection, setActiveSection] = useState("overview");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [institutionInfo, setInstitutionInfo] = useState<Institution | null>(null);
 
@@ -26,10 +26,10 @@ export default function InstitutionLayout( { children }: { children: React.React
     fetchInstitution(slug).then(data => setInstitutionInfo(data));
   }, [slug]);
   // Implement section navigation
-  const handleSectionChange = (section: string) => {
-    setActiveSection(section);
-    // Navigation logic can be handled globally or in each page if needed
-  };
+  // const handleSectionChange = (section: string) => {
+  //   setActiveSection(section);
+  //   // Navigation logic can be handled globally or in each page if needed
+  // };
   // const handleNavigation = (section: string) => {
   //   setActiveSection(section);
   //   console.log(
@@ -60,8 +60,8 @@ export default function InstitutionLayout( { children }: { children: React.React
     <EmployeeProvider>
     <div className="flex flex-col md:flex-row h-screen overflow-hidden bg-gray-100">
       <SideBarIns
-        activeSection={activeSection}
-        onSectionChange={handleSectionChange}
+        // activeSection={activeSection}
+        // onSectionChange={handleSectionChange}
         onExitInstitution={handleExitInstitution}
         isSidebarOpen={isSidebarOpen}
         toggleSidebar={toggleSidebar}
