@@ -10,7 +10,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 // Type definitions
 type HourlyLeave = {
   breakDetails: {
-    _id: string
+    id: string
     startTime: string
     endTime: string
     duration: string
@@ -107,11 +107,11 @@ export function HourlyLeaveCard({ leave, onApprove, onReject }: HourlyLeaveCardP
             variant="outline"
             size="sm"
             className="text-destructive border-destructive hover:bg-destructive/10"
-            onClick={() => onReject(leave.breakDetails._id)}
+            onClick={() => onReject(leave.breakDetails.id)}
           >
             <X className="mr-1 h-4 w-4" /> Reject
           </Button>
-          <Button variant="default" size="sm" onClick={() => onApprove(leave.breakDetails._id)}>
+          <Button variant="default" size="sm" onClick={() => onApprove(leave.breakDetails.id)}>
             <Check className="mr-1 h-4 w-4" /> Approve
           </Button>
         </CardFooter>

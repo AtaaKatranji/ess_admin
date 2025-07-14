@@ -27,7 +27,7 @@ type LeaveRequest = {
 // Hourly leave (custom break) type definition
 type HourlyLeave = {
   breakDetails: {
-    _id: string;
+    id: string;
     employeeId: string;
     startTime: string;
     endTime: string;
@@ -151,7 +151,7 @@ const handleApproveHourlyLeave = async (id: string) => {
     console.log("status: ",updatedHourlyLeave.status)
     setHourlyLeaves(
       hourlyLeaves.map((leave) =>
-        leave.breakDetails._id === id ? { ...leave, status: updatedHourlyLeave.status } : leave
+        leave.breakDetails.id === id ? { ...leave, status: updatedHourlyLeave.status } : leave
       )
     );
   } catch (error) {
@@ -172,7 +172,7 @@ const handleRejectHourlyLeave = async (id: string) => {
     const updatedHourlyLeave = await response.json();
     setHourlyLeaves(
       hourlyLeaves.map((leave) =>
-        leave.breakDetails._id === id ? { ...leave, breakDetails: { ...leave.breakDetails, status: updatedHourlyLeave.status } } : leave
+        leave.breakDetails.id === id ? { ...leave, breakDetails: { ...leave.breakDetails, status: updatedHourlyLeave.status } } : leave
       )
     );
   } catch (error) {
@@ -357,7 +357,7 @@ return (
           ) : (
             pendingHourlyLeaves.map((leave) => (
               <HourlyLeaveCard
-                key={leave.breakDetails._id}
+                key={leave.breakDetails.id}
                 leave={{...leave, breakDetails: {...leave.breakDetails, duration: leave.breakDetails.duration.toString()}}}
                 onApprove={handleApproveHourlyLeave}
                 onReject={handleRejectHourlyLeave}
@@ -372,7 +372,7 @@ return (
           ) : (
             approvedHourlyLeaves.map((leave) => (
               <HourlyLeaveCard
-                key={leave.breakDetails._id}
+                key={leave.breakDetails.id}
                 leave={{...leave, breakDetails: {...leave.breakDetails, duration: leave.breakDetails.duration.toString()}}}
                 onApprove={handleApproveHourlyLeave}
                 onReject={handleRejectHourlyLeave}
@@ -387,7 +387,7 @@ return (
           ) : (
             rejectedHourlyLeaves.map((leave) => (
               <HourlyLeaveCard
-                key={leave.breakDetails._id}
+                key={leave.breakDetails.id}
                 leave={{...leave, breakDetails: {...leave.breakDetails, duration: leave.breakDetails.duration.toString()}}}
                 onApprove={handleApproveHourlyLeave}
                 onReject={handleRejectHourlyLeave}
