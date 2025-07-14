@@ -39,7 +39,10 @@ const employeeSubMenu = employeeId
   ]
 : [];
 // Utility for highlight
-const isActive = (href: string) => pathname === href || pathname.startsWith(href);
+const isActive = (href: string, exact = false) => {
+  if (exact) return pathname === href;
+  return pathname === href || pathname.startsWith(href + '/');
+};
   return (
     <aside
       className={`${
