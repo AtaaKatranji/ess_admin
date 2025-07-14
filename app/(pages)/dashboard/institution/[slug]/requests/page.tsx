@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { LeaveRequestCard } from "@/app/components/leave-request-card"
 import { HourlyLeaveCard } from "@/app/components/hourly-leave-card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -195,16 +195,25 @@ const handleRejectHourlyLeave = async (id: string) => {
 // const filteredHourlyLeaves = hourlyLeaves.filter((leave) =>
 //   leave.employeeDetails.name.toLowerCase().includes(searchQuery.toLowerCase()),
 // )
-const filteredHourlyLeaves = hourlyLeaves.filter(leave => {
-  const leaveDate = new Date(leave.breakDetails.startTime).toISOString().split('T')[0];
-  const matchesDate = !filterDate || leaveDate === filterDate;
-  const matchesSearch = leave.employeeDetails.name.toLowerCase().includes(searchQuery.toLowerCase());
-  return matchesDate && matchesSearch;
-});
-const pendingHourlyLeaves = filteredHourlyLeaves.filter((leave) => leave.breakDetails.status === "Pending")
-const approvedHourlyLeaves = filteredHourlyLeaves.filter((leave) => leave.breakDetails.status === "Approved")
-const rejectedHourlyLeaves = filteredHourlyLeaves.filter((leave) => leave.breakDetails.status === "Rejected")
+const filteredHourlyLeaves = useMemo(() => 
+  hourlyLeaves.filter(leave => {
+    const leaveDate = new Date(leave.breakDetails.startTime).toISOString().split('T')[0];
+    const matchesDate = !filterDate || leaveDate === filterDate;
+    const matchesSearch = leave.employeeDetails.name.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesDate && matchesSearch;
+  }), [hourlyLeaves, filterDate, searchQuery]);
 
+  const pendingHourlyLeaves = useMemo(() =>
+    filteredHourlyLeaves.filter(leave => leave.breakDetails.status === "Pending"), [filteredHourlyLeaves]
+  );
+  
+  const approvedHourlyLeaves = useMemo(() =>
+    filteredHourlyLeaves.filter(leave => leave.breakDetails.status === "Approved"), [filteredHourlyLeaves]
+  );
+  
+  const rejectedHourlyLeaves = useMemo(() =>
+    filteredHourlyLeaves.filter(leave => leave.breakDetails.status === "Rejected"), [filteredHourlyLeaves]
+  );
 
 return (
   <div className="container mx-auto p-4 max-w-4xl">
