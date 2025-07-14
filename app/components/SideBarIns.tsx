@@ -64,7 +64,7 @@ const isActive = (href: string, exact = false) => {
           <a
             // onClick={() => onSectionChange("overview")}
             className={`flex items-center py-2 px-4 ${
-              isActive(`/dashboard/institution/${slug}/`) ? "bg-blue-600 rounded" : ""
+              isActive(`/dashboard/institution/${slug}/`, true) ? "bg-blue-600 rounded" : ""
             }`}
           >
             <Home className="mr-2 h-5 w-5" />
