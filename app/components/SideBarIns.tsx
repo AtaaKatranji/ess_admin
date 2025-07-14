@@ -39,9 +39,10 @@ const employeeSubMenu = employeeId
   ]
 : [];
 // Utility for highlight
+const normalize = (path: string) => path.replace(/\/$/, '');
 const isActive = (href: string, exact = false) => {
-  if (exact) return pathname === href;
-  return pathname === href || pathname.startsWith(href + '/');
+  if (exact) return normalize(pathname) === normalize(href);
+  return normalize(pathname) === normalize(href) || normalize(pathname).startsWith(normalize(href) + '/');
 };
   return (
     <aside
