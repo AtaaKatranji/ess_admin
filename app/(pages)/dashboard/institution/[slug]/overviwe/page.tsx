@@ -1,6 +1,6 @@
 'use client'
 
-import {   useEffect, useState } from 'react'
+import {   useEffect, useState, useRef } from 'react'
 import { io, Socket } from 'socket.io-client';
 import { toast } from "sonner";
 //import { Toaster } from '@/components/ui/sonner'; // or your notification library
@@ -20,7 +20,7 @@ import { ChevronDown, Download, Search } from 'lucide-react'
 import { fetchShifts } from '@/app/api/shifts/shifts'
 import { fetchCheckInOutData } from '@/app/api/employees/employeeId'
 import { useInstitution } from '@/app/context/InstitutionContext';
-import { DefaultEventsMap } from '@socket.io/component-emitter';
+
 
 const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
 // types/AttendanceRecord.ts
@@ -61,7 +61,8 @@ const OverviewPage = () => {
   const [viewMode, setViewMode] = useState('daily');
   const [attendanceData, setAttendanceData] = useState<ApiResponse>({ data: [], message: '' });
   const [loading, setLoading] = useState(true);
-  let socket: Socket<DefaultEventsMap, DefaultEventsMap> | null;
+ 
+  const socketRef = useRef<Socket| null>(null);
   useEffect(() => {
     const fetchAndSetShifts = async () => {
       try {
@@ -97,12 +98,13 @@ const OverviewPage = () => {
       }
     };
   
-    if (!socket) {
-      socket = io(`${BaseUrl}`, {
-        path: "/socket.io", // add this if you changed path!
+    if (!socketRef.current) {
+      socketRef.current = io(BaseUrl, {
+        path: "/socket.io",
         transports: ["websocket", "polling"]
       });
     }
+    const socket = socketRef.current;
     // Fetch once on mount or when selectedShift changes
     fetchData();
   
@@ -115,7 +117,7 @@ const OverviewPage = () => {
       if (socket) {
         socket.off('attendance-update');
         socket.disconnect();
-        socket = null;
+        socketRef.current = null;
       }
     };
   }, [selectedShift]);
