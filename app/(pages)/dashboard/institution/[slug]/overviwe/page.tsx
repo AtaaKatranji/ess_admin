@@ -83,11 +83,10 @@ const OverviewPage = () => {
   
   useEffect(() => {
     const fetchData = async () => {
-      
-      if (!selectedShift) return; // Ensure selectedShift is defined
+      if (!selectedShift) return;
       setLoading(true);
       try {
-        const shiftId = selectedShift.id; // Get the actual shift ID
+        const shiftId = selectedShift.id;
         const data = await fetchCheckInOutData(shiftId);
         setAttendanceData(data);
       } catch (error) {
@@ -97,14 +96,18 @@ const OverviewPage = () => {
         setLoading(false);
       }
     };
+  
     if (!socket) {
-      socket = io(`${BaseUrl}/sse`); // Change URL if your backend is deployed elsewhere
+      socket = io(`${BaseUrl}/sse`);
     }
+    // Fetch once on mount or when selectedShift changes
+    fetchData();
+  
     socket.on('attendance-update', (data) => {
       toast.success(`${data.employeeName} ${data.type === 'check-in' ? 'checked in' : 'checked out'}!`);
-      // Re-fetch your attendance data
       fetchData();
     });
+  
     return () => {
       if (socket) {
         socket.off('attendance-update');
