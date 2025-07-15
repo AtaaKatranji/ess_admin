@@ -1,6 +1,9 @@
 'use client'
 
 import {   useEffect, useState } from 'react'
+import { io, Socket } from 'socket.io-client';
+import { toast } from "sonner";
+//import { Toaster } from '@/components/ui/sonner'; // or your notification library
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -17,8 +20,9 @@ import { ChevronDown, Download, Search } from 'lucide-react'
 import { fetchShifts } from '@/app/api/shifts/shifts'
 import { fetchCheckInOutData } from '@/app/api/employees/employeeId'
 import { useInstitution } from '@/app/context/InstitutionContext';
+import { DefaultEventsMap } from '@socket.io/component-emitter';
 
-
+const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
 // types/AttendanceRecord.ts
 interface Employee {
   onLeave: boolean;
@@ -56,8 +60,8 @@ const OverviewPage = () => {
   const [selectedShift, setSelectedShift] = useState<Shift | undefined>(); // Start as undefined
   const [viewMode, setViewMode] = useState('daily');
   const [attendanceData, setAttendanceData] = useState<ApiResponse>({ data: [], message: '' });
-  //const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
+  let socket: Socket<DefaultEventsMap, DefaultEventsMap> | null;
   useEffect(() => {
     const fetchAndSetShifts = async () => {
       try {
@@ -93,8 +97,21 @@ const OverviewPage = () => {
         setLoading(false);
       }
     };
-  
-    fetchData();
+    if (!socket) {
+      socket = io(`${BaseUrl}/sse`); // Change URL if your backend is deployed elsewhere
+    }
+    socket.on('attendance-update', (data) => {
+      toast.success(`${data.employeeName} ${data.type === 'check-in' ? 'checked in' : 'checked out'}!`);
+      // Re-fetch your attendance data
+      fetchData();
+    });
+    return () => {
+      if (socket) {
+        socket.off('attendance-update');
+        socket.disconnect();
+        socket = null;
+      }
+    };
   }, [selectedShift]);
 
   return (

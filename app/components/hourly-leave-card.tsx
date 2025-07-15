@@ -44,7 +44,7 @@ const formattedTime = (timeString: string) => {
 
 export function HourlyLeaveCard({ leave, onApprove, onReject }: HourlyLeaveCardProps) {
   const [isExpanded, setIsExpanded] = useState(false)
-
+  console.log(leave);
   return (
     <Card className="mb-4 overflow-hidden">
       <CardHeader className="pb-2 pt-4 px-4 flex flex-row items-center justify-between bg-muted/30">
