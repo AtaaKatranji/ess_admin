@@ -98,7 +98,7 @@ const OverviewPage = () => {
     };
   
     if (!socket) {
-      socket = io(`${BaseUrl}/sse`, {
+      socket = io(`${BaseUrl}`, {
         path: "/socket.io", // add this if you changed path!
         transports: ["websocket", "polling"]
       });
