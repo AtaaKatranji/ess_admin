@@ -98,7 +98,10 @@ const OverviewPage = () => {
     };
   
     if (!socket) {
-      socket = io(`${BaseUrl}/sse`);
+      socket = io(`${BaseUrl}/sse`, {
+        path: "/socket.io", // add this if you changed path!
+        transports: ["websocket", "polling"]
+      });
     }
     // Fetch once on mount or when selectedShift changes
     fetchData();
