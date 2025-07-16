@@ -10,6 +10,7 @@ import { fetchInstitution } from "@/app/api/institutions/institutions";
 import { Institution } from "@/app/types/Employee";
 import { InstitutionProvider } from "@/app/context/InstitutionContext";
 import { EmployeeProvider } from "@/app/context/EmployeeContext";
+import { SocketProvider } from "@/app/context/SocketContext";
 
 
 export default function InstitutionLayout( { children }: { children: React.ReactNode }) {
@@ -57,6 +58,7 @@ export default function InstitutionLayout( { children }: { children: React.React
   // };
 
   return (
+    <SocketProvider>
     <EmployeeProvider>
     <div className="flex flex-col md:flex-row h-screen overflow-hidden bg-gray-100">
       <SideBarIns
@@ -69,6 +71,7 @@ export default function InstitutionLayout( { children }: { children: React.React
     
 
       <main className="flex-1 p-2 md:p-4 overflow-y-auto">
+      
         <InstitutionProvider>
  
          {/* <InstitutionDashboard activeSection={activeSection} slug={slug!} /> */}
@@ -79,5 +82,6 @@ export default function InstitutionLayout( { children }: { children: React.React
       </main>
     </div>
     </EmployeeProvider>
+    </SocketProvider>
   );
 }
