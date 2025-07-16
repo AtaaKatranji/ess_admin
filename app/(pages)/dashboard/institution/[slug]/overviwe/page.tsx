@@ -97,18 +97,27 @@ const OverviewPage = () => {
         setLoading(false);
       }
     };
+  
     // Fetch once on mount or when selectedShift changes
     fetchData();
+  
     if (!socket) return;
-    socket.on("notify_admin", () => {
+  
+    // Named handler function
+    const handleNotifyAdmin = () => {
       fetchData();
-    });
-
+    };
+  
+    // Register the handler
+    socket.on("notify_admin", handleNotifyAdmin);
+  
+    // Cleanup: remove only this handler
     return () => {
-      socket.off("notify_admin");
+      socket.off("notify_admin", handleNotifyAdmin);
     };
   
   }, [selectedShift, socket]);
+  
 
   return (
     <div className="container mx-auto p-4">

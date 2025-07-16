@@ -11,8 +11,7 @@ export default function Page() {
 
   useEffect(() => {
     if (!socket) return;
-
-    socket.on("notify_admin", (data) => {
+    const handleNotifyAdmin = (data: { message: string; timestamp: number; }) => {
       if (Notification.permission === "granted") {
         new Notification(data.message);
       } else if (Notification.permission !== "denied") {
@@ -22,10 +21,11 @@ export default function Page() {
           }
         });
       }
-    });
+    };
+    socket.on("notify_admin", handleNotifyAdmin);
 
     return () => {
-      socket.off("notify_admin");
+      socket.off("notify_admin", handleNotifyAdmin);
     };
   }, [socket]);
   return <InstitutionDashboard activeSection={section as string} />;
