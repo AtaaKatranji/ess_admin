@@ -1,8 +1,8 @@
 'use client'
 
-import {   useEffect, useState, useRef } from 'react'
-import { io, Socket } from 'socket.io-client';
-import { toast } from "sonner";
+import {   useEffect, useState } from 'react'
+
+
 //import { Toaster } from '@/components/ui/sonner'; // or your notification library
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -20,9 +20,9 @@ import { ChevronDown, Download, Search } from 'lucide-react'
 import { fetchShifts } from '@/app/api/shifts/shifts'
 import { fetchCheckInOutData } from '@/app/api/employees/employeeId'
 import { useInstitution } from '@/app/context/InstitutionContext';
+import { useSocket } from "@/app/context/SocketContext";
 
-
-const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
+//const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
 // types/AttendanceRecord.ts
 interface Employee {
   onLeave: boolean;
@@ -62,7 +62,7 @@ const OverviewPage = () => {
   const [attendanceData, setAttendanceData] = useState<ApiResponse>({ data: [], message: '' });
   const [loading, setLoading] = useState(true);
  
-  const socketRef = useRef<Socket| null>(null);
+  const socket = useSocket();
   useEffect(() => {
     const fetchAndSetShifts = async () => {
       try {
@@ -97,30 +97,18 @@ const OverviewPage = () => {
         setLoading(false);
       }
     };
-  
-    if (!socketRef.current) {
-      socketRef.current = io(BaseUrl, {
-        path: "/socket.io",
-        transports: ["websocket", "polling"]
-      });
-    }
-    const socket = socketRef.current;
     // Fetch once on mount or when selectedShift changes
     fetchData();
-  
-    socket.on('attendance-update', (data) => {
-      toast.success(`${data.employeeName} ${data.type === 'check-in' ? 'checked in' : 'checked out'}!`);
+    if (!socket) return;
+    socket.on("notify_admin", () => {
       fetchData();
     });
-  
+
     return () => {
-      if (socket) {
-        socket.off('attendance-update');
-        socket.disconnect();
-        socketRef.current = null;
-      }
+      socket.off("notify_admin");
     };
-  }, [selectedShift]);
+  
+  }, [selectedShift, socket]);
 
   return (
     <div className="container mx-auto p-4">
