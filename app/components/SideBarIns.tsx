@@ -1,7 +1,7 @@
 // /dashboard/institution/[slug]/Sidebar.tsx
 "use client";
 import Link from "next/link";
-import { Home, Users, Table, FileText, Settings } from "lucide-react";
+import { Home, Users, Table, FileText, Settings, Bell } from "lucide-react";
 import { CalendarDays as CalendarDaysIcon, SquareArrowLeft as SquareArrowLeftIcon } from "lucide-react";
 
 import React from "react";
@@ -144,7 +144,7 @@ const isActive = (href: string, exact = false) => {
               isActive(`/dashboard/institution/${slug}/notifications`) ? "bg-blue-600 rounded" : ""
             }`}
           >
-            <Settings className="mr-2 h-5 w-5" />
+            <Bell className="mr-2 h-5 w-5" />
             Notifications
           </a>
         </Link>
