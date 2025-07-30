@@ -104,7 +104,7 @@ const EmployeeList: React.FC = () => {
   return (
     <div className="container mx-auto p-4 space-y-6 w-full">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <h1 className="text-3xl font-bold tracking-tight">Employees List</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Employees List</h1>
         <div className="flex items-center gap-3 w-full sm:w-auto">
           <Users className="h-5 w-5 text-muted-foreground hidden sm:block" />
           <Select value={selectedShift} onValueChange={setSelectedShift}>
