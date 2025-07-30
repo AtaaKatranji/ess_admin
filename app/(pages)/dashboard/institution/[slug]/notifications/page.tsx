@@ -1,244 +1,238 @@
-"use client";
+"use client"
 
-import { useState, useEffect } from "react";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import { toast } from "sonner";
-import { fetchShifts } from "@/app/api/shifts/shifts"; // already used in ShiftReports
-import { Shift } from "@/app/types/Shift";
-import { sendNotifiy } from "@/app/api/notifications/notification-api";
-import { useInstitution } from "@/app/context/InstitutionContext";
-
+import { useState, useEffect } from "react"
+import { Textarea } from "@/components/ui/textarea"
+import { Button } from "@/components/ui/button"
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Label } from "@/components/ui/label"
+import { Badge } from "@/components/ui/badge"
+import { toast } from "sonner"
+import { Send, Users, MessageSquare, Loader2, CheckCircle, AlertCircle } from "lucide-react"
+import { fetchShifts } from "@/app/api/shifts/shifts"
+import type { Shift } from "@/app/types/Shift"
+import { sendNotifiy } from "@/app/api/notifications/notification-api"
+import { useInstitution } from "@/app/context/InstitutionContext"
 
 export default function NotificationPage() {
-  const { institutionKey } = useInstitution();
-  const [shifts, setShifts] = useState([]);
-  const [selectedShiftId, setSelectedShiftId] = useState("");
-  const [message, setMessage] = useState("");
-  const [title, setTitle] = useState("");
-  const [loading, setLoading] = useState(false);
+  const { institutionKey } = useInstitution()
+  const [shifts, setShifts] = useState<Shift[]>([])
+  const [selectedShiftId, setSelectedShiftId] = useState("")
+  const [message, setMessage] = useState("")
+  const [title, setTitle] = useState("")
+  const [loading, setLoading] = useState(false)
+  const [shiftsLoading, setShiftsLoading] = useState(true)
+
+  const maxTitleLength = 100
+  const maxMessageLength = 500
 
   useEffect(() => {
-    fetchShifts(institutionKey).then((data) => setShifts(data));
-  }, [institutionKey]);
+    const loadShifts = async () => {
+      try {
+        setShiftsLoading(true)
+        const data = await fetchShifts(institutionKey)
+        setShifts(data)
+      } catch {
+        toast.error("Failed to load shifts")
+      } finally {
+        setShiftsLoading(false)
+      }
+    }
+
+    if (institutionKey) {
+      loadShifts()
+    }
+  }, [institutionKey])
+
+  const selectedShift = shifts.find((shift) => shift.id === selectedShiftId)
+
+  const isFormValid = selectedShiftId && title.trim() && message.trim()
 
   const sendNotification = async () => {
-    if (!message || !selectedShiftId) {
-      toast.error("Please select a shift and enter a message.");
-      return;
+    if (!isFormValid) {
+      toast.error("Please fill in all required fields.")
+      return
     }
 
-    setLoading(true);
+    setLoading(true)
     try {
-      const res = await sendNotifiy(selectedShiftId, title,message);
+      const res = await sendNotifiy(selectedShiftId, title.trim(), message.trim())
+      const data = await res.json()
 
-      const data = await res.json();
       if (res.ok) {
-        toast.success("Notification sent successfully!");
-        setMessage("");
+        toast.success("Notification sent successfully!", {
+          description: `Sent to ${selectedShift?.name}`,
+        })
+        setMessage("")
+        setTitle("")
+        setSelectedShiftId("")
       } else {
-        toast.error(data.message || "Failed to send notification.");
+        toast.error(data.message || "Failed to send notification.")
       }
     } catch (err) {
-      console.error(err);
-      toast.error("Error sending notification.");
+      console.error(err)
+      toast.error("Error sending notification.")
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   return (
-    <div className="p-6 max-w-xl mx-auto space-y-4">
-      <h1 className="text-2xl font-bold">Send Notification to Shift</h1>
-      <Select value={selectedShiftId} onValueChange={setSelectedShiftId}>
-        <SelectTrigger>
-          <SelectValue placeholder="Select Shift" />
-        </SelectTrigger>
-        <SelectContent>
-          {shifts.map((shift: Shift) => (
-            <SelectItem key={shift.id} value={shift.id!}>
-              {shift.name}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-      <Textarea
-        placeholder="Enter Title..."
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        rows={5}
-      />
-      <Textarea
-        placeholder="Enter your message..."
-        value={message}
-        onChange={(e) => setMessage(e.target.value)}
-        rows={5}
-      />
-      <Button onClick={sendNotification} disabled={loading}>
-        {loading ? "Sending..." : "Send Notification"}
-      </Button>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4">
+      <div className="max-w-2xl mx-auto space-y-6">
+        {/* Header */}
+        <div className="text-center space-y-2">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
+            <Send className="w-8 h-8 text-blue-600" />
+          </div>
+          <h1 className="text-3xl font-bold text-gray-900">Send Notification</h1>
+          <p className="text-gray-600">Notify team members about important updates</p>
+        </div>
+
+        {/* Main Form Card */}
+        <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-2 text-xl">
+              <MessageSquare className="w-5 h-5 text-blue-600" />
+              Compose Notification
+            </CardTitle>
+            <CardDescription>Select a shift and compose your message to notify all team members</CardDescription>
+          </CardHeader>
+
+          <CardContent className="space-y-6">
+            {/* Shift Selection */}
+            <div className="space-y-2">
+              <Label htmlFor="shift-select" className="text-sm font-medium flex items-center gap-2">
+                <Users className="w-4 h-4" />
+                Target Shift *
+              </Label>
+              <Select value={selectedShiftId} onValueChange={setSelectedShiftId} disabled={shiftsLoading}>
+                <SelectTrigger className="h-12 border-2 focus:border-blue-500 transition-colors">
+                  <SelectValue placeholder={shiftsLoading ? "Loading shifts..." : "Select a shift to notify"} />
+                </SelectTrigger>
+                <SelectContent>
+                  {shifts.map((shift: Shift) => (
+                    <SelectItem key={shift.id} value={shift.id!} className="py-3">
+                      <div className="flex items-center justify-between w-full">
+                        <span className="font-medium">{shift.name}</span>
+                        <Badge variant="secondary" className="ml-2">
+                          Active
+                        </Badge>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {selectedShift && (
+                <div className="flex items-center gap-2 text-sm text-green-600 bg-green-50 p-2 rounded-md">
+                  <CheckCircle className="w-4 h-4" />
+                  Selected: {selectedShift.name}
+                </div>
+              )}
+            </div>
+
+            {/* Title Input */}
+            <div className="space-y-2">
+              <Label htmlFor="title" className="text-sm font-medium">
+                Notification Title *
+              </Label>
+              <div className="relative">
+                <Textarea
+                  id="title"
+                  placeholder="Enter a clear, concise title..."
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value.slice(0, maxTitleLength))}
+                  rows={2}
+                  className="border-2 focus:border-blue-500 transition-colors resize-none"
+                />
+                <div className="absolute bottom-2 right-2 text-xs text-gray-400">
+                  {title.length}/{maxTitleLength}
+                </div>
+              </div>
+              {title.length > maxTitleLength * 0.9 && (
+                <div className="flex items-center gap-1 text-sm text-amber-600">
+                  <AlertCircle className="w-4 h-4" />
+                  Approaching character limit
+                </div>
+              )}
+            </div>
+
+            {/* Message Input */}
+            <div className="space-y-2">
+              <Label htmlFor="message" className="text-sm font-medium">
+                Message Content *
+              </Label>
+              <div className="relative">
+                <Textarea
+                  id="message"
+                  placeholder="Write your detailed message here..."
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value.slice(0, maxMessageLength))}
+                  rows={6}
+                  className="border-2 focus:border-blue-500 transition-colors"
+                />
+                <div className="absolute bottom-2 right-2 text-xs text-gray-400">
+                  {message.length}/{maxMessageLength}
+                </div>
+              </div>
+              {message.length > maxMessageLength * 0.9 && (
+                <div className="flex items-center gap-1 text-sm text-amber-600">
+                  <AlertCircle className="w-4 h-4" />
+                  Approaching character limit
+                </div>
+              )}
+            </div>
+
+            {/* Send Button */}
+            <div className="pt-4">
+              <Button
+                onClick={sendNotification}
+                disabled={loading || !isFormValid}
+                className="w-full h-12 text-base font-medium bg-blue-600 hover:bg-blue-700 disabled:opacity-50 transition-all duration-200"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                    Sending Notification...
+                  </>
+                ) : (
+                  <>
+                    <Send className="w-5 h-5 mr-2" />
+                    Send Notification
+                  </>
+                )}
+              </Button>
+
+              {!isFormValid && (
+                <p className="text-sm text-gray-500 text-center mt-2">Please fill in all required fields to send</p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Preview Card */}
+        {(title || message) && (
+          <Card className="shadow-md border border-gray-200">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg text-gray-700">Preview</CardTitle>
+              <CardDescription>How your notification will appear</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="bg-gray-50 p-4 rounded-lg border-l-4 border-blue-500">
+                {title && <h3 className="font-semibold text-gray-900 mb-2">{title}</h3>}
+                {message && <p className="text-gray-700 whitespace-pre-wrap">{message}</p>}
+                {selectedShift && (
+                  <div className="mt-3 pt-3 border-t border-gray-200">
+                    <Badge variant="outline" className="text-xs">
+                      To: {selectedShift.name}
+                    </Badge>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+      </div>
     </div>
-  );
+  )
 }
-
-
-
-// import React, { useEffect, useState } from 'react';
-// import dynamic from 'next/dynamic';
-// import Modal from 'react-modal';
-// import 'react-quill/dist/quill.snow.css'; // Import Quill styles
-// import 'react-datepicker/dist/react-datepicker.css'; // Import DatePicker styles
-// import DatePicker from 'react-datepicker'; // Import DatePicker
-// import 'react-calendar/dist/Calendar.css';
-// import MyCalendar from '@/app/components/Calendar';
-// import { NextPage } from 'next';
-
-// const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
-
-// // Define the Notification interface
-// interface Notification {
-//   id: string;
-//   date: Date;
-//   content: string;
-// }
-
-// // Define the props for the Notifications component
-// interface NotificationsProps {
-//   params: {
-//     slug: string; // Assuming slug is a string parameter from the URL
-//   };
-//   searchParams?: {
-//     [key: string]: string | string[] | undefined; // Optional searchParams
-//   };
-// }
-
-// const Notifications: NextPage<NotificationsProps> = ({ params }) => {
-//   const institutionId = params.slug;
-//   const [announcement, setAnnouncement] = useState('');
-//   const [notifications, setNotifications] = useState<Notification[]>([]);
-//   const [isModalOpen, setIsModalOpen] = useState(false);
-//   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
-
-//   const handleAnnouncementChange = (value: string) => {
-//     setAnnouncement(value);
-//   };
-
-//   useEffect(() => {
-//     // Fetch past notifications from API or local storage
-//     // Simulating fetched notifications
-//     const fetchedNotifications = [
-//       { id: '1', date: new Date('2024-10-01'), content: 'First Announcement' },
-//       { id: '2', date: new Date('2024-10-02'), content: 'Second Announcement' },
-//     ];
-//     setNotifications(fetchedNotifications);
-//   }, []);
-
-//   const handleBroadcastAnnouncement = () => {
-//     if (selectedDate && announcement) {
-//       const newNotification = {
-//         id: Math.random().toString(36).substr(2, 9),
-//         date: selectedDate,
-//         content: announcement,
-//       };
-//       setNotifications((prev) => [...prev, newNotification]);
-//       setAnnouncement(''); // Reset the editor
-//       setIsModalOpen(false); // Close the modal after broadcasting
-//     }
-//   };
-
-//   useEffect(() => {
-//     if (isModalOpen) {
-//       document.body.style.overflow = 'hidden';
-//     } else {
-//       document.body.style.overflow = 'unset';
-//     }
-//     return () => {
-//       document.body.style.overflow = 'unset';
-//     };
-//   }, [isModalOpen]);
-
-//   const handleAddNotification = () => {
-//     setIsModalOpen(true);
-//   };
-
-//   const handleCloseModal = () => {
-//     setIsModalOpen(false);
-//   };
-
-//   return (
-//     <div className="">
-//       {/* Nav Bar */}
-//       <div className="flex px-4 pt-2 w-full items-center justify-between border-b shadow-md rounded">
-//         <h2 className="text-2xl mb-4">Announcements for Institution {institutionId}</h2>
-//         <button
-//           onClick={handleAddNotification}
-//           className="px-4 py-2 bg-green-600 text-white rounded mb-4"
-//         >
-//           Add Notification
-//         </button>
-//       </div>
-//       <div className="bg-black">
-//         <Modal
-//           isOpen={isModalOpen}
-//           onRequestClose={handleCloseModal}
-//           contentLabel="Add Notification"
-//           overlayClassName="modal-overlay"
-//           className="modal-conten fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-1/2"
-//         >
-//           <div className="modal-content p-6 rounded-lg shadow-md bg-white">
-//             <h2 className="text-2xl font-bold mb-4">Add Notification</h2>
-//             <div className="mb-4">
-//               <label className="block text-lg font-semibold mb-2">Select Date:</label>
-//               <DatePicker
-//                 selected={selectedDate}
-//                 onChange={(date) => setSelectedDate(date)}
-//                 className="w-full px-4 py-2 border rounded-md"
-//               />
-//             </div>
-//             <ReactQuill
-//               value={announcement}
-//               onChange={handleAnnouncementChange}
-//               theme="snow"
-//               className="mb-4"
-//             />
-//             <div className="flex justify-end space-x-4">
-//               <button
-//                 onClick={handleBroadcastAnnouncement}
-//                 className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-//               >
-//                 Broadcast Announcement
-//               </button>
-//               <button
-//                 onClick={handleCloseModal}
-//                 className="px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-900"
-//               >
-//                 Close
-//               </button>
-//             </div>
-//           </div>
-//         </Modal>
-//       </div>
-//       {/* Body */}
-//       <div>
-//         <div className="w-full max-w-screen-lg mx-auto py-4">
-//           <MyCalendar />
-//         </div>
-//         <div className="w-full max-w-screen-lg mx-auto py-4">
-//           <h3 className="text-xl mt-6">Past Notifications</h3>
-//           <ul className="mt-2">
-//             {notifications.map((notification) => (
-//               <li key={notification.id} className="p-3 my-5 border-b shadow-md rounded bg-white">
-//                 <span>{notification.date.toDateString()}: </span>
-//                 <span>{notification.content}</span>
-//               </li>
-//             ))}
-//           </ul>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default Notifications;
-

@@ -114,7 +114,7 @@ const handleDelete = async (id: number) => {
   if (res.ok) fetchHolidays();
 };
   return (
-    <div className="p-6">
+    <div className="container mx-auto ">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold">Public Holidays</h2>
         {/* <h2 className="text-2xl font-bold">${institutionKey}</h2> */}
