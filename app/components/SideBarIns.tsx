@@ -46,16 +46,13 @@ const isActive = (href: string, exact = false) => {
 };
   return (
     <aside
-      className={`${
-        isSidebarOpen ? "translate-x-0 " : "-translate-x-full"
-      } md:translate-x-0 transition-transform duration-300 ease-in-out fixed md:static w-64 md:w-20 lg:w-64 top-0 left-0 z-40 h-screen bg-gray-800 text-white overflow-y-auto  flex flex-col  justify-between`}
-      style={{
-        backgroundImage:
-          "linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.8)), url('')",
-        backgroundPosition: "bottom",
-        backgroundSize: "cover",
-        backgroundRepeat: "no-repeat",
-      }}
+      className={`fixed md:static top-0 left-0 z-40 h-screen bg-gray-800 text-white overflow-y-auto
+        flex flex-col justify-between
+        transition-transform duration-300 ease-in-out
+        ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}
+        md:translate-x-0
+        w-64 md:w-20 lg:w-64
+      `}
     >
       <nav className="p-4 space-y-4">
         <h1 className="text-xl font-bold mb-6 hidden md:block">
@@ -69,7 +66,7 @@ const isActive = (href: string, exact = false) => {
             }`}
           >
             <Home className="mr-2 h-5 w-5" />
-            <span className="md:hidden">Overview</span>
+           <span className="hidden lg:inline">Overview</span>
             
           </a>
         </Link>
@@ -82,7 +79,7 @@ const isActive = (href: string, exact = false) => {
               }`}
             >
               <Users className="mr-2 h-5 w-5" />
-              <span className="md:hidden">Employees</span>
+             <span className="hidden lg:inline">Employees</span>
               
             </a>
           </Link>
@@ -98,7 +95,7 @@ const isActive = (href: string, exact = false) => {
                         pathname === subItem.href ? 'bg-blue-500' : 'hover:bg-gray-700'
                       }`}
                     >
-                      <span className="md:hidden"> {subItem.label}</span>
+                     <span className="hidden lg:inline"> {subItem.label}</span>
                      
                     </a>
                   </Link>
@@ -115,7 +112,7 @@ const isActive = (href: string, exact = false) => {
             }`}
           >
             <Table className="mr-2 h-5 w-5" />
-            <span className="md:hidden">Shifts</span>
+           <span className="hidden lg:inline">Shifts</span>
             
           </a>
         </Link>
@@ -127,7 +124,7 @@ const isActive = (href: string, exact = false) => {
             }`}
           >
             <FileText className="mr-2 h-5 w-5" />
-            <span className="md:hidden">Requests</span>
+           <span className="hidden lg:inline">Requests</span>
             
           </a>
         </Link>
@@ -139,7 +136,7 @@ const isActive = (href: string, exact = false) => {
             }`}
           >
             <CalendarDaysIcon className="mr-2 h-5 w-5" />
-            <span className="md:hidden">Holidays</span>
+           <span className="hidden lg:inline">Holidays</span>
             
           </a>
         </Link>
@@ -151,7 +148,7 @@ const isActive = (href: string, exact = false) => {
             }`}
           >
             <Bell className="mr-2 h-5 w-5" />
-            <span className="md:hidden">Notifications</span>
+           <span className="hidden lg:inline">Notifications</span>
             
           </a>
         </Link>
@@ -163,7 +160,7 @@ const isActive = (href: string, exact = false) => {
             }`}
           >
             <Settings className="mr-2 h-5 w-5" />
-            <span className="md:hidden">Settings</span>
+           <span className="hidden lg:inline">Settings</span>
             
           </a>
         </Link>
@@ -174,7 +171,7 @@ const isActive = (href: string, exact = false) => {
           className="w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-red-700 flex items-center justify-center"
         >
           <SquareArrowLeftIcon className="mr-2 h-5 w-5" />
-          <span className="md:hidden">Exit Institution</span>
+         <span className="hidden lg:inline">Exit Institution</span>
           
         </button>
       </div>

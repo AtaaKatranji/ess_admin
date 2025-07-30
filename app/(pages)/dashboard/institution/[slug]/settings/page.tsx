@@ -292,7 +292,7 @@ const SettingsPage: React.FC = () => {
       <h1 className="text-2xl font-bold ">Settings</h1>
 
       {/* Institution Info */}
-      <div className="m-8  bg-white rounded-lg shadow">
+      <div className="m-8 p-4 bg-white rounded-lg shadow">
         <div className="flex justify-between items-center mb-4 ">
           <h2 className="text-xl font-semibold">Institution Information</h2>
           <button
