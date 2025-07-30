@@ -85,14 +85,14 @@ export default function NotificationPage() {
           <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
             <Send className="w-8 h-8 text-blue-600" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900">Send Notification</h1>
+          <h1 className="text-3xl font-bold text-gray-800">Send Notification</h1>
           <p className="text-gray-600">Notify team members about important updates</p>
         </div>
 
         {/* Main Form Card */}
         <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
           <CardHeader className="pb-4">
-            <CardTitle className="flex items-center gap-2 text-xl">
+            <CardTitle className="flex items-center gap-2 text-xl  text-gray-800" >
               <MessageSquare className="w-5 h-5 text-blue-600" />
               Compose Notification
             </CardTitle>
@@ -115,7 +115,7 @@ export default function NotificationPage() {
                     <SelectItem key={shift.id} value={shift.id!} className="py-3">
                       <div className="flex items-center justify-between w-full">
                         <span className="font-medium">{shift.name}</span>
-                        <Badge variant="secondary" className="ml-2">
+                        <Badge variant="secondary" className="ml-2  text-green-800">
                           Active
                         </Badge>
                       </div>
@@ -188,7 +188,7 @@ export default function NotificationPage() {
               <Button
                 onClick={sendNotification}
                 disabled={loading || !isFormValid}
-                className="w-full h-12 text-base font-medium bg-blue-600 hover:bg-blue-700 disabled:opacity-50 transition-all duration-200"
+                className="w-full h-12 text-base font-medium bg-gray-800 hover:bg-blue-300 disabled:opacity-50 transition-all duration-200"
               >
                 {loading ? (
                   <>

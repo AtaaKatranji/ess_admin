@@ -217,7 +217,7 @@ const filteredHourlyLeaves = useMemo(() =>
 
 return (
   <div className="container mx-auto p-4 w-full">
-    <h1 className="text-2xl font-bold mb-6">Leave Requests</h1>
+    <h1 className="text-2xl font-bold mb-6  text-gray-800">Leave Requests</h1>
 
     <div className="flex items-center gap-4 mb-6">
       <div className="relative flex-1">
@@ -245,7 +245,7 @@ return (
     <div className="flex mb-6 border rounded-md overflow-hidden">
       <button
         className={`flex-1 py-2 px-4 flex items-center justify-center gap-2 ${
-          leaveType === "daily" ? "bg-primary text-primary-foreground" : "bg-muted hover:bg-muted/80"
+          leaveType === "daily" ? "bg-gray-800 text-primary-foreground" : "bg-muted hover:bg-muted/80"
         }`}
         onClick={() => setLeaveType("daily")}
       >
@@ -254,7 +254,7 @@ return (
       </button>
       <button
         className={`flex-1 py-2 px-4 flex items-center justify-center gap-2 ${
-          leaveType === "hourly" ? "bg-primary text-primary-foreground" : "bg-muted hover:bg-muted/80"
+          leaveType === "hourly" ? "bg-gray-800 text-primary-foreground" : "bg-muted hover:bg-muted/80"
         }`}
         onClick={() => setLeaveType("hourly")}
       >
