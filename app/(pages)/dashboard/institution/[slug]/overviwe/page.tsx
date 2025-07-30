@@ -161,17 +161,17 @@ const OverviewPage = () => {
           </CardContent>
         </Card>
 
-        <Card className="md:col-span-2">
+        <Card className="overflow-x-auto md:col-span-2 min-h-screen">
           <CardHeader>
-            <CardTitle>Time Sheet</CardTitle>
+            <CardTitle className="min-h-[24px]">Time Sheet</CardTitle>
             <div className="flex items-center space-x-2">
               <Search className="h-4 w-4 text-muted-foreground" />
               <Input placeholder="Search employees..." className="max-w-sm" />
             </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className="min-h-[280px]">
             <Tabs defaultValue="daily" value={viewMode}>
-              <TabsList className="grid w-full grid-cols-2">
+              <TabsList className="grid w-full grid-cols-2 min-h-[40px]">
                 <TabsTrigger value="daily">Daily View</TabsTrigger>
                 <TabsTrigger value="weekly">Weekly View</TabsTrigger>
               </TabsList>

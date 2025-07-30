@@ -383,9 +383,13 @@ const editBreakType = (breakType: Break) => {
                     </div>
 
                     <div className="flex gap-2">
-                      <Button variant="outline" size="icon" onClick={() => {
-                        console.log("before handleEditShift", shift);
-                        handleEditShift(shift)}}>
+                      <Button 
+                        variant="outline" 
+                        size="icon" 
+                        onClick={() => {
+                          console.log("before handleEditShift", shift);
+                          handleEditShift(shift)}}
+                          aria-label={`Edit ${shift.name}`} >
                         <Edit className="h-4 w-4" />
                       </Button>
                       <Button
@@ -504,6 +508,7 @@ const editBreakType = (breakType: Break) => {
                                           variant="destructive"
                                           size="sm"
                                           onClick={() => removeEmployeeFromShift(shift.id!, employee.id)}
+                                          aria-label={`Remove Employee ${employee.name} from shift ${shift.name}`}
                                         >
                                           <Trash2 className="h-4 w-4" />
                                         </Button>
@@ -576,6 +581,7 @@ const editBreakType = (breakType: Break) => {
                                         size="sm"
                                         className="h-6 w-6 p-0 hover:bg-white/50"
                                         onClick={() => editBreakType(breakType)}
+                                        aria-label={`Edit break type ${breakType.name}`}
                                       >
                                         <Edit className="h-3 w-3" />
                                       </Button>
@@ -584,6 +590,7 @@ const editBreakType = (breakType: Break) => {
                                         size="sm"
                                         className="h-6 w-6 p-0 hover:bg-red-100 hover:text-red-600"
                                         onClick={() => deleteBreakType(breakType.id)}
+                                        aria-label={`Delete break type ${breakType.name}`}
                                       >
                                         <Trash2 className="h-3 w-3" />
                                       </Button>
