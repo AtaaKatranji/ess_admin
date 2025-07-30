@@ -160,23 +160,7 @@ export default function ShiftsPage() {
     console.log(data);
     const dataShiftSync = await shiftAPI.fetchShifts(institutionKey);
     setShifts(dataShiftSync);
-    // setShifts(shifts.map(shift => {
-    //   if (shift.id === fromShiftId) {
-    //     // Remove employee from old shift
-    //     return {
-    //       ...shift,
-    //       employees: shift.employees.filter(emp => emp.id !== employeeId)
-    //     };
-    //   }
-    //   if (shift.id === toShiftId) {
-    //     // Add employee to new shift (might need to push the updated employee object)
-    //     return {
-    //       ...shift,
-    //       employees: [...shift.employees, data.employee] // or use data.updatedEmployees
-    //     };
-    //   }
-    //   return shift;
-    // }));
+
   }
 
   // New helper functions
@@ -298,7 +282,7 @@ const editBreakType = (breakType: Break) => {
           institutionKey={institutionKey} />
         
       <div className="mb-8">
-        <h2 className="text-xl font-semibold mb-4">Manage Employees</h2>
+        <h2 className="text-xl font-semibold mb-4  text-gray-800">Manage Employees</h2>
         <div className="flex gap-2">
           {/* select employee */}
           <Select value={selectedEmployee} onValueChange={setSelectedEmployee}>
@@ -324,7 +308,7 @@ const editBreakType = (breakType: Break) => {
             </SelectTrigger>
             <SelectContent>
               {shifts.map(shift => (
-                <SelectItem key={shift.id} value={shift.id!}>
+                <SelectItem key={shift.id} value={shift.id!} >
                   {shift.name}
                 </SelectItem>
               ))}
@@ -338,7 +322,7 @@ const editBreakType = (breakType: Break) => {
       </div>
 
       <div>
-        <h2 className="text-xl font-semibold mb-4">Current Shifts</h2>
+        <h2 className="text-xl font-semibold mb-4  text-gray-800">Current Shifts</h2>
         {shifts.length === 0 ? (
           <p>No shifts added yet.</p>
         ) : (
@@ -353,10 +337,10 @@ const editBreakType = (breakType: Break) => {
                   <div className="flex justify-between items-start">
                     <div className="space-y-2">
                       <div className="flex items-center gap-3">
-                        <CardTitle className="text-xl">{shift.name}</CardTitle>
+                        <CardTitle className="text-xl  text-gray-800">{shift.name}</CardTitle>
                         <Badge
                           variant={shift.mode === "advanced" ? "default" : "secondary"}
-                          className="flex items-center gap-1"
+                          className="flex items-center gap-1 bg-gray-800 text-white"
                         >
                           {shift.mode === "advanced" ? <Settings className="h-3 w-3" /> : <Clock className="h-3 w-3" />}
                           {shift.mode.charAt(0).toUpperCase() + shift.mode.slice(1)}
