@@ -383,113 +383,123 @@ const SettingsPage: React.FC = () => {
       )}
     </div>
 
+    {/* SSID List */}
+    <div className="m-6 p-6 bg-white rounded-xl shadow-md space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold text-gray-800">WiFi Networks</h2>
+      </div>
 
-      {/* SSID List */}
-      <div className="m-8  p-6 bg-white rounded-lg shadow">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-semibold">WiFi Networks</h2>
-        </div>
-        <ul className="space-y-4">
-          {institutionInfo.macAddresses?.map((ssidInfo) => (
-            <li key={ssidInfo.macAddress} className="flex justify-between items-center p-4 bg-gray-50 rounded-md shadow">
-              <div>
-                <p className="font-semibold">SSID: {ssidInfo.wifiName}</p>
-                <p className="text-gray-700">MAC Address: {ssidInfo.macAddress}</p>
-              </div>
-              <button
-                onClick={() => handleDeleteSSID(ssidInfo.macAddress)}
-                className="flex items-center px-3 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-              >
-                <Trash2 className="mr-1" />
-                Delete
-              </button>
-            </li>
-          ))}
-        </ul>
-
-        {/* Add New SSID */}
-        <div className="mt-6 p-4 bg-gray-50 rounded-md shadow">
-          <h3 className="text-lg font-semibold mb-2">Add New WiFi Network</h3>
-          <div className="flex space-x-4 mb-4">
-            <input
-              type="text"
-              placeholder="SSID Name"
-              value={newSSID}
-              onChange={(e) => setNewSSID(e.target.value)}
-              className="w-full px-4 py-2 border rounded-md"
-            />
-            <input
-              type="text"
-              placeholder="MAC Address"
-              value={newMacAddress}
-              onChange={(e) => setNewMacAddress(e.target.value)}
-              className="w-full px-4 py-2 border rounded-md"
-            />
-          </div>
-          <button
-            onClick={handleAddSSID}
-            className="flex items-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+      {/* Existing SSIDs */}
+      <ul className="space-y-4">
+        {institutionInfo.macAddresses?.map((ssidInfo) => (
+          <li
+            key={ssidInfo.macAddress}
+            className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 p-4 bg-gray-50 rounded-md border"
           >
-            <PlusCircle className="mr-2" />
-            Add SSID
-          </button>
-        </div>
-      </div>
-      {/* Delete function */}
-      <div className="m-8 p-6 bg-white rounded-lg shadow">
-        <h2 className="text-2xl font-semibold my-4">Delete this institution</h2>
-        <div className="flex justify-between items-center p-4 bg-gray-50 rounded-md shadow">
-          <h4 className="text-xl font-semibold ">{institutionInfo.name}</h4>
-          {isDelete === true && (
-            <Dialog open={isDelete} onOpenChange={setIsDelete}>
-            {/* Dialog Content */}
-            <DialogContent className="p-4">
-              <DialogHeader>
-                <DialogTitle className="text-2xl font-semibold my-4">Confirm Deletion</DialogTitle>
-                <DialogDescription className="text-xl my-4">
-                  Are you sure you want to delete <strong>{institutionInfo.name}</strong>? This action cannot be undone.
-                  <Input 
-                    className="mt-4" 
-                    placeholder="Enter institution name to confirm" 
-                    value={inputName} 
-                    onChange={(e) => setInputName(e.target.value)} 
-                  />
-                </DialogDescription>
-              </DialogHeader>
+            <div>
+              <p className="text-sm font-semibold text-gray-800">SSID: {ssidInfo.wifiName}</p>
+              <p className="text-sm text-gray-600">MAC: {ssidInfo.macAddress}</p>
+            </div>
+            <button
+              onClick={() => handleDeleteSSID(ssidInfo.macAddress)}
+              className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition"
+            >
+              <Trash2 className="w-4 h-4 mr-2" />
+              Delete
+            </button>
+          </li>
+        ))}
+      </ul>
 
-              <DialogFooter className="space-x-2">
-                <Button
-                  variant="destructive"
-                  className="fill-secondary text-white font-bold hover:bg-red-700 transition duration-200"
-                  onClick={confirmDeletion}
-                  disabled={inputName !== institutionInfo.name} // Only enable if name matches
-                >
-                  Yes
-                </Button>
-                <Button
-                  variant="secondary"
-                  className="bg-gray-800 text-white font-bold hover:bg-gray-500 transition duration-200"
-                  onClick={() => setIsDelete(false)}
-                >
-                  No
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-          )}
-          {isDelete === false && (
-            // <Button variant='destructive' type="button" className='bg-blue-800 text-white font-bold' onClick={() => setIsDelete(true)}>Delete</Button>
-            <Dialog>
-              <DialogTrigger asChild>
-                 <Button variant='destructive' onClick={() => setIsDelete(true)}>Delete</Button>
-              </DialogTrigger>
-            </Dialog>
-            
-          )}
+      {/* Add New SSID */}
+      <div className="p-5 bg-gray-50 rounded-md border space-y-4">
+        <h3 className="text-lg font-semibold text-gray-800">Add New WiFi</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <input
+            type="text"
+            placeholder="SSID Name"
+            value={newSSID}
+            onChange={(e) => setNewSSID(e.target.value)}
+            className="w-full px-4 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+          />
+          <input
+            type="text"
+            placeholder="MAC Address"
+            value={newMacAddress}
+            onChange={(e) => setNewMacAddress(e.target.value)}
+            className="w-full px-4 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+          />
         </div>
-        <ToastContainer />
-        
+        <button
+          onClick={handleAddSSID}
+          className="inline-flex items-center px-5 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition"
+        >
+          <PlusCircle className="w-4 h-4 mr-2" />
+          Add Network
+        </button>
       </div>
+    </div>
+
+      {/* Delete Institution Section */}
+      <div className="m-6 p-6 bg-white rounded-xl shadow-md space-y-4">
+        <h2 className="text-2xl font-bold text-gray-800">Delete This Institution</h2>
+
+        <div className="flex items-center justify-between p-4 bg-red-50 border border-red-200 rounded-md">
+          <h4 className="text-lg font-semibold text-red-800">{institutionInfo.name}</h4>
+
+          {/* Trigger Delete Dialog */}
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button
+                variant="destructive"
+                className="px-4 py-2 text-sm font-semibold"
+                onClick={() => setIsDelete(true)}
+              >
+                Delete
+              </Button>
+            </DialogTrigger>
+
+            {isDelete && (
+              <DialogContent className="max-w-md p-6">
+                <DialogHeader>
+                  <DialogTitle className="text-xl font-bold text-red-600">Confirm Deletion</DialogTitle>
+                  <DialogDescription className="text-sm text-gray-600 mt-2">
+                    This action cannot be undone. To confirm, type the institution name below:
+                  </DialogDescription>
+                </DialogHeader>
+
+                <Input
+                  className="mt-4"
+                  placeholder="Enter institution name to confirm"
+                  value={inputName}
+                  onChange={(e) => setInputName(e.target.value)}
+                />
+
+                <DialogFooter className="mt-6 flex justify-end gap-2">
+                  <Button
+                    variant="destructive"
+                    disabled={inputName !== institutionInfo.name}
+                    onClick={confirmDeletion}
+                    className="px-4 py-2"
+                  >
+                    Yes, Delete
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => setIsDelete(false)}
+                    className="px-4 py-2"
+                  >
+                    Cancel
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            )}
+          </Dialog>
+        </div>
+
+        <ToastContainer />
+      </div>
+
     </div>
   );
 };
