@@ -292,93 +292,97 @@ const SettingsPage: React.FC = () => {
       <h1 className="text-2xl font-bold ">Settings</h1>
 
       {/* Institution Info */}
-      <div className="m-8 p-4 bg-white rounded-lg shadow">
-        <div className="flex justify-between items-center mb-4 ">
-          <h2 className="text-xl font-semibold">Institution Information</h2>
-          <button
-            onClick={() => setIsEditing((prev) => !prev)}
-            className="flex items-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-          >
-            <Edit className="mr-2" />
-            {isEditing ? 'Cancel Edit' : 'Edit'}
-          </button>
-        </div>
-        <div className="space-y-4">
-          <div>
-            <label className="block text-lg font-semibold mb-3 text-gray-700">Name:</label>
-            {isEditing ? (
-              <div>
-              <input
-                type="text"
-                value={institutionInfo.name}
-                onBlur={handleCheckName}
-                onChange={(e) =>
-                  setInstitutionInfo({ ...institutionInfo, name: e.target.value })
-                }
-                className="w-full px-4 py-4 text-base border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none transition-colors"
-              />
-              {errorName && <p className="text-red-500 text-sm">{errorName}</p>}
-              {loading && <span>Checking...</span>}
+      <div className="m-6 p-6 bg-white rounded-xl shadow-md space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold text-gray-800">Institution Information</h2>
+        <button
+          onClick={() => setIsEditing((prev) => !prev)}
+          className="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition"
+        >
+          <Edit className="w-4 h-4 mr-2" />
+          {isEditing ? 'Cancel' : 'Edit'}
+        </button>
+      </div>
 
-              {isNameTaken === true && (
-                <span style={{ color: 'red' }}>Name already taken</span>
-              )}
-
-              {isNameTaken === false && (
-                <span style={{ color: 'green' }}>✔ Name is available</span>
-              )}
-              {isNameTaken === null && (
-                <span> </span>
-              )}
-              </div>
-            ) : (
-              <p className="text-base text-gray-800 bg-gray-50 p-4 rounded-lg">{institutionInfo.name}</p>
+      {/* Name */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">Institution Name</label>
+        {isEditing ? (
+          <div className="space-y-2">
+            <input
+              type="text"
+              value={institutionInfo.name}
+              onBlur={handleCheckName}
+              onChange={(e) =>
+                setInstitutionInfo({ ...institutionInfo, name: e.target.value })
+              }
+              className="w-full px-4 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+            />
+            {loading && <span className="text-sm text-gray-500">Checking...</span>}
+            {errorName && <p className="text-red-500 text-sm">{errorName}</p>}
+            {isNameTaken === true && (
+              <span className="text-sm text-red-600">Name already taken</span>
+            )}
+            {isNameTaken === false && (
+              <span className="text-sm text-green-600">✔ Name is available</span>
             )}
           </div>
-          <div>
-            <label className="block text-lg font-semibold mb-3 text-gray-700">Address:</label>
-            {isEditing ? (
-              
-              <input
-                type="text"
-                value={institutionInfo.address}
-                
-                onChange={(e) =>
-                  setInstitutionInfo({ ...institutionInfo, address: e.target.value })
-                }
-                className="w-full px-4 py-2 border rounded-md"
-              />
-              
-            ) : (
-              <p className="text-base text-gray-800 bg-gray-50 p-4 rounded-lg">{institutionInfo.address}</p>
-            )}
-          </div>
-          <div>
-            <label className="block text-lg font-semibold mb-3 text-gray-700 ">Unique Key:</label>
-            <div className="flex items-center space-x-4">
-              <p className=" w-full text-base text-gray-800 bg-gray-50 p-4 rounded-lg font-mono">{institutionInfo.uniqueKey}</p>
-              {isEditing && (
-                <button
-                  onClick={handleGenerateNewKey}
-                  className="flex items-center px-5 py-3 text-base font-medium bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors duration-200"
-                >
-                  <RefreshCw className="mr-2 h-5 w-5" />
-                  Generate New Key
-                </button>
-              )}
-            </div>
-          </div>
+        ) : (
+          <p className="bg-gray-100 px-4 py-2 rounded-md text-sm text-gray-800">{institutionInfo.name}</p>
+        )}
+      </div>
+
+      {/* Address */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
+        {isEditing ? (
+          <input
+            type="text"
+            value={institutionInfo.address}
+            onChange={(e) =>
+              setInstitutionInfo({ ...institutionInfo, address: e.target.value })
+            }
+            className="w-full px-4 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+          />
+        ) : (
+          <p className="bg-gray-100 px-4 py-2 rounded-md text-sm text-gray-800">{institutionInfo.address}</p>
+        )}
+      </div>
+
+      {/* Unique Key */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">Unique Key</label>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4">
+          <p className="flex-1 font-mono bg-gray-100 px-4 py-2 rounded-md text-sm text-gray-800">{institutionInfo.uniqueKey}</p>
           {isEditing && (
             <button
-              onClick={handleSaveInstitutionInfo}
-              className="flex items-center px-8 py-4 text-base font-medium bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200"
+              onClick={handleGenerateNewKey}
+              className="mt-3 sm:mt-0 flex items-center px-4 py-2 bg-gray-700 text-white text-sm rounded-md hover:bg-gray-800"
             >
-              <Save className="mr-3 h-5 w-5" />
-              Save
+              <RefreshCw className="w-4 h-4 mr-2" />
+              Generate
             </button>
           )}
         </div>
       </div>
+
+      {/* Save Button */}
+      {isEditing && (
+        <div className="pt-4">
+          <button
+            onClick={handleSaveInstitutionInfo}
+            className="w-full sm:w-auto px-6 py-3 bg-green-600 text-white text-sm font-medium rounded-md hover:bg-green-700"
+          >
+            <div className="flex items-center justify-center">
+              <Save className="w-4 h-4 mr-2" />
+              Save Changes
+            </div>
+          </button>
+        </div>
+      )}
+    </div>
+
 
       {/* SSID List */}
       <div className="m-8  p-6 bg-white rounded-lg shadow">
