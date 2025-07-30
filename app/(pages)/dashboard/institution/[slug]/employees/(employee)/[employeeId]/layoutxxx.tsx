@@ -31,7 +31,7 @@ export default function EmployeeDashboardLayout({ children }: { children: React.
       </header>
 
       {/* Sidebar */}
-      <aside className={`${isSidebarOpen ? 'translate-x-0 ' : '-translate-x-full'} md:translate-x-0 transition-transform duration-300 ease-in-out fixed md:static top-0 left-0 z-40 w-64 h-screen bg-gray-800 text-white flex flex-col justify-between  overflow-hidden`}
+      <aside className={`${isSidebarOpen ? 'translate-x-0 ' : '-translate-x-full'} md:translate-x-0 transition-transform duration-300 ease-in-out fixed md:h-screen md:static top-0 left-0 z-40 w-64 h-screen bg-gray-800 text-white flex flex-col justify-between  overflow-hidden`}
         style={{
           backgroundImage: `linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.8)), url('')`,
           backgroundPosition: 'bottom',
