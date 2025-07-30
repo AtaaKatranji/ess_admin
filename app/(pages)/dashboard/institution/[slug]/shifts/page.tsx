@@ -255,7 +255,7 @@ const editBreakType = (breakType: Break) => {
       <div className='flex justify-between'>
         <h1 className="text-2xl font-bold mb-4  text-gray-800">Shift Management</h1>
         <div className="flex gap-2">
-        <Button type="button" onClick={() => { 
+        <Button type="button"  className='bg-gray-800'  onClick={() => { 
           setEditingShift(null);
           setDialogOpen(true);
           }}>
@@ -263,7 +263,7 @@ const editBreakType = (breakType: Break) => {
           Add Shift
         </Button>
  
-        <Button type="button" onClick={() => { 
+        <Button type="button" className='bg-gray-800' onClick={() => { 
           console.log("show reports out", showReports);
           setShowReports(true);
           }}>
@@ -286,7 +286,7 @@ const editBreakType = (breakType: Break) => {
         <div className="flex gap-2">
           {/* select employee */}
           <Select value={selectedEmployee} onValueChange={setSelectedEmployee}>
-            <SelectTrigger className="w-[200px]">
+            <SelectTrigger className="w-[200px]" aria-label="Select employee">
               <SelectValue>
               {selectedEmployee === "Select employee" ? "Select employee" : employees.find(employee => employee.id === selectedEmployee)?.name  }
               </SelectValue>
@@ -301,7 +301,7 @@ const editBreakType = (breakType: Break) => {
           </Select>
           {/* select shift */}
           <Select value={selectedShift} onValueChange={setSelectedShift}>
-            <SelectTrigger className="w-[200px]">
+            <SelectTrigger className="w-[200px]" aria-label="Select shift">
               <SelectValue>
                 {selectedShift != "Select shift" ? shifts.find(shift => shift.id === selectedShift)?.name : "Select shift"}
                 </SelectValue>
@@ -314,7 +314,7 @@ const editBreakType = (breakType: Break) => {
               ))}
             </SelectContent>
           </Select>
-          <Button onClick={assignEmployee}>
+          <Button onClick={assignEmployee} className='bg-gray-800' ria-label="Assign employee to shift" >
             <UserPlus className="mr-2 h-4 w-4" />
             Assign to Shift
           </Button>
