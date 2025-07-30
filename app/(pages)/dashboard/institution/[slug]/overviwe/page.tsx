@@ -122,7 +122,7 @@ const OverviewPage = () => {
   return (
     <main className="container mx-auto w-full">
       <header>
-        <h1 className="text-2xl font-bold m-4">Institution Dashboard - Overview</h1>
+        <h1 className="text-2xl font-bold m-4  text-gray-800">Institution Dashboard - Overview</h1>
         <div className="flex justify-between items-center mb-4">
         <DropdownMenu>
         <DropdownMenuTrigger asChild>

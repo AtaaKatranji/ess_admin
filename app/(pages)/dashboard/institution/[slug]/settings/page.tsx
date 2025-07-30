@@ -289,7 +289,7 @@ const SettingsPage: React.FC = () => {
     };
   return (
     <div className="container w-full max-w-screen mx-auto ">
-      <h1 className="text-2xl font-bold ">Settings</h1>
+      <h1 className="p-4 text-2xl font-bold  text-gray-800 ">Settings</h1>
 
       {/* Institution Info */}
       <div className="m-6 p-6 bg-white rounded-xl shadow-md space-y-6">

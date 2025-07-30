@@ -222,7 +222,7 @@ export default function ShiftReport({open, onOpenChange, shiftId, institutionKey
     
         <div>
         
-          <h1 className="text-3xl font-bold text-gray-900">Shift Reports</h1>
+          <h1 className="text-3xl font-bold text-gray-800">Shift Reports</h1>
           <p className="text-gray-600 mt-1">Comprehensive shift performance and attendance analytics</p>
         </div>
         <div className="flex gap-3">
