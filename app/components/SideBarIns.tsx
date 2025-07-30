@@ -142,7 +142,7 @@ const isActive = (href: string, exact = false) => {
           </a>
         </Link>
         <Link href={`/dashboard/institution/${slug}/settings`} legacyBehavior>
-        <a className={`flex items-center md:justify-center md:flex-col gap-2 md:gap-0 py-2 px-4 ${
+        <a className={`flex items-center md:justify-center lg:flex-col gap-2 md:gap-0 py-2 px-4 ${
               isActive(`/dashboard/institution/${slug}/settings`) ? "bg-blue-600 rounded" : ""
             }`}
           >
