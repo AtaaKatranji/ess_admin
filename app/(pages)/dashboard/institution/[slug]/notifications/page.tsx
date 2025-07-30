@@ -8,11 +8,11 @@ import { toast } from "sonner";
 import { fetchShifts } from "@/app/api/shifts/shifts"; // already used in ShiftReports
 import { Shift } from "@/app/types/Shift";
 import { sendNotifiy } from "@/app/api/notifications/notification-api";
-type NotificationProps = {
-  institutionKey: string;
-};
+import { useInstitution } from "@/app/context/InstitutionContext";
 
-export default function NotificationPage({ institutionKey }: NotificationProps) {
+
+export default function NotificationPage() {
+  const { institutionKey } = useInstitution();
   const [shifts, setShifts] = useState([]);
   const [selectedShiftId, setSelectedShiftId] = useState("");
   const [message, setMessage] = useState("");

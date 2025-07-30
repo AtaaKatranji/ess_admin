@@ -48,7 +48,7 @@ const isActive = (href: string, exact = false) => {
     <aside
       className={`${
         isSidebarOpen ? "translate-x-0 " : "-translate-x-full"
-      } md:translate-x-0 transition-transform duration-300 ease-in-out fixed md:static top-0 left-0 z-40 w-64 h-screen bg-gray-800 text-white  flex flex-col  justify-between`}
+      } md:translate-x-0 transition-transform duration-300 ease-in-out fixed md:static top-0 left-0 z-40 w-64 h-screen bg-gray-800 text-white overflow-y-auto  flex flex-col  justify-between`}
       style={{
         backgroundImage:
           "linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.8)), url('')",
@@ -135,6 +135,17 @@ const isActive = (href: string, exact = false) => {
           >
             <CalendarDaysIcon className="mr-2 h-5 w-5" />
             Holidays
+          </a>
+        </Link>
+        <Link href={`/dashboard/institution/${slug}/notifications`} legacyBehavior>
+          <a
+            //onClick={() => onSectionChange("settings")}
+            className={`flex items-center py-2 px-4 ${
+              isActive(`/dashboard/institution/${slug}/notifications`) ? "bg-blue-600 rounded" : ""
+            }`}
+          >
+            <Settings className="mr-2 h-5 w-5" />
+            Notifications
           </a>
         </Link>
         <Link href={`/dashboard/institution/${slug}/settings`} legacyBehavior>
