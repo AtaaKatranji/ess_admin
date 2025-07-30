@@ -293,13 +293,15 @@ return (
               </span>
             )}
           </TabsTrigger>
-          <TabsTrigger value="approved">Approved</TabsTrigger>
-          <TabsTrigger value="rejected">Rejected</TabsTrigger>
+          <TabsTrigger value="approved"  className="text-green-700 data-[state=active]:bg-green-100"
+          >Approved</TabsTrigger>
+          <TabsTrigger value="rejected" className="text-red-700 data-[state=active]:bg-red-100"
+          >Rejected</TabsTrigger>
         </TabsList>
 
         <TabsContent value="pending" className="mt-0">
           {pendingRequests.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">No pending requests</div>
+            <div className="text-center py-8  text-gray-600">No pending requests</div>
           ) : (
             pendingRequests.map((request) => (
               <LeaveRequestCard

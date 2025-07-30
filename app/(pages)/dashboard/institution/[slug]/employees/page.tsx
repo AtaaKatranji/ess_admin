@@ -108,7 +108,7 @@ const EmployeeList: React.FC = () => {
         <div className="flex items-center gap-3 w-full sm:w-auto">
           <Users className="h-5 w-5 text-muted-foreground hidden sm:block" />
           <Select value={selectedShift} onValueChange={setSelectedShift}>
-            <SelectTrigger className="w-full sm:w-[200px]">
+            <SelectTrigger className="w-full sm:w-[200px]" aria-label="Select shift">
               <SelectValue placeholder="Filter by shift" />
             </SelectTrigger>
             <SelectContent>

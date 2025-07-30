@@ -120,7 +120,7 @@ const OverviewPage = () => {
   
 
   return (
-    <div className="container mx-auto p-4">
+    <main className="container mx-auto p-4">
       <header className="mb-6">
         <h1 className="text-2xl font-bold mb-4">Institution Dashboard - Overview</h1>
         <div className="flex justify-between items-center">
@@ -165,7 +165,7 @@ const OverviewPage = () => {
           <CardHeader>
             <CardTitle className="min-h-[24px]">Time Sheet</CardTitle>
             <div className="flex items-center space-x-2">
-              <Search className="h-4 w-4 text-muted-foreground" />
+              <Search className="h-4 w-4  text-gray-600" />
               <Input placeholder="Search employees..." className="max-w-sm" />
             </div>
           </CardHeader>
@@ -185,7 +185,7 @@ const OverviewPage = () => {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </main>
   );
 };
 
