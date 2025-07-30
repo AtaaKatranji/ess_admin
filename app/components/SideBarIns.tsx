@@ -46,7 +46,8 @@ const isActive = (href: string, exact = false) => {
 };
   return (
     <aside
-      className={`fixed md:static top-0 left-0 z-40 h-screen bg-gray-800 text-white overflow-y-auto
+      className={`
+        fixed md:static top-0 left-0 z-40 h-screen bg-gray-800 text-white overflow-y-auto
         flex flex-col justify-between
         transition-transform duration-300 ease-in-out
         ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}
@@ -55,13 +56,11 @@ const isActive = (href: string, exact = false) => {
       `}
     >
       <nav className="p-4 space-y-4">
-        <h1 className="text-xl font-bold mb-6 hidden md:block">
+        <h1 className="text-xl font-bold mb-6 hidden lg:block">
           Institution Dashboard
         </h1>
         <Link href={`/dashboard/institution/${slug}/`} legacyBehavior>
-          <a
-            // onClick={() => onSectionChange("overview")}
-            className={`flex items-center py-2 px-4 ${
+           <a className={`flex items-center md:justify-center md:flex-col gap-2 md:gap-0 py-2 px-4 ${
               isActive(`/dashboard/institution/${slug}/`, true) ? "bg-blue-600 rounded" : ""
             }`}
           >
@@ -72,9 +71,7 @@ const isActive = (href: string, exact = false) => {
         </Link>
         <div>
           <Link href={`/dashboard/institution/${slug}/employees`} legacyBehavior>
-            <a
-              // onClick={() => onSectionChange('employees')}
-              className={`flex items-center py-2 px-4 ${
+          <a className={`flex items-center md:justify-center md:flex-col gap-2 md:gap-0 py-2 px-4${
                 isActive(`/dashboard/institution/${slug}/employees`) ? 'bg-blue-600 rounded' : ''
               }`}
             >
@@ -105,9 +102,7 @@ const isActive = (href: string, exact = false) => {
           )}
         </div>
         <Link href={`/dashboard/institution/${slug}/shifts`} legacyBehavior>
-          <a
-            //onClick={() => onSectionChange("shifts")}
-            className={`flex items-center py-2 px-4 ${
+        <a className={`flex items-center md:justify-center md:flex-col gap-2 md:gap-0 py-2 px-4${
               isActive(`/dashboard/institution/${slug}/shifts`) ? "bg-blue-600 rounded" : ""
             }`}
           >
@@ -117,9 +112,7 @@ const isActive = (href: string, exact = false) => {
           </a>
         </Link>
         <Link href={`/dashboard/institution/${slug}/requests`} legacyBehavior>
-          <a
-            //onClick={() => onSectionChange("requests")}
-            className={`flex items-center py-2 px-4 ${
+           <a className={`flex items-center md:justify-center md:flex-col gap-2 md:gap-0 py-2 px-4 ${
               isActive(`/dashboard/institution/${slug}/requests`) ? "bg-blue-600 rounded" : ""
             }`}
           >
@@ -129,9 +122,7 @@ const isActive = (href: string, exact = false) => {
           </a>
         </Link>
         <Link href={`/dashboard/institution/${slug}/holidays`} legacyBehavior>
-          <a
-            //onClick={() => onSectionChange("holidays")}
-            className={`flex items-center py-2 px-4 ${
+           <a className={`flex items-center md:justify-center md:flex-col gap-2 md:gap-0 py-2 px-4 ${
               isActive(`/dashboard/institution/${slug}/holidays`) ? "bg-blue-600 rounded" : ""
             }`}
           >
@@ -141,9 +132,7 @@ const isActive = (href: string, exact = false) => {
           </a>
         </Link>
         <Link href={`/dashboard/institution/${slug}/notifications`} legacyBehavior>
-          <a
-            //onClick={() => onSectionChange("settings")}
-            className={`flex items-center py-2 px-4 ${
+           <a className={`flex items-center md:justify-center md:flex-col gap-2 md:gap-0 py-2 px-4 ${
               isActive(`/dashboard/institution/${slug}/notifications`) ? "bg-blue-600 rounded" : ""
             }`}
           >
@@ -153,9 +142,7 @@ const isActive = (href: string, exact = false) => {
           </a>
         </Link>
         <Link href={`/dashboard/institution/${slug}/settings`} legacyBehavior>
-          <a
-            //onClick={() => onSectionChange("settings")}
-            className={`flex items-center py-2 px-4 ${
+        <a className={`flex items-center md:justify-center md:flex-col gap-2 md:gap-0 py-2 px-4 ${
               isActive(`/dashboard/institution/${slug}/settings`) ? "bg-blue-600 rounded" : ""
             }`}
           >
@@ -168,7 +155,7 @@ const isActive = (href: string, exact = false) => {
       <div className="p-4">
         <button
           onClick={onExitInstitution}
-          className="w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-red-700 flex items-center justify-center"
+           className="w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-red-700 flex items-center justify-center md:justify-center"
         >
           <SquareArrowLeftIcon className="mr-2 h-5 w-5" />
          <span className="hidden lg:inline">Exit Institution</span>
