@@ -5,7 +5,7 @@ import {   useEffect, useState } from 'react'
 
 //import { Toaster } from '@/components/ui/sonner'; // or your notification library
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -154,7 +154,7 @@ const OverviewPage = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card className="md:col-span-1">
           <CardHeader>
-            <CardTitle>Attendance Status</CardTitle>
+          <h2 className="text-xl font-semibold">Attendance Status</h2>
           </CardHeader>
           <CardContent>
             <AttendanceStatus response={attendanceData} loading={loading} />
@@ -163,7 +163,7 @@ const OverviewPage = () => {
 
         <Card className="overflow-x-auto md:col-span-2 min-h-screen">
           <CardHeader>
-            <CardTitle className="min-h-[24px]">Time Sheet</CardTitle>
+            <h2 className="text-xl font-semibold min-h-[24px]">Time Sheet</h2>
             <div className="flex items-center space-x-2">
               <Search className="h-4 w-4  text-gray-600" />
               <Input placeholder="Search employees..." className="max-w-sm" />

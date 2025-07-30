@@ -216,7 +216,7 @@ const filteredHourlyLeaves = useMemo(() =>
   );
 
 return (
-  <div className="container mx-auto p-4 max-w-4xl">
+  <div className="max-w-4xl w-full mx-auto">
     <h1 className="text-2xl font-bold mb-6">Leave Requests</h1>
 
     <div className="flex items-center gap-4 mb-6">
@@ -240,25 +240,6 @@ return (
           className="pl-10 pr-3 py-1  text-gray-600 border border-gray-300 bg-transparent rounded-md focus:outline-none focus:ring-1 focus:ring-black"
         />
         
-      
-      {/* <button
-        type="button"
-        onClick={handleFilter}
-        className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-      >
-        Filter
-      </button> */}
-    
-      {/* <button className="flex items-center gap-1 px-3 py-2 border rounded-md hover:bg-muted">
-        <Filter className="h-4 w-4" />
-        <input
-          type="date"
-          value={filterDate}
-          onChange={(e) => setFilterDate(e.target.value)}
-          className="border rounded-md p-2"
-        />
-        <span>Filter</span>
-      </button> */}
     </div>
 
     <div className="flex mb-6 border rounded-md overflow-hidden">
