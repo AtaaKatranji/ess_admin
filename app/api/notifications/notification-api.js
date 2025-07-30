@@ -1,17 +1,18 @@
 const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
-export const sendNotification = async (userId, message) => {
+export const sendNotifiy = async (shiftId, title,message) => {
     try {
-      const response = await fetch(`${BaseUrl}/api/send-notification`, {
+      const response = await fetch(`${BaseUrl}/api/send-push-shift`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ userId, message }),
+        body: JSON.stringify({ shiftId, title, message, data:{} }),
       });
   
-      const data = await response.json();
-      console.log(data);
+      return response.json();
     } catch (error) {
       console.error('Error:', error);
     }
   };
+
+

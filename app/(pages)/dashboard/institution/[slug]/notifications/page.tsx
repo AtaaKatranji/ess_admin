@@ -1,4 +1,89 @@
-// "use client";
+"use client";
+
+import { useState, useEffect } from "react";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import { toast } from "sonner";
+import { fetchShifts } from "@/app/api/shifts/shifts"; // already used in ShiftReports
+import { Shift } from "@/app/types/Shift";
+import { sendNotifiy } from "@/app/api/notifications/notification-api";
+type NotificationProps = {
+  institutionKey: string;
+};
+
+export default function NotificationPage({ institutionKey }: NotificationProps) {
+  const [shifts, setShifts] = useState([]);
+  const [selectedShiftId, setSelectedShiftId] = useState("");
+  const [message, setMessage] = useState("");
+  const [title, setTitle] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    fetchShifts(institutionKey).then((data) => setShifts(data));
+  }, [institutionKey]);
+
+  const sendNotification = async () => {
+    if (!message || !selectedShiftId) {
+      toast.error("Please select a shift and enter a message.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const res = await sendNotifiy(selectedShiftId, title,message);
+
+      const data = await res.json();
+      if (res.ok) {
+        toast.success("Notification sent successfully!");
+        setMessage("");
+      } else {
+        toast.error(data.message || "Failed to send notification.");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Error sending notification.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="p-6 max-w-xl mx-auto space-y-4">
+      <h1 className="text-2xl font-bold">Send Notification to Shift</h1>
+      <Select value={selectedShiftId} onValueChange={setSelectedShiftId}>
+        <SelectTrigger>
+          <SelectValue placeholder="Select Shift" />
+        </SelectTrigger>
+        <SelectContent>
+          {shifts.map((shift: Shift) => (
+            <SelectItem key={shift.id} value={shift.id!}>
+              {shift.name}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      <Textarea
+        placeholder="Enter Title..."
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+        rows={5}
+      />
+      <Textarea
+        placeholder="Enter your message..."
+        value={message}
+        onChange={(e) => setMessage(e.target.value)}
+        rows={5}
+      />
+      <Button onClick={sendNotification} disabled={loading}>
+        {loading ? "Sending..." : "Send Notification"}
+      </Button>
+    </div>
+  );
+}
+
+
+
 // import React, { useEffect, useState } from 'react';
 // import dynamic from 'next/dynamic';
 // import Modal from 'react-modal';
@@ -27,9 +112,7 @@
 //     [key: string]: string | string[] | undefined; // Optional searchParams
 //   };
 // }
-export default function Notifications() {
-    return null; // Returns an empty page
-  }
+
 // const Notifications: NextPage<NotificationsProps> = ({ params }) => {
 //   const institutionId = params.slug;
 //   const [announcement, setAnnouncement] = useState('');

@@ -21,7 +21,7 @@ export default function EmployeeDashboardLayout({ children }: { children: React.
   const isActive = (route: string) => pathname.endsWith(route);
 
   return (
-    <div className="flex flex-col md:flex-row h-screen bg-gray-100">
+    <div className="grid grid-cols-[auto_1fr] h-screen bg-gray-100 overflow-hidden">
       {/* Mobile header */}
       <header className="md:hidden bg-gray-800 text-white p-4 flex justify-between items-center">
         <h1 className="text-xl font-bold">Employee Dashboard</h1>
@@ -31,7 +31,7 @@ export default function EmployeeDashboardLayout({ children }: { children: React.
       </header>
 
       {/* Sidebar */}
-      <aside className={`${isSidebarOpen ? 'translate-x-0 ' : '-translate-x-full'} md:translate-x-0 transition-transform duration-300 ease-in-out fixed md:static top-0 left-0 z-40 w-64 h-screen bg-gray-800 text-white flex flex-col justify-between`}
+      <aside className={`${isSidebarOpen ? 'translate-x-0 ' : '-translate-x-full'} md:translate-x-0 transition-transform duration-300 ease-in-out fixed md:static top-0 left-0 z-40 w-64 h-screen bg-gray-800 text-white flex flex-col justify-between  overflow-hidden`}
         style={{
           backgroundImage: `linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.8)), url('')`,
           backgroundPosition: 'bottom',
