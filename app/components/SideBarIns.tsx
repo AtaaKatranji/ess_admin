@@ -71,7 +71,7 @@ const isActive = (href: string, exact = false) => {
         </Link>
         <div>
           <Link href={`/dashboard/institution/${slug}/employees`} legacyBehavior>
-          <a className={`flex items-center lg:justify-start md:justify-center md:flex-col lg:flex-row gap-2 md:gap-0 lg:gap-2 py-2 px-4${
+          <a className={`flex items-center lg:justify-start md:justify-center md:flex-col lg:flex-row gap-2 md:gap-0 lg:gap-2 py-2 px-4 ${
                 isActive(`/dashboard/institution/${slug}/employees`) ? 'bg-blue-600 rounded' : ''
               }`}
             >
@@ -102,7 +102,7 @@ const isActive = (href: string, exact = false) => {
           )}
         </div>
         <Link href={`/dashboard/institution/${slug}/shifts`} legacyBehavior>
-        <a className={`flex items-center lg:justify-start md:justify-center md:flex-col lg:flex-row gap-2 md:gap-0 lg:gap-2 py-2 px-4${
+        <a className={`flex items-center lg:justify-start md:justify-center md:flex-col lg:flex-row gap-2 md:gap-0 lg:gap-2 py-2 px-4 ${
               isActive(`/dashboard/institution/${slug}/shifts`) ? "bg-blue-600 rounded" : ""
             }`}
           >
@@ -142,7 +142,7 @@ const isActive = (href: string, exact = false) => {
           </a>
         </Link>
         <Link href={`/dashboard/institution/${slug}/settings`} legacyBehavior>
-        <a className={`flex items-center lg:justify-start md:justify-center mb:flex-col lg:flex-row gap-2 md:gap-0 lg:gap-2 py-2 px-4 ${
+        <a className={`flex items-center lg:justify-start md:justify-center md:flex-col lg:flex-row gap-2 md:gap-0 lg:gap-2 py-2 px-4 ${
               isActive(`/dashboard/institution/${slug}/settings`) ? "bg-blue-600 rounded" : ""
             }`}
           >
@@ -155,7 +155,7 @@ const isActive = (href: string, exact = false) => {
       <div className="p-4">
         <button
           onClick={onExitInstitution}
-           className="w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-red-700 flex items-center justify-center  mb:flex-col lg:flex-row gap-2 md:gap-0 lg:gap-2  md:justify-center"
+           className="w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-red-700 flex items-center justify-center  md:flex-col lg:flex-row gap-2 md:gap-0 lg:gap-2  md:justify-center lg:justify-start"
         >
           <SquareArrowLeftIcon className="mr-2 h-5 w-5" />
          <span className="hidden lg:inline">Exit Institution</span>
