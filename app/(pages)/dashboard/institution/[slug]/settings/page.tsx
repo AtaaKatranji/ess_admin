@@ -288,7 +288,7 @@ const SettingsPage: React.FC = () => {
       }
     };
   return (
-    <div className="continer w-full max-w-screen mx-auto p-4">
+    <div className="container w-full max-w-screen mx-auto ">
       <h1 className="text-2xl font-bold ">Settings</h1>
 
       {/* Institution Info */}
