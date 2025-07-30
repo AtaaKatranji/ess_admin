@@ -48,7 +48,7 @@ const isActive = (href: string, exact = false) => {
     <aside
       className={`${
         isSidebarOpen ? "translate-x-0 " : "-translate-x-full"
-      } md:translate-x-0 transition-transform duration-300 ease-in-out fixed md:static top-0 left-0 z-40 w-64 h-screen bg-gray-800 text-white overflow-y-auto  flex flex-col  justify-between`}
+      } md:translate-x-0 transition-transform duration-300 ease-in-out fixed md:static w-64 md:w-20 lg:w-64 top-0 left-0 z-40 h-screen bg-gray-800 text-white overflow-y-auto  flex flex-col  justify-between`}
       style={{
         backgroundImage:
           "linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.8)), url('')",
@@ -69,7 +69,8 @@ const isActive = (href: string, exact = false) => {
             }`}
           >
             <Home className="mr-2 h-5 w-5" />
-            Overview
+            <span className="md:hidden">Overview</span>
+            
           </a>
         </Link>
         <div>
@@ -81,7 +82,8 @@ const isActive = (href: string, exact = false) => {
               }`}
             >
               <Users className="mr-2 h-5 w-5" />
-              Employees
+              <span className="md:hidden">Employees</span>
+              
             </a>
           </Link>
 
@@ -96,7 +98,8 @@ const isActive = (href: string, exact = false) => {
                         pathname === subItem.href ? 'bg-blue-500' : 'hover:bg-gray-700'
                       }`}
                     >
-                      {subItem.label}
+                      <span className="md:hidden"> {subItem.label}</span>
+                     
                     </a>
                   </Link>
                 </li>
@@ -112,7 +115,8 @@ const isActive = (href: string, exact = false) => {
             }`}
           >
             <Table className="mr-2 h-5 w-5" />
-            Shifts
+            <span className="md:hidden">Shifts</span>
+            
           </a>
         </Link>
         <Link href={`/dashboard/institution/${slug}/requests`} legacyBehavior>
@@ -123,7 +127,8 @@ const isActive = (href: string, exact = false) => {
             }`}
           >
             <FileText className="mr-2 h-5 w-5" />
-            Requests
+            <span className="md:hidden">Requests</span>
+            
           </a>
         </Link>
         <Link href={`/dashboard/institution/${slug}/holidays`} legacyBehavior>
@@ -134,7 +139,8 @@ const isActive = (href: string, exact = false) => {
             }`}
           >
             <CalendarDaysIcon className="mr-2 h-5 w-5" />
-            Holidays
+            <span className="md:hidden">Holidays</span>
+            
           </a>
         </Link>
         <Link href={`/dashboard/institution/${slug}/notifications`} legacyBehavior>
@@ -145,7 +151,8 @@ const isActive = (href: string, exact = false) => {
             }`}
           >
             <Bell className="mr-2 h-5 w-5" />
-            Notifications
+            <span className="md:hidden">Notifications</span>
+            
           </a>
         </Link>
         <Link href={`/dashboard/institution/${slug}/settings`} legacyBehavior>
@@ -156,7 +163,8 @@ const isActive = (href: string, exact = false) => {
             }`}
           >
             <Settings className="mr-2 h-5 w-5" />
-            Settings
+            <span className="md:hidden">Settings</span>
+            
           </a>
         </Link>
       </nav>
@@ -166,7 +174,8 @@ const isActive = (href: string, exact = false) => {
           className="w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-red-700 flex items-center justify-center"
         >
           <SquareArrowLeftIcon className="mr-2 h-5 w-5" />
-          Exit Institution
+          <span className="md:hidden">Exit Institution</span>
+          
         </button>
       </div>
     </aside>

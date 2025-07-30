@@ -26,25 +26,7 @@ export default function InstitutionLayout( { children }: { children: React.React
     if (!slug) return;
     fetchInstitution(slug).then(data => setInstitutionInfo(data));
   }, [slug]);
-  // Implement section navigation
-  // const handleSectionChange = (section: string) => {
-  //   setActiveSection(section);
-  //   // Navigation logic can be handled globally or in each page if needed
-  // };
-  // const handleNavigation = (section: string) => {
-  //   setActiveSection(section);
-  //   console.log(
-  //     "before pass it : ",institutionInfo.uniqueKey
-  //   );
-  //     router.push(`/dashboard/institution/${slug}/${section}`);
 
- 
-  //   setIsSidebarOpen(false);
-  // };
-  // Implement exit logic
-  // const handleExitInstitution = () => {
-  //   // Your exit logic here, e.g., router.push("/dashboard")
-  // };
   const handleExitInstitution = () => {
 
     toast.info(`Exiting institution ${slug}`);
@@ -58,6 +40,7 @@ export default function InstitutionLayout( { children }: { children: React.React
   // };
 
   return (
+    
     <SocketProvider>
     <EmployeeProvider>
     <div className="flex flex-col md:flex-row h-screen overflow-hidden bg-gray-100">
@@ -69,17 +52,35 @@ export default function InstitutionLayout( { children }: { children: React.React
         toggleSidebar={toggleSidebar}
       />
     
-
-      <main className="flex-1 p-2 md:p-4 overflow-y-auto">
+      {/* Mobile Header */}
+      <header className="md:hidden flex items-center justify-between px-4 py-3 bg-gray-800 text-white">
+        <h1 className="text-lg font-semibold">Menu</h1>
+        <button onClick={toggleSidebar}>
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2"
+              viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round"
+                  d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+      </header>
+      {/* Dark Overlay for Mobile */}
+      {isSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black opacity-50 z-30 md:hidden"
+          onClick={toggleSidebar}
+        />
+      )}
+       {/* Main Content */}
+       <main className="flex-1 p-2 md:p-4 overflow-y-auto">
       
-        <InstitutionProvider>
- 
-         {/* <InstitutionDashboard activeSection={activeSection} slug={slug!} /> */}
-         {children}
-         <ToastContainer />
+      <InstitutionProvider>
 
-        </InstitutionProvider>
-      </main>
+       {/* <InstitutionDashboard activeSection={activeSection} slug={slug!} /> */}
+       {children}
+       <ToastContainer />
+
+      </InstitutionProvider>
+    </main>      
     </div>
     </EmployeeProvider>
     </SocketProvider>
