@@ -354,9 +354,9 @@ const SettingsPage: React.FC = () => {
             )}
           </div>
           <div>
-            <label className="block text-lg font-semibold mb-3 text-gray-700 font-mono">Unique Key:</label>
+            <label className="block text-lg font-semibold mb-3 text-gray-700 ">Unique Key:</label>
             <div className="flex items-center space-x-4">
-              <p className="text-base text-gray-800 bg-gray-50 p-4 rounded-lg">{institutionInfo.uniqueKey}</p>
+              <p className=" w-full text-base text-gray-800 bg-gray-50 p-4 rounded-lg font-mono">{institutionInfo.uniqueKey}</p>
               {isEditing && (
                 <button
                   onClick={handleGenerateNewKey}
@@ -373,7 +373,7 @@ const SettingsPage: React.FC = () => {
               onClick={handleSaveInstitutionInfo}
               className="flex items-center px-8 py-4 text-base font-medium bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200"
             >
-              <Save className="mr-2" />
+              <Save className="mr-3 h-5 w-5" />
               Save
             </button>
           )}
