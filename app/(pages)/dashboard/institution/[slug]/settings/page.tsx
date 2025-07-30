@@ -315,7 +315,7 @@ const SettingsPage: React.FC = () => {
                 onChange={(e) =>
                   setInstitutionInfo({ ...institutionInfo, name: e.target.value })
                 }
-                className="w-full px-4 py-3 text-base border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none transition-colors"
+                className="w-full px-4 py-4 text-base border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none transition-colors"
               />
               {errorName && <p className="text-red-500 text-sm">{errorName}</p>}
               {loading && <span>Checking...</span>}
@@ -354,15 +354,15 @@ const SettingsPage: React.FC = () => {
             )}
           </div>
           <div>
-            <label className="block text-lg font-semibold mb-3 text-gray-700">Unique Key:</label>
+            <label className="block text-lg font-semibold mb-3 text-gray-700 font-mono">Unique Key:</label>
             <div className="flex items-center space-x-4">
-              <p className="text-lg">{institutionInfo.uniqueKey}</p>
+              <p className="text-base text-gray-800 bg-gray-50 p-4 rounded-lg">{institutionInfo.uniqueKey}</p>
               {isEditing && (
                 <button
                   onClick={handleGenerateNewKey}
-                  className="flex items-center px-3 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
+                  className="flex items-center px-5 py-3 text-base font-medium bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors duration-200"
                 >
-                  <RefreshCw className="mr-2" />
+                  <RefreshCw className="mr-2 h-5 w-5" />
                   Generate New Key
                 </button>
               )}
@@ -371,7 +371,7 @@ const SettingsPage: React.FC = () => {
           {isEditing && (
             <button
               onClick={handleSaveInstitutionInfo}
-              className="flex items-center px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+              className="flex items-center px-8 py-4 text-base font-medium bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200"
             >
               <Save className="mr-2" />
               Save
