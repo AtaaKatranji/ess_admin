@@ -102,7 +102,7 @@ const EmployeeList: React.FC = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="container mx-auto p-4 space-y-6 w-full">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h1 className="text-3xl font-bold tracking-tight">Employees List</h1>
         <div className="flex items-center gap-3 w-full sm:w-auto">
