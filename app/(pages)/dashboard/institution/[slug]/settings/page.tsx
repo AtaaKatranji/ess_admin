@@ -288,13 +288,13 @@ const SettingsPage: React.FC = () => {
       }
     };
   return (
-    <div className="w-full max-w-screen mx-auto p-3 rounded-lg ">
-      <h1 className="text-3xl font-bold mb-6">Settings</h1>
+    <div className="continer w-full max-w-screen mx-auto p-4">
+      <h1 className="text-2xl font-bold ">Settings</h1>
 
       {/* Institution Info */}
-      <div className="m-8 p-6 bg-white rounded-lg shadow">
+      <div className="m-8  bg-white rounded-lg shadow">
         <div className="flex justify-between items-center mb-4 ">
-          <h2 className="text-2xl font-semibold">Institution Information</h2>
+          <h2 className="text-xl font-semibold">Institution Information</h2>
           <button
             onClick={() => setIsEditing((prev) => !prev)}
             className="flex items-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
