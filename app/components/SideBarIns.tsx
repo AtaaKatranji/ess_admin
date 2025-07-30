@@ -60,7 +60,7 @@ const isActive = (href: string, exact = false) => {
           Institution Dashboard
         </h1>
         <Link href={`/dashboard/institution/${slug}/`} legacyBehavior>
-           <a className={`flex items-center md:justify-center md:flex-col gap-2 md:gap-0 py-2 px-4 ${
+           <a className={`flex items-center lg:justify-start md:justify-center md:flex-col lg:flex-row gap-2 md:gap-0 lg:gap-2 py-2 px-4 ${
               isActive(`/dashboard/institution/${slug}/`, true) ? "bg-blue-600 rounded" : ""
             }`}
           >
@@ -71,7 +71,7 @@ const isActive = (href: string, exact = false) => {
         </Link>
         <div>
           <Link href={`/dashboard/institution/${slug}/employees`} legacyBehavior>
-          <a className={`flex items-center md:justify-center md:flex-col lg:flex-row gap-2 md:gap-0 lg:gap-2 py-2 px-4${
+          <a className={`flex items-center lg:justify-start md:justify-center md:flex-col lg:flex-row gap-2 md:gap-0 lg:gap-2 py-2 px-4${
                 isActive(`/dashboard/institution/${slug}/employees`) ? 'bg-blue-600 rounded' : ''
               }`}
             >
@@ -102,7 +102,7 @@ const isActive = (href: string, exact = false) => {
           )}
         </div>
         <Link href={`/dashboard/institution/${slug}/shifts`} legacyBehavior>
-        <a className={`flex items-center md:justify-center md:flex-col lg:flex-row gap-2 md:gap-0 lg:gap-2 py-2 px-4${
+        <a className={`flex items-center lg:justify-start md:justify-center md:flex-col lg:flex-row gap-2 md:gap-0 lg:gap-2 py-2 px-4${
               isActive(`/dashboard/institution/${slug}/shifts`) ? "bg-blue-600 rounded" : ""
             }`}
           >
@@ -112,7 +112,7 @@ const isActive = (href: string, exact = false) => {
           </a>
         </Link>
         <Link href={`/dashboard/institution/${slug}/requests`} legacyBehavior>
-           <a className={`flex items-center md:justify-center md:flex-col lg:flex-row  gap-2 md:gap-0 lg:gap-2 py-2 px-4 ${
+           <a className={`flex items-center lg:justify-start md:justify-center md:flex-col lg:flex-row  gap-2 md:gap-0 lg:gap-2 py-2 px-4 ${
               isActive(`/dashboard/institution/${slug}/requests`) ? "bg-blue-600 rounded" : ""
             }`}
           >
@@ -122,7 +122,7 @@ const isActive = (href: string, exact = false) => {
           </a>
         </Link>
         <Link href={`/dashboard/institution/${slug}/holidays`} legacyBehavior>
-           <a className={`flex items-center md:justify-center md:flex-col lg:flex-row gap-2 md:gap-0 lg:gap-2 py-2  px-4 ${
+           <a className={`flex items-center lg:justify-start md:justify-center md:flex-col lg:flex-row gap-2 md:gap-0 lg:gap-2 py-2  px-4 ${
               isActive(`/dashboard/institution/${slug}/holidays`) ? "bg-blue-600 rounded" : ""
             }`}
           >
@@ -132,7 +132,7 @@ const isActive = (href: string, exact = false) => {
           </a>
         </Link>
         <Link href={`/dashboard/institution/${slug}/notifications`} legacyBehavior>
-           <a className={`flex items-center md:justify-center md:flex-col lg:flex-row gap-2 md:gap-0 lg:gap-2 py-2 px-4 ${
+           <a className={`flex items-center lg:justify-start md:justify-center md:flex-col lg:flex-row gap-2 md:gap-0 lg:gap-2 py-2 px-4 ${
               isActive(`/dashboard/institution/${slug}/notifications`) ? "bg-blue-600 rounded" : ""
             }`}
           >
@@ -142,7 +142,7 @@ const isActive = (href: string, exact = false) => {
           </a>
         </Link>
         <Link href={`/dashboard/institution/${slug}/settings`} legacyBehavior>
-        <a className={`flex items-center md:justify-center mb:flex-col lg:flex-row gap-2 md:gap-0 lg:gap-2 py-2 px-4 ${
+        <a className={`flex items-center lg:justify-start md:justify-center mb:flex-col lg:flex-row gap-2 md:gap-0 lg:gap-2 py-2 px-4 ${
               isActive(`/dashboard/institution/${slug}/settings`) ? "bg-blue-600 rounded" : ""
             }`}
           >
