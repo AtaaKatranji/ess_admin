@@ -287,212 +287,207 @@ const SettingsPage: React.FC = () => {
         alert('Name does not match. Please enter the correct name to confirm deletion.');
       }
     };
-    return (
-      <div className="container w-full max-w-7xl mx-auto p-6">
-        <h1 className="text-4xl font-bold mb-8 text-gray-900">Settings</h1>
-  
-        {/* Institution Info */}
-        <div className="mb-8 p-8 bg-white rounded-xl shadow-lg border border-gray-200">
-          <div className="flex justify-between items-center mb-8">
-            <h2 className="text-3xl font-semibold text-gray-800">Institution Information</h2>
-            <Button
-              onClick={() => setIsEditing((prev) => !prev)}
-              className="flex items-center px-6 py-3 text-lg font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
-            >
-              <Edit className="mr-3 h-5 w-5" />
-              {isEditing ? "Cancel Edit" : "Edit"}
-            </Button>
-          </div>
-  
-          <div className="space-y-8">
-            <div>
-              <label className="block text-xl font-semibold mb-3 text-gray-700">Name:</label>
-              {isEditing ? (
-                <div>
-                  <input
-                    type="text"
-                    value={institutionInfo.name}
-                    onBlur={handleCheckName}
-                    onChange={(e) => setInstitutionInfo({ ...institutionInfo, name: e.target.value })}
-                    className="w-full px-4 py-3 text-lg border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none transition-colors"
-                  />
-                  {errorName && <p className="text-red-500 text-base mt-2">{errorName}</p>}
-                  {loading && <span className="text-blue-500 text-base mt-2">Checking...</span>}
-                  {isNameTaken === true && <span className="text-red-500 text-base mt-2">Name already taken</span>}
-                  {isNameTaken === false && <span className="text-green-500 text-base mt-2">✔ Name is available</span>}
-                </div>
-              ) : (
-                <p className="text-xl text-gray-800 bg-gray-50 p-4 rounded-lg">{institutionInfo.name}</p>
+  return (
+    <div className="continer w-full max-w-screen mx-auto p-4">
+      <h1 className="text-2xl font-bold ">Settings</h1>
+
+      {/* Institution Info */}
+      <div className="m-8 p-4 bg-white rounded-lg shadow">
+        <div className="flex justify-between items-center mb-4 ">
+          <h2 className="text-xl font-semibold">Institution Information</h2>
+          <button
+            onClick={() => setIsEditing((prev) => !prev)}
+            className="flex items-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
+            <Edit className="mr-2" />
+            {isEditing ? 'Cancel Edit' : 'Edit'}
+          </button>
+        </div>
+        <div className="space-y-4">
+          <div>
+            <label className="block text-lg font-semibold mb-3 text-gray-700">Name:</label>
+            {isEditing ? (
+              <div>
+              <input
+                type="text"
+                value={institutionInfo.name}
+                onBlur={handleCheckName}
+                onChange={(e) =>
+                  setInstitutionInfo({ ...institutionInfo, name: e.target.value })
+                }
+                className="w-full px-4 py-3 text-md border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none transition-colors"
+              />
+              {errorName && <p className="text-red-500 text-sm">{errorName}</p>}
+              {loading && <span>Checking...</span>}
+
+              {isNameTaken === true && (
+                <span style={{ color: 'red' }}>Name already taken</span>
               )}
-            </div>
-  
-            <div>
-              <label className="block text-xl font-semibold mb-3 text-gray-700">Address:</label>
-              {isEditing ? (
-                <input
-                  type="text"
-                  value={institutionInfo.address}
-                  onChange={(e) => setInstitutionInfo({ ...institutionInfo, address: e.target.value })}
-                  className="w-full px-4 py-3 text-lg border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none transition-colors"
-                />
-              ) : (
-                <p className="text-xl text-gray-800 bg-gray-50 p-4 rounded-lg">{institutionInfo.address}</p>
+
+              {isNameTaken === false && (
+                <span style={{ color: 'green' }}>✔ Name is available</span>
               )}
-            </div>
-  
-            <div>
-              <label className="block text-xl font-semibold mb-3 text-gray-700">Unique Key:</label>
-              <div className="flex items-center space-x-6">
-                <p className="text-xl text-gray-800 bg-gray-50 p-4 rounded-lg font-mono">{institutionInfo.uniqueKey}</p>
-                {isEditing && (
-                  <Button
-                    onClick={handleGenerateNewKey}
-                    className="flex items-center px-5 py-3 text-base font-medium bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors duration-200"
-                  >
-                    <RefreshCw className="mr-2 h-5 w-5" />
-                    Generate New Key
-                  </Button>
-                )}
+              {isNameTaken === null && (
+                <span> </span>
+              )}
               </div>
-            </div>
-  
-            {isEditing && (
-              <Button
-                onClick={handleSaveInstitutionInfo}
-                className="flex items-center px-8 py-4 text-lg font-medium bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200"
-              >
-                <Save className="mr-3 h-6 w-6" />
-                Save Changes
-              </Button>
+            ) : (
+              <p className="text-lg">{institutionInfo.name}</p>
             )}
           </div>
-        </div>
-  
-        {/* SSID List */}
-        <div className="mb-8 p-8 bg-white rounded-xl shadow-lg border border-gray-200">
-          <div className="flex justify-between items-center mb-8">
-            <h2 className="text-3xl font-semibold text-gray-800">WiFi Networks</h2>
+          <div>
+            <label className="block text-lg font-semibold">Address:</label>
+            {isEditing ? (
+              
+              <input
+                type="text"
+                value={institutionInfo.address}
+                
+                onChange={(e) =>
+                  setInstitutionInfo({ ...institutionInfo, address: e.target.value })
+                }
+                className="w-full px-4 py-2 border rounded-md"
+              />
+              
+            ) : (
+              <p className="text-lg">{institutionInfo.address}</p>
+            )}
           </div>
-  
-          <ul className="space-y-6">
-            {institutionInfo.macAddresses?.map((ssidInfo) => (
-              <li
-                key={ssidInfo.macAddress}
-                className="flex justify-between items-center p-6 bg-gray-50 rounded-xl shadow-sm border border-gray-200"
-              >
-                <div className="space-y-2">
-                  <p className="text-xl font-semibold text-gray-800">SSID: {ssidInfo.wifiName}</p>
-                  <p className="text-lg text-gray-600 font-mono">MAC Address: {ssidInfo.macAddress}</p>
-                </div>
-                <Button
-                  onClick={() => handleDeleteSSID(ssidInfo.macAddress)}
-                  variant="destructive"
-                  className="flex items-center px-5 py-3 text-base font-medium bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200"
+          <div>
+            <label className="block text-lg font-semibold">Unique Key:</label>
+            <div className="flex items-center space-x-4">
+              <p className="text-lg">{institutionInfo.uniqueKey}</p>
+              {isEditing && (
+                <button
+                  onClick={handleGenerateNewKey}
+                  className="flex items-center px-3 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
                 >
-                  <Trash2 className="mr-2 h-5 w-5" />
-                  Delete
-                </Button>
-              </li>
-            ))}
-          </ul>
-  
-          {/* Add New SSID */}
-          <div className="mt-8 p-6 bg-blue-50 rounded-xl border-2 border-blue-200">
-            <h3 className="text-2xl font-semibold mb-6 text-gray-800">Add New WiFi Network</h3>
-            <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 mb-6">
-              <input
-                type="text"
-                placeholder="SSID Name"
-                value={newSSID}
-                onChange={(e) => setNewSSID(e.target.value)}
-                className="flex-1 px-4 py-3 text-lg border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none transition-colors"
-              />
-              <input
-                type="text"
-                placeholder="MAC Address"
-                value={newMacAddress}
-                onChange={(e) => setNewMacAddress(e.target.value)}
-                className="flex-1 px-4 py-3 text-lg border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none transition-colors"
-              />
+                  <RefreshCw className="mr-2" />
+                  Generate New Key
+                </button>
+              )}
             </div>
-            <Button
-              onClick={handleAddSSID}
-              className="flex items-center px-6 py-3 text-lg font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
+          </div>
+          {isEditing && (
+            <button
+              onClick={handleSaveInstitutionInfo}
+              className="flex items-center px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
             >
-              <PlusCircle className="mr-3 h-6 w-6" />
-              Add WiFi Network
-            </Button>
-          </div>
+              <Save className="mr-2" />
+              Save
+            </button>
+          )}
         </div>
-  
-        {/* Delete function */}
-        <div className="mb-8 p-8 bg-white rounded-xl shadow-lg border border-red-200">
-          <h2 className="text-3xl font-semibold mb-6 text-red-700">Danger Zone</h2>
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-6 bg-red-50 rounded-xl border-2 border-red-200 space-y-4 sm:space-y-0">
-            <div>
-              <h4 className="text-2xl font-semibold text-gray-800 mb-2">Delete Institution</h4>
-              <p className="text-lg text-gray-600">
-                Permanently delete <strong>{institutionInfo.name}</strong> and all associated data.
-              </p>
-            </div>
-  
-            {isDelete === true && (
-              <Dialog open={isDelete} onOpenChange={setIsDelete}>
-                <DialogContent className="p-6 max-w-md">
-                  <DialogHeader>
-                    <DialogTitle className="text-2xl font-semibold mb-4 text-gray-800">Confirm Deletion</DialogTitle>
-                    <DialogDescription className="text-lg mb-6 text-gray-600">
-                      Are you sure you want to delete <strong>{institutionInfo.name}</strong>? This action cannot be
-                      undone.
-                      <Input
-                        className="mt-4 text-lg p-3"
-                        placeholder="Enter institution name to confirm"
-                        value={inputName}
-                        onChange={(e) => setInputName(e.target.value)}
-                      />
-                    </DialogDescription>
-                  </DialogHeader>
-                  <DialogFooter className="space-x-3">
-                    <Button
-                      variant="destructive"
-                      className="px-6 py-3 text-lg font-bold bg-red-600 text-white hover:bg-red-700 transition-colors duration-200"
-                      onClick={confirmDeletion}
-                      disabled={inputName !== institutionInfo.name}
-                    >
-                      Yes, Delete
-                    </Button>
-                    <Button
-                      variant="secondary"
-                      className="px-6 py-3 text-lg font-bold bg-gray-600 text-white hover:bg-gray-700 transition-colors duration-200"
-                      onClick={() => setIsDelete(false)}
-                    >
-                      Cancel
-                    </Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
-            )}
-  
-            {isDelete === false && (
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button
-                    variant="destructive"
-                    onClick={() => setIsDelete(true)}
-                    className="px-6 py-3 text-lg font-medium bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200"
-                  >
-                    <Trash2 className="mr-2 h-5 w-5" />
-                    Delete Institution
-                  </Button>
-                </DialogTrigger>
-              </Dialog>
-            )}
-          </div>
-        </div>
-  
-        <ToastContainer />
       </div>
-    )
-  }
-  
-  export default SettingsPage
+
+      {/* SSID List */}
+      <div className="m-8  p-6 bg-white rounded-lg shadow">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-2xl font-semibold">WiFi Networks</h2>
+        </div>
+        <ul className="space-y-4">
+          {institutionInfo.macAddresses?.map((ssidInfo) => (
+            <li key={ssidInfo.macAddress} className="flex justify-between items-center p-4 bg-gray-50 rounded-md shadow">
+              <div>
+                <p className="font-semibold">SSID: {ssidInfo.wifiName}</p>
+                <p className="text-gray-700">MAC Address: {ssidInfo.macAddress}</p>
+              </div>
+              <button
+                onClick={() => handleDeleteSSID(ssidInfo.macAddress)}
+                className="flex items-center px-3 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+              >
+                <Trash2 className="mr-1" />
+                Delete
+              </button>
+            </li>
+          ))}
+        </ul>
+
+        {/* Add New SSID */}
+        <div className="mt-6 p-4 bg-gray-50 rounded-md shadow">
+          <h3 className="text-lg font-semibold mb-2">Add New WiFi Network</h3>
+          <div className="flex space-x-4 mb-4">
+            <input
+              type="text"
+              placeholder="SSID Name"
+              value={newSSID}
+              onChange={(e) => setNewSSID(e.target.value)}
+              className="w-full px-4 py-2 border rounded-md"
+            />
+            <input
+              type="text"
+              placeholder="MAC Address"
+              value={newMacAddress}
+              onChange={(e) => setNewMacAddress(e.target.value)}
+              className="w-full px-4 py-2 border rounded-md"
+            />
+          </div>
+          <button
+            onClick={handleAddSSID}
+            className="flex items-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
+            <PlusCircle className="mr-2" />
+            Add SSID
+          </button>
+        </div>
+      </div>
+      {/* Delete function */}
+      <div className="m-8 p-6 bg-white rounded-lg shadow">
+        <h2 className="text-2xl font-semibold my-4">Delete this institution</h2>
+        <div className="flex justify-between items-center p-4 bg-gray-50 rounded-md shadow">
+          <h4 className="text-xl font-semibold ">{institutionInfo.name}</h4>
+          {isDelete === true && (
+            <Dialog open={isDelete} onOpenChange={setIsDelete}>
+            {/* Dialog Content */}
+            <DialogContent className="p-4">
+              <DialogHeader>
+                <DialogTitle className="text-2xl font-semibold my-4">Confirm Deletion</DialogTitle>
+                <DialogDescription className="text-xl my-4">
+                  Are you sure you want to delete <strong>{institutionInfo.name}</strong>? This action cannot be undone.
+                  <Input 
+                    className="mt-4" 
+                    placeholder="Enter institution name to confirm" 
+                    value={inputName} 
+                    onChange={(e) => setInputName(e.target.value)} 
+                  />
+                </DialogDescription>
+              </DialogHeader>
+
+              <DialogFooter className="space-x-2">
+                <Button
+                  variant="destructive"
+                  className="fill-secondary text-white font-bold hover:bg-red-700 transition duration-200"
+                  onClick={confirmDeletion}
+                  disabled={inputName !== institutionInfo.name} // Only enable if name matches
+                >
+                  Yes
+                </Button>
+                <Button
+                  variant="secondary"
+                  className="bg-gray-800 text-white font-bold hover:bg-gray-500 transition duration-200"
+                  onClick={() => setIsDelete(false)}
+                >
+                  No
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+          )}
+          {isDelete === false && (
+            // <Button variant='destructive' type="button" className='bg-blue-800 text-white font-bold' onClick={() => setIsDelete(true)}>Delete</Button>
+            <Dialog>
+              <DialogTrigger asChild>
+                 <Button variant='destructive' onClick={() => setIsDelete(true)}>Delete</Button>
+              </DialogTrigger>
+            </Dialog>
+            
+          )}
+        </div>
+        <ToastContainer />
+        
+      </div>
+    </div>
+  );
+};
+
+export default SettingsPage;
