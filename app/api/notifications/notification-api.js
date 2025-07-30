@@ -1,7 +1,7 @@
 const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
 export const sendNotifiy = async (shiftId, title,message) => {
     try {
-      const response = await fetch(`${BaseUrl}/api/send-push-shift`, {
+      return await fetch(`${BaseUrl}/api/send-push-shift`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -9,7 +9,7 @@ export const sendNotifiy = async (shiftId, title,message) => {
         body: JSON.stringify({ shiftId, title, message, data:{} }),
       });
   
-      return response.json();
+      
     } catch (error) {
       console.error('Error:', error);
     }

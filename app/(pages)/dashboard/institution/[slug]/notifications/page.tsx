@@ -57,9 +57,9 @@ export default function NotificationPage() {
     setLoading(true)
     try {
       const res = await sendNotifiy(selectedShiftId, title.trim(), message.trim())
-      const data = await res.json()
+      const data = await res?.json()
 
-      if (res.ok) {
+      if (res?.ok) {
         toast.success("Notification sent successfully!", {
           description: `Sent to ${selectedShift?.name}`,
         })
