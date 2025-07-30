@@ -315,7 +315,7 @@ const SettingsPage: React.FC = () => {
                 onChange={(e) =>
                   setInstitutionInfo({ ...institutionInfo, name: e.target.value })
                 }
-                className="w-full px-4 py-3 text-md border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none transition-colors"
+                className="w-full px-4 py-3 text-base border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none transition-colors"
               />
               {errorName && <p className="text-red-500 text-sm">{errorName}</p>}
               {loading && <span>Checking...</span>}
@@ -332,11 +332,11 @@ const SettingsPage: React.FC = () => {
               )}
               </div>
             ) : (
-              <p className="text-lg">{institutionInfo.name}</p>
+              <p className="text-base text-gray-800 bg-gray-50 p-4 rounded-lg">{institutionInfo.name}</p>
             )}
           </div>
           <div>
-            <label className="block text-lg font-semibold">Address:</label>
+            <label className="block text-lg font-semibold mb-3 text-gray-700">Address:</label>
             {isEditing ? (
               
               <input
@@ -350,11 +350,11 @@ const SettingsPage: React.FC = () => {
               />
               
             ) : (
-              <p className="text-lg">{institutionInfo.address}</p>
+              <p className="text-base text-gray-800 bg-gray-50 p-4 rounded-lg">{institutionInfo.address}</p>
             )}
           </div>
           <div>
-            <label className="block text-lg font-semibold">Unique Key:</label>
+            <label className="block text-lg font-semibold mb-3 text-gray-700">Unique Key:</label>
             <div className="flex items-center space-x-4">
               <p className="text-lg">{institutionInfo.uniqueKey}</p>
               {isEditing && (
@@ -383,7 +383,7 @@ const SettingsPage: React.FC = () => {
       {/* SSID List */}
       <div className="m-8  p-6 bg-white rounded-lg shadow">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-semibold">WiFi Networks</h2>
+          <h2 className="text-lg font-semibold">WiFi Networks</h2>
         </div>
         <ul className="space-y-4">
           {institutionInfo.macAddresses?.map((ssidInfo) => (
