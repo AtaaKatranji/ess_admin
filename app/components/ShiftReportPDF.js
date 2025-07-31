@@ -37,7 +37,7 @@ const exportShiftMonthlyReportPDF = (data) => {
     const textWidth = doc.getTextWidth(title);
     const centerX = (pageWidth - textWidth) / 2;
 
-
+    doc.setFont(undefined, 'bold');
     doc.setFontSize(14);
     doc.text(title, centerX, 20);
     doc.setFontSize(11);
@@ -47,6 +47,7 @@ const exportShiftMonthlyReportPDF = (data) => {
     doc.text("Schedule:", margin, 44);
 
     // Display nicely formatted shift times
+    doc.setFont(undefined, 'normal');
     doc.setFontSize(9); // Smaller font for schedule details
     doc.text(formatShiftTimes(data.shiftTimes), margin + 12, 49); // Indented and on next line(s)
     doc.setFontSize(10); // Reset
