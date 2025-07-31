@@ -37,11 +37,11 @@ const exportShiftMonthlyReportPDF = (data) => {
     const textWidth = doc.getTextWidth(title);
     const centerX = (pageWidth - textWidth) / 2;
 
-    doc.setFont('bold');
+
     doc.setFontSize(14);
     doc.text(title, centerX, 20);
     doc.setFontSize(11);
-    doc.setFont('normal');
+
     doc.text(`Shift: ${data.shiftName}`, margin, 32);
     doc.text(`Type: ${data.shiftType}`, margin, 38);
     doc.text("Schedule:", margin, 44);
