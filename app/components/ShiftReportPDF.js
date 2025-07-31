@@ -24,7 +24,8 @@ const exportShiftMonthlyReportPDF = (data) => {
     doc.setFontSize(11);
     doc.setFont('helvetica');
 
-    const logoImg = 'data:image/png;base64,...'; // Replace with your base64 logo
+    const logoImg = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAYcAAAFvCAYAAAChCQeRAAAABGdBTUEAALGPC/xhBQAACklpQ0NQc1...";
+
     try {
       doc.addImage(logoImg, 'PNG', margin, 8, 20, 20);
     } catch (e) {
@@ -99,9 +100,12 @@ const exportShiftMonthlyReportPDF = (data) => {
         doc.text(`Page ${pageNumber}`, pageWidth / 2, doc.internal.pageSize.height - 10, { align: 'center' });
   
         // === WATERMARK (optional light text) ===
+        const gState = doc.GState({ opacity: 0.2 });
+        doc.setGState(gState);
         doc.setFontSize(30);
         doc.setTextColor(200);
         doc.text('CONFIDENTIAL', pageWidth / 2, 150, { align: 'center', angle: 45 });
+        doc.setGState(new doc.GState({ opacity: 1 }));
         doc.setTextColor(0); // reset color
       },
     });

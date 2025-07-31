@@ -76,11 +76,11 @@ export default function ShiftReport({open, onOpenChange, shiftId, institutionKey
     exportShiftReportPDF(shiftData)
   }
 
-  const getAttendanceRateColor = (rate: number) => {
-    if (rate >= 90) return "text-green-600"
-    if (rate >= 80) return "text-yellow-600"
-    return "text-red-600"
-  }
+  // const getAttendanceRateColor = (rate: number) => {
+  //   if (rate >= 90) return "text-green-600"
+  //   if (rate >= 80) return "text-yellow-600"
+  //   return "text-red-600"
+  // }
   const getProgressColor = (rate: number) => {
     if (rate >= 90) return "bg-green-600";
     if (rate >= 80) return "bg-yellow-500";
