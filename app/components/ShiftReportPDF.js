@@ -22,7 +22,7 @@ const exportShiftMonthlyReportPDF = (data) => {
     const margin = 14;
 
     doc.setFontSize(11);
-    doc.setFont('helvetica');
+    doc.setFont('cairo');
 
     const logoImg = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAYcAAAFvCAYAAAChCQeRAAAABGdBTUEAALGPC/xhBQAACklpQ0NQc1...";
 
@@ -60,7 +60,7 @@ const exportShiftMonthlyReportPDF = (data) => {
       body: summaryMetricsTable, // must be array of [label, value]
       startY: 55,
       margin: { left: margin, right: margin },
-      styles: { font: 'helvetica', fontSize: 10 },
+      styles: { font: 'cairo', fontSize: 10 },
     });
     // Prepare employee table
     const includeHolidayColumn = data.employees.some(e => e.holidays > 0);
@@ -85,7 +85,7 @@ const exportShiftMonthlyReportPDF = (data) => {
       body: employeeTableBody,
       startY: doc.lastAutoTable.finalY + 8,
       margin: { left: margin, right: margin },
-      styles: { font: 'helvetica', fontSize: 9 },
+      styles: { font: 'cairo', fontSize: 9 },
       didDrawPage: () => {
         // === PAGE FOOTER ===
         const adminName = 'Admin Signature';

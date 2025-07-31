@@ -125,8 +125,8 @@ export default function ShiftReport({open, onOpenChange, shiftId, institutionKey
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      {/* Header */}  <Button variant="ghost" className="bg-gray-800" onClick={() =>{onOpenChange(false)}}>
+    <div className="container mx-auto space-y-6">
+      {/* Header */}  <Button variant="ghost" className="hover:bg-gray-500" onClick={() =>{onOpenChange(false)}}>
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Shifts
         </Button>
