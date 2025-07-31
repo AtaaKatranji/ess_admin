@@ -81,7 +81,11 @@ export default function ShiftReport({open, onOpenChange, shiftId, institutionKey
     if (rate >= 80) return "text-yellow-600"
     return "text-red-600"
   }
-
+  const getProgressColor = (rate: number) => {
+    if (rate >= 90) return "bg-green-600";
+    if (rate >= 80) return "bg-yellow-500";
+    return "bg-red-600";
+  };
 
   const getStatusBadge = (attendanceRate: number) => {
     if (attendanceRate >= 90) return <Badge className="bg-green-100 text-green-800">Excellent</Badge>
@@ -182,14 +186,14 @@ export default function ShiftReport({open, onOpenChange, shiftId, institutionKey
           <div className="bg-white rounded-lg shadow-sm border p-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900"><span className="text-sm text-gray-900">Shift:</span> {shiftData?.shiftName}</h1>
+              <h1 className="text-3xl font-bold text-gray-900"><span className="text-sm text-gray-800">Shift:</span> {shiftData?.shiftName}</h1>
               <div className="flex items-center gap-4 mt-2 text-sm text-gray-600">
                 <div className="flex items-center gap-1">
                   <Calendar className="w-4 h-4" />
                   {/* <span>Shift: {shiftData?.shiftName}</span> */}
                   <span>month: {shiftData?.monthName}</span>
                 </div>
-                <div className="flex items-center gap-1 text-gray-900">
+                <div className="flex items-center gap-1 text-gray-800">
                   <Badge variant="outline">{shiftData?.shiftType}</Badge>
                 </div>
               </div>
@@ -242,7 +246,7 @@ export default function ShiftReport({open, onOpenChange, shiftId, institutionKey
                 <CardTitle className="text-sm font-medium text-gray-600">{metric.label}</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-lg font-semibold text-gray-900">{metric.value}</div>
+                <div className="text-lg font-semibold text-gray-800">{metric.value}</div>
               </CardContent>
             </Card>
           ))}
@@ -250,7 +254,7 @@ export default function ShiftReport({open, onOpenChange, shiftId, institutionKey
           {/* Employee Details */}
           <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-gray-900">
+                <CardTitle className="flex items-center gap-2 text-gray-800">
                   <Users className="w-5 h-5" />
                   Employee Attendance Details
                 </CardTitle>
@@ -281,7 +285,7 @@ export default function ShiftReport({open, onOpenChange, shiftId, institutionKey
                             <TableCell className="font-medium">{employee.name}</TableCell>
                             <TableCell>
                               <div className="flex items-center gap-2">
-                                <Progress value={attendanceRate} className="w-16" color={getAttendanceRateColor(attendanceRate)} />
+                                <Progress value={attendanceRate} className="w-16 text-gray-800" color={getProgressColor(attendanceRate)} />
                                 <span className="text-sm">{attendanceRate}%</span>
                               </div>
                             </TableCell>
