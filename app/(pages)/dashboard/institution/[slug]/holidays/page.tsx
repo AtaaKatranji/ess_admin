@@ -120,7 +120,7 @@ const handleDelete = async (id: number) => {
         {/* <h2 className="text-2xl font-bold">${institutionKey}</h2> */}
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button onClick={openAddDialog}><Plus className="mr-2 w-4 h-4" /> Add Holiday</Button>
+            <Button onClick={openAddDialog} className="bg-gray-800" ><Plus className="mr-2 w-4 h-4" /> Add Holiday</Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>

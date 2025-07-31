@@ -146,7 +146,7 @@ export default function AdminLogin() {
                   <button
                     type="button"
                     onClick={togglePasswordVisibility}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
+                    className="absolute right-3 top-1/2 transform-translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
                   >
                     {showPassword ? (
                       <EyeOff size={18} aria-label="Hide password" />
@@ -157,7 +157,7 @@ export default function AdminLogin() {
                 </div>
                 {error && <p className="text-red-500 text-sm my-2">{error}</p>}
               </div>
-              <Button type="submit" className="w-full" disabled={isLoading} onClick={handleSubmit}>
+              <Button type="submit" className="w-full  bg-gray-800 hover:bg-gray-500 transition-all duration-200" disabled={isLoading} onClick={handleSubmit}>
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />

@@ -13,95 +13,7 @@ import { TableBody } from "@mui/material"
 import { Table, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Progress } from "@/components/ui/progress"
 import { fetchShifts } from '@/app/api/shifts/shifts'
-// Sample data - replace with your actual data source
-// const sampleShiftData = {
-//   shiftId: "SHIFT_001",
-//   shiftName: "Morning Shift",
-//   shiftTime: "08:00 - 16:00",
-//   department: "Operations",
-//   supervisor: "Sarah Johnson",
-//   month: "June 2025",
-//   summary: {
-//     totalEmployees: 12,
-//     activeEmployees: 10,
-//     averageAttendanceRate: 85.5,
-//     totalShiftHours: 1920, // 8 hours * 12 employees * 20 working days
-//     actualWorkedHours: 1641.6,
-//     totalLateHours: 45.2,
-//     totalEarlyLeaveHours: 12.8,
-//     totalOvertimeHours: 28.5,
-//     totalAbsentDays: 18,
-//     totalHolidayDays: 48, // 4 holidays * 12 employees
-//     averageDailyAttendance: 10.2,
-//   },
-//   employees: [
-//     {
-//       id: 1,
-//       name: "Ataa Katranji",
-//       position: "Senior Operator",
-//       totalHours: 126.03,
-//       attendanceDays: 18,
-//       absentDays: 5,
-//       holidayDays: 4,
-//       lateHours: 8.58,
-//       earlyLeaveHours: 0.37,
-//       overtimeHours: 0.95,
-//       attendanceRate: 78.3,
-//     },
-//     {
-//       id: 2,
-//       name: "Ahmed Hassan",
-//       position: "Operator",
-//       totalHours: 142.5,
-//       attendanceDays: 20,
-//       absentDays: 2,
-//       holidayDays: 4,
-//       lateHours: 3.2,
-//       earlyLeaveHours: 1.1,
-//       overtimeHours: 6.5,
-//       attendanceRate: 90.9,
-//     },
-//     {
-//       id: 3,
-//       name: "Fatima Al-Zahra",
-//       position: "Quality Inspector",
-//       totalHours: 138.75,
-//       attendanceDays: 19,
-//       absentDays: 3,
-//       holidayDays: 4,
-//       lateHours: 2.8,
-//       earlyLeaveHours: 0.5,
-//       overtimeHours: 4.75,
-//       attendanceRate: 86.4,
-//     },
-//     {
-//       id: 4,
-//       name: "Omar Khalil",
-//       position: "Technician",
-//       totalHours: 134.2,
-//       attendanceDays: 19,
-//       absentDays: 3,
-//       holidayDays: 4,
-//       lateHours: 5.1,
-//       earlyLeaveHours: 2.3,
-//       overtimeHours: 2.2,
-//       attendanceRate: 86.4,
-//     },
-//     {
-//       id: 5,
-//       name: "Layla Mahmoud",
-//       position: "Supervisor Assistant",
-//       totalHours: 145.8,
-//       attendanceDays: 21,
-//       absentDays: 1,
-//       holidayDays: 4,
-//       lateHours: 1.5,
-//       earlyLeaveHours: 0.2,
-//       overtimeHours: 9.8,
-//       attendanceRate: 95.5,
-//     },
-//   ],
-// }
+
 type ShiftReportProps = {
     open: boolean
     onOpenChange: (open: boolean) => void
@@ -122,7 +34,7 @@ type ShiftReportProps = {
   };
   const months = generateLastMonths();
 export default function ShiftReport({open, onOpenChange, shiftId, institutionKey}: ShiftReportProps) {
-  console.log("months",months);
+  console.log("months",months, open);
   const [selectedMonth, setSelectedMonth] = useState(months[0].value)
   const [selectedShift, setSelectedShift] = useState(shiftId)
   const [shiftData, setShiftData] = useState<ShiftReportType | null>(null)
@@ -170,11 +82,7 @@ export default function ShiftReport({open, onOpenChange, shiftId, institutionKey
     return "text-red-600"
   }
 
-  // const getAttendanceRateBadge = (rate: number) => {
-  //   if (rate >= 90) return "bg-green-100 text-green-800"
-  //   if (rate >= 80) return "bg-yellow-100 text-yellow-800"
-  //   return "bg-red-100 text-red-800"
-  // }
+
   const getStatusBadge = (attendanceRate: number) => {
     if (attendanceRate >= 90) return <Badge className="bg-green-100 text-green-800">Excellent</Badge>
     if (attendanceRate >= 75) return <Badge className="bg-blue-100 text-blue-800">Good</Badge>
@@ -214,7 +122,7 @@ export default function ShiftReport({open, onOpenChange, shiftId, institutionKey
 
   return (
     <div className="container mx-auto p-6 space-y-6">
-      {/* Header */}  <Button variant="ghost" onClick={() =>{ console.log("show reports out", open);onOpenChange(false)}}>
+      {/* Header */}  <Button variant="ghost" className="bg-gray-800" onClick={() =>{onOpenChange(false)}}>
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Shifts
         </Button>
@@ -227,7 +135,7 @@ export default function ShiftReport({open, onOpenChange, shiftId, institutionKey
         </div>
         <div className="flex gap-3">
           <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-[180px]" aria-label="Select Month">
               <SelectValue placeholder="Select Month" />
             </SelectTrigger>
             <SelectContent>
@@ -239,7 +147,7 @@ export default function ShiftReport({open, onOpenChange, shiftId, institutionKey
             </SelectContent>
           </Select>
           <Select value={selectedShift} onValueChange={setSelectedShift}>
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-[180px]" aria-label="Select Shift">
               <SelectValue placeholder="Select Shift" />
             </SelectTrigger>
             <SelectContent>
@@ -259,7 +167,7 @@ export default function ShiftReport({open, onOpenChange, shiftId, institutionKey
       
       {loading ? (
         <div className="flex items-center justify-center h-40 space-y-6">
-           <svg className="animate-spin h-6 w-6 text-blue-500 mr-2" viewBox="0 0 24 24">
+           <svg className="animate-spin h-6 w-6 text-blue-800 mr-2" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
             <path
               className="opacity-75"
@@ -274,14 +182,14 @@ export default function ShiftReport({open, onOpenChange, shiftId, institutionKey
           <div className="bg-white rounded-lg shadow-sm border p-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900"><span className="text-sm">Shift:</span> {shiftData?.shiftName}</h1>
+              <h1 className="text-3xl font-bold text-gray-900"><span className="text-sm text-gray-900">Shift:</span> {shiftData?.shiftName}</h1>
               <div className="flex items-center gap-4 mt-2 text-sm text-gray-600">
                 <div className="flex items-center gap-1">
                   <Calendar className="w-4 h-4" />
                   {/* <span>Shift: {shiftData?.shiftName}</span> */}
                   <span>month: {shiftData?.monthName}</span>
                 </div>
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1 text-gray-900">
                   <Badge variant="outline">{shiftData?.shiftType}</Badge>
                 </div>
               </div>
@@ -313,7 +221,7 @@ export default function ShiftReport({open, onOpenChange, shiftId, institutionKey
               return (
                 <Card key={metric.label} className={`${iconBg} p-4`}>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">{metric.label}</CardTitle>
+                    <CardTitle className="text-sm font-medium ">{metric.label}</CardTitle>
                     <Icon className="h-5 w-5" />
                   </CardHeader>
                   <CardContent>
@@ -334,7 +242,7 @@ export default function ShiftReport({open, onOpenChange, shiftId, institutionKey
                 <CardTitle className="text-sm font-medium text-gray-600">{metric.label}</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-lg font-semibold">{metric.value}</div>
+                <div className="text-lg font-semibold text-gray-900">{metric.value}</div>
               </CardContent>
             </Card>
           ))}
@@ -342,7 +250,7 @@ export default function ShiftReport({open, onOpenChange, shiftId, institutionKey
           {/* Employee Details */}
           <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+                <CardTitle className="flex items-center gap-2 text-gray-900">
                   <Users className="w-5 h-5" />
                   Employee Attendance Details
                 </CardTitle>
@@ -364,7 +272,7 @@ export default function ShiftReport({open, onOpenChange, shiftId, institutionKey
                         <TableHead>Status</TableHead>
                       </TableRow>
                     </TableHeader>
-                    <TableBody>
+                    <TableBody className="text-gray-800">
                       {shiftData.employees.map((employee) => {
                         const attendanceRate = getAttendanceRate(employee.daysAttended, employee.daysScheduled)
 
@@ -410,58 +318,7 @@ export default function ShiftReport({open, onOpenChange, shiftId, institutionKey
                 </div>
               </CardContent>
             </Card>
-          {/* <Card>
-            <CardHeader>
-              <CardTitle>Assigned Employees</CardTitle>
-              <CardDescription>Individual performance breakdown for all shift members</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b">
-                      <th className="text-left py-3 px-2 font-semibold">Employee</th>
-                      <th className="text-left py-3 px-2 font-semibold">Position</th>
-                      <th className="text-center py-3 px-2 font-semibold">Total Hours</th>
-                      <th className="text-center py-3 px-2 font-semibold">Attendance</th>
-                      <th className="text-center py-3 px-2 font-semibold">Absent</th>
-                      <th className="text-center py-3 px-2 font-semibold">Late Hours</th>
-                      <th className="text-center py-3 px-2 font-semibold">Overtime</th>
-                      <th className="text-center py-3 px-2 font-semibold">Rate</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {shiftData.employees.map((employee) => (
-                      <tr key={employee.id} className="border-b hover:bg-gray-50">
-                        <td className="py-3 px-2">
-                          <div className="font-medium">{employee.name}</div>
-                        </td>
-                        <td className="py-3 px-2 text-gray-600">{employee.role}</td>
-                        <td className="py-3 px-2 text-center font-medium">{employee.totalHours}</td>
-                        <td className="py-3 px-2 text-center">{employee.daysAttended}</td>
-                        <td className="py-3 px-2 text-center">
-                          <span className={employee.daysAbsent > 3 ? "text-red-600 font-medium" : ""}>
-                            {employee.daysAbsent}
-                          </span>
-                        </td>
-                        <td className="py-3 px-2 text-center">
-                          <span className={Number(employee.lateHours) > 5 ? "text-red-600 font-medium" : ""}>
-                            {employee.lateHours}
-                          </span>
-                        </td>
-                        <td className="py-3 px-2 text-center text-blue-600 font-medium">{employee.overTimeHours}</td>
-                        <td className="py-3 px-2 text-center">
-                          <Badge className={getAttendanceRateBadge(Number(employee.totalHours)/employee.daysAttended)}>
-                            {Number(employee.totalHours)/employee.daysAttended}%
-                          </Badge>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </CardContent>
-          </Card> */}
+          
         </div>
       ) : (
         
