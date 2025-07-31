@@ -22,7 +22,7 @@ const exportShiftMonthlyReportPDF = (data) => {
     const margin = 14;
 
     doc.setFontSize(11);
-    doc.setFont('cairo');
+    doc.setFont('Cairo');
 
     const logoImg = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAYcAAAFvCAYAAAChCQeRAAAABGdBTUEAALGPC/xhBQAACklpQ0NQc1...";
 
@@ -85,15 +85,15 @@ const exportShiftMonthlyReportPDF = (data) => {
       body: employeeTableBody,
       startY: doc.lastAutoTable.finalY + 8,
       margin: { left: margin, right: margin },
-      styles: { font: 'cairo', fontSize: 9 },
+      styles: { font: 'Cairo', fontSize: 9 },
       didDrawPage: () => {
         // === PAGE FOOTER ===
-        const adminName = 'Admin Signature';
+        //const adminName = 'Admin Signature';
         const date = new Date().toLocaleDateString();
   
         doc.setFontSize(8);
         doc.text(`Generated on: ${date}`, margin, doc.internal.pageSize.height - 15);
-        doc.text(`By: ${adminName}`, pageWidth - margin - 40, doc.internal.pageSize.height - 15);
+        doc.text(`By:`, pageWidth - margin - 40, doc.internal.pageSize.height - 15);
   
         // === PAGE NUMBER ===
         const pageNumber = doc.internal.getNumberOfPages();
