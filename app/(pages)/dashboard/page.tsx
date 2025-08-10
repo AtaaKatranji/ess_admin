@@ -112,14 +112,8 @@ useEffect(() => {
 
   if (loading) {
     return (
-      <div className="h-full flex items-center justify-center">
-        {/* Loading Spinner */}
-        <Circles
-          height="80"
-          width="80"
-          color="#002E3BFF"
-          ariaLabel="loading"
-        />
+      <div className="fixed inset-0 z-50 grid place-items-center bg-white/60">
+        <Circles height="80" width="80" color="#002E3BFF" ariaLabel="loading" />
       </div>
     );
   }
