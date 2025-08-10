@@ -124,7 +124,7 @@ useEffect(() => {
       
       <div>
       {institutions.length === 0 ? (
-        <div className="flex flex-col items-center justify-center text-center ">
+        <div className="min-h-screen grid place-items-center">
           <h1 className="text-3xl font-bold">Welcome to ESS</h1>
           <p className="text-lg">No institutions available yet.</p>
           <AddInstitutionDialog
