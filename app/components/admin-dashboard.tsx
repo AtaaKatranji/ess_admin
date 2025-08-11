@@ -16,7 +16,7 @@ import { motion } from "framer-motion"
 import { parseCookies, setCookie } from "nookies"
 import { AdminList } from "@/app/components/admin-list"
 
-type UserRole = "super_admin" | "admin"
+type UserRole = "admin" | "manger"
 
 type InstitutionData = {
   _id: string
@@ -35,14 +35,14 @@ export function AdminDashboard() {
   const [view, setView] = useState<"list" | "grid">("list")
   const [institutions, setInstitutions] = useState<InstitutionData[]>([])
   const [adminId, setAdminId] = useState<string | null>(null)
-  const [userRole, setUserRole] = useState<UserRole>("admin") // Added user role state
+  const [userRole, setUserRole] = useState<UserRole>("manger") // Added user role state
   const [selectedInstitution, setSelectedInstitution] = useState<string | null>(null)
 
   useEffect(() => {
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search)
       const urlAdminId = params.get("adminId")
-      const role = (params.get("role") as UserRole) || "admin" // Default to admin if not specified
+      const role = (params.get("role") as UserRole) || "manger" // Default to admin if not specified
       setAdminId(urlAdminId)
       setUserRole(role)
     }
@@ -117,21 +117,21 @@ export function AdminDashboard() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">
-            {userRole === "super_admin" ? "Super Admin Dashboard" : "Admin Dashboard"}
+            {userRole === "admin" ? "Super Admin Dashboard" : "Manger Dashboard"}
           </h1>
           <p className="text-muted-foreground">
-            {userRole === "super_admin"
+            {userRole === "admin"
               ? "Manage organizations and administrators across all institutions"
               : "Manage your assigned institutions"}
           </p>
         </div>
-        <Badge variant={userRole === "super_admin" ? "default" : "secondary"} className="flex items-center gap-2">
+        <Badge variant={userRole === "admin" ? "default" : "secondary"} className="flex items-center gap-2">
           <Shield className="h-4 w-4" />
-          {userRole === "super_admin" ? "Super Admin" : "Admin"}
+          {userRole === "admin" ? "Super Admin" : "Manger"}
         </Badge>
       </div>
 
-      {userRole === "super_admin" ? (
+      {userRole === "admin" ? (
         <Tabs defaultValue="organizations" className="space-y-4">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="organizations">Organizations</TabsTrigger>
