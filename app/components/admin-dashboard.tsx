@@ -19,7 +19,7 @@ import { AdminList } from "@/app/components/admin-list"
 type UserRole = "admin" | "manger"
 
 type InstitutionData = {
-  _id: string
+  id: string
   adminId: string
   name: string
   address: string
@@ -186,7 +186,7 @@ export function AdminDashboard() {
                   {institutions.map((institution) => (
                     <motion.div
                       className="my-2"
-                      key={institution._id}
+                      key={institution.id}
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.5 }}
@@ -218,9 +218,9 @@ export function AdminDashboard() {
                 <div className="flex flex-wrap gap-2">
                   {institutions.map((institution) => (
                     <Button
-                      key={institution._id}
-                      variant={selectedInstitution === institution._id ? "default" : "outline"}
-                      onClick={() => handleInstitutionSelect(institution._id)}
+                      key={institution.id}
+                      variant={selectedInstitution === institution.id ? "default" : "outline"}
+                      onClick={() => handleInstitutionSelect(institution.id)}
                     >
                       {institution.name}
                     </Button>
@@ -263,7 +263,7 @@ export function AdminDashboard() {
                 {institutions.map((institution) => (
                   <motion.div
                     className="my-2"
-                    key={institution._id}
+                    key={institution.id}
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5 }}
