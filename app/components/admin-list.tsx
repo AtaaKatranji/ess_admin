@@ -51,12 +51,12 @@ export function AdminList({ institutionId }: AdminListProps) {
   const [admins, setAdmins] = useState<AdminLink[]>([])
   const [loading, setLoading] = useState(true)
   const { toast } = useToast()
-
+  const  baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
   const fetchAdmins = async () => {
     try {
       setLoading(true)
       
-      const response = await fetch(`/api/v1/institutions/${institutionId}/admins`)
+      const response = await fetch(`${baseUrl}/api/v1/institutions/${institutionId}/admins`)
       if (!response.ok) throw new Error("Failed to fetch admins")
       const data = await response.json()
       setAdmins(data)
@@ -74,7 +74,7 @@ export function AdminList({ institutionId }: AdminListProps) {
 
   const changeRole = async (adminId: number, newRole: string) => {
     try {
-      const response = await fetch(`/api/institutions/${institutionId}/admins/${adminId}/role`, {
+      const response = await fetch(`${baseUrl}/api/institutions/${institutionId}/admins/${adminId}/role`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ role: newRole }),
@@ -101,7 +101,7 @@ export function AdminList({ institutionId }: AdminListProps) {
 
   const removeAdmin = async (adminId: number) => {
     try {
-      const response = await fetch(`/api/institutions/${institutionId}/admins/${adminId}`, {
+      const response = await fetch(`${baseUrl}/api/institutions/${institutionId}/admins/${adminId}`, {
         method: "DELETE",
       })
 
