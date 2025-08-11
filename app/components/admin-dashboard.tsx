@@ -114,10 +114,10 @@ export function AdminDashboard() {
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="container mx-auto p-6 space-y-6 ">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">
+          <h1 className="text-3xl font-bold tracking-tight text-gray-800 ">
             {userRole === "admin" ? "Super Admin Dashboard" : "Manger Dashboard"}
           </h1>
           <p className="text-muted-foreground">
@@ -210,7 +210,7 @@ export function AdminDashboard() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Users className="h-5 w-5" />
-                  Select Organization
+                  <span className="text-gray-800">Select Organization</span>
                 </CardTitle>
                 <CardDescription>Choose an organization to manage its administrators</CardDescription>
               </CardHeader>
