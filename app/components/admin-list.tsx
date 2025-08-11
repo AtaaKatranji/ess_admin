@@ -51,7 +51,7 @@ export function AdminList({ institutionId }: AdminListProps) {
   const [admins, setAdmins] = useState<AdminLink[]>([])
   const [loading, setLoading] = useState(true)
   const { toast } = useToast()
-  const  baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+  const  baseUrl = process.env.NEXT_PUBLIC_API_URL;
   const fetchAdmins = async () => {
     try {
       setLoading(true)
