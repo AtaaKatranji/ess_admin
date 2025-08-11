@@ -56,7 +56,13 @@ export function AdminList({ institutionId }: AdminListProps) {
     try {
       setLoading(true)
       
-      const response = await fetch(`${baseUrl}/api/v1/institutions/${institutionId}/admins`)
+      const response = await fetch(`${baseUrl}/api/v1/institutions/${institutionId}/admins`,{
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        // Wrap in an object
+      });
       if (!response.ok) throw new Error("Failed to fetch admins")
       const data = await response.json()
       setAdmins(data)
