@@ -42,6 +42,7 @@ export function AdminDashboard() {
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search)
       const urlAdminId = params.get("adminId")
+      console.log("urlAdminId", urlAdminId)
       const role = (params.get("role") as UserRole) || "manger" // Default to admin if not specified
       setAdminId(urlAdminId)
       setUserRole(role)

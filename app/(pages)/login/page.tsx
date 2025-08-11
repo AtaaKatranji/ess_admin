@@ -54,7 +54,7 @@ export default function AdminLogin() {
 
 
         setTimeout(() => {
-          navigate.push(`/dashboard?adminId=${data.data.adminId}`); // Adjust this path if needed
+          navigate.push(`/dashboard?adminId=${data.data.adminId}&role=${data.data.role}`); // Adjust this path if needed
         }, 1500);
         
       } else {
