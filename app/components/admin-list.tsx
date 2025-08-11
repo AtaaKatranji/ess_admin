@@ -55,10 +55,12 @@ export function AdminList({ institutionId }: AdminListProps) {
   const fetchAdmins = async () => {
     try {
       setLoading(true)
-      const response = await fetch(`/api/institutions/${institutionId}/admins`)
+      
+      const response = await fetch(`/api/v1/institutions/${institutionId}/admins`)
       if (!response.ok) throw new Error("Failed to fetch admins")
       const data = await response.json()
       setAdmins(data)
+      console.log("data list admins", data)
     } catch {
       toast({
         title: "Error",
