@@ -394,7 +394,7 @@ const EmployeeDetails = () => {
           </CardHeader>
           <CardContent>
             {/* بس سكروول أفقي للجدول إذا عريض */}
-            <div className="overflow-x-auto">
+            <div >
               <table className="w-full min-w-[520px]">
                 <thead>
                   <tr>
@@ -427,7 +427,7 @@ const EmployeeDetails = () => {
           <TabsTrigger value="hourlyLeaves">Hourly Leaves</TabsTrigger>
           <TabsTrigger value="dayRecords">Day Records</TabsTrigger>
         </TabsList>
-        <TabsContent value="attendance" className="space-y-4 !overflow-visible">
+        <TabsContent value="attendance" >
           <AttendanceTab employeeId={employeeId} selectedMonth={selectedMonth} />
         </TabsContent>
         <TabsContent value="leave" className="space-y-4">
