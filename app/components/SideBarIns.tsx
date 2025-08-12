@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Home, Users, Table, FileText, Settings, Bell } from "lucide-react";
 import { CalendarDays as CalendarDaysIcon, SquareArrowLeft as SquareArrowLeftIcon } from "lucide-react";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { useParams, usePathname} from "next/navigation";
 import { useEmployee } from "../context/EmployeeContext";
 
@@ -64,15 +64,20 @@ const isActive = (href: string, exact = false) => {
   if (exact) return normalize(pathname) === normalize(href);
   return normalize(pathname) === normalize(href) || normalize(pathname).startsWith(normalize(href) + '/');
 };
+useEffect(() => {
+  if (isSidebarOpen) document.body.classList.add('overflow-hidden');
+  else document.body.classList.remove('overflow-hidden');
+  return () => document.body.classList.remove('overflow-hidden');
+}, [isSidebarOpen]);
   return (
     <aside
       className={`
-        fixed md:static top-0 left-0 z-40 h-screen bg-gray-800 text-white overflow-y-auto
-        flex flex-col justify-between
+        fixed left-0 z-40 bg-gray-800 text-white overflow-y-auto
         transition-transform duration-300 ease-in-out
         ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}
-        md:translate-x-0
-        w-64 md:w-20 lg:w-64
+        w-64 md:static md:translate-x-0 md:w-20 lg:w-64
+        top-14 md:top-0
+        h-[calc(100vh-3.5rem)] md:h-screen   /* 3.5rem = h-14 */
       `}
     >
       <nav className="p-4 space-y-4">

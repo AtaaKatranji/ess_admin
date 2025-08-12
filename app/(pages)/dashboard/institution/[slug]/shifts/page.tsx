@@ -11,7 +11,7 @@ import { fetchEmployees } from '@/app/api/employees/employeeId'
 import { toast, ToastContainer } from 'react-toastify'
 import { useInstitution } from '@/app/context/InstitutionContext'
 import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import ShiftForm from '@/app/components/shift-dialog'
 const BaseURL = process.env.NEXT_PUBLIC_API_URL;
@@ -281,46 +281,60 @@ const editBreakType = (breakType: Break) => {
           onSave={ handleSave}
           institutionKey={institutionKey} />
         
-      <div className="mb-8">
-        <h2 className="text-xl font-semibold mb-4  text-gray-800">Manage Employees</h2>
-        <div className="flex gap-2">
-          {/* select employee */}
-          <Select value={selectedEmployee} onValueChange={setSelectedEmployee}>
-            <SelectTrigger className="w-[200px]" aria-label="Select employee">
-              <SelectValue>
-              {selectedEmployee === "Select employee" ? "Select employee" : employees.find(employee => employee.id === selectedEmployee)?.name  }
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              {employees.map(employee => (
-                <SelectItem key={employee.id} value={employee.id}>
-                  {employee.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          {/* select shift */}
-          <Select value={selectedShift} onValueChange={setSelectedShift}>
-            <SelectTrigger className="w-[200px]" aria-label="Select shift">
-              <SelectValue>
-                {selectedShift != "Select shift" ? shifts.find(shift => shift.id === selectedShift)?.name : "Select shift"}
-                </SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              {shifts.map(shift => (
-                <SelectItem key={shift.id} value={shift.id!} >
-                  {shift.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Button onClick={assignEmployee} className='bg-gray-800' ria-label="Assign employee to shift" >
-            <UserPlus className="mr-2 h-4 w-4" />
-            Assign to Shift
-          </Button>
-        </div>
-      </div>
+      
+      <Card className="mb-8">
+        <CardHeader className="pb-4">
+          <CardTitle className="text-gray-800">Manage Employees</CardTitle>
+          <CardDescription>Assign an employee to a shift</CardDescription>
+        </CardHeader>
 
+        <CardContent>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1fr,1fr,auto] gap-3">
+            {/* Select employee */}
+            <Select value={selectedEmployee} onValueChange={setSelectedEmployee}>
+              <SelectTrigger className="w-full" aria-label="Select employee">
+                <SelectValue placeholder="Select employee">
+                  {selectedEmployee !== "Select employee"
+                    ? employees.find(e => e.id === selectedEmployee)?.name
+                    : "Select employee"}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {employees.map(e => (
+                  <SelectItem key={e.id} value={e.id}>{e.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            {/* Select shift */}
+            <Select value={selectedShift} onValueChange={setSelectedShift}>
+              <SelectTrigger className="w-full" aria-label="Select shift">
+                <SelectValue placeholder="Select shift">
+                  {selectedShift !== "Select shift"
+                    ? shifts.find(s => s.id === selectedShift)?.name
+                    : "Select shift"}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {shifts.map(s => (
+                  <SelectItem key={s.id} value={s.id!}>{s.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            {/* Action */}
+            <Button
+              onClick={assignEmployee}
+              className="bg-gray-800 w-full sm:w-auto"
+              aria-label="Assign employee to shift"
+              disabled={!selectedEmployee || !selectedShift || selectedEmployee === "Select employee" || selectedShift === "Select shift"}
+            >
+              <UserPlus className="mr-2 h-4 w-4" />
+              Assign to Shift
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
       <div>
         <h2 className="text-xl font-semibold mb-4  text-gray-800">Current Shifts</h2>
         {shifts.length === 0 ? (
