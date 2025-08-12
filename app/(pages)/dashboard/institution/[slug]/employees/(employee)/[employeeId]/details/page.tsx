@@ -12,7 +12,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
+//import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { fetchTimeShifts } from "@/app/api/shifts/shifts";
 import exportMonthlyReportPDF from "@/app/components/ExportPDF";
@@ -252,7 +252,7 @@ const EmployeeDetails = () => {
   }
 
   return (
-    <div className="container  px-4 space-y-4">
+    <div className="container px-4 space-y-4">
       <ToastContainer />
       <div className="flex justify-between items-center">
         <h1 className="hidden md:block lg:hidden xl:block text-xl md:text-2xl font-bold">
@@ -393,8 +393,9 @@ const EmployeeDetails = () => {
             <CardTitle>Monthly Summary</CardTitle>
           </CardHeader>
           <CardContent>
-            <ScrollArea className="h-[300px]">
-              <table className="w-full">
+            {/* بس سكروول أفقي للجدول إذا عريض */}
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[520px]">
                 <thead>
                   <tr>
                     <th className="text-left">Month</th>
@@ -414,7 +415,7 @@ const EmployeeDetails = () => {
                   ))}
                 </tbody>
               </table>
-            </ScrollArea>
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -443,60 +444,57 @@ const EmployeeDetails = () => {
             </div>
           </div>
           <Card>
-            <div className="flex p-4 space-x-8">
-              <div>
-                <ScrollArea className="h-[400px]">
-                  <h3 className="text-lg font-bold">Paid Leaves</h3>
-                  {filteredLeaves.filter(record => record.type === "Paid").length > 0 ? (
-                    filteredLeaves
-                      .filter(record => record.type === "Paid")
-                      .map(record => (
-                        <div
-                          key={record.id}
-                          className="flex justify-between items-center py-2 border-b last:border-b-0 cursor-pointer hover:bg-accent"
-                        >
-                          <div>
-                            <p className="font-medium">{format(new Date(record.startDate), "MMMM d, yyyy")}</p>
-                            <p className="text-sm text-muted-foreground">
-                              Start: {format(new Date(record.startDate), "yyyy MM dd")}, End: {format(new Date(record.endDate), "yyyy MM dd")}
-                            </p>
-                            <p>For: {record.reason}</p>
-                          </div>
-                          <p>No. of days: {record.durationInDays}</p>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-4">
+                {/* Paid */}
+                <section>
+                  <h3 className="text-lg font-bold mb-2">Paid Leaves</h3>
+                  {filteredLeaves.filter(r => r.type === "Paid").length ? (
+                    filteredLeaves.filter(r => r.type === "Paid").map((record) => (
+                      <div
+                        key={record.id}
+                        className="flex justify-between items-center py-2 border-b last:border-b-0 hover:bg-accent cursor-pointer"
+                      >
+                        <div>
+                          <p className="font-medium">{format(new Date(record.startDate), "MMMM d, yyyy")}</p>
+                          <p className="text-sm text-muted-foreground">
+                            Start: {format(new Date(record.startDate), "yyyy MM dd")}, End: {format(new Date(record.endDate), "yyyy MM dd")}
+                          </p>
+                          <p>For: {record.reason}</p>
                         </div>
-                      ))
+                        <p>No. of days: {record.durationInDays}</p>
+                      </div>
+                    ))
                   ) : (
                     <p className="text-sm text-muted-foreground">No paid leave records available.</p>
                   )}
-                </ScrollArea>
-              </div>
-              <div>
-                <ScrollArea className="h-[400px]">
-                  <h3 className="text-lg font-medium">Unpaid Leaves</h3>
-                  {filteredLeaves.filter(record => record.type === "Unpaid").length > 0 ? (
-                    filteredLeaves
-                      .filter(record => record.type === "Unpaid")
-                      .map(record => (
-                        <div
-                          key={record.id}
-                          className="flex justify-between items-center py-2 border-b last:border-b-0 cursor-pointer hover:bg-accent"
-                        >
-                          <div>
-                            <p className="font-medium">{format(new Date(record.startDate), "MMMM d, yyyy")}</p>
-                            <p className="text-sm text-muted-foreground">
-                              Start: {format(new Date(record.startDate), "yyyy MM dd")}, End: {format(new Date(record.endDate), "yyyy MM dd")}
-                            </p>
-                            <p>For: {record.reason}</p>
-                          </div>
-                          <p>No. of days: {record.durationInDays}</p>
+                </section>
+
+                {/* Unpaid */}
+                <section>
+                  <h3 className="text-lg font-medium mb-2">Unpaid Leaves</h3>
+                  {filteredLeaves.filter(r => r.type === "Unpaid").length ? (
+                    filteredLeaves.filter(r => r.type === "Unpaid").map((record) => (
+                      <div
+                        key={record.id}
+                        className="flex justify-between items-center py-2 border-b last:border-b-0 hover:bg-accent cursor-pointer"
+                      >
+                        <div>
+                          <p className="font-medium">{format(new Date(record.startDate), "MMMM d, yyyy")}</p>
+                          <p className="text-sm text-muted-foreground">
+                            Start: {format(new Date(record.startDate), "yyyy MM dd")}, End: {format(new Date(record.endDate), "yyyy MM dd")}
+                          </p>
+                          <p>For: {record.reason}</p>
                         </div>
-                      ))
+                        <p>No. of days: {record.durationInDays}</p>
+                      </div>
+                    ))
                   ) : (
                     <p className="text-sm text-muted-foreground">No unpaid leave records available.</p>
                   )}
-                </ScrollArea>
+                </section>
               </div>
-            </div>
+            </CardContent>
           </Card>
         </TabsContent>
         <TabsContent value="absent">
