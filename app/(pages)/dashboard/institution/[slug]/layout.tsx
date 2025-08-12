@@ -43,7 +43,7 @@ export default function InstitutionLayout( { children }: { children: React.React
     
     <SocketProvider>
     <EmployeeProvider>
-    <div className="flex flex-col md:flex-row h-screen overflow-hidden bg-gray-100">
+    <div className="flex flex-col md:flex-row h-screen min-h-0 min-w-0 overflow-hidden bg-gray-100">
       <SideBarIns
         // activeSection={activeSection}
         // onSectionChange={handleSectionChange}
@@ -53,7 +53,7 @@ export default function InstitutionLayout( { children }: { children: React.React
       />
     
       {/* Mobile Header */}
-      <header className="md:hidden flex items-center justify-between px-4 py-3 bg-gray-800 text-white">
+      <header className="md:hidden fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-4 py-3 bg-gray-800 text-white">
         <h1 className="text-lg font-semibold">Menu</h1>
         <button onClick={toggleSidebar}>
           <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2"
@@ -71,8 +71,8 @@ export default function InstitutionLayout( { children }: { children: React.React
         />
       )}
        {/* Main Content */}
-       <main className="pt-14 md:pt-0 h-[calc(100vh-3.5rem)] md:h-screen overflow-y-auto">
-      
+       <main className="flex-1 overflow-y-auto">
+       <div className="w-full px-3 sm:px-6 pt-14 md:pt-6 pb-6">
       <InstitutionProvider>
 
        {/* <InstitutionDashboard activeSection={activeSection} slug={slug!} /> */}
@@ -80,6 +80,7 @@ export default function InstitutionLayout( { children }: { children: React.React
        <ToastContainer />
 
       </InstitutionProvider>
+      </div>
     </main>      
     </div>
     </EmployeeProvider>
