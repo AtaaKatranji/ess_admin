@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
+// import { ScrollArea } from "@/components/ui/scroll-area";
 import { CalendarIcon, Plus, Search } from 'lucide-react';
 import { Input } from "@/components/ui/input";
 import { toast } from 'react-toastify';
@@ -173,7 +173,7 @@ const AttendanceTab = ({ employeeId, selectedMonth }: { employeeId: string; sele
         {history.length === 0 ? (
           <p className="p-10">No Attendance recorded.</p>
         ) : (
-          <ScrollArea className="h-[400px]">
+          // <ScrollArea className="h-[400px]">
             <div className="p-4">
               {filteredHistory
                 .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
@@ -193,7 +193,7 @@ const AttendanceTab = ({ employeeId, selectedMonth }: { employeeId: string; sele
                   </div>
                 ))}
             </div>
-          </ScrollArea>
+          // </ScrollArea>
         )}
       </Card>
       <div className="flex justify-between items-center">

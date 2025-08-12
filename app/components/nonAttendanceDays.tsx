@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { Card } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
+// import { ScrollArea } from "@/components/ui/scroll-area";
 import { Search } from "lucide-react";
 import { format, eachDayOfInterval } from "date-fns";
 import { Input } from "@/components/ui/input";
@@ -190,7 +190,7 @@ const NonAttendanceTab: React.FC<Props> = ({
         </div>
       </div>
       <Card>
-        <ScrollArea className="h-[400px]">
+        {/* <ScrollArea className="h-[400px]"> */}
           <div className="p-4 space-y-4">
             {filteredRecords.map((record, idx) => (
               <div
@@ -239,7 +239,7 @@ const NonAttendanceTab: React.FC<Props> = ({
               </div>
             ))}
           </div>
-        </ScrollArea>
+        {/* </ScrollArea> */}
       </Card>
     </div>
   );

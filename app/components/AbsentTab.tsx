@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Card } from "@/components/ui/card"
-import { ScrollArea } from "@/components/ui/scroll-area"
+// import { ScrollArea } from "@/components/ui/scroll-area"
 import { Search } from 'lucide-react';
 import { format } from "date-fns"
 import { Input } from "@/components/ui/input"
@@ -54,7 +54,7 @@ const AbsentTab = ({ employeeId, selectedMonth }: { employeeId: string, selected
             </div>
           </div>
           <Card>
-  <ScrollArea className="h-[400px]">
+  {/* <ScrollArea className="h-[400px]"> */}
     <div className="p-4 space-y-8">
       {/* Paid Leaves Section */}
       <div>
@@ -72,7 +72,7 @@ const AbsentTab = ({ employeeId, selectedMonth }: { employeeId: string, selected
         )}
       </div>
     </div>
-  </ScrollArea>
+  {/* </ScrollArea> */}
 </Card>
 
         </div>

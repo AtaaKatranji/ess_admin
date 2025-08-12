@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
+// import { ScrollArea } from "@/components/ui/scroll-area";
 import { CalendarIcon, Plus, Search, TimerIcon } from 'lucide-react';
 import { Input } from "@/components/ui/input";
 import { toast } from 'react-toastify';
@@ -169,7 +169,7 @@ const HourlyLeavesTab = ({ employeeId, selectedMonth }: { employeeId: string; se
     <div className="space-y-2">
       <h3 className="text-lg font-semibold">{title}</h3>
       <Card>
-        <ScrollArea className="h-[300px]">
+        {/* <ScrollArea className="h-[300px]"> */}
           <div className="p-4">
             {breaks.length === 0 ? (
               <p>No records found.</p>
@@ -197,7 +197,7 @@ const HourlyLeavesTab = ({ employeeId, selectedMonth }: { employeeId: string; se
               ))
             )}
           </div>
-        </ScrollArea>
+        {/* </ScrollArea> */}
       </Card>
     </div>
   );

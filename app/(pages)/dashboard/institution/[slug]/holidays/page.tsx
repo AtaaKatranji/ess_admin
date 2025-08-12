@@ -125,7 +125,7 @@ const handleDelete = async (id: number) => {
 
       </div>
       <Card  className="rounded-lg overflow-hidden">
-        <CardContent className="p-0"> 
+        <CardContent className="p-5"> 
           <Table>
             <TableHeader>
               <TableRow>
