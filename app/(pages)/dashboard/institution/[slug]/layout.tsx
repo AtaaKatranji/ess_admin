@@ -39,11 +39,12 @@ export default function InstitutionLayout( { children }: { children: React.React
   //   setIsSidebarOpen(!isSidebarOpen);
   // };
 
+  /// clasname flex-col md:flex-row h-screen overflow-hidden
   return (
     
     <SocketProvider>
     <EmployeeProvider>
-    <div className="flex flex-col md:flex-row h-screen overflow-hidden bg-gray-100">
+    <div className="flex  bg-gray-100">
       <SideBarIns
         // activeSection={activeSection}
         // onSectionChange={handleSectionChange}
@@ -71,7 +72,7 @@ export default function InstitutionLayout( { children }: { children: React.React
         />
       )}
        {/* Main Content */}
-       <main className="flex-1 p-2 md:p-4 overflow-y-auto">
+       <main className="pt-14 md:pt-0 h-[calc(100vh-3.5rem)] md:h-screen overflow-y-auto">
       
       <InstitutionProvider>
 
