@@ -71,7 +71,7 @@ export default function InstitutionLayout( { children }: { children: React.React
         />
       )}
        {/* Main Content */}
-       <main className="flex-1 overflow-y-auto">
+       <main className="flex-1 overflow-y-auto min-h-0">
        <div className="w-full px-3 sm:px-6 pt-14 md:pt-6 pb-6">
       <InstitutionProvider>
 

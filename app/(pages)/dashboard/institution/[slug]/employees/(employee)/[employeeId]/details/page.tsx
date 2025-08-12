@@ -419,18 +419,18 @@ const EmployeeDetails = () => {
           </CardContent>
         </Card>
       </div>
-      <Tabs defaultValue="attendance" className="space-y-4">
+      <Tabs defaultValue="attendance"  className="space-y-4 min-h-0">
         <TabsList>
-          <TabsTrigger value="attendance">Attendance Records</TabsTrigger>
+          <TabsTrigger value="attendance" >Attendance Records</TabsTrigger>
           <TabsTrigger value="leave">Leave Requests</TabsTrigger>
           <TabsTrigger value="absent">Absences</TabsTrigger>
           <TabsTrigger value="hourlyLeaves">Hourly Leaves</TabsTrigger>
           <TabsTrigger value="dayRecords">Day Records</TabsTrigger>
         </TabsList>
-        <TabsContent value="attendance" >
+        <TabsContent value="attendance" className="min-h-0 overflow-visible">
           <AttendanceTab employeeId={employeeId} selectedMonth={selectedMonth} />
         </TabsContent>
-        <TabsContent value="leave" className="space-y-4">
+        <TabsContent value="leave" className="min-h-0 overflow-visible">
           <div className="flex justify-between items-center">
             <h2 className="text-xl font-semibold">Leave Requests</h2>
             <div className="relative">
@@ -497,13 +497,13 @@ const EmployeeDetails = () => {
             </CardContent>
           </Card>
         </TabsContent>
-        <TabsContent value="absent">
+        <TabsContent value="absent" className="min-h-0 overflow-visible">
           <AbsentTab employeeId={employeeId} selectedMonth={selectedMonth} />
         </TabsContent>
-        <TabsContent value="hourlyLeaves">
+        <TabsContent value="hourlyLeaves" className="min-h-0 overflow-visible">
           <HourlyLeavesTab employeeId={employeeId} selectedMonth={selectedMonth} />
         </TabsContent>
-        <TabsContent value="dayRecords">
+        <TabsContent value="dayRecords" className="min-h-0 overflow-visible">
           <NonAttendanceTab employeeId={employeeId} selectedMonth={selectedMonth} institutionKey={institutionKey} holidays={data.holidays}  />
         </TabsContent>
       </Tabs>
