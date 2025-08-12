@@ -28,29 +28,50 @@ type InstitutionData = {
   image: string
   slug: string
 }
-
+interface User {
+  id: string;
+  role: UserRole;
+  name: string;
+}
 export function AdminDashboard() {
   const navigate = useRouter()
   const [loading, setLoading] = useState(true)
   const [view, setView] = useState<"list" | "grid">("list")
   const [institutions, setInstitutions] = useState<InstitutionData[]>([])
-  const [adminId, setAdminId] = useState<string | null>(null)
-  const [userRole, setUserRole] = useState<UserRole>("manger") // Added user role state
+  // const [adminId, setAdminId] = useState<string | null>(null)
+  // const [userRole, setUserRole] = useState<UserRole>("manger") // Added user role state
   const [selectedInstitution, setSelectedInstitution] = useState<string | null>(null)
-
+  const [admin, setAdmin] = useState<User | null>(null);
+  const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const params = new URLSearchParams(window.location.search)
-      const urlAdminId = params.get("adminId")
-      console.log("urlAdminId", urlAdminId)
-      const role = (params.get("role") as UserRole) || "manger" // Default to admin if not specified
-      setAdminId(urlAdminId)
-      setUserRole(role)
-    }
-  }, [])
+    const run = async () => {
+      const res = await fetch(`${BaseUrl}/adm/admins/me`, { credentials: 'include' });
+      if (!res.ok) {
+        // مش مسجّل → رجّعه على صفحة اللوجين
+        navigate.replace('/login');
+        return;
+      }
+      const { user } = await res.json();
+      // خزّن user (id, role, name...)
+      setAdmin(user);
+    };
+    run();
+  }, []);
+
+
+  // useEffect(() => {
+  //   if (typeof window !== "undefined") {
+  //     const params = new URLSearchParams(window.location.search)
+  //     const urlAdminId = params.get("adminId")
+  //     console.log("urlAdminId", urlAdminId)
+  //     const role = (params.get("role") as UserRole) || "manger" // Default to admin if not specified
+  //     setAdminId(urlAdminId)
+  //     setUserRole(role)
+  //   }
+  // }, [])
 
   const fetchData = async () => {
-    if (!adminId) {
+    if (!admin?.id) {
       console.error("No adminId available")
       setLoading(false)
       toast.error("Admin ID not found. Please log in again.")
@@ -58,10 +79,10 @@ export function AdminDashboard() {
     }
 
     try {
-      const data = await fetchInstitutionsByAdmin(adminId)
+      const data = await fetchInstitutionsByAdmin(admin?.id)
       setInstitutions(data || [])
       // Auto-select first institution for admin users
-      if (data && data.length > 0 && userRole === "admin") {
+      if (data && data.length > 0 && admin?.role === "admin") {
         setSelectedInstitution(data[0]._id)
       }
     } catch (error) {
@@ -79,10 +100,10 @@ export function AdminDashboard() {
       setView(savedView as "list" | "grid")
     }
 
-    if (adminId) {
+    if (admin?.id) {
       fetchData()
     }
-  }, [adminId, userRole])
+  }, [admin?.id, admin?.role])
 
   const handleViewChange = (newView: "list" | "grid") => {
     setView(newView)
@@ -118,21 +139,21 @@ export function AdminDashboard() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-gray-800 ">
-            {userRole === "admin" ? "Super Admin Dashboard" : "Manger Dashboard"}
+            {admin?.role === "admin" ? "Super Admin Dashboard" : "Manger Dashboard"}
           </h1>
           <p className="text-muted-foreground">
-            {userRole === "admin"
+            {admin?.role === "admin"
               ? "Manage organizations and administrators across all institutions"
               : "Manage your assigned institutions"}
           </p>
         </div>
-        <Badge variant={userRole === "admin" ? "default" : "secondary"} className="flex items-center gap-2">
+        <Badge variant={admin?.role === "admin" ? "default" : "secondary"} className="flex items-center gap-2">
           <Shield className="h-4 w-4" />
-          {userRole === "admin" ? "Super Admin" : "Manger"}
+          {admin?.role === "admin" ? "Super Admin" : "Manger"}
         </Badge>
       </div>
 
-      {userRole === "admin" ? (
+      {admin?.role === "admin" ? (
         <Tabs defaultValue="organizations" className="space-y-4">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="organizations">Organizations</TabsTrigger>
@@ -205,7 +226,7 @@ export function AdminDashboard() {
             )}
           </TabsContent>
 
-          <TabsContent value="managers">
+          <TabsContent value="managers" className="py-6">
             <Card className="py-6">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
