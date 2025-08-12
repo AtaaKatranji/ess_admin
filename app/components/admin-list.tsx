@@ -144,7 +144,7 @@ export function AdminList({ institutionId }: AdminListProps) {
   }
 
   return (
-    <Card className="rounded-2xl">
+    <Card className="rounded-2xl my-3 sm:my-8">
       <CardHeader>
         <CardTitle className="text-gray-800">Institution Administrators</CardTitle>
         <CardDescription>Manage roles and permissions for this institution</CardDescription>

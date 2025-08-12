@@ -16,7 +16,17 @@ interface SidebarProps {
   isSidebarOpen: boolean;
   toggleSidebar: () => void;
 }
-
+function useIsLgUp() {
+  const [isLg, setIsLg] = React.useState(false);
+  React.useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1024px)");
+    const onChange = () => setIsLg(mq.matches);
+    onChange();
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
+  return isLg;
+}
 const SidebarIns: React.FC<SidebarProps> = ({
   // activeSection,
   // onSectionChange,
@@ -38,6 +48,16 @@ const employeeSubMenu = employeeId
     { label: 'Covenant', href: `/dashboard/institution/${slug}/employees/${employeeId}/covenant` },
   ]
 : [];
+
+const isLg = useIsLgUp();
+const showText = isLg || isSidebarOpen;
+
+// كلاس مشترك لعناصر القائمة
+const itemBase =
+  "flex items-center gap-2 py-2 px-4 rounded transition-colors";
+const itemLayout = showText ? "flex-row justify-start" : "md:flex-col md:justify-center";
+const active = "bg-blue-600";
+
 // Utility for highlight
 const normalize = (path: string) => path.replace(/\/$/, '');
 const isActive = (href: string, exact = false) => {
@@ -60,25 +80,21 @@ const isActive = (href: string, exact = false) => {
           Institution Dashboard
         </h1>
         <Link href={`/dashboard/institution/${slug}/`} legacyBehavior>
-           <a className={`flex items-center lg:justify-start md:justify-center md:flex-col lg:flex-row gap-2 md:gap-0 lg:gap-2 py-2 px-4 ${
-              isActive(`/dashboard/institution/${slug}/`, true) ? "bg-blue-600 rounded" : ""
-            }`}
+           <a className={`${itemBase} ${itemLayout} ${isActive(`/dashboard/institution/${slug}/`, true) ? active : ""}`}
           >
             <Home className="mr-2 h-5 w-5" />
-           <span className="hidden lg:inline">Overview</span>
+            {showText && <span className="truncate">Overview</span>}
             
           </a>
         </Link>
         <div>
           <Link href={`/dashboard/institution/${slug}/employees`} legacyBehavior>
-          <a className={`flex items-center lg:justify-start md:justify-center md:flex-col lg:flex-row gap-2 md:gap-0 lg:gap-2 py-2 px-4 ${
-                isActive(`/dashboard/institution/${slug}/employees`) ? 'bg-blue-600 rounded' : ''
-              }`}
+          <a className={`${itemBase} ${itemLayout} ${isActive(`/dashboard/institution/${slug}/employees`) ? active : ""}`}
             >
               <Users className="mr-2 h-5 w-5" />
-             <span className="hidden lg:inline">Employees</span>
-              
-            </a>
+             
+             {showText && <span className="truncate">Employees</span>}
+           </a>
           </Link>
 
           {/* Employee Submenu */}
@@ -107,8 +123,8 @@ const isActive = (href: string, exact = false) => {
             }`}
           >
             <Table className="mr-2 h-5 w-5" />
-           <span className="hidden lg:inline">Shifts</span>
-            
+           
+           {showText && <span className="truncate">Shifts</span>}
           </a>
         </Link>
         <Link href={`/dashboard/institution/${slug}/requests`} legacyBehavior>
@@ -117,7 +133,8 @@ const isActive = (href: string, exact = false) => {
             }`}
           >
             <FileText className="mr-2 h-5 w-5" />
-           <span className="hidden lg:inline">Requests</span>
+           
+           {showText && <span className="truncate">Requests</span>}
             
           </a>
         </Link>
@@ -127,8 +144,8 @@ const isActive = (href: string, exact = false) => {
             }`}
           >
             <CalendarDaysIcon className="mr-2 h-5 w-5" />
-           <span className="hidden lg:inline">Holidays</span>
-            
+           
+           {showText && <span className="truncate">Holidays</span>}
           </a>
         </Link>
         <Link href={`/dashboard/institution/${slug}/notifications`} legacyBehavior>
@@ -137,6 +154,7 @@ const isActive = (href: string, exact = false) => {
             }`}
           >
             <Bell className="mr-2 h-5 w-5" />
+            {showText && <span className="truncate">Notifications</span>}
            <span className="hidden lg:inline">Notifications</span>
             
           </a>
@@ -147,7 +165,7 @@ const isActive = (href: string, exact = false) => {
             }`}
           >
             <Settings className="mr-2 h-5 w-5" />
-           <span className="hidden lg:inline">Settings</span>
+            {showText && <span className="truncate">Settings</span>}
             
           </a>
         </Link>
@@ -155,11 +173,12 @@ const isActive = (href: string, exact = false) => {
       <div className="p-4">
         <button
           onClick={onExitInstitution}
-           className="w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-red-700 flex items-center justify-center  md:flex-col lg:flex-row gap-2 md:gap-0 lg:gap-2  md:justify-center lg:justify-start"
+          className={`w-full px-4 py-2 rounded flex items-center gap-2
+            ${showText ? "justify-start" : "justify-center"}
+            bg-transparent hover:bg-blue-600/10 text-white`}
         >
-          <SquareArrowLeftIcon className="mr-2 h-5 w-5" />
-         <span className="hidden lg:inline">Exit Institution</span>
-          
+          <SquareArrowLeftIcon className="h-5 w-5" />
+          {showText && <span>Exit Institution</span>}
         </button>
       </div>
     </aside>
