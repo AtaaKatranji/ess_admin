@@ -427,7 +427,7 @@ const EmployeeDetails = () => {
           <TabsTrigger value="hourlyLeaves">Hourly Leaves</TabsTrigger>
           <TabsTrigger value="dayRecords">Day Records</TabsTrigger>
         </TabsList>
-        <TabsContent value="attendance" className="space-y-4">
+        <TabsContent value="attendance" className="space-y-4 !overflow-visible">
           <AttendanceTab employeeId={employeeId} selectedMonth={selectedMonth} />
         </TabsContent>
         <TabsContent value="leave" className="space-y-4">
