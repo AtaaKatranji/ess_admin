@@ -252,7 +252,7 @@ const EmployeeDetails = () => {
   }
 
   return (
-    <div className="container mx-auto p-4 space-y-4">
+    <div className="container  px-4 space-y-4">
       <ToastContainer />
       <div className="flex justify-between items-center">
         <h1 className="hidden md:block lg:hidden xl:block text-xl md:text-2xl font-bold">

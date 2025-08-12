@@ -21,9 +21,9 @@ export default function EmployeeDashboardLayout({ children }: { children: React.
   const isActive = (route: string) => pathname.endsWith(route);
 
   return (
-    <div className="grid grid-cols-[auto_1fr]  bg-gray-100 ">
+    <div className="grid grid-cols-1 md:grid-cols-[240px_1fr] bg-gray-100 min-h-0 min-w-0">
       {/* Mobile header */}
-      <header className="md:hidden bg-gray-800 text-white p-4 flex justify-between items-center">
+      <header className="md:hidden bg-gray-800 text-white p-4 flex justify-between items-center sticky top-0 z-30">
         <h1 className="text-xl font-bold">Employee Dashboard</h1>
         <button onClick={toggleSidebar} className="text-white focus:outline-none">
           <Menu className="h-6 w-6" />
@@ -38,7 +38,7 @@ export default function EmployeeDashboardLayout({ children }: { children: React.
           backgroundSize: 'cover',
           backgroundRepeat: 'no-repeat',
         }}>
-        <nav className="p-4 space-y-4">
+        <nav className="p-4 space-y-4 h-full overflow-y-auto">
           <h1 className="text-xl font-bold mb-6 hidden md:block">{slug}</h1>
           <Link href={`/dashboard/institution/${slug}/employees/${employeeId}/details`} className={`flex items-center py-2 px-4 ${isActive('details') ? 'bg-blue-600 rounded' : ''}`}>
             <ListCollapse className="mr-2 h-5 w-5" />
@@ -52,27 +52,27 @@ export default function EmployeeDashboardLayout({ children }: { children: React.
         <div className="p-4">
           <button
             onClick={handleLogout}
-            className="w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-red-700 flex items-center justify-center"
+            className="w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-red-700 flex items-center justify-center gap-2"
           >
             <ArrowLeft className="mr-2 h-5 w-5" />
             Back
           </button>
         </div>
       </aside>
-
+      {/* Overlay for mobile */}
+      {isSidebarOpen && (
+              <div
+                className="fixed inset-0 bg-black/50 z-30 md:hidden"
+                onClick={() => setIsSidebarOpen(false)}
+              ></div>
+            )}
       {/* Main content */}
-      <main className="flex-1 p-2 md:p-4 overflow-y-auto">
+      <main className="min-w-0 p-2 md:p-4">
         <ToastContainer />
         {children}
       </main>
 
-      {/* Overlay for mobile */}
-      {isSidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-30 md:hidden"
-          onClick={() => setIsSidebarOpen(false)}
-        ></div>
-      )}
+      
     </div>
   );
 }
