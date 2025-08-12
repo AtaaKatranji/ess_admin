@@ -56,7 +56,10 @@ const showText = isLg || isSidebarOpen;
 const itemBase =
   "flex items-center gap-2 py-2 px-4 rounded transition-colors";
 const itemLayout = showText ? "flex-row justify-start" : "md:flex-col md:justify-center";
-const active = "bg-blue-600";
+const itemClasses = (href: string, exact = false) =>
+  `${itemBase} ${itemLayout} ${
+    isActive(href, exact) ? "bg-blue-600 text-white" : "hover:bg-blue-600/10"
+  } focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-800`;
 
 // Utility for highlight
 const normalize = (path: string) => path.replace(/\/$/, '');
@@ -77,7 +80,7 @@ useEffect(() => {
         ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}
         w-64 md:static md:translate-x-0 md:w-20 lg:w-64
         top-14 md:top-0
-        h-[calc(100vh-3.5rem)] md:h-screen   /* 3.5rem = h-14 */
+        h-[calc(100vh-3.5rem)] md:h-screen
       `}
     >
       <nav className="p-4 space-y-4">
@@ -85,8 +88,7 @@ useEffect(() => {
           Institution Dashboard
         </h1>
         <Link href={`/dashboard/institution/${slug}/`} legacyBehavior>
-           <a className={`${itemBase} ${itemLayout} ${isActive(`/dashboard/institution/${slug}/`, true) ? active : ""}`}
-          >
+           <a className={itemClasses(`/dashboard/institution/${slug}/`, true)}>
             <Home className="mr-2 h-5 w-5" />
             {showText && <span className="truncate">Overview</span>}
             
@@ -94,8 +96,8 @@ useEffect(() => {
         </Link>
         <div>
           <Link href={`/dashboard/institution/${slug}/employees`} legacyBehavior>
-          <a className={`${itemBase} ${itemLayout} ${isActive(`/dashboard/institution/${slug}/employees`) ? active : ""}`}
-            >
+          <a className={itemClasses(`/dashboard/institution/${slug}/employees`,false)}>
+          
               <Users className="mr-2 h-5 w-5" />
              
              {showText && <span className="truncate">Employees</span>}
@@ -123,10 +125,8 @@ useEffect(() => {
           )}
         </div>
         <Link href={`/dashboard/institution/${slug}/shifts`} legacyBehavior>
-        <a className={`flex items-center lg:justify-start md:justify-center md:flex-col lg:flex-row gap-2 md:gap-0 lg:gap-2 py-2 px-4 ${
-              isActive(`/dashboard/institution/${slug}/shifts`) ? "bg-blue-600 rounded" : ""
-            }`}
-          >
+        <a className={itemClasses(`/dashboard/institution/${slug}/shifts`, false)}>
+        
             <Table className="mr-2 h-5 w-5" />
            
            {showText && <span className="truncate">Shifts</span>}
@@ -180,7 +180,7 @@ useEffect(() => {
           onClick={onExitInstitution}
           className={`w-full px-4 py-2 rounded flex items-center gap-2
             ${showText ? "justify-start" : "justify-center"}
-            bg-transparent hover:bg-blue-600/10 text-white`}
+            bg-blue-400 hover:bg-blue-600/10 text-white`}
         >
           <SquareArrowLeftIcon className="h-5 w-5" />
           {showText && <span>Exit Institution</span>}
