@@ -74,16 +74,17 @@ useEffect(() => {
 }, [isSidebarOpen]);
   return (
     <aside
-      className={`
-        fixed left-0 z-40 bg-gray-800 text-white overflow-y-auto
-        transition-transform duration-300 ease-in-out
-        ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}
-        w-64 md:static md:translate-x-0 md:w-20 lg:w-64
-        top-14 md:top-0
-        h-[calc(100vh-3.5rem)] md:h-screen
-      `}
+    className={`
+      fixed left-0 z-40 bg-gray-800 text-white
+      transition-transform duration-300 ease-in-out
+      ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}
+      w-64 md:static md:translate-x-0 md:w-20 lg:w-64
+      top-14 md:top-0
+      h-[calc(100vh-3.5rem)] md:h-screen
+      flex flex-col   /* مهم */
+    `}
     >
-      <nav className="p-4 space-y-4">
+      <nav className="p-4 space-y-4 flex-1 overflow-y-auto">
         <h1 className="text-xl font-bold mb-6 hidden lg:block">
           Institution Dashboard
         </h1>
@@ -133,10 +134,8 @@ useEffect(() => {
           </a>
         </Link>
         <Link href={`/dashboard/institution/${slug}/requests`} legacyBehavior>
-           <a className={`flex items-center lg:justify-start md:justify-center md:flex-col lg:flex-row  gap-2 md:gap-0 lg:gap-2 py-2 px-4 ${
-              isActive(`/dashboard/institution/${slug}/requests`) ? "bg-blue-600 rounded" : ""
-            }`}
-          >
+          <a className={itemClasses(`/dashboard/institution/${slug}/requests`, false)}>
+          
             <FileText className="mr-2 h-5 w-5" />
            
            {showText && <span className="truncate">Requests</span>}
@@ -144,20 +143,15 @@ useEffect(() => {
           </a>
         </Link>
         <Link href={`/dashboard/institution/${slug}/holidays`} legacyBehavior>
-           <a className={`flex items-center lg:justify-start md:justify-center md:flex-col lg:flex-row gap-2 md:gap-0 lg:gap-2 py-2  px-4 ${
-              isActive(`/dashboard/institution/${slug}/holidays`) ? "bg-blue-600 rounded" : ""
-            }`}
-          >
+          <a className={itemClasses(`/dashboard/institution/${slug}/holidays`, false)}>/a>
+           
             <CalendarDaysIcon className="mr-2 h-5 w-5" />
            
            {showText && <span className="truncate">Holidays</span>}
           </a>
         </Link>
         <Link href={`/dashboard/institution/${slug}/notifications`} legacyBehavior>
-           <a className={`flex items-center lg:justify-start md:justify-center md:flex-col lg:flex-row gap-2 md:gap-0 lg:gap-2 py-2 px-4 ${
-              isActive(`/dashboard/institution/${slug}/notifications`) ? "bg-blue-600 rounded" : ""
-            }`}
-          >
+        <a className={itemClasses(`/dashboard/institution/${slug}/notifications`, false)}>
             <Bell className="mr-2 h-5 w-5" />
             {showText && <span className="truncate">Notifications</span>}
            <span className="hidden lg:inline">Notifications</span>
@@ -165,22 +159,19 @@ useEffect(() => {
           </a>
         </Link>
         <Link href={`/dashboard/institution/${slug}/settings`} legacyBehavior>
-        <a className={`flex items-center lg:justify-start md:justify-center md:flex-col lg:flex-row gap-2 md:gap-0 lg:gap-2 py-2 px-4 ${
-              isActive(`/dashboard/institution/${slug}/settings`) ? "bg-blue-600 rounded" : ""
-            }`}
-          >
+        <a className={itemClasses(`/dashboard/institution/${slug}/settings`, false)}>
             <Settings className="mr-2 h-5 w-5" />
             {showText && <span className="truncate">Settings</span>}
             
           </a>
         </Link>
       </nav>
-      <div className="p-4">
+      <div className="p-4 mt-auto">
         <button
           onClick={onExitInstitution}
           className={`w-full px-4 py-2 rounded flex items-center gap-2
-            ${showText ? "justify-start" : "justify-center"}
-            bg-blue-400 hover:bg-blue-600/10 text-white`}
+            ${showText ? "justify-start  bg-blue-600 text-white" : "justify-center bg-transparent hover:bg-blue-600/10 text-white"}
+            text-white`}
         >
           <SquareArrowLeftIcon className="h-5 w-5" />
           {showText && <span>Exit Institution</span>}
