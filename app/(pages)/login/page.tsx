@@ -32,7 +32,7 @@ export default function AdminLogin() {
     setIsLoading(true);
 
     try {
-      const response = await fetch(`${BaseUrl}/adm/admins/login`, {
+      const response = await fetch(`${BaseUrl}/api/v1/admins/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -135,7 +135,7 @@ export function AdminList({ institutionId }: AdminListProps) {
 
   if (loading) {
     return (
-      <Card>
+      <Card className="rounded-2xl">
         <CardContent className="p-6">
           <div className="text-center">Loading administrators...</div>
         </CardContent>
@@ -144,39 +144,39 @@ export function AdminList({ institutionId }: AdminListProps) {
   }
 
   return (
-    <Card>
+    <Card className="rounded-2xl">
       <CardHeader>
         <CardTitle className="text-gray-800">Institution Administrators</CardTitle>
         <CardDescription>Manage roles and permissions for this institution</CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-4 sm:p-6">
         {admins.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">No administrators found for this institution</div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             {admins.map((link) => (
-              <div key={link.adminId} className="flex items-center justify-between p-4 border rounded-lg">
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-2">
-                    <h3 className="font-semibold">{link.admin.name}</h3>
+              <div key={link.adminId}  className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 p-4 border rounded-lg">
+                <div className="flex-1  min-w-0">
+                  <div className="flex flex-wrap items-center gap-2 mb-2">
+                    <h3 className="font-semibold truncate">{link.admin.name}</h3>
                     <Badge variant={ROLE_COLORS[link.role as keyof typeof ROLE_COLORS]}>{link.role}</Badge>
                     <Badge variant="outline">{link.admin.status}</Badge>
                   </div>
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                  <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
                     <div className="flex items-center gap-1">
                       <Phone className="h-4 w-4" />
-                      {link.admin.phoneNumber}
+                      <span className="truncate">{link.admin.phoneNumber}</span>
                     </div>
                     <div className="flex items-center gap-1">
                       <Calendar className="h-4 w-4" />
-                      Linked: {new Date(link.linkedAt).toLocaleDateString()}
+                      <span>Linked: {new Date(link.linkedAt).toLocaleDateString()}</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 sm:ml-auto shrink-0 w-full sm:w-auto">
                   <Select value={link.role} onValueChange={(newRole) => changeRole(link.adminId, newRole)}>
-                    <SelectTrigger className="w-32">
+                    <SelectTrigger className="w-full sm:w-36">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -190,7 +190,7 @@ export function AdminList({ institutionId }: AdminListProps) {
 
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <Button variant="outline" size="sm">
+                      <Button variant="outline" size="sm"  className="w-full sm:w-auto">
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </AlertDialogTrigger>

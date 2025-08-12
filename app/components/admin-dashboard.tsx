@@ -45,7 +45,7 @@ export function AdminDashboard() {
   const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
   useEffect(() => {
     const run = async () => {
-      const res = await fetch(`${BaseUrl}/adm/admins/me`, { credentials: 'include' });
+      const res = await fetch(`${BaseUrl}/api/v1/admins/me`, { credentials: 'include' });
       if (!res.ok) {
         // مش مسجّل → رجّعه على صفحة اللوجين
         navigate.replace('/login');
@@ -135,8 +135,8 @@ export function AdminDashboard() {
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6 ">
-      <div className="flex items-center justify-between">
+    <div className="container mx-auto px-3 sm:px-6 py-4 space-y-6 ">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-gray-800 ">
             {admin?.role === "admin" ? "Super Admin Dashboard" : "Manger Dashboard"}
@@ -194,7 +194,7 @@ export function AdminDashboard() {
                   />
                 </div>
 
-                <div className="flex space-x-2">
+                <div className="flex flex-wrap gap-2 space-x-2">
                   <Button variant={view === "grid" ? "default" : "outline"} onClick={() => handleViewChange("grid")}>
                     <Grid className="mr-2 h-4 w-4" /> Grid View
                   </Button>
@@ -203,7 +203,9 @@ export function AdminDashboard() {
                   </Button>
                 </div>
 
-                <div className={view === "grid" ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" : "space-y-2"}>
+                <div className={view === "grid"
+                              ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+                              : "space-y-3"}>
                   {institutions.map((institution) => (
                     <motion.div
                       className="my-2"
@@ -236,7 +238,7 @@ export function AdminDashboard() {
                 <CardDescription>Choose an organization to manage its administrators</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-6">
                   {institutions.map((institution) => (
                     <Button
                       key={institution.id}
