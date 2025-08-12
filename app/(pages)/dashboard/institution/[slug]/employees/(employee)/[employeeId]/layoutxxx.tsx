@@ -21,7 +21,7 @@ export default function EmployeeDashboardLayout({ children }: { children: React.
   const isActive = (route: string) => pathname.endsWith(route);
 
   return (
-    <div className="grid grid-cols-[auto_1fr] h-screen bg-gray-100 overflow-hidden">
+    <div className="grid grid-cols-[auto_1fr]  bg-gray-100 ">
       {/* Mobile header */}
       <header className="md:hidden bg-gray-800 text-white p-4 flex justify-between items-center">
         <h1 className="text-xl font-bold">Employee Dashboard</h1>
