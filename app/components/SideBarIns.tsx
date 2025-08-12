@@ -143,7 +143,7 @@ useEffect(() => {
           </a>
         </Link>
         <Link href={`/dashboard/institution/${slug}/holidays`} legacyBehavior>
-          <a className={itemClasses(`/dashboard/institution/${slug}/holidays`, false)}>/a>
+          <a className={itemClasses(`/dashboard/institution/${slug}/holidays`, false)}>
            
             <CalendarDaysIcon className="mr-2 h-5 w-5" />
            
@@ -154,7 +154,7 @@ useEffect(() => {
         <a className={itemClasses(`/dashboard/institution/${slug}/notifications`, false)}>
             <Bell className="mr-2 h-5 w-5" />
             {showText && <span className="truncate">Notifications</span>}
-           <span className="hidden lg:inline">Notifications</span>
+          
             
           </a>
         </Link>
