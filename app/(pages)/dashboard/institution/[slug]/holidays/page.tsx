@@ -86,23 +86,6 @@ const handleSubmit = async (e: React.FormEvent) => {
   }
 };
 
-// const handleUpdate = async (id: number) => {
-//   e.preventDefault();
-//   if (!editingHoliday) return;
-
-//   const res = await fetch(`http://localhost:5000/api/holidays/${id}`, {
-//     method: "PUT",
-//     headers: { "Content-Type": "application/json" },
-//     body: JSON.stringify({
-//       name: "Updated Holiday",
-//       startDate: "2025-06-06",
-//       endDate: "2025-06-10",
-//       description: "Updated description",
-//     }),
-//   });
-
-//   if (res.ok) fetchHolidays();
-// };
 const handleDelete = async (id: number) => {
   const confirmed = confirm("Are you sure you want to delete this holiday?");
   if (!confirmed) return;
@@ -141,8 +124,8 @@ const handleDelete = async (id: number) => {
         </Dialog>
 
       </div>
-      <Card>
-        <CardContent> 
+      <Card  className="rounded-lg overflow-hidden">
+        <CardContent className="p-0"> 
           <Table>
             <TableHeader>
               <TableRow>
