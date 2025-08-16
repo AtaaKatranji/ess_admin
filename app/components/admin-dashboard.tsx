@@ -16,22 +16,22 @@ import { motion } from "framer-motion"
 import { parseCookies, setCookie } from "nookies"
 import { AdminList } from "@/app/components/admin-list"
 
-type UserRole = "admin" | "manger"
 
 type InstitutionData = {
   id: string
-  adminId: string
   name: string
   address: string
-  keyNumber: string
-  macAddresses: { wifiName: string; mac: string }[]
-  image: string
+  keyNumber?: string
+  macAddresses?: { wifiName: string; mac: string }[]
+  image?: string
   slug: string
+  role: string       
+  roleId: string      
 }
 interface User {
   id: string;
-  role: UserRole;
   name: string;
+  globalRole: "superAdmin" | "regular"; 
 }
 export function AdminDashboard() {
   const navigate = useRouter()
@@ -82,7 +82,7 @@ export function AdminDashboard() {
       const data = await fetchInstitutionsByAdmin()
       setInstitutions(data || [])
       // Auto-select first institution for admin users
-      if (data && data.length > 0 && admin?.role === "admin") {
+      if (data && data.length > 0  && admin?.globalRole === "superAdmin") {
         setSelectedInstitution(data[0]._id)
       }
     } catch (error) {
@@ -103,7 +103,7 @@ export function AdminDashboard() {
     if (admin?.id) {
       fetchData()
     }
-  }, [admin?.id, admin?.role])
+  }, [admin?.id, admin?.globalRole])
 
   const handleViewChange = (newView: "list" | "grid") => {
     setView(newView)
@@ -126,6 +126,10 @@ export function AdminDashboard() {
     setSelectedInstitution(institutionId)
   }
 
+  const isSuperAdmin = admin?.globalRole === "superAdmin"
+  const currentInstitution = institutions.find((i) => i.id === selectedInstitution)
+  const isOwner = currentInstitution?.role === "owner"
+
   if (loading) {
     return (
       <div className="fixed inset-0 z-50 grid place-items-center bg-white/60">
@@ -139,35 +143,51 @@ export function AdminDashboard() {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-gray-800 ">
-            {admin?.role === "admin" ? "Super Admin Dashboard" : "Manger Dashboard"}
+            {isSuperAdmin
+              ? "Super Admin Dashboard"
+              : isOwner
+              ? "Owner Dashboard"
+              : "Manager Dashboard"}
           </h1>
           <p className="text-muted-foreground">
-            {admin?.role === "admin"
+            {isSuperAdmin
               ? "Manage organizations and administrators across all institutions"
-              : "Manage your assigned institutions"}
+              : isOwner
+              ? "Manage managers inside your institution"
+              : "View your assigned institutions"}
           </p>
         </div>
-        <Badge variant={admin?.role === "admin" ? "default" : "secondary"} className="flex items-center gap-2">
+        <Badge
+          variant={isSuperAdmin ? "default" : isOwner ? "outline" : "secondary"}
+          className="flex items-center gap-2"
+        >
           <Shield className="h-4 w-4" />
-          {admin?.role === "admin" ? "Super Admin" : "Manger"}
+          {isSuperAdmin
+            ? "Super Admin"
+            : isOwner
+            ? "Owner"
+            : "Manager"}
         </Badge>
       </div>
-
-      {admin?.role === "admin" ? (
+  
+      {isSuperAdmin ? (
+        // --- Super Admin Dashboard ---
         <Tabs defaultValue="organizations" className="space-y-4">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="organizations">Organizations</TabsTrigger>
             <TabsTrigger value="managers">Manage Managers</TabsTrigger>
           </TabsList>
-
+  
+          {/* --- Tab: Organizations --- */}
           <TabsContent value="organizations">
             {institutions.length === 0 ? (
               <div className="min-h-[400px] grid place-items-center">
                 <div className="text-center space-y-4">
                   <h2 className="text-2xl font-bold">Welcome to ESS</h2>
-                  <p className="text-lg text-muted-foreground">No institutions available yet.</p>
+                  <p className="text-lg text-muted-foreground">
+                    No institutions available yet.
+                  </p>
                   <AddInstitutionDialog
-                    //adminId={adminId}
                     onSuccess={async () => {
                       toast.success("Institution added successfully", {
                         autoClose: 2500,
@@ -184,7 +204,6 @@ export function AdminDashboard() {
                     Organizations
                   </h2>
                   <AddInstitutionDialog
-                    //adminId={adminId}
                     onSuccess={async () => {
                       toast.success("Institution added successfully", {
                         autoClose: 2500,
@@ -193,19 +212,30 @@ export function AdminDashboard() {
                     }}
                   />
                 </div>
-
+  
+                {/* Switch View (Grid/List) */}
                 <div className="flex flex-wrap gap-2 space-x-2">
-                  <Button variant={view === "grid" ? "default" : "outline"} onClick={() => handleViewChange("grid")}>
+                  <Button
+                    variant={view === "grid" ? "default" : "outline"}
+                    onClick={() => handleViewChange("grid")}
+                  >
                     <Grid className="mr-2 h-4 w-4" /> Grid View
                   </Button>
-                  <Button variant={view === "list" ? "default" : "outline"} onClick={() => handleViewChange("list")}>
+                  <Button
+                    variant={view === "list" ? "default" : "outline"}
+                    onClick={() => handleViewChange("list")}
+                  >
                     <List className="mr-2 h-4 w-4" /> List View
                   </Button>
                 </div>
-
-                <div className={view === "grid"
-                              ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
-                              : "space-y-3"}>
+  
+                <div
+                  className={
+                    view === "grid"
+                      ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+                      : "space-y-3"
+                  }
+                >
                   {institutions.map((institution) => (
                     <motion.div
                       className="my-2"
@@ -227,7 +257,8 @@ export function AdminDashboard() {
               </div>
             )}
           </TabsContent>
-
+  
+          {/* --- Tab: Manage Managers --- */}
           <TabsContent value="managers" className="py-6">
             <Card className="py-6">
               <CardHeader>
@@ -235,14 +266,18 @@ export function AdminDashboard() {
                   <Users className="h-5 w-5" />
                   <span className="text-gray-800">Select Organization</span>
                 </CardTitle>
-                <CardDescription>Choose an organization to manage its administrators</CardDescription>
+                <CardDescription>
+                  Choose an organization to manage its administrators
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="flex flex-wrap gap-6">
                   {institutions.map((institution) => (
                     <Button
                       key={institution.id}
-                      variant={selectedInstitution === institution.id ? "default" : "outline"}
+                      variant={
+                        selectedInstitution === institution.id ? "default" : "outline"
+                      }
                       onClick={() => handleInstitutionSelect(institution.id)}
                     >
                       {institution.name}
@@ -251,18 +286,34 @@ export function AdminDashboard() {
                 </div>
               </CardContent>
             </Card>
-
-            {selectedInstitution && <AdminList institutionId={Number.parseInt(selectedInstitution)} />}
+  
+            {selectedInstitution && (
+              <AdminList institutionId={Number.parseInt(selectedInstitution)} />
+            )}
           </TabsContent>
         </Tabs>
+      ) : isOwner ? (
+        // --- Owner Dashboard (إدارة مشرفين مؤسسته فقط) ---
+        <div>
+          <h2 className="text-2xl font-bold mb-4">Manage Your Institution Managers</h2>
+          {selectedInstitution ? (
+            <AdminList institutionId={Number.parseInt(selectedInstitution)} />
+          ) : (
+            <p className="text-muted-foreground">
+              Select your institution to view its managers.
+            </p>
+          )}
+        </div>
       ) : (
-        /* Regular admin view - only organizations */
+        // --- Manager Dashboard (عرض المؤسسات فقط) ---
         <div>
           {institutions.length === 0 ? (
             <div className="min-h-[400px] grid place-items-center">
               <div className="text-center space-y-4">
                 <h2 className="text-2xl font-bold">Welcome to ESS</h2>
-                <p className="text-lg text-muted-foreground">No institutions assigned to you yet.</p>
+                <p className="text-lg text-muted-foreground">
+                  No institutions assigned to you yet.
+                </p>
               </div>
             </div>
           ) : (
@@ -272,17 +323,29 @@ export function AdminDashboard() {
                   Your Organizations
                 </h2>
               </div>
-
+  
               <div className="flex space-x-2">
-                <Button variant={view === "grid" ? "default" : "outline"} onClick={() => handleViewChange("grid")}>
+                <Button
+                  variant={view === "grid" ? "default" : "outline"}
+                  onClick={() => handleViewChange("grid")}
+                >
                   <Grid className="mr-2 h-4 w-4" /> Grid View
                 </Button>
-                <Button variant={view === "list" ? "default" : "outline"} onClick={() => handleViewChange("list")}>
+                <Button
+                  variant={view === "list" ? "default" : "outline"}
+                  onClick={() => handleViewChange("list")}
+                >
                   <List className="mr-2 h-4 w-4" /> List View
                 </Button>
               </div>
-
-              <div className={view === "grid" ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" : "space-y-2"}>
+  
+              <div
+                className={
+                  view === "grid"
+                    ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+                    : "space-y-2"
+                }
+              >
                 {institutions.map((institution) => (
                   <motion.div
                     className="my-2"
@@ -305,8 +368,9 @@ export function AdminDashboard() {
           )}
         </div>
       )}
-
+  
       <ToastContainer />
     </div>
   )
+  
 }
