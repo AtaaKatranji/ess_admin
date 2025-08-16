@@ -30,11 +30,21 @@ interface Admin {
 interface AdminLink {
   adminId: number
   institutionId: number
-  role: string
+  role: Role
   linkedAt: string
   admin: Admin
 }
-
+interface Permission {
+  id: number
+  resource: string
+  action: string
+  description: string
+}
+interface Role {
+  id: number
+  name: string
+  permissions: Permission[]
+}
 interface AdminListProps {
   institutionId: number
 }
@@ -135,7 +145,7 @@ export function AdminList({ institutionId }: AdminListProps) {
 
   if (loading) {
     return (
-      <Card className="rounded-2xl">
+      <Card className="rounded-2xl my-3 sm:my-8">
         <CardContent className="p-6">
           <div className="text-center">Loading administrators...</div>
         </CardContent>
@@ -159,7 +169,9 @@ export function AdminList({ institutionId }: AdminListProps) {
                 <div className="flex-1  min-w-0">
                   <div className="flex flex-wrap items-center gap-2 mb-2">
                     <h3 className="font-semibold truncate">{link.admin.name}</h3>
-                    <Badge variant={ROLE_COLORS[link.role as keyof typeof ROLE_COLORS]}>{link.role}</Badge>
+                    <Badge variant={ROLE_COLORS[link.role.name as keyof typeof ROLE_COLORS]}>
+  {link.role.name}
+</Badge>
                     <Badge variant="outline">{link.admin.status}</Badge>
                   </div>
                   <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
@@ -175,7 +187,7 @@ export function AdminList({ institutionId }: AdminListProps) {
                 </div>
 
                 <div className="flex items-center gap-2 sm:ml-auto shrink-0 w-full sm:w-auto">
-                  <Select value={link.role} onValueChange={(newRole) => changeRole(link.adminId, newRole)}>
+                  <Select  value={link.role.name} onValueChange={(newRole) => changeRole(link.adminId, newRole)}>
                     <SelectTrigger className="w-full sm:w-36">
                       <SelectValue />
                     </SelectTrigger>
