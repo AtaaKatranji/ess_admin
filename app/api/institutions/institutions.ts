@@ -101,7 +101,7 @@ export const getLocalStorageItem = (key: string) => {
 export const fetchInstitutionsByAdmin = async (adminId: string) => {
     console.log("hey fucker")
     
-    const response = await fetch(`${BaseUrl}/ins/admin-institutions`, { // Include the ID in the URL
+    const response = await fetch(`${BaseUrl}/rbac/admin-institutions`, { // Include the ID in the URL
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
