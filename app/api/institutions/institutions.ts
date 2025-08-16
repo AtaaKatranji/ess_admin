@@ -98,17 +98,17 @@ export const getLocalStorageItem = (key: string) => {
   }
   return null; // Return null if not in browser
 };
-export const fetchInstitutionsByAdmin = async (adminId: string) => {
+export const fetchInstitutionsByAdmin = async () => {
     console.log("hey fucker")
     
     const response = await fetch(`${BaseUrl}/rbac/admin-institutions`, { // Include the ID in the URL
-      method: 'POST',
+      method: 'GET',
       headers: {
         'Content-Type': 'application/json',
         // 'Authorization': `Bearer ${token}`,
       },
       credentials: 'include', 
-      body: JSON.stringify({ adminId }),
+
     });
     console.log("5: ",response)
     if (!response.ok) {

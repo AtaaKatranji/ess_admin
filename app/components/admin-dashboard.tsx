@@ -79,7 +79,7 @@ export function AdminDashboard() {
     }
 
     try {
-      const data = await fetchInstitutionsByAdmin(admin?.id)
+      const data = await fetchInstitutionsByAdmin()
       setInstitutions(data || [])
       // Auto-select first institution for admin users
       if (data && data.length > 0 && admin?.role === "admin") {
