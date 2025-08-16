@@ -56,7 +56,7 @@ export function AdminList({ institutionId }: AdminListProps) {
     try {
       setLoading(true)
       
-      const response = await fetch(`${baseUrl}/rbac/${institutionId}/admins`,{
+      const response = await fetch(`${baseUrl}/rbac/admins/${institutionId}`,{
         method: 'GET',
         credentials: 'include', 
         headers: { 'Accept': 'application/json' },
