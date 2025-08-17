@@ -15,11 +15,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Loader2, Plus } from "lucide-react";
 import { toast, ToastContainer } from 'react-toastify';
 
-type Props = {
+// Props
+ type Props = {
   institutionId: number;
-  onDone?: () => void; // استدعِ لإعادة تحميل القائمة بعد الإضافة/الربط
+  onDone?: () => void; // Call to refresh the list after create/link
 };
 
+// Validation schemas
 const createAdminSchema = z.object({
   name: z.string().min(3).max(50),
   phoneNumber: z.string().min(5).max(20),
@@ -28,14 +30,14 @@ const createAdminSchema = z.object({
   institutionRole: z.enum(["owner", "manager", "viewer"]),
 });
 
-type CreateAdminForm = z.infer<typeof createAdminSchema>;
+ type CreateAdminForm = z.infer<typeof createAdminSchema>;
 
 const linkExistingSchema = z.object({
   phoneNumber: z.string().min(5).max(20),
   institutionRole: z.enum(["owner", "manager", "viewer"]),
 });
 
-type LinkExistingForm = z.infer<typeof linkExistingSchema>;
+ type LinkExistingForm = z.infer<typeof linkExistingSchema>;
 
 export default function AddAdminDialog({ institutionId, onDone }: Props) {
   const [open, setOpen] = React.useState(false);
@@ -78,9 +80,9 @@ export default function AddAdminDialog({ institutionId, onDone }: Props) {
     setOpen(false);
   };
 
-  // POST helpers
+  // API helpers
   async function apiCreateAdmin(payload: CreateAdminForm) {
-    // مطابق لكونترولر createAdmin عندك
+    // Matches your createAdmin controller
     const res = await fetch(`/api/admins`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -101,8 +103,8 @@ export default function AddAdminDialog({ institutionId, onDone }: Props) {
   }
 
   async function apiFindAdminByPhone(phoneNumber: string) {
-    // وفّر إندبوينت بسيط للبحث (أو استبدله بما عندك)
-    // مثال: /api/admins?phone=+963...
+    // Provide a simple search endpoint or adapt to yours
+    // Example: /api/admins?phone=+963...
     const res = await fetch(`/api/admins?phone=${encodeURIComponent(phoneNumber)}`, {
       method: "GET",
       credentials: "include",
@@ -112,14 +114,13 @@ export default function AddAdminDialog({ institutionId, onDone }: Props) {
       throw new Error(j?.message || "Failed to find admin");
     }
     const data = await res.json();
-    // رجّع أول نتيجة
+    // Return first match
     return data?.data?.admin ?? data?.data?.admins?.[0];
   }
 
   async function apiLinkAdminToInstitution(adminId: number, institutionRole: "owner" | "manager" | "viewer") {
-    // وفّر هذا الإندبوينت في السيرفر:
-    // POST /api/institutions/:institutionId/admins
-    // body: { adminId, role: "manager" }
+    // Provide this endpoint in your server:
+    // POST /api/institutions/:institutionId/admins  body: { adminId, role }
     const res = await fetch(`/api/institutions/${institutionId}/admins`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -135,30 +136,30 @@ export default function AddAdminDialog({ institutionId, onDone }: Props) {
 
   const onSubmitCreate = async (values: CreateAdminForm) => {
     try {
-      // 1) أنشئ مدير
+      // 1) Create admin
       const admin = await apiCreateAdmin(values);
-      // 2) اربطه بالمؤسسة
+      // 2) Link to institution
       await apiLinkAdminToInstitution(admin.id, values.institutionRole);
-      toast.success(  `تم إنشاء وربط المدير: ${admin.name} تمت إضافته بنجاح.` );
+      toast.success(`Admin created & linked: ${admin.name} was added successfully.`);
       onDone?.();
       cleanupAndClose();
-    } catch {
-      toast(`خطأ,   حدث خطأ أثناء الإنشاء`);
+    } catch (e: any) {
+      toast.error(e?.message || "Error: something went wrong while creating the admin.");
     }
   };
 
   const onSubmitLink = async (values: LinkExistingForm) => {
     try {
-      // 1) ابحث عن مدير بالهاتف
+      // 1) Find admin by phone
       const admin = await apiFindAdminByPhone(values.phoneNumber);
-      if (!admin?.id) throw new Error("لم يتم العثور على مدير بهذا الرقم");
-      // 2) اربطه بالمؤسسة
+      if (!admin?.id) throw new Error("No admin found with this phone number");
+      // 2) Link to institution
       await apiLinkAdminToInstitution(admin.id, values.institutionRole);
-      toast(`  ربط  المدير بالمؤسسة: ${admin.name} تمت إضافته بنجاح.`);
+      toast.success(`Admin linked: ${admin.name} was linked successfully.`);
       onDone?.();
       cleanupAndClose();
-    } catch  {
-      toast("فشل الربط");
+    } catch (e: any) {
+      toast.error(e?.message || "Linking failed.");
     }
   };
 
@@ -167,7 +168,7 @@ export default function AddAdminDialog({ institutionId, onDone }: Props) {
     try { return await res.json(); } catch { return null; }
   }
 
-  // تنظيف فراغات رقم الهاتف (يتوافق مع setter بالموديل)
+  // Sanitize phone number spaces (matches your model setter)
   React.useEffect(() => {
     const sub = watchCreate((v, { name }) => {
       if (name === "phoneNumber" && typeof v.phoneNumber === "string") {
@@ -179,7 +180,7 @@ export default function AddAdminDialog({ institutionId, onDone }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-        <ToastContainer />
+      <ToastContainer />
       <DialogTrigger asChild>
         <Button>
           <Plus className="h-4 w-4 mr-2" />
@@ -189,31 +190,31 @@ export default function AddAdminDialog({ institutionId, onDone }: Props) {
 
       <DialogContent className="sm:max-w-[560px]">
         <DialogHeader>
-          <DialogTitle>إضافة مشرف للمؤسسة</DialogTitle>
-          <DialogDescription>أنشئ مدير جديد أو اربط مدير موجود، وحدّد دوره داخل المؤسسة.</DialogDescription>
+          <DialogTitle>Add Administrator to Institution</DialogTitle>
+          <DialogDescription>Create a new admin or link an existing one, and set their role within the institution.</DialogDescription>
         </DialogHeader>
 
         <Tabs defaultValue="create" className="mt-2">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="create">إنشاء مدير جديد</TabsTrigger>
-            <TabsTrigger value="link">ربط مدير موجود</TabsTrigger>
+            <TabsTrigger value="create">Create new admin</TabsTrigger>
+            <TabsTrigger value="link">Link existing admin</TabsTrigger>
           </TabsList>
 
           <TabsContent value="create" className="mt-4 space-y-4">
             <div className="space-y-2">
-              <Label>الاسم</Label>
-              <Input placeholder="مثال: Ahmad" {...regCreate("name")} />
+              <Label>Name</Label>
+              <Input placeholder="e.g., Ahmad" {...regCreate("name")} />
               {createErrors.name && <p className="text-sm text-red-600">{createErrors.name.message}</p>}
             </div>
 
             <div className="space-y-2">
-              <Label>رقم الهاتف</Label>
-              <Input placeholder="+963933001245" {...regCreate("phoneNumber")} />
+              <Label>Phone number</Label>
+              <Input placeholder="+963900000000" {...regCreate("phoneNumber")} />
               {createErrors.phoneNumber && <p className="text-sm text-red-600">{createErrors.phoneNumber.message}</p>}
             </div>
 
             <div className="space-y-2">
-              <Label>كلمة المرور</Label>
+              <Label>Password</Label>
               <Input type="password" placeholder="••••••••" {...regCreate("password")} />
               {createErrors.password && <p className="text-sm text-red-600">{createErrors.password.message}</p>}
             </div>
@@ -225,7 +226,7 @@ export default function AddAdminDialog({ institutionId, onDone }: Props) {
                   onValueChange={(v) => setCreateValue("globalRole", v as "superAdmin" | "regular")}
                   defaultValue="regular"
                 >
-                  <SelectTrigger><SelectValue placeholder="اختر" /></SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="regular">regular</SelectItem>
                     <SelectItem value="superAdmin">superAdmin</SelectItem>
@@ -234,12 +235,12 @@ export default function AddAdminDialog({ institutionId, onDone }: Props) {
               </div>
 
               <div className="space-y-2">
-                <Label>Role داخل المؤسسة</Label>
+                <Label>Institution Role</Label>
                 <Select
                   onValueChange={(v) => setCreateValue("institutionRole", v as "owner" | "manager" | "viewer")}
                   defaultValue="manager"
                 >
-                  <SelectTrigger><SelectValue placeholder="اختر" /></SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="owner">owner</SelectItem>
                     <SelectItem value="manager">manager</SelectItem>
@@ -256,14 +257,14 @@ export default function AddAdminDialog({ institutionId, onDone }: Props) {
               className="w-full"
             >
               {isSubmittingCreate && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              إنشاء وربط
+              Create & Link
             </Button>
           </TabsContent>
 
           <TabsContent value="link" className="mt-4 space-y-4">
             <div className="space-y-2">
-              <Label>رقم هاتف المدير</Label>
-              <Input placeholder="+963933001245" {...regLink("phoneNumber")} onChange={(e) => {
+              <Label>Admin phone number</Label>
+              <Input placeholder="+963900000000" {...regLink("phoneNumber")} onChange={(e) => {
                 const v = e.target.value.replace(/\s+/g, "");
                 setLinkValue("phoneNumber", v, { shouldDirty: true });
               }} />
@@ -271,12 +272,12 @@ export default function AddAdminDialog({ institutionId, onDone }: Props) {
             </div>
 
             <div className="space-y-2">
-              <Label>Role داخل المؤسسة</Label>
+              <Label>Institution Role</Label>
               <Select
                 onValueChange={(v) => setLinkValue("institutionRole", v as "owner" | "manager" | "viewer")}
                 defaultValue="manager"
               >
-                <SelectTrigger><SelectValue placeholder="اختر" /></SelectTrigger>
+                <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="owner">owner</SelectItem>
                   <SelectItem value="manager">manager</SelectItem>
@@ -293,7 +294,7 @@ export default function AddAdminDialog({ institutionId, onDone }: Props) {
               variant="secondary"
             >
               {isSubmittingLink && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              ربط مدير موجود
+              Link existing admin
             </Button>
           </TabsContent>
         </Tabs>
