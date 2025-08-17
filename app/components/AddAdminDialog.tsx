@@ -143,7 +143,7 @@ export default function AddAdminDialog({ institutionId, onDone }: Props) {
       toast.success(`Admin created & linked: ${admin.name} was added successfully.`);
       onDone?.();
       cleanupAndClose();
-    } catch (e: any) {
+    } catch (e: unknown) {
       toast.error(e?.message || "Error: something went wrong while creating the admin.");
     }
   };
@@ -158,7 +158,7 @@ export default function AddAdminDialog({ institutionId, onDone }: Props) {
       toast.success(`Admin linked: ${admin.name} was linked successfully.`);
       onDone?.();
       cleanupAndClose();
-    } catch (e: any) {
+    } catch (e: unknown) {
       toast.error(e?.message || "Linking failed.");
     }
   };
