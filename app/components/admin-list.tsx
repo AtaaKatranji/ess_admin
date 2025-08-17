@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { useToast } from "@/hooks/use-toast"
 import { Trash2, Phone, Calendar } from "lucide-react"
+import React from "react"
 
 interface Admin {
   id: number
@@ -57,7 +58,8 @@ const ROLE_COLORS = {
 
 const VALID_ROLES = ["owner", "manager", "viewer"]
 
-export function AdminList({ institutionId }: AdminListProps) {
+export const AdminList = React.forwardRef<{ reload?: () => void }, AdminListProps>(
+  ({ institutionId }, ref) => {
   const [admins, setAdmins] = useState<AdminLink[]>([])
   const [loading, setLoading] = useState(true)
   const { toast } = useToast()
@@ -143,6 +145,9 @@ export function AdminList({ institutionId }: AdminListProps) {
     fetchAdmins()
   }, [institutionId])
 
+  React.useImperativeHandle(ref, () => ({ reload: fetchAdmins }), [fetchAdmins]);
+
+  
   if (loading) {
     return (
       <Card className="rounded-2xl my-3 sm:my-8">
@@ -233,4 +238,5 @@ export function AdminList({ institutionId }: AdminListProps) {
       </CardContent>
     </Card>
   )
-}
+});
+AdminList.displayName = "AdminList";

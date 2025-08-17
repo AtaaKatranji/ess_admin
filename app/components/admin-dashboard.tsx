@@ -15,6 +15,8 @@ import { Circles } from "react-loader-spinner"
 import { motion } from "framer-motion"
 import { parseCookies, setCookie } from "nookies"
 import { AdminList } from "@/app/components/admin-list"
+import AddAdminDialog from "./AddAdminDialog"
+import React from "react"
 
 
 type InstitutionData = {
@@ -43,6 +45,10 @@ export function AdminDashboard() {
   const [selectedInstitution, setSelectedInstitution] = useState<string | null>(null)
   const [admin, setAdmin] = useState<User | null>(null);
   const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
+
+  const adminListRef = React.useRef<{ reload?: () => void }>(null)
+
+  
   useEffect(() => {
     const run = async () => {
       const res = await fetch(`${BaseUrl}/api/v1/admins/me`, { credentials: 'include' });
@@ -288,7 +294,18 @@ export function AdminDashboard() {
             </Card>
   
             {selectedInstitution && (
-              <AdminList institutionId={Number.parseInt(selectedInstitution)} />
+              <div className="mt-6 space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold">Managers for Institution #{selectedInstitution}</h3>
+        
+                {/* زر فتح الدialog */}
+                <AddAdminDialog
+                  institutionId={Number.parseInt(selectedInstitution)}
+                  onDone={() => adminListRef.current?.reload?.()}
+                />
+              </div>
+              <AdminList ref={adminListRef} institutionId={Number.parseInt(selectedInstitution)} />
+              </div>
             )}
           </TabsContent>
         </Tabs>
