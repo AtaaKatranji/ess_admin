@@ -301,6 +301,8 @@ export function AdminDashboard() {
                 {/* زر فتح الدialog */}
                 <AddAdminDialog
                   institutionId={Number.parseInt(selectedInstitution)}
+                  isSuperAdmin={isSuperAdmin}
+                  canAssignOwner={isOwner} 
                   onDone={() => adminListRef.current?.reload?.()}
                 />
               </div>

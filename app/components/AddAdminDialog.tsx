@@ -19,6 +19,8 @@ import { toast, ToastContainer } from 'react-toastify';
  type Props = {
   institutionId: number;
   onDone?: () => void; // Call to refresh the list after create/link
+  isSuperAdmin?: boolean; 
+  canAssignOwner?: boolean;
 };
 
 // Validation schemas
@@ -39,7 +41,12 @@ const linkExistingSchema = z.object({
 
  type LinkExistingForm = z.infer<typeof linkExistingSchema>;
 
-export default function AddAdminDialog({ institutionId, onDone }: Props) {
+export default function AddAdminDialog({
+    institutionId,
+    onDone,
+    isSuperAdmin = false,
+    canAssignOwner = false,
+  }: Props)  {
   const [open, setOpen] = React.useState(false);
 
   const {
@@ -81,6 +88,12 @@ export default function AddAdminDialog({ institutionId, onDone }: Props) {
   };
 
   // API helpers
+  const institutionRoleOptions = [
+    ...(canAssignOwner ? [{ value: "owner" as const, label: "owner" }] : []),
+    { value: "manager" as const, label: "manager" },
+    { value: "viewer"  as const, label: "viewer"  },
+  ];
+
   async function apiCreateAdmin(payload: CreateAdminForm) {
     // Matches your createAdmin controller
     const res = await fetch(`/api/admins`, {
@@ -91,7 +104,7 @@ export default function AddAdminDialog({ institutionId, onDone }: Props) {
         name: payload.name,
         phoneNumber: payload.phoneNumber,
         password: payload.password,
-        globalRole: payload.globalRole ?? "regular",
+        ...(isSuperAdmin ? { globalRole: payload.globalRole ?? "regular" } : {}),
       }),
     });
     if (!res.ok) {
@@ -220,33 +233,34 @@ export default function AddAdminDialog({ institutionId, onDone }: Props) {
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Global Role</Label>
-                <Select
-                  onValueChange={(v) => setCreateValue("globalRole", v as "superAdmin" | "regular")}
-                  defaultValue="regular"
-                >
-                  <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="regular">regular</SelectItem>
-                    <SelectItem value="superAdmin">superAdmin</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
+                {isSuperAdmin && (
+                <div className="space-y-2">
+                    <Label>Global Role</Label>
+                    <Select
+                    onValueChange={(v) => setCreateValue("globalRole", v as "superAdmin" | "regular")}
+                    defaultValue="regular"
+                    >
+                    <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="regular">regular</SelectItem>
+                        <SelectItem value="superAdmin">superAdmin</SelectItem>
+                    </SelectContent>
+                    </Select>
+                </div> 
+                )}
               <div className="space-y-2">
                 <Label>Institution Role</Label>
                 <Select
-                  onValueChange={(v) => setCreateValue("institutionRole", v as "owner" | "manager" | "viewer")}
-                  defaultValue="manager"
-                >
-                  <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="owner">owner</SelectItem>
-                    <SelectItem value="manager">manager</SelectItem>
-                    <SelectItem value="viewer">viewer</SelectItem>
-                  </SelectContent>
-                </Select>
+                    onValueChange={(v) => setCreateValue("institutionRole", v as "owner" | "manager" | "viewer")}
+                    defaultValue={canAssignOwner ? "owner" : "manager"}
+                    >
+                    <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+                    <SelectContent>
+                        {institutionRoleOptions.map((opt) => (
+                        <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                        ))}
+                    </SelectContent>
+                    </Select>
                 {createErrors.institutionRole && <p className="text-sm text-red-600">{createErrors.institutionRole.message}</p>}
               </div>
             </div>
@@ -274,16 +288,16 @@ export default function AddAdminDialog({ institutionId, onDone }: Props) {
             <div className="space-y-2">
               <Label>Institution Role</Label>
               <Select
-                onValueChange={(v) => setLinkValue("institutionRole", v as "owner" | "manager" | "viewer")}
-                defaultValue="manager"
-              >
+                onValueChange={(v) => setCreateValue("institutionRole", v as "owner" | "manager" | "viewer")}
+                defaultValue={canAssignOwner ? "owner" : "manager"}
+                >
                 <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="owner">owner</SelectItem>
-                  <SelectItem value="manager">manager</SelectItem>
-                  <SelectItem value="viewer">viewer</SelectItem>
+                    {institutionRoleOptions.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                    ))}
                 </SelectContent>
-              </Select>
+                </Select>
               {linkErrors.institutionRole && <p className="text-sm text-red-600">{linkErrors.institutionRole.message}</p>}
             </div>
 
