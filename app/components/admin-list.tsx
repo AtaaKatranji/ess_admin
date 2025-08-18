@@ -95,6 +95,7 @@ const { roles, isLoading: rolesLoading, isError: rolesError } = useRoles(baseUrl
       const response = await fetch(`${baseUrl}/api/institutions/${institutionId}/admins/${adminId}/role`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
+        credentials: 'include',
         body: JSON.stringify({ role: newRoleId }),
       })
 

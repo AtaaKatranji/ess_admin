@@ -1,7 +1,17 @@
 // lib/fetcher.ts
-export const fetcher = (input: RequestInfo, init?: RequestInit) =>
-    fetch(input, { credentials: 'include', ...init }).then(async (r) => {
-      if (!r.ok) throw new Error((await r.text()) || 'Request failed');
-      return r.json();
+export const authedJSON = async <T = unknown>(
+    input: RequestInfo,
+    init?: RequestInit
+  ): Promise<T> => {
+    const res = await fetch(input, {
+      credentials: "include",                // <— sends your cookie/token
+      headers: {
+        Accept: "application/json",
+        ...(init?.headers || {}),
+      },
+      ...init,
     });
+    if (!res.ok) throw new Error((await res.text()) || "Request failed");
+    return res.json();
+  };
   
