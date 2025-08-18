@@ -8,7 +8,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     <SWRConfig 
         value={{
             fetcher, 
-            refreshInterval: 3000, 
+            refreshInterval: 0, 
             revalidateIfStale: false, 
             revalidateOnFocus: false
         }}

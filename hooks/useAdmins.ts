@@ -11,7 +11,7 @@ export function useAdmins( institutionId?: number) {
   const key = institutionId ? `/rbac/admins/${institutionId}` : null;
 
   const { data, error, isLoading, mutate } = useSWR<AdminLink[]>(key, fetcher, {
-    dedupingInterval: 2000,
+    dedupingInterval: 10000,
   });
 
   return {
