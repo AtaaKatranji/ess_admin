@@ -97,7 +97,7 @@ const { roles, isLoading: rolesLoading, isError: rolesError } = useRoles();
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         credentials: 'include',
-        body: JSON.stringify({ role: newRoleId }),
+        body: JSON.stringify({ roleId: newRoleId }),
       })
 
       if (!response.ok) {
