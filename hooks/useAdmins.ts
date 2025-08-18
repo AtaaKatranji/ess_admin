@@ -8,7 +8,7 @@ export type Role = { id: string; name: string };
 
 
 export function useAdmins( institutionId?: number) {
-  const key = institutionId ? `/rbac/admins/${institutionId}` : null;
+  const key = institutionId ? `https://ess.zero-2-one.org/rbac/admins/${institutionId}` : null;
 
   const { data, error, isLoading, mutate } = useSWR<AdminLink[]>(key, fetcher, {
     dedupingInterval: 2000,
