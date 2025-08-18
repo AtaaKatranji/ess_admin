@@ -135,6 +135,8 @@ export function AdminDashboard() {
   }
 
   const isSuperAdmin = admin?.globalRole === "superAdmin"
+  console.log("selectedInstitution",selectedInstitution)
+  console.log("institutions",institutions)
   const currentInstitution = institutions.find((i) => i.id === selectedInstitution)
   console.log("currentInstitution",currentInstitution)
   const isOwner = currentInstitution?.role === "owner"
