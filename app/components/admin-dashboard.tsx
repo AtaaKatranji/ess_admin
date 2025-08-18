@@ -14,7 +14,7 @@ import { useRouter } from "next/navigation"
 import { Circles } from "react-loader-spinner"
 import { motion } from "framer-motion"
 import { parseCookies, setCookie } from "nookies"
-import { AdminList } from "@/app/components/admin-list"
+import  AdminList  from "@/app/components/admin-list"
 import AddAdminDialog from "./AddAdminDialog"
 import React from "react"
 
@@ -306,7 +306,7 @@ export function AdminDashboard() {
                   onDone={() => adminListRef.current?.reload?.()}
                 />
               </div>
-              <AdminList ref={adminListRef} institutionId={Number.parseInt(selectedInstitution)} />
+              <AdminList institutionId={Number.parseInt(selectedInstitution)} />
               </div>
             )}
           </TabsContent>

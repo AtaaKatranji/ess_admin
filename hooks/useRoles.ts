@@ -1,0 +1,24 @@
+// hooks/useRoles.ts
+import useSWR from 'swr';
+import { fetcher } from '@/lib/fetcher';
+
+import type { Role } from "@/app/types/rbac";
+
+export function useRoles(baseUrl: string) {
+  const { data, error, isLoading, mutate } = useSWR<Role[]>(
+    `${baseUrl}/rbac/roles`,
+    fetcher,
+    {
+      revalidateOnFocus: false, // roles rarely change; tweak as you like
+      dedupingInterval: 10_000,
+    }
+  );
+
+  return {
+    roles: data ?? [],
+    isLoading,
+    isError: !!error,
+    mutateRoles: mutate,
+    error,
+  };
+}

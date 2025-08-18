@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -18,34 +18,13 @@ import {
 } from "@/components/ui/alert-dialog"
 import { useToast } from "@/hooks/use-toast"
 import { Trash2, Phone, Calendar } from "lucide-react"
-import React from "react"
 
-interface Admin {
-  id: number
-  name: string
-  phoneNumber: string
-  status: string
-  globalRole: string
-}
 
-interface AdminLink {
-  adminId: number
-  institutionId: number
-  role: Role
-  linkedAt: string
-  admin: Admin
-}
-interface Permission {
-  id: number
-  resource: string
-  action: string
-  description: string
-}
-interface Role {
-  id: number
-  name: string
-  permissions: Permission[]
-}
+import { useRoles } from "@/hooks/useRoles";
+import { useAdmins } from "@/hooks/useAdmins"
+import { Role } from "../types/rbac"
+
+
 interface AdminListProps {
   institutionId: number
 }
@@ -56,58 +35,81 @@ const ROLE_COLORS = {
   viewer: "secondary",
 } as const
 
-const VALID_ROLES = ["owner", "manager", "viewer"]
+// const VALID_ROLES = ["owner", "manager", "viewer"]
 
-export const AdminList = React.forwardRef<{ reload?: () => void }, AdminListProps>(
-  ({ institutionId }, ref) => {
-  const [admins, setAdmins] = useState<AdminLink[]>([])
-  const [loading, setLoading] = useState(true)
+export default function AdminList({ institutionId }: AdminListProps) {
+  ///const [admins, setAdmins] = useState<AdminLink[]>([])
+
   const { toast } = useToast()
   const  baseUrl = process.env.NEXT_PUBLIC_API_URL;
-  const fetchAdmins = async () => {
-    try {
-      setLoading(true)
-      
-      const response = await fetch(`${baseUrl}/rbac/admins/${institutionId}`,{
-        method: 'GET',
-        credentials: 'include', 
-        headers: { 'Accept': 'application/json' },
-        // Wrap in an object
-      });
-      if (!response.ok) throw new Error("Failed to fetch admins")
-      const data = await response.json()
-      setAdmins(data)
-      console.log("data list admins", data)
-    } catch {
-      toast({
-        title: "Error",
-        description: "Failed to load administrators",
-        variant: "destructive",
-      })
-    } finally {
-      setLoading(false)
-    }
-  }
 
-  const changeRole = async (adminId: number, newRole: string) => {
+// بدي استخدم SWR لتحميل المدخلات والتحديث عند تغيير الانترنت
+const { admins, isLoading: adminsLoading, mutateAdmins } = useAdmins(baseUrl!, institutionId);
+const { roles, isLoading: rolesLoading, isError: rolesError } = useRoles(baseUrl!);
+
+
+
+
+  // const fetchAdmins = async () => {
+  //   try {
+  //     setLoading(true)
+      
+  //     const response = await fetch(`${baseUrl}/rbac/admins/${institutionId}`,{
+  //       method: 'GET',
+  //       credentials: 'include', 
+  //       headers: { 'Accept': 'application/json' },
+  //       // Wrap in an object
+  //     });
+  //     if (!response.ok) throw new Error("Failed to fetch admins")
+  //     const data = await response.json()
+  //     setAdmins(data)
+  //     console.log("data list admins", data)
+  //   } catch {
+  //     toast({
+  //       title: "Error",
+  //       description: "Failed to load administrators",
+  //       variant: "destructive",
+  //     })
+  //   } finally {
+  //     setLoading(false)
+  //   }
+  // }
+
+  const changeRole = async (adminId: number, newRoleId: number) => {
+
+    const newRole: Role | undefined = roles.find((r) => r.id === newRoleId);
+    // Optional: optimistic update (only if your admins list comes from SWR)
+    await mutateAdmins(
+      (prev) =>
+        (prev ?? []).map((link) =>
+          link.adminId === adminId
+            ? {
+                ...link,
+                role: newRole ?? link.role, // if roles not loaded yet, keep old
+              }
+            : link
+        ),
+      { revalidate: false, populateCache: true }
+    );
     try {
       const response = await fetch(`${baseUrl}/api/institutions/${institutionId}/admins/${adminId}/role`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ role: newRole }),
+        body: JSON.stringify({ role: newRoleId }),
       })
 
       if (!response.ok) {
         const error = await response.json()
         throw new Error(error.message || "Failed to change role")
       }
-
+      await mutateAdmins();
       toast({
         title: "Success",
         description: "Admin role updated successfully",
       })
-      fetchAdmins()
+
     } catch (error) {
+      await mutateAdmins();
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : "Failed to change role",
@@ -131,7 +133,7 @@ export const AdminList = React.forwardRef<{ reload?: () => void }, AdminListProp
         title: "Success",
         description: "Admin removed successfully",
       })
-      fetchAdmins()
+      mutateAdmins();
     } catch (error) {
       toast({
         title: "Error",
@@ -141,14 +143,9 @@ export const AdminList = React.forwardRef<{ reload?: () => void }, AdminListProp
     }
   }
 
-  useEffect(() => {
-    fetchAdmins()
-  }, [institutionId])
-
-  React.useImperativeHandle(ref, () => ({ reload: fetchAdmins }), [fetchAdmins]);
 
   
-  if (loading) {
+  if (adminsLoading) {
     return (
       <Card className="rounded-2xl my-3 sm:my-8">
         <CardContent className="p-6">
@@ -157,7 +154,10 @@ export const AdminList = React.forwardRef<{ reload?: () => void }, AdminListProp
       </Card>
     )
   }
-
+  if (rolesError) {
+    // Optional: show a subtle warning somewhere in your UI
+    console.warn("Failed to load roles");
+  }
   return (
     <Card className="rounded-2xl my-3 sm:my-8">
       <CardHeader>
@@ -192,16 +192,24 @@ export const AdminList = React.forwardRef<{ reload?: () => void }, AdminListProp
                 </div>
 
                 <div className="flex items-center gap-2 sm:ml-auto shrink-0 w-full sm:w-auto">
-                  <Select  value={link.role.name} onValueChange={(newRole) => changeRole(link.adminId, newRole)}>
-                    <SelectTrigger className="w-full sm:w-36">
-                      <SelectValue />
+                  <Select  value={link.role?.id.toString()} onValueChange={(newRole) => changeRole(link.adminId, Number(newRole))} disabled={rolesLoading}>
+                    <SelectTrigger className="w-full sm:w-44">
+                      <SelectValue placeholder={rolesLoading ? "Loading roles..." : "Select role"}>
+                        {/* If you prefer a custom display, you can show the current role name here */}
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
-                      {VALID_ROLES.map((role) => (
-                        <SelectItem key={role} value={role}>
-                          {role}
+                      {rolesLoading && (
+                        <SelectItem value="loading" disabled>
+                          Loading...
                         </SelectItem>
-                      ))}
+                      )}
+                      {!rolesLoading &&
+                        roles.map((role) => (
+                          <SelectItem key={role.id} value={role.id.toString()}>
+                            {role.name}
+                          </SelectItem>
+                        ))}
                     </SelectContent>
                   </Select>
 
@@ -238,5 +246,5 @@ export const AdminList = React.forwardRef<{ reload?: () => void }, AdminListProp
       </CardContent>
     </Card>
   )
-});
+};
 AdminList.displayName = "AdminList";
