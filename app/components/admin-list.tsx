@@ -44,8 +44,8 @@ export default function AdminList({ institutionId }: AdminListProps) {
   const  baseUrl = process.env.NEXT_PUBLIC_API_URL;
 
 // بدي استخدم SWR لتحميل المدخلات والتحديث عند تغيير الانترنت
-const { admins, isLoading: adminsLoading, mutateAdmins } = useAdmins(baseUrl!, institutionId);
-const { roles, isLoading: rolesLoading, isError: rolesError } = useRoles(baseUrl!);
+const { admins, isLoading: adminsLoading, mutateAdmins } = useAdmins(institutionId);
+const { roles, isLoading: rolesLoading, isError: rolesError } = useRoles();
 
 
 

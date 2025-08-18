@@ -4,9 +4,9 @@ import { fetcher } from '@/lib/fetcher';
 
 import type { Role } from "@/app/types/rbac";
 
-export function useRoles(baseUrl: string) {
+export function useRoles() {
   const { data, error, isLoading, mutate } = useSWR<Role[]>(
-    `${baseUrl}/rbac/roles`,
+    `/rbac/roles`,
     fetcher,
     {
       revalidateOnFocus: false, // roles rarely change; tweak as you like

@@ -1,5 +1,5 @@
 // lib/fetcher.ts
 import { api } from "./api";
-export  const  axiosFetcher = (url: string) =>
+  const  fetcher = (url: string) =>
   api.get(url).then((r) => r.data);
-  
+ export default fetcher; 

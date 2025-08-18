@@ -17,6 +17,7 @@ import { parseCookies, setCookie } from "nookies"
 import  AdminList  from "@/app/components/admin-list"
 import AddAdminDialog from "./AddAdminDialog"
 import React from "react"
+import Providers from "../providers"
 
 
 type InstitutionData = {
@@ -306,7 +307,10 @@ export function AdminDashboard() {
                   onDone={() => adminListRef.current?.reload?.()}
                 />
               </div>
-              <AdminList institutionId={Number.parseInt(selectedInstitution)} />
+              <Providers>
+                <AdminList institutionId={Number.parseInt(selectedInstitution)} />
+              </Providers>
+              
               </div>
             )}
           </TabsContent>
