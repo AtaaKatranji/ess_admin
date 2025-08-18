@@ -1,11 +1,13 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { List, Grid, Building2, Users, Shield } from "lucide-react"
+import { useState, useEffect, useMemo } from "react"
+import { List, Grid, Building2, Users, Shield, Crown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import InstitutionCard from "@/app/components/InstitutionCard"
 import { fetchInstitutionsByAdmin } from "@/app/api/institutions/institutions"
 import { toast, ToastContainer } from "react-toastify"
@@ -21,14 +23,17 @@ import Providers from "../providers"
 
 
 type InstitutionData = {
-  id: string
+  id: number
   name: string
   address: string
   keyNumber?: string
   macAddresses?: { wifiName: string; mac: string }[]
   image?: string
   slug: string
-  role: string       
+  role: {
+    id: number
+    name: string
+  }       
   roleId: string      
 }
 interface User {
@@ -38,14 +43,24 @@ interface User {
 }
 export function AdminDashboard() {
   const navigate = useRouter()
+  const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
+  
   const [loading, setLoading] = useState(true)
   const [view, setView] = useState<"list" | "grid">("list")
-  const [institutions, setInstitutions] = useState<InstitutionData[]>([])
+  const [institutions, setInstitutions] = useState<InstitutionData[]>([]);
+  const [admin, setAdmin] = useState<User | null>(null);
   // const [adminId, setAdminId] = useState<string | null>(null)
   // const [userRole, setUserRole] = useState<UserRole>("manger") // Added user role state
-  const [selectedInstitution, setSelectedInstitution] = useState<string | null>(null)
-  const [admin, setAdmin] = useState<User | null>(null);
-  const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
+  const [selectedInstitution, setSelectedInstitution] = useState<number | null>(null)
+  
+
+
+
+  const [adminInstitutions, setAdminInstitutions] = useState<InstitutionData[]>([]);
+  const [ownerSet, setOwnerSet] = useState<Set<number>>(new Set());
+  const [manageOpen, setManageOpen] = useState(false);
+  const [selectedInstitutionForManage, setSelectedInstitutionForManage] = useState<number | null>(null);
+  
 
   const adminListRef = React.useRef<{ reload?: () => void }>(null)
 
@@ -86,12 +101,20 @@ export function AdminDashboard() {
     }
 
     try {
-      const data = await fetchInstitutionsByAdmin()
-      setInstitutions(data || [])
+      const data :InstitutionData[] = await fetchInstitutionsByAdmin()
+      setAdminInstitutions(data || []);
+      setInstitutions(data || []);
       // Auto-select first institution for admin users
-      console.log("data",data)
-      if (data && data.length > 0  && admin?.globalRole === "superAdmin") {
-        setSelectedInstitution(data[0]._id)
+      const ownedIds = data
+        .filter((x) => x?.role?.name?.toLowerCase() === "owner")
+        .map((x) => x.id);
+      const owned = new Set<number>(ownedIds);
+      setOwnerSet(owned);
+
+      // Auto-open if the user owns exactly one institution
+      if (ownedIds.length === 1) {
+        setSelectedInstitutionForManage(ownedIds[0]);
+        setManageOpen(true);
       }
     } catch (error) {
       console.error("Error fetching institutions:", error)
@@ -130,16 +153,24 @@ export function AdminDashboard() {
     }
   }
 
-  const handleInstitutionSelect = (institutionId: string) => {
+  const handleInstitutionSelect = (institutionId: number) => {
     setSelectedInstitution(institutionId)
   }
 
   const isSuperAdmin = admin?.globalRole === "superAdmin"
-  console.log("selectedInstitution",selectedInstitution)
-  console.log("institutions",institutions)
-  const currentInstitution = institutions.find((i) => i.id === selectedInstitution)
-  console.log("currentInstitution",currentInstitution)
-  const isOwner = currentInstitution?.role === "owner"
+  const isOwner = !isSuperAdmin && ownerSet.size > 0;
+  const isOwnerOf = (institutionId: number) => ownerSet.has(institutionId);
+  const selectedInstitutionObj = useMemo(
+    () => adminInstitutions.find((i: InstitutionData) => i.id === selectedInstitutionForManage) ?? null,
+    [adminInstitutions, selectedInstitutionForManage]
+  );
+
+
+  // console.log("selectedInstitution",selectedInstitution)
+  // console.log("institutions",institutions)
+  // const currentInstitution = institutions.find((i) => i.id === selectedInstitution)
+  // console.log("currentInstitution",currentInstitution)
+  // const isOwner = currentInstitution?.role === "owner"
 
   if (loading) {
     return (
@@ -239,13 +270,11 @@ export function AdminDashboard() {
                     <List className="mr-2 h-4 w-4" /> List View
                   </Button>
                 </div>
-  
+
+                <TooltipProvider> 
                 <div
                   className={
-                    view === "grid"
-                      ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
-                      : "space-y-3"
-                  }
+                    view === "grid" ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" : "space-y-3"}
                 >
                   {institutions.map((institution) => (
                     <motion.div
@@ -255,6 +284,7 @@ export function AdminDashboard() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.5 }}
                     >
+                      <div className="relative">
                       <InstitutionCard
                         name={institution.name}
                         address={institution.address}
@@ -262,9 +292,47 @@ export function AdminDashboard() {
                       >
                         <Building2 className="h-6 w-6 text-muted-foreground" />
                       </InstitutionCard>
+                      
+                       {/* Owner chip (top-left) */}
+                      {isOwnerOf(institution.id) && (
+                        <Badge
+                          variant="secondary"
+                          className="absolute left-2 top-2 flex items-center gap-1 pointer-events-none"
+                        >
+                          <Crown className="h-3.5 w-3.5" />
+                          Owner
+                        </Badge>
+                      )}  
+                      {/* Manage admins icon (top-right) — only for owners */}
+                      {isOwnerOf(institution.id) && (
+                        
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="absolute right-2 top-2"
+                                aria-label="Manage admins"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation(); // don’t navigate when pressing the icon
+                                  setSelectedInstitutionForManage(institution.id);
+                                  setManageOpen(true);
+                                }}
+                              >
+                                <Users className="h-4 w-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Manage admins</TooltipContent>
+                          </Tooltip>
+                        
+                      )}
+                      </div>
+                      
                     </motion.div>
                   ))}
                 </div>
+                </TooltipProvider>
               </div>
             )}
           </TabsContent>
@@ -300,19 +368,18 @@ export function AdminDashboard() {
   
             {selectedInstitution && (
               <div className="mt-6 space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold">Managers for Institution #{selectedInstitution}</h3>
-        
-                {/* زر فتح الدialog */}
-                <AddAdminDialog
-                  institutionId={Number.parseInt(selectedInstitution)}
-                  isSuperAdmin={isSuperAdmin}
-                  canAssignOwner={isOwner} 
-                  onDone={() => adminListRef.current?.reload?.()}
-                />
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold">Managers for Institution #{selectedInstitution}</h3>
+                  {/* زر فتح الدialog */}
+                  <AddAdminDialog
+                    institutionId={selectedInstitution}
+                    isSuperAdmin={isSuperAdmin}
+                    canAssignOwner={false} 
+                    onDone={() => adminListRef.current?.reload?.()}
+                  />
               </div>
               <Providers>
-                <AdminList institutionId={Number.parseInt(selectedInstitution)} />
+                <AdminList institutionId={selectedInstitution} />
               </Providers>
               
               </div>
@@ -324,7 +391,10 @@ export function AdminDashboard() {
         <div>
           <h2 className="text-2xl font-bold mb-4">Manage Your Institution Managers</h2>
           {selectedInstitution ? (
-            <AdminList institutionId={Number.parseInt(selectedInstitution)} />
+            <Providers>
+              <AdminList institutionId={selectedInstitution} />
+            </Providers>
+            
           ) : (
             <p className="text-muted-foreground">
               Select your institution to view its managers.
@@ -395,7 +465,46 @@ export function AdminDashboard() {
           )}
         </div>
       )}
-  
+  {/* One global Sheet instance — opened via per-card icon, auto-open if exactly one owned */}
+  {selectedInstitutionForManage !== null && (
+        <Sheet open={manageOpen} onOpenChange={setManageOpen}>
+          <SheetContent side="right" className="w-full sm:max-w-xl">
+            <SheetHeader>
+              <SheetTitle className="flex items-center gap-2">
+                <Users className="h-5 w-5" />
+                Manage Admins
+              </SheetTitle>
+              <SheetDescription>Owners can add or remove admins and change their roles for this institution.</SheetDescription>
+            </SheetHeader>
+
+            <div className="mt-4 flex items-center justify-between">
+              <div className="text-sm text-muted-foreground">
+                {selectedInstitutionObj ? (
+                  <>
+                    <span className="font-medium">{selectedInstitutionObj.name}</span>
+                    <span className="ml-2 opacity-70">#{selectedInstitutionObj.id}</span>
+                  </>
+                ) : (
+                  <>Institution #{selectedInstitutionForManage}</>
+                )}
+              </div>
+
+              <AddAdminDialog
+                institutionId={selectedInstitutionForManage}
+                isSuperAdmin={false}
+                canAssignOwner={false}
+                onDone={() => adminListRef.current?.reload?.()}
+              />
+            </div>
+
+            <div className="mt-4">
+              <Providers>
+                 <AdminList institutionId={selectedInstitution!} />
+              </Providers>
+            </div>
+          </SheetContent>
+        </Sheet>
+      )}
       <ToastContainer />
     </div>
   )
