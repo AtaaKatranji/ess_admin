@@ -92,7 +92,8 @@ const { roles, isLoading: rolesLoading, isError: rolesError } = useRoles();
       { revalidate: false, populateCache: true }
     );
     try {
-      const response = await fetch(`${baseUrl}/api/institutions/${institutionId}/admins/${adminId}/role`, {
+      ///admin-institutions/:institutionId/admins/:adminId/role
+      const response = await fetch(`${baseUrl}/rbac/admin-institutions/${institutionId}/admins/${adminId}/role`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         credentials: 'include',
