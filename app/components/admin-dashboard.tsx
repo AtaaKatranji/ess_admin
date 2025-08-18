@@ -30,10 +30,7 @@ type InstitutionData = {
   macAddresses?: { wifiName: string; mac: string }[]
   image?: string
   slug: string
-  role: {
-    id: number
-    name: string
-  }       
+  role: string      
   roleId: string      
 }
 interface User {
@@ -106,7 +103,7 @@ export function AdminDashboard() {
       setInstitutions(data || []);
       // Auto-select first institution for admin users
       const ownedIds = data
-        .filter((x) => x?.role?.name?.toLowerCase() === "owner")
+        .filter((x) => x?.role?.toLowerCase() === "owner")
         .map((x) => x.id);
         console.log("ownedIds",ownedIds)
       const owned = new Set<number>(ownedIds);
