@@ -1,6 +1,6 @@
 // useAdmins.ts
 import useSWR from "swr";
-import { fetcher } from "@/lib/fetcher";
+import { fetcher as axiosFetcher } from "@/lib/fetcher";
 import type { AdminLink } from "@/app/types/rbac";
 
 export type Role = { id: string; name: string };
@@ -10,7 +10,7 @@ export type Role = { id: string; name: string };
 export function useAdmins(baseUrl: string, institutionId?: number) {
   const key = institutionId ? `${baseUrl}/rbac/admins/${institutionId}` : null;
 
-  const { data, error, isLoading, mutate } = useSWR<AdminLink[]>(key, fetcher, {
+  const { data, error, isLoading, mutate } = useSWR<AdminLink[]>(key, axiosFetcher, {
     dedupingInterval: 2000,
   });
 
