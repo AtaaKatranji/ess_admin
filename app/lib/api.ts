@@ -3,8 +3,8 @@ import axios from "axios";
 
 export const api = axios.create({
   // Leave baseURL empty to keep requests same-origin (recommended),
-  // or set to your API origin if you *must* go cross-site.
-  baseURL: process.env.NEXT_PUBLIC_API_BASE || "",
+  // or set to your API origin if you *must* go cross-site. process.env.NEXT_PUBLIC_API_BASE ||
+  baseURL:  "https://ess.zero-2-one.org",
   withCredentials: true, // send cookies
   headers: { Accept: "application/json" },
 });
