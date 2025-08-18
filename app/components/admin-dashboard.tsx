@@ -108,8 +108,10 @@ export function AdminDashboard() {
       const ownedIds = data
         .filter((x) => x?.role?.name?.toLowerCase() === "owner")
         .map((x) => x.id);
+        console.log("ownedIds",ownedIds)
       const owned = new Set<number>(ownedIds);
       setOwnerSet(owned);
+      console.log("owned",owned)
 
       // Auto-open if the user owns exactly one institution
       if (ownedIds.length === 1) {
