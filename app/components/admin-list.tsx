@@ -93,6 +93,7 @@ const { roles, isLoading: rolesLoading, isError: rolesError } = useRoles();
     );
     try {
       ///admin-institutions/:institutionId/admins/:adminId/role
+      //
       const response = await fetch(`${baseUrl}/rbac/admin-institutions/${institutionId}/admins/${adminId}/role`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
