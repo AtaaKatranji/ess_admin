@@ -25,3 +25,25 @@ export async function fetcher<T = unknown>(
 }
 
 
+export async function authedJSON<T = unknown>(
+  input: RequestInfo,
+  init: RequestInit = {}
+): Promise<T> {
+  const response = await fetch(input, {
+    ...init,
+    credentials: "include",
+    headers: {
+      Accept: "application/json",
+      ...(init.headers ?? {}),
+    },
+  });
+
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(text || `Request failed with ${response.status}`);
+  }
+
+  return (await response.json()) as T;
+}
+
+
