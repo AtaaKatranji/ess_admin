@@ -116,6 +116,7 @@ export const fetchInstitutionsByAdmin = async () => {
     }
   
     const data = await response.json();
+    console.log("data",data)
     return data; // Return the fetched institution data
   };
 export  const fetchInstitution = async (slug: string) => {
