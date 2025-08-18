@@ -110,7 +110,7 @@ export const fetchInstitutionsByAdmin = async () => {
       credentials: 'include', 
 
     });
-    console.log("5: ",response)
+    console.log("5: ",response.body)
     if (!response.ok) {
       throw new Error('Failed to fetch institution');
     }

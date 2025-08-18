@@ -89,6 +89,7 @@ export function AdminDashboard() {
       const data = await fetchInstitutionsByAdmin()
       setInstitutions(data || [])
       // Auto-select first institution for admin users
+      console.log("data",data)
       if (data && data.length > 0  && admin?.globalRole === "superAdmin") {
         setSelectedInstitution(data[0]._id)
       }
@@ -135,6 +136,7 @@ export function AdminDashboard() {
 
   const isSuperAdmin = admin?.globalRole === "superAdmin"
   const currentInstitution = institutions.find((i) => i.id === selectedInstitution)
+  console.log("currentInstitution",currentInstitution)
   const isOwner = currentInstitution?.role === "owner"
 
   if (loading) {
