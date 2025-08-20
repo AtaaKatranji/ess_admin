@@ -423,7 +423,7 @@ export function AdminDashboard() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
             >
-              <div className="relative">
+              <div className="relative py-3">
                 <InstitutionCard
                   name={institution.name}
                   address={institution.address}
@@ -450,15 +450,16 @@ export function AdminDashboard() {
                     size="icon"
                     className="absolute right-2 top-2"
                     aria-label="Manage admins"
+                    onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                    onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                    onClickCapture={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                    onKeyDown={(e) => { e.stopPropagation(); }}
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
                       setSelectedInstitutionForManage(institution.id);
-                      //setSelectedInstitution(institution.id); // حتى ينعرض مختاراً لو احتجناه
                       setManageOpen(true);
                     }}
-                    onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                    onKeyDown={(e) => { e.stopPropagation(); }}
                   >
                     <Users className="h-4 w-4" />
                   </Button>
