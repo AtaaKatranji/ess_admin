@@ -155,6 +155,7 @@ export default function AddAdminDialog({
       // 1) Create admin
       const admin = await apiCreateAdmin(values);
       // 2) Link to institution
+      console.log("admin.id",admin.id,"values.institutionRole",values.institutionRole)
       await apiLinkAdminToInstitution(admin.id, values.institutionRole);
       toast.success(`Admin created & linked: ${admin.name} was added successfully.`);
       onDone?.();
