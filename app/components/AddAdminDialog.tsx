@@ -189,17 +189,17 @@ export default function AddAdminDialog({
   }
 
   // // Sanitize phone number spaces (matches your model setter)
-  // React.useEffect(() => {
-  //   const sub = watchCreate((v, { name }) => {
-  //     if (name === "phoneNumber" && typeof v.phoneNumber === "string") {
-  //       const cleaned = v.phoneNumber.replace(/\s+/g, "");
-  //     if (cleaned !== v.phoneNumber) {
-  //       setCreateValue("phoneNumber", cleaned, { shouldDirty: true });
-  //     }
-  //     }
-  //   });
-  //   return () => sub.unsubscribe();
-  // }, [watchCreate, setCreateValue]);
+  React.useEffect(() => {
+    const sub = watchCreate((v, { name }) => {
+      if (name === "phoneNumber" && typeof v.phoneNumber === "string") {
+        const cleaned = v.phoneNumber.replace(/\s+/g, "");
+      if (cleaned !== v.phoneNumber) {
+        setCreateValue("phoneNumber", cleaned, { shouldDirty: true });
+      }
+      }
+    });
+    return () => sub.unsubscribe();
+  }, [watchCreate, setCreateValue]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
