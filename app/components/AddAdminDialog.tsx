@@ -15,6 +15,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Loader2, Plus } from "lucide-react";
 import { toast, ToastContainer } from 'react-toastify';
 
+
+const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
 // Props
  type Props = {
   institutionId: number;
@@ -96,7 +98,8 @@ export default function AddAdminDialog({
 
   async function apiCreateAdmin(payload: CreateAdminForm) {
     // Matches your createAdmin controller
-    const res = await fetch(`/api/v1/admins/register`, {
+
+    const res = await fetch(`${BaseUrl}/api/v1/admins/register`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
