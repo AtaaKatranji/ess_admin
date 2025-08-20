@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import {  TooltipProvider,  } from "@/components/ui/tooltip";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import InstitutionCard from "@/app/components/InstitutionCard"
 import { fetchInstitutionsByAdmin } from "@/app/api/institutions/institutions"
@@ -280,68 +280,7 @@ export function AdminDashboard() {
                   className={
                     view === "grid" ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" : "space-y-3"}
                 >
-                  {institutions.map((institution) => (
-                    <motion.div
-                      className="my-2"
-                      key={institution.id}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.5 }}
-                    >
-                      <div className="relative">
-                      <InstitutionCard
-                        name={institution.name}
-                        address={institution.address}
-                        onClick={() => handleCardClick(institution.slug)}
-                      >
-                        <Building2 className="h-6 w-6 text-muted-foreground" />
-                      </InstitutionCard>
-                      
-                       {/* Owner chip (top-left) */}
-                      {isOwnerOf(institution.id) && (
-                        <Badge
-                          variant="secondary"
-                          className="absolute left-3 top-3 z-20 flex items-center gap-1 pointer-events-none"
-                        >
-                          <Crown className="h-3.5 w-3.5" />
-                          Owner
-                        </Badge>
-                      )}  
-                      {/* Manage admins icon (top-right) — only for owners */}
-                      {isOwnerOf(institution.id) && (
-                        
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="absolute right-3 top-3 z-20"
-                                aria-label="Manage admins"
-                                onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                                onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                                onClickCapture={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                                onKeyDown={(e) => { e.stopPropagation(); }}
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                  cardClickGuardRef.current = true; // فعّل الحارس
-                                  setSelectedInstitutionForManage(institution.id);
-                                  setManageOpen(true);
-                                  console.log("institution.id by press button",institution.id)
-                                }}
-                                
-                              >
-                                <Users className="h-4 w-4" />
-                              </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>Manage admins</TooltipContent>
-                          </Tooltip>
-                        
-                      )}
-                      </div>
-                      
-                    </motion.div>
-                  ))}
+                  
                 </div>
                 </TooltipProvider>
               </div>
