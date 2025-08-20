@@ -392,7 +392,7 @@ export function AdminDashboard() {
                   />
               </div>
               <Providers>
-                <AdminList institutionId={selectedInstitutionForManage!} />
+                <AdminList institutionId={selectedInstitution!} />
               </Providers>
               
               </div>
