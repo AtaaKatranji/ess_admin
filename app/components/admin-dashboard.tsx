@@ -470,6 +470,7 @@ export function AdminDashboard() {
                       cardClickGuardRef.current = true; // فعّل الحارس
                       setSelectedInstitutionForManage(institution.id);
                       setManageOpen(true);
+                      console.log("institution.id by press button",institution.id)
                     }}
                   >
                     <Users className="h-4 w-4" />
