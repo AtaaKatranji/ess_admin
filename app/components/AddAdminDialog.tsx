@@ -96,7 +96,7 @@ export default function AddAdminDialog({
 
   async function apiCreateAdmin(payload: CreateAdminForm) {
     // Matches your createAdmin controller
-    const res = await fetch(`/api/admins`, {
+    const res = await fetch(`/api/v1/admins/register`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
