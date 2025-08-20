@@ -379,7 +379,7 @@ export function AdminDashboard() {
                   />
               </div>
               <Providers>
-                <AdminList institutionId={selectedInstitution} />
+                <AdminList institutionId={selectedInstitutionForManage!} />
               </Providers>
               
               </div>
@@ -454,9 +454,11 @@ export function AdminDashboard() {
                       e.preventDefault();
                       e.stopPropagation();
                       setSelectedInstitutionForManage(institution.id);
-                      setSelectedInstitution(institution.id); // حتى ينعرض مختاراً لو احتجناه
+                      //setSelectedInstitution(institution.id); // حتى ينعرض مختاراً لو احتجناه
                       setManageOpen(true);
                     }}
+                    onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                    onKeyDown={(e) => { e.stopPropagation(); }}
                   >
                     <Users className="h-4 w-4" />
                   </Button>
