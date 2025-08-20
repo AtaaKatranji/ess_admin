@@ -121,7 +121,7 @@ export default function AddAdminDialog({
   async function apiFindAdminByPhone(phoneNumber: string) {
     // Provide a simple search endpoint or adapt to yours
     // Example: /api/admins?phone=+963...
-    const res = await fetch(`/api/admins?phone=${encodeURIComponent(phoneNumber)}`, {
+    const res = await fetch(`/api/v1/admins/by-phone/?phoneNumber=${encodeURIComponent(phoneNumber)}`, {
       method: "GET",
       credentials: "include",
     });
