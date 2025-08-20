@@ -449,7 +449,7 @@ export function AdminDashboard() {
                 {isOwnerOf(institution.id) && (
                   <Badge
                     variant="secondary"
-                    className="absolute left-2 top-2 flex items-center gap-1 pointer-events-none"
+                     className="absolute left-3 top-3 z-30 flex items-center gap-1 h-6 px-2 text-xs rounded-full bg-background/80 backdrop-blur border pointer-events-none shadow"
                   >
                     <Crown className="h-3.5 w-3.5" />
                     Owner

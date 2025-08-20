@@ -27,7 +27,7 @@ export default function InstitutionCard({ name, address, onClick, children }: In
   />
 
   {/* Content inside the card */}
-  <CardHeader className="relative z-10 px-4 py-3 sm:px-5 sm:py-4">
+  <CardHeader className="relative z-10 px-4 pt-9 pb-2 sm:px-5 sm:pt-10">
     <CardTitle className="flex items-center gap-2 sm:gap-3">
       
         {children}
