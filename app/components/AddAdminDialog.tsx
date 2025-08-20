@@ -188,15 +188,18 @@ export default function AddAdminDialog({
     try { return await res.json(); } catch { return null; }
   }
 
-  // Sanitize phone number spaces (matches your model setter)
-  React.useEffect(() => {
-    const sub = watchCreate((v, { name }) => {
-      if (name === "phoneNumber" && typeof v.phoneNumber === "string") {
-        setCreateValue("phoneNumber", v.phoneNumber.replace(/\s+/g, ""), { shouldDirty: true });
-      }
-    });
-    return () => sub.unsubscribe();
-  }, [watchCreate, setCreateValue]);
+  // // Sanitize phone number spaces (matches your model setter)
+  // React.useEffect(() => {
+  //   const sub = watchCreate((v, { name }) => {
+  //     if (name === "phoneNumber" && typeof v.phoneNumber === "string") {
+  //       const cleaned = v.phoneNumber.replace(/\s+/g, "");
+  //     if (cleaned !== v.phoneNumber) {
+  //       setCreateValue("phoneNumber", cleaned, { shouldDirty: true });
+  //     }
+  //     }
+  //   });
+  //   return () => sub.unsubscribe();
+  // }, [watchCreate, setCreateValue]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -229,7 +232,13 @@ export default function AddAdminDialog({
 
             <div className="space-y-2">
               <Label>Phone number</Label>
-              <Input placeholder="+963900000000" {...regCreate("phoneNumber")} />
+              <Input placeholder="+963900000000"  onChange={(e) =>
+                  setCreateValue(
+                    "phoneNumber",
+                    e.target.value.replace(/\s+/g, ""),
+                    { shouldDirty: true }
+                  )
+                }/>
               {createErrors.phoneNumber && <p className="text-sm text-red-600">{createErrors.phoneNumber.message}</p>}
             </div>
 
@@ -295,7 +304,7 @@ export default function AddAdminDialog({
             <div className="space-y-2">
               <Label>Institution Role</Label>
               <Select
-                onValueChange={(v) => setCreateValue("institutionRole", v as "owner" | "manager" | "viewer")}
+                onValueChange={(v) => setLinkValue("institutionRole", v as "owner" | "manager" | "viewer")}
                 defaultValue={canAssignOwner ? "owner" : "manager"}
                 >
                 <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
