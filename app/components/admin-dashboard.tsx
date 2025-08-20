@@ -60,7 +60,7 @@ export function AdminDashboard() {
   
 
   const adminListRef = React.useRef<{ reload?: () => void }>(null)
-
+  const cardClickGuardRef = React.useRef(false);
   
   useEffect(() => {
     const run = async () => {
@@ -147,6 +147,10 @@ export function AdminDashboard() {
 
   const handleCardClick = async (slug: string) => {
     try {
+      if (cardClickGuardRef.current) {
+        cardClickGuardRef.current = false; // استهلك الحارس
+        return; // لا تروح على الداشبورد
+      }
       navigate.push(`/dashboard/institution/${slug}`)
     } catch (error) {
       toast.error(`Error navigating to institution: ${error}`)
@@ -313,12 +317,18 @@ export function AdminDashboard() {
                                 size="icon"
                                 className="absolute right-2 top-2"
                                 aria-label="Manage admins"
+                                onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                                onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                                onClickCapture={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                                onKeyDown={(e) => { e.stopPropagation(); }}
                                 onClick={(e) => {
                                   e.preventDefault();
-                                  e.stopPropagation(); // don’t navigate when pressing the icon
+                                  e.stopPropagation();
+                                  cardClickGuardRef.current = true; // فعّل الحارس
                                   setSelectedInstitutionForManage(institution.id);
                                   setManageOpen(true);
                                 }}
+                                
                               >
                                 <Users className="h-4 w-4" />
                               </Button>
@@ -423,7 +433,7 @@ export function AdminDashboard() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
             >
-              <div className="relative py-3">
+              <div className="relative ">
                 <InstitutionCard
                   name={institution.name}
                   address={institution.address}
@@ -457,6 +467,7 @@ export function AdminDashboard() {
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
+                      cardClickGuardRef.current = true; // فعّل الحارس
                       setSelectedInstitutionForManage(institution.id);
                       setManageOpen(true);
                     }}
