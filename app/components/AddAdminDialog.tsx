@@ -14,7 +14,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2, Plus } from "lucide-react";
 import { toast, ToastContainer } from 'react-toastify';
-
+import { useRoles } from "@/hooks/useRoles";
 
 const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
 // Props
@@ -31,14 +31,14 @@ const createAdminSchema = z.object({
   phoneNumber: z.string().min(5).max(20),
   password: z.string().min(8),
   globalRole: z.enum(["superAdmin", "regular"]).optional().default("regular"),
-  institutionRole: z.enum(["owner", "manager", "viewer"]),
+  institutionRole: z.string().min(1, "Role is required"),
 });
 
  type CreateAdminForm = z.infer<typeof createAdminSchema>;
 
 const linkExistingSchema = z.object({
   phoneNumber: z.string().min(5).max(20),
-  institutionRole: z.enum(["owner", "manager", "viewer"]),
+  institutionRole: z.string().min(1, "Role is required"),
 });
 
  type LinkExistingForm = z.infer<typeof linkExistingSchema>;
@@ -50,6 +50,12 @@ export default function AddAdminDialog({
     canAssignOwner = false,
   }: Props)  {
   const [open, setOpen] = React.useState(false);
+  // roles from API
+  const { roles, isLoading: rolesLoading, isError: rolesError } = useRoles();
+  const allowedRoles = React.useMemo(
+    () => roles.filter(r => (canAssignOwner ? true : r.name !== "owner")),
+    [roles, canAssignOwner]
+  );
 
   const {
     register: regCreate,
@@ -65,7 +71,7 @@ export default function AddAdminDialog({
       phoneNumber: "",
       password: "",
       globalRole: "regular",
-      institutionRole: "manager",
+      institutionRole: "",
     },
   });
 
@@ -79,9 +85,16 @@ export default function AddAdminDialog({
     resolver: zodResolver(linkExistingSchema),
     defaultValues: {
       phoneNumber: "",
-      institutionRole: "manager",
+      institutionRole: "",
     },
   });
+  // set defaults after roles load
+  React.useEffect(() => {
+    if (!allowedRoles.length) return;
+    const preferred = allowedRoles.find(r => r.name === "manager") ?? allowedRoles[0];
+    setCreateValue("institutionRole", preferred.name, { shouldDirty: false });
+    setLinkValue("institutionRole", preferred.name, { shouldDirty: false });
+  }, [allowedRoles, setCreateValue, setLinkValue]);
 
   const cleanupAndClose = () => {
     resetCreate();
@@ -90,11 +103,7 @@ export default function AddAdminDialog({
   };
 
   // API helpers
-  const institutionRoleOptions = [
-    ...(canAssignOwner ? [{ value: "owner" as const, label: "owner" }] : []),
-    { value: "manager" as const, label: "manager" },
-    { value: "viewer"  as const, label: "viewer"  },
-  ];
+ 
 
   async function apiCreateAdmin(payload: CreateAdminForm) {
     // Matches your createAdmin controller
@@ -134,14 +143,14 @@ export default function AddAdminDialog({
     return data?.data?.admin ?? data?.data?.admins?.[0];
   }
 
-  async function apiLinkAdminToInstitution(adminId: number, institutionRole: "owner" | "manager" | "viewer") {
+  async function apiLinkAdminToInstitution(adminId: number, roleName: string) {
     // Provide this endpoint in your server:
     // POST /api/institutions/:institutionId/admins  body: { adminId, role }
-    const res = await fetch(`${BaseUrl}/admin-institutions/${institutionId}/roles/${institutionRole}`, {
+    const res = await fetch(`${BaseUrl}/rbac/admin-institutions/${institutionId}/roles/${roleName}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
-      body: JSON.stringify({ adminId, role: institutionRole }),
+      body: JSON.stringify({ adminId }),
     });
     if (!res.ok) {
       const j = await safeJson(res);
@@ -232,7 +241,7 @@ export default function AddAdminDialog({
 
             <div className="space-y-2">
               <Label>Phone number</Label>
-              <Input placeholder="+963900000000"  onChange={(e) =>
+              <Input placeholder="+963900000000"  {...regCreate("phoneNumber")} onChange={(e) =>
                   setCreateValue(
                     "phoneNumber",
                     e.target.value.replace(/\s+/g, ""),
@@ -267,13 +276,14 @@ export default function AddAdminDialog({
               <div className="space-y-2">
                 <Label>Institution Role</Label>
                 <Select
-                    onValueChange={(v) => setCreateValue("institutionRole", v as "owner" | "manager" | "viewer")}
-                    defaultValue={canAssignOwner ? "owner" : "manager"}
+                    value={watchCreate("institutionRole")}
+                    onValueChange={(v) => setCreateValue("institutionRole", v, { shouldDirty: true, shouldValidate: true })}
+                    disabled={rolesLoading || !allowedRoles.length}
                     >
                     <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
                     <SelectContent>
-                        {institutionRoleOptions.map((opt) => (
-                        <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                        {allowedRoles.map((r) => (
+                          <SelectItem key={r.id} value={r.name}>{r.name}</SelectItem>
                         ))}
                     </SelectContent>
                     </Select>
@@ -282,7 +292,7 @@ export default function AddAdminDialog({
             </div>
 
             <Button
-              disabled={isSubmittingCreate}
+              disabled={isSubmittingCreate || rolesLoading || rolesError}
               onClick={handleCreateSubmit(onSubmitCreate)}
               className="w-full"
             >
@@ -309,8 +319,8 @@ export default function AddAdminDialog({
                 >
                 <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
                 <SelectContent>
-                    {institutionRoleOptions.map((opt) => (
-                    <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                  {allowedRoles.map((r) => (
+                      <SelectItem key={r.id} value={r.name}>{r.name}</SelectItem>
                     ))}
                 </SelectContent>
                 </Select>
@@ -318,7 +328,7 @@ export default function AddAdminDialog({
             </div>
 
             <Button
-              disabled={isSubmittingLink}
+              disabled={isSubmittingLink || rolesLoading || rolesError}
               onClick={handleLinkSubmit(onSubmitLink)}
               className="w-full"
               variant="secondary"
