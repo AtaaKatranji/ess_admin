@@ -464,17 +464,16 @@ export function AdminDashboard() {
                     className="absolute right-2 top-2  z-20 pointer-events-auto"
                     aria-label="Manage admins"
                     onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                    onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                    onClickCapture={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                    onKeyDown={(e) => { e.stopPropagation(); }}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      cardClickGuardRef.current = true; // فعّل الحارس
+                    // لا تعمل preventDefault هون
+                    onPointerUp={(e) => {
+                      e.preventDefault();    // امنع التصرف الافتراضي هون
+                      e.stopPropagation();   // وامنـع الانتشار
+                      cardClickGuardRef.current = true;
                       setSelectedInstitutionForManage(institution.id);
                       setManageOpen(true);
-                      console.log("institution.id by press button",institution.id)
+                      console.log("institution.id by press button", institution.id);
                     }}
+                    onKeyDown={(e) => { e.stopPropagation(); }}
                   >
                     <Users className="h-4 w-4" />
                   </Button>
