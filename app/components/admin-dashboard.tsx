@@ -113,6 +113,7 @@ export function AdminDashboard() {
       // Auto-open if the user owns exactly one institution
       if (ownedIds.length === 1) {
         setSelectedInstitutionForManage(ownedIds[0]);
+        setSelectedInstitution(ownedIds[0]);
         setManageOpen(true);
       }
     } catch (error) {
@@ -387,19 +388,84 @@ export function AdminDashboard() {
         </Tabs>
       ) : isOwner ? (
         // --- Owner Dashboard (إدارة مشرفين مؤسسته فقط) ---
-        <div>
-          <h2 className="text-2xl font-bold mb-4">Manage Your Institution Managers</h2>
-          {selectedInstitution ? (
-            <Providers>
-              <AdminList institutionId={selectedInstitution} />
-            </Providers>
-            
-          ) : (
-            <p className="text-muted-foreground">
-              Select your institution to view its managers.
-            </p>
-          )}
+        <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-bold" style={{ color: "#002E3BFF" }}>
+            Your Organizations
+          </h2>
         </div>
+    
+        <div className="flex space-x-2">
+          <Button
+            variant={view === "grid" ? "default" : "outline"}
+            onClick={() => handleViewChange("grid")}
+          >
+            <Grid className="mr-2 h-4 w-4" /> Grid View
+          </Button>
+          <Button
+            variant={view === "list" ? "default" : "outline"}
+            onClick={() => handleViewChange("list")}
+          >
+            <List className="mr-2 h-4 w-4" /> List View
+          </Button>
+        </div>
+    
+        <div
+          className={view === "grid"
+            ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+            : "space-y-2"}
+        >
+          {institutions.map((institution) => (
+            <motion.div
+              className="my-2 relative"
+              key={institution.id}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <div className="relative">
+                <InstitutionCard
+                  name={institution.name}
+                  address={institution.address}
+                  onClick={() => handleCardClick(institution.slug)} // فتح dashboard بالمؤسسة
+                >
+                  <Building2 className="h-6 w-6 text-muted-foreground" />
+                </InstitutionCard>
+    
+                {/* شارة مالك */}
+                {isOwnerOf(institution.id) && (
+                  <Badge
+                    variant="secondary"
+                    className="absolute left-2 top-2 flex items-center gap-1 pointer-events-none"
+                  >
+                    <Crown className="h-3.5 w-3.5" />
+                    Owner
+                  </Badge>
+                )}
+    
+                {/* زر إدارة المشرفين للمالك */}
+                {isOwnerOf(institution.id) && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute right-2 top-2"
+                    aria-label="Manage admins"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setSelectedInstitutionForManage(institution.id);
+                      setSelectedInstitution(institution.id); // حتى ينعرض مختاراً لو احتجناه
+                      setManageOpen(true);
+                    }}
+                  >
+                    <Users className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
       ) : (
         // --- Manager Dashboard (عرض المؤسسات فقط) ---
         <div>
@@ -466,7 +532,13 @@ export function AdminDashboard() {
       )}
   {/* One global Sheet instance — opened via per-card icon, auto-open if exactly one owned */}
   {selectedInstitutionForManage !== null && (
-        <Sheet open={manageOpen} onOpenChange={setManageOpen}>
+        <Sheet open={manageOpen} onOpenChange={(open) => {
+          setManageOpen(open);
+          if (!open) {
+            // إذا بتحب ترجع الحالة فاضية
+            setSelectedInstitutionForManage(null);
+          }
+        }}>
           <SheetContent side="right" className="w-full sm:max-w-xl">
             <SheetHeader>
               <SheetTitle className="flex items-center gap-2">
@@ -498,7 +570,7 @@ export function AdminDashboard() {
 
             <div className="mt-4">
               <Providers>
-                 <AdminList institutionId={selectedInstitution!} />
+                 <AdminList institutionId={selectedInstitutionForManage!} />
               </Providers>
             </div>
           </SheetContent>
