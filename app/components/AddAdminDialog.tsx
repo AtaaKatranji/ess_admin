@@ -171,6 +171,7 @@ export default function AddAdminDialog({
       const admin = await apiFindAdminByPhone(values.phoneNumber);
       if (!admin?.id) throw new Error("No admin found with this phone number");
       // 2) Link to institution
+      console.log("admin.id",admin.id,"values.institutionRole",values.institutionRole)
       await apiLinkAdminToInstitution(admin.id, values.institutionRole);
       toast.success(`Admin linked: ${admin.name} was linked successfully.`);
       onDone?.();
