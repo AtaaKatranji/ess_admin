@@ -301,7 +301,7 @@ export function AdminDashboard() {
                       {isOwnerOf(institution.id) && (
                         <Badge
                           variant="secondary"
-                          className="absolute left-2 top-2 flex items-center gap-1 pointer-events-none"
+                          className="absolute left-3 top-3 z-20 flex items-center gap-1 pointer-events-none"
                         >
                           <Crown className="h-3.5 w-3.5" />
                           Owner
@@ -315,7 +315,7 @@ export function AdminDashboard() {
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                className="absolute right-2 top-2"
+                                className="absolute right-3 top-3 z-20"
                                 aria-label="Manage admins"
                                 onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
                                 onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}

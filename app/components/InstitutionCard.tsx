@@ -11,11 +11,11 @@ export default function InstitutionCard({ name, address, onClick, children }: In
   return (
     <Card
   onClick={onClick}
-  className="cursor-pointer border hover:bg-accent transition-colors relative overflow-hidden"
+  className="group relative overflow-hidden rounded-2xl border transition-colors cursor-pointer hover:bg-accent/40 p-0"
 >
   {/* Pseudo-element to apply the background image with mask */}
   <div
-    className="absolute inset-0 z-0 pointer-events-none"
+    className="absolute inset-0 z-0 pointer-events-none rounded-2xl"
     style={{
       backgroundImage: `url('https://img.freepik.com/premium-vector/school-seamless-pattern-with-one-color-elements_1299659-33.jpg')`,
       backgroundSize: 'cover',
@@ -27,16 +27,16 @@ export default function InstitutionCard({ name, address, onClick, children }: In
   />
 
   {/* Content inside the card */}
-  <CardHeader className="relative z-10">
-    <CardTitle className="flex items-center justify-start space-x-10">
-      <div className="flex items-center">
+  <CardHeader className="relative z-10 px-4 py-3 sm:px-5 sm:py-4">
+    <CardTitle className="flex items-center gap-2 sm:gap-3">
+      
         {children}
-        <span className="ml-2" style={{ color: '#002E3BFF' }}>{name}</span>
-      </div>
+        <span className="text-base sm:text-lg font-semibold" style={{ color: '#002E3BFF' }}>{name}</span>
+      
     </CardTitle>
   </CardHeader>
   
-  <CardContent className="relative z-10">
+  <CardContent className="relative z-10 px-4 pb-4 sm:px-5 sm:pb-5 pt-0">
     <p className="text-sm text-muted-foreground">{address}</p>
   </CardContent>
 </Card>
