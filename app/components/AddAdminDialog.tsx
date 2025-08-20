@@ -137,7 +137,7 @@ export default function AddAdminDialog({
   async function apiLinkAdminToInstitution(adminId: number, institutionRole: "owner" | "manager" | "viewer") {
     // Provide this endpoint in your server:
     // POST /api/institutions/:institutionId/admins  body: { adminId, role }
-    const res = await fetch(`/api/institutions/${institutionId}/admins`, {
+    const res = await fetch(`${BaseUrl}/admin-institutions/${institutionId}/roles/${institutionRole}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
