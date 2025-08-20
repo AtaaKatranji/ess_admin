@@ -458,7 +458,7 @@ export function AdminDashboard() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="absolute right-2 top-2"
+                    className="absolute right-2 top-2  z-20 pointer-events-auto"
                     aria-label="Manage admins"
                     onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
                     onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}

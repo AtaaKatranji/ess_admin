@@ -15,7 +15,7 @@ export default function InstitutionCard({ name, address, onClick, children }: In
 >
   {/* Pseudo-element to apply the background image with mask */}
   <div
-    className="absolute inset-0 z-0"
+    className="absolute inset-0 z-0 pointer-events-none"
     style={{
       backgroundImage: `url('https://img.freepik.com/premium-vector/school-seamless-pattern-with-one-color-elements_1299659-33.jpg')`,
       backgroundSize: 'cover',
