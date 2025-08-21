@@ -3,11 +3,17 @@ export type Permission = {
     id: number
     resource: string
     action: string
+    key: string
     description: string
   }
 export type Role = {
     id: number;
     name: string;
+    priority: number;
+    description: string;
+    userCount: number;
+    createdAt: string;
+    isSystem?: boolean;
     permissions?: Permission[];
   };
   

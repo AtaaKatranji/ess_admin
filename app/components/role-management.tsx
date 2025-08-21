@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { Shield, Users, Plus, Edit, Trash2, Settings } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -22,25 +22,11 @@ import { Switch } from "@/components/ui/switch"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
 import { toast } from "react-toastify"
+import { useRoles } from "@/hooks/useRoles";
+import type { Role } from "@/app/types/rbac";
+import { usePermissions } from "@/hooks/usePermission"
+import { buildPermissionsUI } from "../utils/permissionMapping"
 
-interface Role {
-  id: string
-  name: string
-  description: string
-  level: "global" | "institution"
-  permissions: Permission[]
-  userCount: number
-  createdAt: string
-  isSystem: boolean
-}
-
-interface Permission {
-  id: string
-  name: string
-  description: string
-  category: string
-  enabled: boolean
-}
 
 const PERMISSION_CATEGORIES = [
   "Institution Management",
@@ -50,286 +36,150 @@ const PERMISSION_CATEGORIES = [
   "Reports & Analytics",
 ]
 
-const DEFAULT_PERMISSIONS: Permission[] = [
-  {
-    id: "view_institutions",
-    name: "View Institutions",
-    description: "Can view institution details",
-    category: "Institution Management",
-    enabled: false,
-  },
-  {
-    id: "create_institutions",
-    name: "Create Institutions",
-    description: "Can create new institutions",
-    category: "Institution Management",
-    enabled: false,
-  },
-  {
-    id: "edit_institutions",
-    name: "Edit Institutions",
-    description: "Can modify institution details",
-    category: "Institution Management",
-    enabled: false,
-  },
-  {
-    id: "delete_institutions",
-    name: "Delete Institutions",
-    description: "Can delete institutions",
-    category: "Institution Management",
-    enabled: false,
-  },
-  {
-    id: "view_users",
-    name: "View Users",
-    description: "Can view user profiles",
-    category: "User Management",
-    enabled: false,
-  },
-  {
-    id: "create_users",
-    name: "Create Users",
-    description: "Can create new users",
-    category: "User Management",
-    enabled: false,
-  },
-  {
-    id: "edit_users",
-    name: "Edit Users",
-    description: "Can modify user details",
-    category: "User Management",
-    enabled: false,
-  },
-  {
-    id: "delete_users",
-    name: "Delete Users",
-    description: "Can delete users",
-    category: "User Management",
-    enabled: false,
-  },
-  {
-    id: "assign_roles",
-    name: "Assign Roles",
-    description: "Can assign roles to users",
-    category: "Role Management",
-    enabled: false,
-  },
-  {
-    id: "view_roles",
-    name: "View Roles",
-    description: "Can view role details",
-    category: "Role Management",
-    enabled: false,
-  },
-  {
-    id: "create_roles",
-    name: "Create Roles",
-    description: "Can create new roles",
-    category: "Role Management",
-    enabled: false,
-  },
-  {
-    id: "edit_roles",
-    name: "Edit Roles",
-    description: "Can modify role permissions",
-    category: "Role Management",
-    enabled: false,
-  },
-  {
-    id: "delete_roles",
-    name: "Delete Roles",
-    description: "Can delete custom roles",
-    category: "Role Management",
-    enabled: false,
-  },
-  {
-    id: "system_settings",
-    name: "System Settings",
-    description: "Can modify system configuration",
-    category: "System Administration",
-    enabled: false,
-  },
-  {
-    id: "view_reports",
-    name: "View Reports",
-    description: "Can access reports and analytics",
-    category: "Reports & Analytics",
-    enabled: false,
-  },
-]
+
 
 export function RoleManagement() {
-  const [roles, setRoles] = useState<Role[]>([])
-  const [loading, setLoading] = useState(true)
+    type Scope = "global" | "institution";
+    const SCOPE_THRESHOLD = 70;
+    
+    const priorityToScope = (p: number): Scope => (p >= SCOPE_THRESHOLD ? "global" : "institution");
+    const scopeToDefaultPriority = (s: Scope): number => (s === "global" ? 80 : 50); // قيَم افتراضية
+    
+
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [selectedRole, setSelectedRole] = useState<Role | null>(null)
   const [formData, setFormData] = useState({
     name: "",
     description: "",
-    level: "institution" as "global" | "institution",
-    permissions: DEFAULT_PERMISSIONS.map((p) => ({ ...p })),
+    priority: 50,
+    permissions:  [] as ReturnType<typeof buildPermissionsUI>,
   })
+  const { roles, isLoading: rolesLoading, isError: rolesError, mutateRoles  } = useRoles();
+  const { permissions, isLoading: permissionsLoading, isError: permissionsError } = usePermissions();
 
-  // Mock data - replace with actual API calls
-  useEffect(() => {
-    const mockRoles: Role[] = [
-      {
-        id: "1",
-        name: "Super Admin",
-        description: "Full system access with all permissions",
-        level: "global",
-        permissions: DEFAULT_PERMISSIONS.map((p) => ({ ...p, enabled: true })),
-        userCount: 2,
-        createdAt: "2024-01-01",
-        isSystem: true,
-      },
-      {
-        id: "2",
-        name: "Institution Owner",
-        description: "Full control over assigned institutions",
-        level: "institution",
-        permissions: DEFAULT_PERMISSIONS.map((p) => ({
-          ...p,
-          enabled: !["system_settings", "create_institutions", "delete_institutions"].includes(p.id),
-        })),
-        userCount: 15,
-        createdAt: "2024-01-01",
-        isSystem: true,
-      },
-      {
-        id: "3",
-        name: "Manager",
-        description: "Limited management access to institutions",
-        level: "institution",
-        permissions: DEFAULT_PERMISSIONS.map((p) => ({
-          ...p,
-          enabled: ["view_institutions", "view_users", "view_reports"].includes(p.id),
-        })),
-        userCount: 45,
-        createdAt: "2024-01-01",
-        isSystem: true,
-      },
-      {
-        id: "4",
-        name: "Custom Manager",
-        description: "Custom role with specific permissions",
-        level: "institution",
-        permissions: DEFAULT_PERMISSIONS.map((p) => ({
-          ...p,
-          enabled: ["view_institutions", "edit_institutions", "view_users", "create_users"].includes(p.id),
-        })),
-        userCount: 8,
-        createdAt: "2024-02-15",
-        isSystem: false,
-      },
-    ]
-
-    setTimeout(() => {
-      setRoles(mockRoles)
-      setLoading(false)
-    }, 1000)
-  }, [])
-
-  const handleCreateRole = () => {
-    if (!formData.name.trim()) {
-      toast.error("Role name is required")
-      return
+  const payload = {
+    name: formData.name,
+    description: formData.description,
+    priority: formData.priority,
+    permissionKeys: formData.permissions.filter(p => p.enabled).map(p => p.key),
+  };
+  const handleCreateRole = async () => {
+        if (!formData.name.trim()) {
+        toast.error("Role name is required");
+        return;
+        }
+    
+        try {
+        // call API
+        await fetch("/rbac/roles", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+      });
+  
+      // refresh list
+      await mutateRoles();
+  
+      setIsCreateDialogOpen(false);
+      resetForm();
+      toast.success("Role created successfully");
+    } catch {
+      toast.error("Failed to create role");
     }
+  };
 
-    const newRole: Role = {
-      id: Date.now().toString(),
-      name: formData.name,
-      description: formData.description,
-      level: formData.level,
-      permissions: formData.permissions,
-      userCount: 0,
-      createdAt: new Date().toISOString().split("T")[0],
-      isSystem: false,
-    }
-
-    setRoles((prev) => [...prev, newRole])
-    setIsCreateDialogOpen(false)
-    resetForm()
-    toast.success("Role created successfully")
-  }
-
-  const handleEditRole = () => {
+  const handleEditRole = async () => {
     if (!selectedRole || !formData.name.trim()) {
-      toast.error("Role name is required")
-      return
+      toast.error("Role name is required");
+      return;
     }
+    
+    try {
+      await fetch(`/rbac/roles/${selectedRole.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+  
+      await mutateRoles(); // re-fetch updated roles
+  
+      setIsEditDialogOpen(false);
+      setSelectedRole(null);
+      resetForm();
+      toast.success("Role updated successfully");
+    } catch {
+      toast.error("Failed to update role");
+    }
+  };
 
-    setRoles((prev) =>
-      prev.map((role) =>
-        role.id === selectedRole.id
-          ? { ...role, name: formData.name, description: formData.description, permissions: formData.permissions }
-          : role,
-      ),
-    )
-    setIsEditDialogOpen(false)
-    setSelectedRole(null)
-    resetForm()
-    toast.success("Role updated successfully")
-  }
-
-  const handleDeleteRole = (roleId: string) => {
-    const role = roles.find((r) => r.id === roleId)
+  const handleDeleteRole = async (roleId: number) => {
+    const role = roles.find((r) => r.id === roleId);
     if (role?.isSystem) {
-      toast.error("Cannot delete system roles")
-      return
+      toast.error("Cannot delete system roles");
+      return;
     }
-    if (role!.userCount > 0) {
-      toast.error("Cannot delete role with assigned users")
-      return
+    if (role && role.userCount > 0) {
+      toast.error("Cannot delete role with assigned users");
+      return;
     }
-
-    setRoles((prev) => prev.filter((r) => r.id !== roleId))
-    toast.success("Role deleted successfully")
-  }
-
+  
+    try {
+      await fetch(`/rbac/roles/${roleId}`, { method: "DELETE" });
+      await mutateRoles();
+      toast.success("Role deleted successfully");
+    } catch {
+      toast.error("Failed to delete role");
+    }
+  };
+  
   const openEditDialog = (role: Role) => {
-    setSelectedRole(role)
+    setSelectedRole(role);
+    const roleKeys = role.permissions?.map(p => p.key) ?? [];
     setFormData({
       name: role.name,
-      description: role.description,
-      level: role.level,
-      permissions: role.permissions.map((p) => ({ ...p })),
-    })
-    setIsEditDialogOpen(true)
-  }
+      description: role.description ?? "",
+      priority: role.priority ?? 50,
+      permissions: buildPermissionsUI(permissions, roleKeys),
+    });
+    setIsEditDialogOpen(true);
+  };
+  
 
   const resetForm = () => {
     setFormData({
       name: "",
       description: "",
-      level: "institution",
-      permissions: DEFAULT_PERMISSIONS.map((p) => ({ ...p })),
-    })
-  }
+      priority: 50,
+      permissions: buildPermissionsUI(permissions, []),
+    });
+  };
 
-  const updatePermission = (permissionId: string, enabled: boolean) => {
-    setFormData((prev) => ({
+  const updatePermission = (permissionId: number, enabled: boolean) => {
+    setFormData(prev => ({
       ...prev,
-      permissions: prev.permissions.map((p) => (p.id === permissionId ? { ...p, enabled } : p)),
-    }))
-  }
+      permissions: prev.permissions.map(p =>
+        p.id === permissionId ? { ...p, enabled } : p
+      ),
+    }));
+  };
+  
 
-  const getRoleLevelBadge = (level: string) => {
-    return level === "global" ? (
-      <Badge variant="default" className="flex items-center gap-1">
-        <Shield className="h-3 w-3" />
-        Global
-      </Badge>
-    ) : (
-      <Badge variant="secondary" className="flex items-center gap-1">
-        <Users className="h-3 w-3" />
-        Institution
-      </Badge>
-    )
-  }
+  const getRoleLevelBadge = (priority: number) => {
+    return priority >= SCOPE_THRESHOLD ? (
+        <Badge variant="default" className="flex items-center gap-1">
+          <Shield className="h-3 w-3" />
+          Global
+        </Badge>
+      ) : (
+        <Badge variant="secondary" className="flex items-center gap-1">
+          <Users className="h-3 w-3" />
+          Institution
+        </Badge>
+      );
+    };
 
-  if (loading) {
+  if (rolesLoading || permissionsLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center space-y-4">
@@ -338,6 +188,16 @@ export function RoleManagement() {
         </div>
       </div>
     )
+  }
+  if (rolesError || permissionsError) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center space-y-4">
+          <p className="text-red-500 font-medium">Failed to load roles.</p>
+          <Button onClick={() => mutateRoles()}>Retry</Button>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -373,9 +233,9 @@ export function RoleManagement() {
                 <div className="space-y-2">
                   <Label htmlFor="level">Role Level</Label>
                   <Select
-                    value={formData.level}
-                    onValueChange={(value: "global" | "institution") =>
-                      setFormData((prev) => ({ ...prev, level: value }))
+                    value={priorityToScope(formData.priority)}
+                    onValueChange={(value: Scope) =>
+                      setFormData(prev => ({ ...prev, priority: scopeToDefaultPriority(value) }))
                     }
                   >
                     <SelectTrigger>
@@ -410,14 +270,14 @@ export function RoleManagement() {
                           <div key={permission.id} className="flex items-center justify-between space-x-2">
                             <div className="flex-1">
                               <div className="flex items-center space-x-2">
-                                <Label htmlFor={permission.id} className="text-sm font-medium">
+                                <Label htmlFor={`perm-${permission.id}`} className="text-sm font-medium">
                                   {permission.name}
                                 </Label>
                               </div>
                               <p className="text-xs text-muted-foreground">{permission.description}</p>
                             </div>
                             <Switch
-                              id={permission.id}
+                               id={`perm-${permission.id}`}
                               checked={permission.enabled}
                               onCheckedChange={(checked) => updatePermission(permission.id, checked)}
                             />
@@ -465,14 +325,14 @@ export function RoleManagement() {
                   <TableCell className="font-medium">
                     <div className="flex items-center gap-2">
                       {role.name}
-                      {role.isSystem && (
+                      {/* {role.isSystem && (
                         <Badge variant="outline" className="text-xs">
                           System
                         </Badge>
-                      )}
+                      )} */}
                     </div>
                   </TableCell>
-                  <TableCell>{getRoleLevelBadge(role.level)}</TableCell>
+                  <TableCell>{getRoleLevelBadge(role.priority)}</TableCell>
                   <TableCell className="max-w-xs truncate">{role.description}</TableCell>
                   <TableCell>
                     <Badge variant="secondary">{role.userCount} users</Badge>
@@ -521,11 +381,11 @@ export function RoleManagement() {
               <div className="space-y-2">
                 <Label htmlFor="edit-level">Role Level</Label>
                 <Select
-                  value={formData.level}
-                  onValueChange={(value: "global" | "institution") =>
-                    setFormData((prev) => ({ ...prev, level: value }))
-                  }
-                >
+                    value={priorityToScope(formData.priority)}
+                    onValueChange={(value: Scope) =>
+                        setFormData(prev => ({ ...prev, priority: scopeToDefaultPriority(value) }))
+                    }
+                    >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
