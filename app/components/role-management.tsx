@@ -56,7 +56,7 @@ export function RoleManagement() {
     permissions:  [] as ReturnType<typeof buildPermissionsUI>,
   })
   const { roles, isLoading: rolesLoading, isError: rolesError, mutateRoles  } = useRoles();
-  const { permissions, isLoading: permissionsLoading, isError: permissionsError } = usePermissions();
+  const { permissions, isLoading: permissionsLoading, isError: permissionsError, mutatePermissions } = usePermissions();
 
   const payload = {
     name: formData.name,
@@ -105,6 +105,7 @@ export function RoleManagement() {
       });
   
       await mutateRoles(); // re-fetch updated roles
+      await mutatePermissions(); // re-fetch updated permissions
   
       setIsEditDialogOpen(false);
       setSelectedRole(null);
