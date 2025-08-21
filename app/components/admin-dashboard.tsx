@@ -220,7 +220,7 @@ export function AdminDashboard() {
       {isSuperAdmin ? (
         // --- Super Admin Dashboard ---
         <Tabs defaultValue="organizations" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="organizations">Organizations</TabsTrigger>
             <TabsTrigger value="managers">Manage Managers</TabsTrigger>
             <TabsTrigger value="roles">Manage Roles</TabsTrigger>
