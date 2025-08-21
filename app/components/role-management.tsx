@@ -26,7 +26,7 @@ import { useRoles } from "@/hooks/useRoles";
 import type { Role } from "@/app/types/rbac";
 import { usePermissions } from "@/hooks/usePermission"
 import { buildPermissionsUI } from "../utils/permissionMapping"
-
+const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
 
 const PERMISSION_CATEGORIES = [
   "Institution Management",
@@ -72,7 +72,7 @@ export function RoleManagement() {
     
         try {
         // call API
-        await fetch("/rbac/roles", {
+        await fetch(`${BaseUrl}/rbac/roles`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload),
@@ -96,7 +96,7 @@ export function RoleManagement() {
     }
     
     try {
-      await fetch(`/rbac/roles/${selectedRole.id}`, {
+      await fetch(`${BaseUrl}/rbac/roles/${selectedRole.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -125,7 +125,7 @@ export function RoleManagement() {
     }
   
     try {
-      await fetch(`/rbac/roles/${roleId}`, { method: "DELETE" });
+      await fetch(`${BaseUrl}/rbac/roles/${roleId}`, { method: "DELETE" });
       await mutateRoles();
       toast.success("Role deleted successfully");
     } catch {
