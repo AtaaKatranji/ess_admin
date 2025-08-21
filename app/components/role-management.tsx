@@ -71,6 +71,7 @@ export function RoleManagement() {
       permissions: buildPermissionsUI(permissions, keys),
     }));
   }, [isEditDialogOpen, selectedRole?.id, rolePermsMap, permissions]);
+  
   const handleCreateRole = async () => {
         if (!formData.name.trim()) {
         toast.error("Role name is required");
@@ -157,13 +158,13 @@ export function RoleManagement() {
   
   const openEditDialog = (role: Role) => {
     setSelectedRole(role);
-    // const roleKeys = rolePermsMap[role.id] ?? [];
-    // setFormData({
-    //   name: role.name,
-    //   description: role.description ?? "",
-    //   priority: role.priority ?? 50,
-    //   permissions: buildPermissionsUI(permissions, roleKeys),
-    // });
+    const roleKeys = rolePermsMap[role.id] ?? [];
+    setFormData({
+      name: role.name,
+      description: role.description ?? "",
+      priority: role.priority ?? 50,
+      permissions: buildPermissionsUI(permissions, roleKeys),
+    });
     setIsEditDialogOpen(true);
   };
   
