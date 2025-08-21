@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect   } from "react"
 import { Shield, Users, Plus, Edit, Trash2, Settings } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -26,6 +26,7 @@ import { useRoles } from "@/hooks/useRoles";
 import type { Role } from "@/app/types/rbac";
 import { usePermissions } from "@/hooks/usePermission"
 import { buildPermissionsUI } from "../utils/permissionMapping"
+import { useRolePermissions } from "@/hooks/useRolePermissions"
 const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
 
 const PERMISSION_CATEGORIES = [
@@ -56,20 +57,31 @@ export function RoleManagement() {
     permissions:  [] as ReturnType<typeof buildPermissionsUI>,
   })
   const { roles, isLoading: rolesLoading, isError: rolesError, mutateRoles  } = useRoles();
-  const { permissions, isLoading: permissionsLoading, isError: permissionsError, mutatePermissions } = usePermissions();
+  const { permissions, isLoading: permissionsLoading, isError: permissionsError } = usePermissions();
+  const { rolePermsMap, mutateRolePerms,  } = useRolePermissions();
 
-  const payload = {
-    name: formData.name,
-    description: formData.description,
-    priority: formData.priority,
-    permissionKeys: formData.permissions.filter(p => p.enabled).map(p => p.key),
-  };
+  const canSubmitCreate = !!formData.name.trim() && (permissions?.length ?? 0) > 0;
+  useEffect(() => {
+    if (!isEditDialogOpen || !selectedRole) return;
+    const keys = rolePermsMap[selectedRole.id];
+    if (!keys || !permissions?.length) return;
+  
+    setFormData(prev => ({
+      ...prev,
+      permissions: buildPermissionsUI(permissions, keys),
+    }));
+  }, [isEditDialogOpen, selectedRole?.id, rolePermsMap, permissions]);
   const handleCreateRole = async () => {
         if (!formData.name.trim()) {
         toast.error("Role name is required");
         return;
         }
-    
+        const payload = {
+            name: formData.name,
+            description: formData.description,
+            priority: formData.priority,
+            permissionKeys: formData.permissions.filter(p => p.enabled).map(p => p.key),
+          };
         try {
         // call API
         await fetch(`${BaseUrl}/rbac/roles`, {
@@ -81,6 +93,7 @@ export function RoleManagement() {
   
       // refresh list
       await mutateRoles();
+      await mutateRolePerms();
   
       setIsCreateDialogOpen(false);
       resetForm();
@@ -95,7 +108,12 @@ export function RoleManagement() {
       toast.error("Role name is required");
       return;
     }
-    
+    const payload = {
+        name: formData.name,
+        description: formData.description,
+        priority: formData.priority,
+        permissionKeys: formData.permissions.filter(p => p.enabled).map(p => p.key),
+      };
     try {
       await fetch(`${BaseUrl}/rbac/roles/${selectedRole.id}`, {
         method: "PATCH",
@@ -105,7 +123,7 @@ export function RoleManagement() {
       });
   
       await mutateRoles(); // re-fetch updated roles
-      await mutatePermissions(); // re-fetch updated permissions
+      await mutateRolePerms(); // re-fetch updated permissions
   
       setIsEditDialogOpen(false);
       setSelectedRole(null);
@@ -130,6 +148,7 @@ export function RoleManagement() {
     try {
       await fetch(`${BaseUrl}/rbac/roles/${roleId}`, { method: "DELETE", credentials: "include" });
       await mutateRoles();
+      await mutateRolePerms();
       toast.success("Role deleted successfully");
     } catch {
       toast.error("Failed to delete role");
@@ -138,13 +157,13 @@ export function RoleManagement() {
   
   const openEditDialog = (role: Role) => {
     setSelectedRole(role);
-    const roleKeys = role.permissions?.map(p => p.key) ?? [];
-    setFormData({
-      name: role.name,
-      description: role.description ?? "",
-      priority: role.priority ?? 50,
-      permissions: buildPermissionsUI(permissions, roleKeys),
-    });
+    // const roleKeys = rolePermsMap[role.id] ?? [];
+    // setFormData({
+    //   name: role.name,
+    //   description: role.description ?? "",
+    //   priority: role.priority ?? 50,
+    //   permissions: buildPermissionsUI(permissions, roleKeys),
+    // });
     setIsEditDialogOpen(true);
   };
   
@@ -296,7 +315,7 @@ export function RoleManagement() {
               <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
                 Cancel
               </Button>
-              <Button onClick={handleCreateRole}>Create Role</Button>
+              <Button onClick={handleCreateRole} disabled={!canSubmitCreate} >Create Role</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>

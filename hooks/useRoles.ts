@@ -22,3 +22,22 @@ export function useRoles() {
     error,
   };
 }
+
+export function useRolesPermissions() {
+  const { data, error, isLoading, mutate } = useSWR<Role[]>(
+    `/rbac/roles`,
+    fetcher,
+    {
+      revalidateOnFocus: false, // roles rarely change; tweak as you like
+      dedupingInterval: 10_000,
+    }
+  );
+
+  return {
+    roles: data ?? [],
+    isLoading,
+    isError: !!error,
+    mutateRoles: mutate,
+    error,
+  };
+}
