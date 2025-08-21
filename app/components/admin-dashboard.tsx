@@ -20,6 +20,7 @@ import  AdminList  from "@/app/components/admin-list"
 import AddAdminDialog from "./AddAdminDialog"
 import React from "react"
 import Providers from "../providers"
+import { RoleManagement } from "./role-management"
 
 
 type InstitutionData = {
@@ -222,6 +223,7 @@ export function AdminDashboard() {
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="organizations">Organizations</TabsTrigger>
             <TabsTrigger value="managers">Manage Managers</TabsTrigger>
+            <TabsTrigger value="roles">Manage Roles</TabsTrigger>
           </TabsList>
   
           {/* --- Tab: Organizations --- */}
@@ -398,91 +400,105 @@ export function AdminDashboard() {
               </div>
             )}
           </TabsContent>
+          {/* --- Tab: Organizations --- */}
+          <TabsContent value="roles">
+            <RoleManagement />        
+          </TabsContent>
+  
+
         </Tabs>
       ) : isOwner ? (
         // --- Owner Dashboard (إدارة مشرفين مؤسسته فقط) ---
-        <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold" style={{ color: "#002E3BFF" }}>
-            Your Organizations
-          </h2>
-        </div>
-    
-        <div className="flex space-x-2">
-          <Button
-            variant={view === "grid" ? "default" : "outline"}
-            onClick={() => handleViewChange("grid")}
-          >
-            <Grid className="mr-2 h-4 w-4" /> Grid View
-          </Button>
-          <Button
-            variant={view === "list" ? "default" : "outline"}
-            onClick={() => handleViewChange("list")}
-          >
-            <List className="mr-2 h-4 w-4" /> List View
-          </Button>
-        </div>
-    
-        <div
-          className={view === "grid"
-            ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
-            : "space-y-2"}
-        >
-          {institutions.map((institution) => (
-            <motion.div
-              className="my-2 relative"
-              key={institution.id}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              <div className="relative ">
-                <InstitutionCard
-                  name={institution.name}
-                  address={institution.address}
-                  onClick={() => handleCardClick(institution.slug)} // فتح dashboard بالمؤسسة
+        <Tabs defaultValue="organizations" className="space-y-4">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="organizations">Organizations</TabsTrigger>
+          <TabsTrigger value="roles">Role Management</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="organizations">
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-bold" style={{ color: "#002E3BFF" }}>
+                Your Organizations
+              </h2>
+            </div>
+
+            <div className="flex space-x-2">
+              <Button variant={view === "grid" ? "default" : "outline"} onClick={() => handleViewChange("grid")}>
+                <Grid className="mr-2 h-4 w-4" /> Grid View
+              </Button>
+              <Button variant={view === "list" ? "default" : "outline"} onClick={() => handleViewChange("list")}>
+                <List className="mr-2 h-4 w-4" /> List View
+              </Button>
+            </div>
+
+            <div className={view === "grid" ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" : "space-y-2"}>
+              {institutions.map((institution) => (
+                <motion.div
+                  className="my-2 relative"
+                  key={institution.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5 }}
                 >
-                  <Building2 className="h-6 w-6 text-muted-foreground" />
-                </InstitutionCard>
-    
-                {/* شارة مالك */}
-                {isOwnerOf(institution.id) && (
-                  <Badge
-                    variant="secondary"
-                     className="absolute left-3 top-3 z-30 flex items-center gap-1 h-6 px-2 text-xs rounded-full bg-background/80 backdrop-blur border pointer-events-none shadow"
-                  >
-                    <Crown className="h-3.5 w-3.5" />
-                    Owner
-                  </Badge>
-                )}
-    
-                {/* زر إدارة المشرفين للمالك */}
-                {isOwnerOf(institution.id) && (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="absolute right-2 top-2  z-20 pointer-events-auto"
-                    aria-label="Manage admins"
-                    onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                    // لا تعمل preventDefault هون
-                    onPointerUp={(e) => {
-                      e.preventDefault();    // امنع التصرف الافتراضي هون
-                      e.stopPropagation();   // وامنـع الانتشار
-                      cardClickGuardRef.current = true;
-                      setSelectedInstitutionForManage(institution.id);
-                      setManageOpen(true);
-                      console.log("institution.id by press button", institution.id);
-                    }}
-                    onKeyDown={(e) => { e.stopPropagation(); }}
-                  >
-                    <Users className="h-4 w-4" />
-                  </Button>
-                )}
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </div>
+                  <div className="relative ">
+                    <InstitutionCard
+                      name={institution.name}
+                      address={institution.address}
+                      onClick={() => handleCardClick(institution.slug)} // فتح dashboard بالمؤسسة
+                    >
+                      <Building2 className="h-6 w-6 text-muted-foreground" />
+                    </InstitutionCard>
+
+                    {/* شارة مالك */}
+                    {isOwnerOf(institution.id) && (
+                      <Badge
+                        variant="secondary"
+                        className="absolute left-3 top-3 z-30 flex items-center gap-1 h-6 px-2 text-xs rounded-full bg-background/80 backdrop-blur border pointer-events-none shadow"
+                      >
+                        <Crown className="h-3.5 w-3.5" />
+                        Owner
+                      </Badge>
+                    )}
+
+                    {/* زر إدارة المشرفين للمالك */}
+                    {isOwnerOf(institution.id) && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="absolute right-2 top-2  z-20 pointer-events-auto"
+                        aria-label="Manage admins"
+                        onPointerDown={(e) => {
+                          e.preventDefault()
+                          e.stopPropagation()
+                        }}
+                        // لا تعمل preventDefault هون
+                        onPointerUp={(e) => {
+                          e.preventDefault() // امنع التصرف الافتراضي هون
+                          e.stopPropagation() // وامنـع الانتشار
+                          cardClickGuardRef.current = true
+                          setSelectedInstitutionForManage(institution.id)
+                          setManageOpen(true)
+                          console.log("institution.id by press button", institution.id)
+                        }}
+                        onKeyDown={(e) => {
+                          e.stopPropagation()
+                        }}
+                      >
+                        <Users className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="roles" className="py-6">
+          <RoleManagement />
+        </TabsContent>
+      </Tabs>
       ) : (
         // --- Manager Dashboard (عرض المؤسسات فقط) ---
         <div>
