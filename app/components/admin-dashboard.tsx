@@ -221,9 +221,8 @@ export function AdminDashboard() {
         // --- Super Admin Dashboard ---
         <Tabs defaultValue="organizations" className="space-y-4">
           <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="organizations">Organizations</TabsTrigger>
-            <TabsTrigger value="managers">Manage Managers</TabsTrigger>
-            <TabsTrigger value="roles">Manage Roles</TabsTrigger>
+            <TabsTrigger value="organizations">Institutions</TabsTrigger>
+            <TabsTrigger value="managersRoles">Manage Mangers & Roles</TabsTrigger>
           </TabsList>
   
           {/* --- Tab: Organizations --- */}
@@ -353,57 +352,69 @@ export function AdminDashboard() {
           </TabsContent>
   
           {/* --- Tab: Manage Managers --- */}
-          <TabsContent value="managers" className="py-6">
+          <TabsContent value="managersRoles" className="py-6">
             <Card className="py-6">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Users className="h-5 w-5" />
-                  <span className="text-gray-800">Select Organization</span>
-                </CardTitle>
-                <CardDescription>
-                  Choose an organization to manage its administrators
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex flex-wrap gap-6">
-                  {institutions.map((institution) => (
-                    <Button
-                      key={institution.id}
-                      variant={
-                        selectedInstitution === institution.id ? "default" : "outline"
-                      }
-                      onClick={() => handleInstitutionSelect(institution.id)}
-                    >
-                      {institution.name}
-                    </Button>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-  
-            {selectedInstitution && (
-              <div className="mt-6 space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold">Managers for Institution #{selectedInstitution}</h3>
-                  {/* زر فتح الدialog */}
-                  <AddAdminDialog
-                    institutionId={selectedInstitution}
-                    isSuperAdmin={isSuperAdmin}
-                    canAssignOwner={false} 
-                    onDone={() => adminListRef.current?.reload?.()}
-                  />
-              </div>
-              <Providers>
-                <AdminList institutionId={selectedInstitution!} />
-              </Providers>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Users className="h-5 w-5" />
+                    <span className="text-gray-800">Select Organization</span>
+                  </CardTitle>
+                  <CardDescription>
+                    Choose an organization to manage its administrators
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex flex-wrap gap-6">
+                    {institutions.map((institution) => (
+                      <Button
+                        key={institution.id}
+                        variant={
+                          selectedInstitution === institution.id ? "default" : "outline"
+                        }
+                        onClick={() => handleInstitutionSelect(institution.id)}
+                      >
+                        {institution.name}
+                      </Button>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            <Tabs defaultValue="organizations" className="space-y-4">
+              <TabsList className="grid w-full grid-cols-3">
+                <TabsTrigger value="managers">Manage Managers</TabsTrigger>
+                <TabsTrigger value="roles">Manage Roles</TabsTrigger>
+              </TabsList>
               
-              </div>
-            )}
+              <TabsContent value="managers" className="py-6">
+              {selectedInstitution && (
+                  <div className="mt-6 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-semibold">Managers for Institution #{selectedInstitution}</h3>
+                      {/* زر فتح الدialog */}
+                      <AddAdminDialog
+                        institutionId={selectedInstitution}
+                        isSuperAdmin={isSuperAdmin}
+                        canAssignOwner={false} 
+                        onDone={() => adminListRef.current?.reload?.()}
+                      />
+                  </div>
+                  <Providers>
+                    <AdminList institutionId={selectedInstitution!} />
+                  </Providers>
+                  
+                  </div>
+                )}
+              </TabsContent>
+              <TabsContent value="roles" className="py-6">
+                <RoleManagement  institutionId={selectedInstitution!}  /> 
+              </TabsContent>
+            </Tabs>
+            
           </TabsContent>
           {/* --- Tab: Organizations --- */}
-          <TabsContent value="roles">
+          {/* <TabsContent value="roles">
             <RoleManagement />        
-          </TabsContent>
+          </TabsContent> */}
   
 
         </Tabs>

@@ -39,7 +39,7 @@ const PERMISSION_CATEGORIES = [
 
 
 
-export function RoleManagement() {
+export function RoleManagement({ institutionId }: { institutionId?: number | null }) {
     type Scope = "global" | "institution";
     const SCOPE_THRESHOLD = 70;
     
@@ -56,7 +56,7 @@ export function RoleManagement() {
     priority: 50,
     permissions:  [] as ReturnType<typeof buildPermissionsUI>,
   })
-  const { roles, isLoading: rolesLoading, isError: rolesError, mutateRoles  } = useRoles();
+  const { roles, isLoading: rolesLoading, isError: rolesError, mutateRoles  } = useRoles({ withCounts: true,institutionId: institutionId!}); 
   const { permissions, isLoading: permissionsLoading, isError: permissionsError } = usePermissions();
   const { rolePermsMap, mutateRolePerms,  } = useRolePermissions();
 
