@@ -220,11 +220,10 @@ export function AdminDashboard() {
       {isSuperAdmin ? (
         // --- Super Admin Dashboard ---
         <Tabs defaultValue="organizations" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="organizations">Institutions</TabsTrigger>
             <TabsTrigger value="managersRoles">Manage Mangers & Roles</TabsTrigger>
           </TabsList>
-  
           {/* --- Tab: Organizations --- */}
           <TabsContent value="organizations">
             {institutions.length === 0 ? (
@@ -350,9 +349,8 @@ export function AdminDashboard() {
               </div>
             )}
           </TabsContent>
-  
           {/* --- Tab: Manage Managers --- */}
-          <TabsContent value="managersRoles" className="py-6">
+          <TabsContent value="managersRoles" >
             <Card className="py-6">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -378,9 +376,9 @@ export function AdminDashboard() {
                     ))}
                   </div>
                 </CardContent>
-              </Card>
-            <Tabs defaultValue="organizations" className="space-y-4">
-              <TabsList className="grid w-full grid-cols-3">
+            </Card>
+            <Tabs defaultValue="managersRoles" className="space-y-4">
+              <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="managers">Manage Managers</TabsTrigger>
                 <TabsTrigger value="roles">Manage Roles</TabsTrigger>
               </TabsList>
@@ -409,14 +407,7 @@ export function AdminDashboard() {
                 <RoleManagement  institutionId={selectedInstitution!}  /> 
               </TabsContent>
             </Tabs>
-            
           </TabsContent>
-          {/* --- Tab: Organizations --- */}
-          {/* <TabsContent value="roles">
-            <RoleManagement />        
-          </TabsContent> */}
-  
-
         </Tabs>
       ) : isOwner ? (
         // --- Owner Dashboard (إدارة مشرفين مؤسسته فقط) ---
