@@ -351,7 +351,7 @@ export function AdminDashboard() {
           </TabsContent>
           {/* --- Tab: Manage Managers --- */}
           <TabsContent value="managersRoles" >
-            <Card className="py-6">
+            <Card className="py-6 mt-6">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Users className="h-5 w-5" />
@@ -378,7 +378,7 @@ export function AdminDashboard() {
                 </CardContent>
             </Card>
             <Tabs defaultValue="managersRoles" className="space-y-4">
-              <TabsList className="grid w-full grid-cols-2">
+              <TabsList className="grid w-full grid-cols-2 mt-6">
                 <TabsTrigger value="managers">Manage Managers</TabsTrigger>
                 <TabsTrigger value="roles">Manage Roles</TabsTrigger>
               </TabsList>
