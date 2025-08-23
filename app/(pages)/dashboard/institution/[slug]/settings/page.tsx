@@ -1,10 +1,11 @@
 "use client";
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Edit, Save, Trash2, PlusCircle, RefreshCw } from 'lucide-react';
 import { checkNameExists, deleteInstitutionInfo, fetchInstitution, updatedInstitutionInfo } from '@/app/api/institutions/institutions';
 import { useParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { toast, ToastContainer } from 'react-toastify';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Input } from '@/components/ui/input';
 
@@ -46,6 +47,20 @@ const SettingsPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [initialName, setInitialName] = useState('');
   const [inputName, setInputName] = useState('');
+  const nameCheckTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // Configure toast defaults to prevent persistence issues
+  useEffect(() => {
+    // Set toast defaults - using modern approach
+    toast.defaults = {
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      position: "top-right" as const,
+    };
+  }, []);
  
   useEffect(() => {
     // Fetch data from your backend API for the specific institution
@@ -75,20 +90,40 @@ const SettingsPage: React.FC = () => {
     fetchData();
   }, [slug]);
   
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (nameCheckTimeoutRef.current) {
+        clearTimeout(nameCheckTimeoutRef.current);
+      }
+    };
+  }, []);
+  
   const handleSaveInstitutionInfo = async () => {
     // Disable editing mode
     setIsEditing(false);
     setLoading(true); 
+    
     if(isNameTaken === true){
-      toast.error("Please change name")
+      try {
+        toast.error("Please change name");
+      } catch (error) {
+        console.error('Toast error:', error);
+      }
+      setLoading(false);
       return;
     } 
-    const data = await updatedInstitutionInfo(institutionInfo,institutionInfo.slug)
+    
     try {
+      const data = await updatedInstitutionInfo(institutionInfo,institutionInfo.slug);
       if (data) {
         console.log('Update response data:', data);
         // Handle successful update
-        toast.success(`Institution updated successfully`);
+        try {
+          toast.success(`Institution updated successfully`);
+        } catch (error) {
+          console.error('Toast error:', error);
+        }
         // Parse macAddresses if it's a string, otherwise use it or default to []
         const parsedMacAddresses = typeof data.macAddresses === 'string'
           ? JSON.parse(data.macAddresses)
@@ -100,7 +135,11 @@ const SettingsPage: React.FC = () => {
         setInstitutionInfo({ ...data, macAddresses: parsedMacAddresses });
       } else {
         // Handle error response
-        toast.error(`Failed to update institution`);
+        try {
+          toast.error(`Failed to update institution`);
+        } catch (error) {
+          console.error('Toast error:', error);
+        }
         setErrorName('Failed to update institution'); // Show error to the user
       }
     } catch (error) {
@@ -268,22 +307,31 @@ const SettingsPage: React.FC = () => {
     console.log(initialName);
     console.log("1: ",institutionInfo.name);
     if (institutionInfo.name && institutionInfo.name !== initialName) { // Only check if name has changed
-      const timeoutId = setTimeout(async () => {
-        setLoading(true);
-        const res = await checkNameExists(institutionInfo.name,institutionInfo.adminId);
-        
-        if (typeof res === "boolean") {
-          setIsNameTaken(res);
-          setErrorName('');
-        } else if (typeof res === "string") {
-          setErrorName(res);
-          setIsNameTaken(null);
+      // Clear any existing timeout
+      if (nameCheckTimeoutRef.current) {
+        clearTimeout(nameCheckTimeoutRef.current);
+      }
+      
+      setLoading(true);
+      nameCheckTimeoutRef.current = setTimeout(async () => {
+        try {
+          const res = await checkNameExists(institutionInfo.name,institutionInfo.adminId);
+          
+          if (typeof res === "boolean") {
+            setIsNameTaken(res);
+            setErrorName('');
+          } else if (typeof res === "string") {
+            setErrorName(res);
+            setIsNameTaken(null);
+          }
+          console.log(initialName);// Update initial name after check
+        } catch (error) {
+          console.error('Error checking name:', error);
+          setErrorName('Error checking name availability');
+        } finally {
+          setLoading(false); 
         }
-        console.log(initialName);// Update initial name after check
-        setLoading(false); 
       }, 1500); // debounce to avoid too many API calls
-  
-      return () => clearTimeout(timeoutId);
     } else {
       setIsNameTaken(null);
     }
@@ -508,7 +556,6 @@ const SettingsPage: React.FC = () => {
           </Dialog>
         </div>
 
-        <ToastContainer />
       </div>
 
     </div>
