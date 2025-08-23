@@ -385,9 +385,10 @@ export function AdminDashboard() {
               
               <TabsContent value="managers" className="py-6">
               {selectedInstitution && (
-                  <div className="mt-6 space-y-4">
+                  <div className="space-y-6">
                     <div className="flex items-center justify-between">
-                      <h3 className="text-lg font-semibold">Managers for Institution #{selectedInstitution}</h3>
+                      <h2 className="text-2xl font-bold tracking-tight">Managers Management</h2>
+                      <p className="text-muted-foreground">Manage managers' roles across the institution</p>
                       {/* زر فتح الدialog */}
                       <AddAdminDialog
                         institutionId={selectedInstitution}
