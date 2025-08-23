@@ -50,17 +50,17 @@ const SettingsPage: React.FC = () => {
   const nameCheckTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
   // Configure toast defaults to prevent persistence issues
-  useEffect(() => {
-    // Set toast defaults - using modern approach
-    toast.defaults = {
-      autoClose: 3000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      position: "top-right" as const,
-    };
-  }, []);
+  // useEffect(() => {
+  //   // Set toast defaults - using modern approach
+  //   toast.defaults = {
+  //     autoClose: 3000,
+  //     hideProgressBar: false,
+  //     closeOnClick: true,
+  //     pauseOnHover: true,
+  //     draggable: true,
+  //     position: "top-right" as const,
+  //   };
+  // }, []);
  
   useEffect(() => {
     // Fetch data from your backend API for the specific institution
