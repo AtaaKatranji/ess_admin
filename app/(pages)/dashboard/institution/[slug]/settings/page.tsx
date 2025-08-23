@@ -65,7 +65,7 @@ const SettingsPage: React.FC = () => {
         }
         setInstitutionInfo({
           ...data,
-          macAddresses: parsedMacAddresses,
+          macAddresses: parsedMacAddresses || [],
         });
         setInitialName(data.name);
       } catch (error) {
@@ -83,17 +83,25 @@ const SettingsPage: React.FC = () => {
       toast.error("Please change name")
       return;
     } 
-    const data = updatedInstitutionInfo(institutionInfo,institutionInfo.slug)
+    const data = await updatedInstitutionInfo(institutionInfo,institutionInfo.slug)
     try {
       if (data) {
+        console.log('Update response data:', data);
         // Handle successful update
-      toast.success(`Institution updated:${data}`);
-        // Optionally, you can update the state with the new institution data
-      setInstitutionInfo(await data);
+        toast.success(`Institution updated successfully`);
+        // Parse macAddresses if it's a string, otherwise use it or default to []
+        const parsedMacAddresses = typeof data.macAddresses === 'string'
+          ? JSON.parse(data.macAddresses)
+          : Array.isArray(data.macAddresses)
+          ? data.macAddresses
+          : [];
+        console.log('Parsed macAddresses:', parsedMacAddresses);
+        // Update the state with the new institution data
+        setInstitutionInfo({ ...data, macAddresses: parsedMacAddresses });
       } else {
         // Handle error response
-        toast.error(`Failed to update institution: ${data}`);
-        setErrorName(data); // Show error to the user
+        toast.error(`Failed to update institution`);
+        setErrorName('Failed to update institution'); // Show error to the user
       }
     } catch (error) {
       console.error('Error updating institution:', (error as Error).message);
@@ -113,14 +121,14 @@ const SettingsPage: React.FC = () => {
       // Optimistically update the state
       setInstitutionInfo((prevInfo) => ({
         ...prevInfo,
-        macAddresses: [...prevInfo.macAddresses, newSS],
+        macAddresses: [...(prevInfo.macAddresses || []), newSS],
       }));
   
       try {
         const data = await updatedInstitutionInfo(
           {
             ...institutionInfo,
-            macAddresses: [...institutionInfo.macAddresses, newSS],
+            macAddresses: [...(institutionInfo.macAddresses || []), newSS],
           },
           institutionInfo.slug
         );
@@ -140,7 +148,7 @@ const SettingsPage: React.FC = () => {
           // Optionally revert optimistic update on failure
           setInstitutionInfo((prevInfo) => ({
             ...prevInfo,
-            macAddresses: prevInfo.macAddresses.filter(
+            macAddresses: (prevInfo.macAddresses || []).filter(
               (ssid) => ssid.macAddress !== newSS.macAddress
             ),
           }));
@@ -151,7 +159,7 @@ const SettingsPage: React.FC = () => {
         // Revert optimistic update on error
         setInstitutionInfo((prevInfo) => ({
           ...prevInfo,
-          macAddresses: prevInfo.macAddresses.filter(
+          macAddresses: (prevInfo.macAddresses || []).filter(
             (ssid) => ssid.macAddress !== newSS.macAddress
           ),
         }));
@@ -164,24 +172,24 @@ const SettingsPage: React.FC = () => {
   };
   
   const handleDeleteSSID = async (id: string) => {
-    if (institutionInfo.macAddresses.length === 1) {
+    if (!institutionInfo.macAddresses || institutionInfo.macAddresses.length === 1) {
       toast.error("You must have at least one Wi-Fi network before deleting.");
       return;
     }
   
     // Store the original macAddresses for rollback in case of failure
-    const originalMacAddresses = [...institutionInfo.macAddresses];
+    const originalMacAddresses = [...(institutionInfo.macAddresses || [])];
   
     // Optimistically update the local state
     setInstitutionInfo((prevInfo) => ({
       ...prevInfo,
-      macAddresses: prevInfo.macAddresses.filter((ssid) => ssid.macAddress !== id),
+      macAddresses: (prevInfo.macAddresses || []).filter((ssid) => ssid.macAddress !== id),
     }));
   
     // Prepare updated institution data
     const updatedInfo = {
       ...institutionInfo,
-      macAddresses: institutionInfo.macAddresses.filter((ssid) => ssid.macAddress !== id),
+      macAddresses: (institutionInfo.macAddresses || []).filter((ssid) => ssid.macAddress !== id),
     };
   
     try {
@@ -287,6 +295,9 @@ const SettingsPage: React.FC = () => {
         alert('Name does not match. Please enter the correct name to confirm deletion.');
       }
     };
+  console.log('Current institutionInfo:', institutionInfo);
+  console.log('Current macAddresses:', institutionInfo.macAddresses);
+  
   return (
     <div className="container w-full max-w-screen mx-auto ">
       <h1 className="p-4 text-2xl font-bold  text-gray-800 ">Settings</h1>
@@ -391,7 +402,7 @@ const SettingsPage: React.FC = () => {
 
       {/* Existing SSIDs */}
       <ul className="space-y-4">
-        {institutionInfo.macAddresses?.map((ssidInfo) => (
+        {(institutionInfo.macAddresses || []).map((ssidInfo) => (
           <li
             key={ssidInfo.macAddress}
             className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 p-4 bg-gray-50 rounded-md border"
