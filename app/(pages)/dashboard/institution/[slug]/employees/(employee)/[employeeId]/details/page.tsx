@@ -111,9 +111,10 @@ const EmployeeDetails = () => {
       console.log("Slug in page detiles: ", slug);
       // Fetch shifts once outside Promise.all
       const dataIns = await fetchInstitution(slug!);
-     
+      if (!dataIns?.uniqueKey) return;
       setInstitutionKey(dataIns!.uniqueKey);
       const uniqueKey = dataIns!.uniqueKey;
+      
       const shiftsResRaw = await fetchTimeShifts(employeeId);
       const shifts = Array.isArray(shiftsResRaw) ? shiftsResRaw[0] : shiftsResRaw;      
       const formattedMonth = moment(month).format('YYYY-MM-01');
