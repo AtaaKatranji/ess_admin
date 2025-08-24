@@ -1,25 +1,10 @@
 
+import { normalizeInstitution, InstitutionInfo } from "@/app/types/Institution";
 import { toast } from "react-toastify";
 // Generate New Key
 const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
 const isBrowser = typeof window !== "undefined";
  
-interface SSIDInfo {
-  
-  wifiName: string;
-  macAddress: string;
-
-}
-
-type InstitutionInfo = {
-  name: string;
-  adminId: string;
-  address: string;
-  uniqueKey: string;
-  macAddresses: SSIDInfo[];
-}
-
-
 export function GenerateKey(){
     try {
         return Math.random().toString(36).substr(2, 9).toUpperCase();
@@ -98,9 +83,8 @@ export const getLocalStorageItem = (key: string) => {
   }
   return null; // Return null if not in browser
 };
+
 export const fetchInstitutionsByAdmin = async () => {
-    console.log("hey fucker")
-    
     const response = await fetch(`${BaseUrl}/rbac/admin-institutions`, { // Include the ID in the URL
       method: 'GET',
       headers: {
@@ -110,39 +94,45 @@ export const fetchInstitutionsByAdmin = async () => {
       credentials: 'include', 
 
     });
-    console.log("5: ",response.body)
     if (!response.ok) {
       throw new Error('Failed to fetch institution');
     }
   
     const data = await response.json();
-    console.log("data",data)
     return data; // Return the fetched institution data
   };
+
 export  const fetchInstitution = async (slug: string) => {
   try {
     console.log("fetching...\n")
     const response = await fetch(`${BaseUrl}/ins/institutions/slug/${slug}`, {
       method: 'GET',
       headers: {
-         // Include token if needed
         'Content-Type': 'application/json',
       },
       credentials: 'include', 
     });
+    let body: unknown = null;
+    try { body = await response.json(); } catch { body = null; }
     if (!response.ok) {
-      throw new Error('Failed to fetch institution');
+      const msg =
+        (body && typeof body === 'object' && 'message' in body
+          ? (body as { message?: string }).message
+          : undefined) ||
+        `Failed to fetch institution (HTTP ${response.status})`;
+
+      toast.error(msg);
+      return null;
     }
 
-    const data = await response.json();
-    if (typeof data.macAddresses === "string") {
-      data.macAddresses = JSON.parse(data.macAddresses);
-    }
-    return(data);
+    const raw = body as InstitutionInfo;
+    return normalizeInstitution(raw);
       // Set institution data
-  } catch (error) {
-    toast.error(`Error fetching institution: ${error}` );
-  } 
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : 'Network error';
+    toast.error(`Error fetching institution: ${msg}`);
+    return null;
+  }
 };
 export const updatedInstitutionInfo = async (institutionInfo: InstitutionInfo,slug: string ) => {
   // Create the data to send

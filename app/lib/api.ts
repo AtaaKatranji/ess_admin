@@ -8,6 +8,25 @@ export const api = axios.create({
   withCredentials: true, // send cookies
   headers: { Accept: "application/json" },
 });
+export async function apiGet<T>(url: string) {
+  const res = await fetch(url, {
+    method: 'GET',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+  });
+
+  let data = null;
+  try {
+    data = await res.json();
+  } catch {}
+
+  return { ok: res.ok, status: res.status, data, res } as {
+    ok: boolean;
+    status: number;
+    data: T | { message?: string; required?: string[] } | null;
+    res: Response;
+  };
+}
 
 // Optional: add CSRF header automatically if your server requires it
 // api.interceptors.request.use((config) => {
