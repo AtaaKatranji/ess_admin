@@ -1,18 +1,29 @@
 // app/context/InstitutionContext.tsx
 'use client';
 
-import React, { createContext, useContext, ReactNode, useState } from 'react';
+import React, { createContext, useContext, ReactNode, useState, useEffect } from 'react';
 
 interface InstitutionContextType {
-  institutionKey: string;
-  setInstitutionKey: (key: string) => void;
+  institutionKey: string | null;
+  setInstitutionKey: (key: string | null) => void;
 }
 
 const InstitutionContext = createContext<InstitutionContextType | undefined>(undefined);
 
 export const InstitutionProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [institutionKey, setInstitutionKey] = useState<string>('');
+  const [institutionKey, setInstitutionKeyState] = useState<string | null>(null);
+  useEffect(() => {
+    const saved = typeof window !== 'undefined' ? localStorage.getItem('institutionKey') : null;
+    if (saved) setInstitutionKeyState(saved);
+  }, []);
 
+  // keep in sync
+  const setInstitutionKey = (key: string | null) => {
+    setInstitutionKeyState(key);
+    if (typeof window === 'undefined') return;
+    if (key) localStorage.setItem('institutionKey', key);
+    else localStorage.removeItem('institutionKey');
+  };
   return (
     <InstitutionContext.Provider value={{ institutionKey, setInstitutionKey }}>
       {children}

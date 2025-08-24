@@ -71,6 +71,7 @@ export default function ShiftsPage() {
   useEffect(() => { 
     const fetchShi = async () => {
       try {
+        if (!institutionKey) return; 
         const data = await shiftAPI.fetchShifts(institutionKey)
         console.log('Raw shift data:', data)
         // Sanitize data to ensure days is an array and map id
@@ -85,10 +86,11 @@ export default function ShiftsPage() {
         console.error('Error fetching shifts:', error)
       }
     }
-    fetchShi()
+    
 
     const fetchEmp = async () => {
       try {
+        if (!institutionKey) return; 
         const data = await fetchEmployees(institutionKey)
         console.log('Raw employee data:', data)
         setEmployees(data .filter((emp: Employee) => emp.shiftId == null) // Only unassigned
@@ -97,6 +99,8 @@ export default function ShiftsPage() {
         console.error('Error fetching employees:', error)
       }
     }
+    if (!institutionKey) return;
+    fetchShi()
     fetchEmp()
   }, [institutionKey])
 
@@ -140,10 +144,10 @@ export default function ShiftsPage() {
   }
   const removeEmployeeFromShift = async (shiftId: string, employeeId: string) => {
     console.log(employeeId)
-    const response = await fetch(`${BaseURL}/shifts/${shiftId}/remove`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ employeeId }),
+  const response = await fetch(`${BaseURL}/shifts/${shiftId}/remove`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ employeeId }),
     })
     const data = await response.json()
     console.log("in remove employee: ",data)
@@ -158,6 +162,7 @@ export default function ShiftsPage() {
     })
     const data = await response.json()
     console.log(data);
+    if (!institutionKey) return; 
     const dataShiftSync = await shiftAPI.fetchShifts(institutionKey);
     setShifts(dataShiftSync);
 
@@ -244,8 +249,14 @@ const deleteBreakType = (breakId: string) => {
 const editBreakType = (breakType: Break) => {
   console.log("Edit break:", breakType)
 }
+
+
   return (
-    
+    !institutionKey ? (
+      <div className="p-6 text-gray-600">
+        Please select an institution first (missing institutionKey).
+      </div>
+    ) : (
     <div className="container mx-auto p-4">
       <ToastContainer />
       {showReports ? (
@@ -631,6 +642,6 @@ const editBreakType = (breakType: Break) => {
       )};
     </div>
   )
-
+)
 };
 
