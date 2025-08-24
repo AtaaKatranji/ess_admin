@@ -102,8 +102,7 @@ const EmployeeDetails = () => {
   const [selectedMonth, setSelectedMonth] = useState<Date>(new Date());
   const params = useParams();
   const slug = Array.isArray(params.slug) ? params.slug[0] : params.slug;
-  const [institutionKey, setInstitutionKey] = useState("");
-
+  const [institutionKey, setInstitutionKey] = useState<string>("");
   const employeeId = Array.isArray(params.employeeId) ? params.employeeId[0] : params.employeeId as string;
 
   const fetchAllData = useCallback(async (month: Date) => {
@@ -112,8 +111,9 @@ const EmployeeDetails = () => {
       console.log("Slug in page detiles: ", slug);
       // Fetch shifts once outside Promise.all
       const dataIns = await fetchInstitution(slug!);
-      const uniqueKey = dataIns.uniqueKey;
-      setInstitutionKey(uniqueKey);
+     
+      setInstitutionKey(dataIns!.uniqueKey);
+      const uniqueKey = dataIns!.uniqueKey;
       const shiftsResRaw = await fetchTimeShifts(employeeId);
       const shifts = Array.isArray(shiftsResRaw) ? shiftsResRaw[0] : shiftsResRaw;      
       const formattedMonth = moment(month).format('YYYY-MM-01');
