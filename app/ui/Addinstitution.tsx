@@ -2,10 +2,10 @@ import { useEffect, useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { KeyRound, Copy, Plus, X, Loader2 } from 'lucide-react';
+import {  Plus, X, Loader2 } from 'lucide-react';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { GenerateKey, checkNameExists, copyToClipboard } from '../api/institutions/institutions';
+import {  checkNameExists,  } from '../api/institutions/institutions';
 import { extractAdminId } from '../utils/extractId';
 import { parseCookies } from 'nookies';
 const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -106,21 +106,21 @@ const AddInstitutionDialog: React.FC<AddInstitutionDialogProps> = ({ onSuccess }
     setMacAddresses(macAddresses.filter((_, i) => i !== index));
   };
 
-  const setKey = () => {
-    const key = GenerateKey();
-    setKeyNumber(key || "updateKey");
-  };
+  // const setKey = () => {
+  //   const key = GenerateKey();
+  //   setKeyNumber(key || "updateKey");
+  // };
 
-  const handleCopy = () => {
-    copyToClipboard(keyNumber);
-    <ToastContainer />
-  };
+  // const handleCopy = () => {
+  //   copyToClipboard(keyNumber);
+  //   <ToastContainer />
+  // };
   const handleCheckName = () => {
     if (name) {
       const adminId = extractAdminId(token!);
       const timeoutId = setTimeout(async() => {
         setLoading(true);
-        const res= await checkNameExists(name,adminId!);
+        const res= await checkNameExists(name,Number(adminId!));
         setLoading(false);
         if (typeof res === "boolean") {
           console.log("res ", res)
@@ -198,11 +198,14 @@ useEffect(() => {
 
           <div className="flex flex-col space-y-4">
             <label htmlFor="keyNumber">Key Number</label>
-            <div className="flex space-x-4 w-full">
+            <div className="flex space-x-4 w-full ">
+              <p className="text-gray-600 text-sm">Note: The key will be generated on the server and will appear in the institution settings page after the process is successfully completed.</p>
+            </div>
+            {/* <div className="flex space-x-4 w-full">
               <Input id="keyNumber" value={keyNumber} onChange={(e) => setKeyNumber(e.target.value)} disabled placeholder="Generate key number" required />
               <Button type="button" onClick={setKey}><KeyRound /></Button>
               <Button type="button" onClick={handleCopy}><Copy /></Button>
-            </div>
+            </div> */}
           </div>
 
           <div className="flex flex-col space-y-4">
