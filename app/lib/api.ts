@@ -8,24 +8,43 @@ export const api = axios.create({
   withCredentials: true, // send cookies
   headers: { Accept: "application/json" },
 });
-export async function apiGet<T>(url: string) {
+export type ApiError = {
+  message?: string;
+  required?: string[];
+} | null;
+
+export type ApiSuccess<T> = {
+  ok: true;
+  status: number;
+  data: T;
+  res: Response;
+};
+
+export type ApiFailure = {
+  ok: false;
+  status: number;
+  data: ApiError;
+  res: Response;
+};
+export type ApiResult<T> = ApiSuccess<T> | ApiFailure;
+export async function apiGet<T>(url: string): Promise<ApiSuccess<T> | ApiFailure> {
   const res = await fetch(url, {
     method: 'GET',
     credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
   });
 
-  let data = null;
+  let data: unknown = null;
   try {
     data = await res.json();
-  } catch {}
+  } catch {
+    data = null;
+  }
 
-  return { ok: res.ok, status: res.status, data, res } as {
-    ok: boolean;
-    status: number;
-    data: T | { message?: string; required?: string[] } | null;
-    res: Response;
-  };
+  if (res.ok) {
+    return { ok: true, status: res.status, data: data as T, res };
+  }
+  return { ok: false, status: res.status, data: (data as ApiError) ?? null, res };
 }
 
 // Optional: add CSRF header automatically if your server requires it

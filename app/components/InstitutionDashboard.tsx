@@ -18,19 +18,9 @@ import EmployeeRequests from '@/app/(pages)/dashboard/institution/[slug]/request
 import SettingsPage from '@/app/(pages)/dashboard/institution/[slug]/settings/page'
 import EmployeeList from '@/app/(pages)/dashboard/institution/[slug]/employees/page';
 import { useParams } from 'next/navigation';
-interface SSIDInfo {
-  wifiName: string;
-  macAddress: string;
-}
-
-interface Institution {
-  name: string;
-  adminId: string;
-  address: string;
-  uniqueKey: string;
-  macAddresses: SSIDInfo[];
-  slug: string;
-}
+import { toast } from 'react-toastify';
+import ForbiddenDialog from './ForbiddenDialog';
+import { InstitutionInfo } from "@/app/types/Institution";
 interface InstitutionDashboardProps {
   activeSection: string;
 }
@@ -40,14 +30,9 @@ const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ( {activeSecti
     const { setInstitutionKey } = useInstitution();
  
   const [isloading, setIsLoading] = useState(true);
-  const [institutionInfo, setInstitutionInfo] = useState<Institution>({
-    name: '',
-    adminId: '',
-    address: '',
-    uniqueKey: '',
-    macAddresses: [],
-    slug: '',
-  });
+  const [institution, setInstitution] = useState<InstitutionInfo| null>(null);
+  const [forbiddenOpen, setForbiddenOpen] = React.useState(false);
+  const [requiredPerms, setRequiredPerms] = React.useState<string[]>([]);
 
   const renderContent = () => {
     switch (activeSection) {
@@ -74,12 +59,27 @@ const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ( {activeSecti
       try {
         if (!slug) return;
 
+        const result = await fetchInstitution(slug);
+        if (!result.ok) {
+          if (result.status === 403) {
+            setRequiredPerms(result.data?.required ?? []);
+            setForbiddenOpen(true);
+          } else {
+            const msg = result.data?.message ?? 'فشل تحميل المؤسسة';
+            toast.error(msg);
+          }
+          setInstitution(null);
+          setIsLoading(false);
+          return;
+        }
+        setInstitution(result.data);
+        setIsLoading(false);
         // Fetch the institution data (including the key) from your API
-        const institution = await fetchInstitution(slug);
+        //const institution = await fetchInstitution(slug);
         if (institution && institution.uniqueKey) {
           // Set the institution key in the context
           setInstitutionKey(institution.uniqueKey);
-          setInstitutionInfo(institution);
+          setInstitution(institution);
         }
         setIsLoading(false)
       } catch (error) {
@@ -99,7 +99,7 @@ const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ( {activeSecti
     );
   }
 
-  if (!institutionInfo) {
+  if (!institution) {
     return <p>Institution not found</p>;
   }
 
@@ -107,7 +107,7 @@ const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ( {activeSecti
     <div className="flex flex-col md:flex-row h-full bg-gray-100">
       {/* Mobile header */}
       <header className="md:hidden bg-gray-800 text-white p-4 flex justify-between items-center">
-        <h1 className="text-xl font-bold  text-gray-800">{institutionInfo.name}</h1>
+        <h1 className="text-xl font-bold  text-gray-800">{institution.name}</h1>
         {/* <button onClick={toggleSidebar} className="text-white focus:outline-none">
           <Menu className="h-6 w-6" />
         </button> */}
@@ -119,10 +119,14 @@ const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ( {activeSecti
         {renderContent()}
       </main>
 
-      {/* Overlay for mobile */}
-      {/* {isSidebarOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-30 md:hidden" onClick={() => setIsSidebarOpen(false)}></div>
-      )} */}
+      {/* Forbidden dialog */}
+    <ForbiddenDialog
+      open={forbiddenOpen}
+      onOpenChange={setForbiddenOpen}
+      required={requiredPerms}
+      institutionNameOrSlug={slug}
+      backHref="/ins"
+    />
     </div>
   );
 };

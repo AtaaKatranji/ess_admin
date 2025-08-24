@@ -108,12 +108,20 @@ const EmployeeDetails = () => {
   const fetchAllData = useCallback(async (month: Date) => {
     setIsLoading(true);
     try {
-      console.log("Slug in page detiles: ", slug);
+      if (!slug) {
+        toast.error("Missing institution slug");
+        return; // رح يمرّ على finally ويطفي اللودينغ
+      }
       // Fetch shifts once outside Promise.all
-      const dataIns = await fetchInstitution(slug!);
-      if (!dataIns?.uniqueKey) return;
-      setInstitutionKey(dataIns!.uniqueKey);
-      const uniqueKey = dataIns!.uniqueKey;
+      const insRes = await fetchInstitution(slug as string);
+      if (!insRes.ok) {
+        toast.error(insRes.data?.message ?? `Failed to load institution (HTTP ${insRes.status})`);
+        setInstitutionKey("");       // صفّر المفتاح حتى ما تمرّره للتبويبات
+        return;                        // finally رح يشتغل ويطفي اللودينغ
+      }
+      
+      const uniqueKey = insRes.data.uniqueKey;
+      setInstitutionKey(insRes.data.uniqueKey);
       
       const shiftsResRaw = await fetchTimeShifts(employeeId);
       const shifts = Array.isArray(shiftsResRaw) ? shiftsResRaw[0] : shiftsResRaw;      
@@ -125,7 +133,7 @@ const EmployeeDetails = () => {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ userId: employeeId, date:formattedMonth }),
         }).then(res => res.ok ? res.json() : Promise.reject("Failed to fetch total hours")),
-        fetch(`${BaseUrl}/leaves/month?userId=${employeeId}&month=${month.getDate()}`, {
+        fetch(`${BaseUrl}/leaves/month?userId=${employeeId}&month=${month.getMonth()+1}`, {
           method: "GET",
           headers: { "Content-Type": "application/json" },
           credentials : "include",

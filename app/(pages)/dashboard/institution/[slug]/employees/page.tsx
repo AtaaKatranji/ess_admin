@@ -15,6 +15,7 @@ import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 
 import { useEmployee } from "@/app/context/EmployeeContext";
+import { toast } from "react-toastify"
 interface Employee {
   id: string
   name: string
@@ -49,15 +50,27 @@ const EmployeeList: React.FC = () => {
   const { setEmployeeId } = useEmployee(); 
   const slug = Array.isArray(params?.slug) ? params.slug[0] : params?.slug
 
-  const fetchData = async () => {
+  const fetchData = async () => {     
     try {
-      setLoading(true)
-      const dataIns = await fetchInstitution(slug!)
-      console.log("dataIns", dataIns)
-      if (!dataIns.uniqueKey) return
+      setLoading(true);
+      if (!slug) {
+        toast.error("Missing institution slug");
+        setLoading(false);
+        return; // رح يمرّ على finally ويطفي اللودينغ
+      }
+      // Fetch shifts once outside Promise.all
+      const insRes = await fetchInstitution(slug as string);
+      if (!insRes.ok) {
+        toast.error(insRes.data?.message ?? `Failed to load institution (HTTP ${insRes.status})`);
+           // صفّر المفتاح حتى ما تمرّره للتبويبات
+        return;                        // finally رح يشتغل ويطفي اللودينغ
+      }
+      
+      const uniqueKey = insRes.data.uniqueKey;
+      
 
-      const data = await fetchEmployees(dataIns.uniqueKey)
-      const dataShifts = await fetchShifts(dataIns.uniqueKey)
+      const data = await fetchEmployees(uniqueKey)
+      const dataShifts = await fetchShifts(uniqueKey)
 
       setShiftOptions(dataShifts)
       // if (dataShifts.length > 0) {
@@ -84,6 +97,7 @@ const EmployeeList: React.FC = () => {
       setLoading(false)
     }
   }
+
 
   useEffect(() => {
     const fetchDataAsync = async () => {

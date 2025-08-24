@@ -1,44 +1,28 @@
 "use client";
 import React, { useEffect, useState, useRef } from 'react';
-import { Edit, Save, Trash2, PlusCircle, RefreshCw } from 'lucide-react';
-import { checkNameExists, deleteInstitutionInfo, fetchInstitution, updatedInstitutionInfo } from '@/app/api/institutions/institutions';
+import { Edit, Save, Trash2, PlusCircle, RefreshCw, Loader2 } from 'lucide-react';
+import { checkNameExists, deleteInstitutionInfo, fetchInstitution, generateInstitutionKey, updatedInstitutionInfo } from '@/app/api/institutions/institutions';
 import { useParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Input } from '@/components/ui/input';
+import { InstitutionInfo, normalizeMacAddress, normalizeMacList, WifiEntry } from '@/app/types/Institution';
+import { ApiFailure, ApiSuccess } from '@/app/lib/api';
 
-interface SSIDInfo {
-  
-  wifiName: string;
-  macAddress: string;
 
-}
-
-interface InstitutionInfo {
-  name: string;
-  adminId:string,
-  address: string;
-  uniqueKey: string;
-  macAddresses: SSIDInfo[];
-  slug: string;
-}
 
 const SettingsPage: React.FC = () => {
   const params = useParams();
   const slug = Array.isArray(params?.slug) ? params.slug[0] : params?.slug;
   const router = useRouter();
 
-  const [institutionInfo, setInstitutionInfo] = useState<InstitutionInfo>({
-    name: '',
-    adminId:'',
-    address: '',
-    uniqueKey: '',
-    macAddresses: [],
-    slug: '',
-  });
+  const [institutionInfo, setInstitutionInfo] = useState<InstitutionInfo | null>(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isGenLoading, setIsGenLoading] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
   const [newSSID, setNewSSID] = useState('');
   const [newMacAddress, setNewMacAddress] = useState('');
   const [isDelete,setIsDelete]= useState(false);
@@ -47,8 +31,9 @@ const SettingsPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [initialName, setInitialName] = useState('');
   const [inputName, setInputName] = useState('');
-  const nameCheckTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  
+  const nameCheckTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const reqIdRef = useRef(0); // لمنع السباقات (race conditions)
+
   // Configure toast defaults to prevent persistence issues
   // useEffect(() => {
   //   // Set toast defaults - using modern approach
@@ -63,31 +48,28 @@ const SettingsPage: React.FC = () => {
   // }, []);
  
   useEffect(() => {
-    // Fetch data from your backend API for the specific institution
-    const fetchData = async () => {
-      try {
-        const data = await fetchInstitution(slug!.toString());
-        console.log('Fetched institution data:', data);
-        let parsedMacAddresses = [];
-        if (typeof data.macAddresses === 'string') {
-          try {
-            parsedMacAddresses = JSON.parse(data.macAddresses);
-          } catch (e) {
-            console.error('Error parsing macAddresses:', e);
-          }
-        } else if (Array.isArray(data.macAddresses)) {
-          parsedMacAddresses = data.macAddresses;
-        }
-        setInstitutionInfo({
-          ...data,
-          macAddresses: parsedMacAddresses || [],
-        });
-        setInitialName(data.name);
-      } catch (error) {
-        console.error('Error fetching institution data:', error);
+    let mounted = true;
+    if (!slug) return;
+    setIsLoading(true);
+    (async () => {
+      const res = await fetchInstitution(String(slug));
+  
+      if (!mounted) return;
+  
+      if (!res.ok) {
+        // استخدم toast إذا حابب
+        toast.error(res.data?.message ?? `Failed to load institution (HTTP ${res.status})`);
+        setInstitutionInfo(null);
+        setInitialName("");
+        return;
       }
-    };
-    fetchData();
+  
+      // نجاح: res.data من النوع InstitutionInfo ومطبّق عليه normalize مسبقًا
+      setInstitutionInfo(res.data);
+      setInitialName(res.data.name);
+    })();
+   setIsLoading(false);
+    return () => { mounted = false; };
   }, [slug]);
   
   // Cleanup timeout on unmount
@@ -115,6 +97,12 @@ const SettingsPage: React.FC = () => {
     } 
     
     try {
+      if (!institutionInfo) {
+        toast.error("Missing institution info");
+        setLoading(false);
+        return;
+      }
+        
       const data = await updatedInstitutionInfo(institutionInfo,institutionInfo.slug);
       if (data) {
         console.log('Update response data:', data);
@@ -149,203 +137,308 @@ const SettingsPage: React.FC = () => {
       setLoading(false); // Hide loading indicator
     }
   };
-
   const handleAddSSID = async () => {
-    if (newSSID && newMacAddress) {
-      const newSS = {
-        wifiName: newSSID,
-        macAddress: newMacAddress,
+    if (!institutionInfo) {
+      toast.error("Missing institution info");
+      return;
+    }
+  
+    if (!newSSID || !newMacAddress) {
+      toast.error("SSID and MAC are required");
+      return;
+    }
+  
+    // نظّف وتحقق من الـ MAC
+    const mac = normalizeMacAddress(newMacAddress);
+    if (!mac) {
+      toast.error("Invalid MAC address. Use format like AA:BB:CC:DD:EE:FF");
+      return;
+    }
+  
+    const newEntry = { wifiName: newSSID.trim(), macAddress: mac };
+  
+    // منع التكرار بحسب MAC (بعد Normalize)
+    const currentList: WifiEntry[] = institutionInfo.macAddresses ?? [];
+    if (currentList.some(x => x.macAddress === newEntry.macAddress)) {
+      toast.warning("This MAC already exists");
+      return;
+    }
+  
+    // Snapshot قبل التحديث المتفائل
+    const snapshot = institutionInfo;
+  
+    // تحديث متفائل
+    setInstitutionInfo(prev => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        macAddresses: [...(prev.macAddresses ?? []), newEntry],
       };
+    });
   
-      // Optimistically update the state
-      setInstitutionInfo((prevInfo) => ({
-        ...prevInfo,
-        macAddresses: [...(prevInfo.macAddresses || []), newSS],
-      }));
+    try {
+      // استدعاء API لتحديث المؤسسة
+      const updated = await updatedInstitutionInfo(
+        {
+          ...snapshot,
+          macAddresses: [...currentList, newEntry], // أرسل شكل موحّد
+        },
+        snapshot.slug
+      );
   
-      try {
-        const data = await updatedInstitutionInfo(
-          {
-            ...institutionInfo,
-            macAddresses: [...(institutionInfo.macAddresses || []), newSS],
-          },
-          institutionInfo.slug
-        );
-  
-        if (data) {
-          toast.success(`Institution updated successfully.`);
-          // Parse macAddresses if it’s a string, otherwise use it or default to []
-          const parsedMacAddresses = typeof data.macAddresses === 'string'
-            ? JSON.parse(data.macAddresses)
-            : Array.isArray(data.macAddresses)
-            ? data.macAddresses
-            : [];
-          setInstitutionInfo({ ...data, macAddresses: parsedMacAddresses });
-        } else {
-          toast.error(`Failed to update institution.`);
-          setErrorName('Failed to update institution.');
-          // Optionally revert optimistic update on failure
-          setInstitutionInfo((prevInfo) => ({
-            ...prevInfo,
-            macAddresses: (prevInfo.macAddresses || []).filter(
-              (ssid) => ssid.macAddress !== newSS.macAddress
-            ),
-          }));
-        }
-      } catch (error) {
-        console.error('Error updating institution:', (error as Error).message);
-        setErrorName('An error occurred while saving. Please try again.');
-        // Revert optimistic update on error
-        setInstitutionInfo((prevInfo) => ({
-          ...prevInfo,
-          macAddresses: (prevInfo.macAddresses || []).filter(
-            (ssid) => ssid.macAddress !== newSS.macAddress
-          ),
-        }));
+      if (!updated) {
+        // فشل منطقي من السيرفر
+        toast.error("Failed to update institution.");
+        // Rollback
+        setInstitutionInfo(snapshot);
+        return;
       }
   
-      // Clear input fields
+      // نجاح: بعض السيرفرات ترجع macAddresses كنص—وحّد شكلها
+      const normalizedList = normalizeMacList((updated ).macAddresses);
+  
+      setInstitutionInfo(prev => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          ...updated,
+          macAddresses: normalizedList,
+        };
+      });
+  
+      toast.success("Institution updated successfully.");
       setNewSSID('');
       setNewMacAddress('');
+    } catch (error) {
+      console.error('Error updating institution:', (error as Error).message);
+      toast.error('An error occurred while saving. Please try again.');
+      // Rollback على أي استثناء
+      setInstitutionInfo(snapshot);
     }
   };
-  
   const handleDeleteSSID = async (id: string) => {
-    if (!institutionInfo.macAddresses || institutionInfo.macAddresses.length === 1) {
+    // حماية من null
+    if (!institutionInfo) {
+      toast.error("Missing institution info");
+      return;
+    }
+  
+    // طَبِّع قيمة الماك من الباراميتر (إنت عم تمرر macAddress)
+    const targetMac = normalizeMacAddress(id);
+    if (!targetMac) {
+      toast.error("Invalid MAC address");
+      return;
+    }
+  
+    const list: WifiEntry[] = institutionInfo.macAddresses ?? [];
+  
+    // يجب يبقى واحد على الأقل بعد الحذف
+    if (list.length <= 1) {
       toast.error("You must have at least one Wi-Fi network before deleting.");
       return;
     }
   
-    // Store the original macAddresses for rollback in case of failure
-    const originalMacAddresses = [...(institutionInfo.macAddresses || [])];
-  
-    // Optimistically update the local state
-    setInstitutionInfo((prevInfo) => ({
-      ...prevInfo,
-      macAddresses: (prevInfo.macAddresses || []).filter((ssid) => ssid.macAddress !== id),
-    }));
-  
-    // Prepare updated institution data
-    const updatedInfo = {
-      ...institutionInfo,
-      macAddresses: (institutionInfo.macAddresses || []).filter((ssid) => ssid.macAddress !== id),
-    };
-  
-    try {
-      // Make API call to update the institution data on the backend
-      const data = await updatedInstitutionInfo(updatedInfo, institutionInfo.slug);
-  
-      if (data) {
-        // Success: Parse macAddresses and update state
-        toast.success(`Institution updated successfully.`);
-        const parsedMacAddresses = typeof data.macAddresses === 'string'
-          ? JSON.parse(data.macAddresses)
-          : Array.isArray(data.macAddresses)
-          ? data.macAddresses
-          : [];
-        setInstitutionInfo({ ...data, macAddresses: parsedMacAddresses });
-      } else {
-        // Handle error response
-        toast.error("Failed to update institution.");
-        setErrorName("Failed to update institution.");
-        // Revert optimistic update
-        setInstitutionInfo((prevInfo) => ({
-          ...prevInfo,
-          macAddresses: originalMacAddresses,
-        }));
-      }
-    } catch (error) {
-      console.error('Error updating institution:', (error as Error).message);
-      setErrorName('An error occurred while saving. Please try again.');
-      // Revert optimistic update on error
-      setInstitutionInfo((prevInfo) => ({
-        ...prevInfo,
-        macAddresses: originalMacAddresses,
-      }));
-    }
-  };
-
-  const handleGenerateNewKey = () => {
-    
-    setInstitutionInfo((prevInfo) => ({
-      ...prevInfo,
-      uniqueKey: Math.random().toString(36).substr(2, 9),
-    }));
-  };
-
-  const handleDelete = async () => {
-    if (!institutionInfo.adminId) {
-      toast.error('Cannot delete: Admin ID is missing.');
+    // تأكد إنو موجود أصلًا
+    if (!list.some(x => x.macAddress === targetMac)) {
+      toast.warning("Network not found");
       return;
     }
-    const adminId = institutionInfo.adminId;
-    console.log("adminId before delete:", institutionInfo.adminId);
-    console.log("deleted slug: ", institutionInfo.slug);
-    const res = await deleteInstitutionInfo(institutionInfo.slug);
-    console.log('Delete response:', res);
-    try{
-      if(res == "Institution deleted successfully"){
-        toast.success("Institution deleted successfully");
-        //toast(`${res}`,);
-        setTimeout(() => {
-          //navigate.push(`/dashboard?adminId=${adminId}`);
-          router.push(`/dashboard?adminId=${adminId}`); // Adjust this path if needed
-        }, 1500);
-      }else{
-        toast.error(`Failed to delete institution: ${res}`);
-        //toast(`${res}`);
+  
+    // Snapshot لِـ rollback
+    const snapshot = { ...institutionInfo, macAddresses: [...list] };
+  
+    // تحديث متفائل
+    setInstitutionInfo(prev => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        macAddresses: (prev.macAddresses ?? []).filter(x => x.macAddress !== targetMac),
+      };
+    });
+  
+    try {
+      // حضّر الداتا المُحدّثة للإرسال
+      const payload = {
+        ...snapshot,
+        macAddresses: snapshot.macAddresses!.filter(x => x.macAddress !== targetMac),
+      };
+  
+      // نادِ API
+      const updated = await updatedInstitutionInfo(payload, snapshot.slug);
+  
+      if (!updated) {
+        // فشل منطقي → Rollback
+        toast.error("Failed to update institution.");
+        setInstitutionInfo(snapshot);
+        return;
       }
-    }catch (error) {
-      console.error('Error during deletion:', error);
-  toast.error('Failed to delete institution.');
-    }
-    
-
-  }
-
-  const handleCheckName = () => {
-    console.log(initialName);
-    console.log("1: ",institutionInfo.name);
-    if (institutionInfo.name && institutionInfo.name !== initialName) { // Only check if name has changed
-      // Clear any existing timeout
-      if (nameCheckTimeoutRef.current) {
-        clearTimeout(nameCheckTimeoutRef.current);
-      }
-      
-      setLoading(true);
-      nameCheckTimeoutRef.current = setTimeout(async () => {
-        try {
-          const res = await checkNameExists(institutionInfo.name,institutionInfo.adminId);
-          
-          if (typeof res === "boolean") {
-            setIsNameTaken(res);
-            setErrorName('');
-          } else if (typeof res === "string") {
-            setErrorName(res);
-            setIsNameTaken(null);
-          }
-          console.log(initialName);// Update initial name after check
-        } catch (error) {
-          console.error('Error checking name:', error);
-          setErrorName('Error checking name availability');
-        } finally {
-          setLoading(false); 
-        }
-      }, 1500); // debounce to avoid too many API calls
-    } else {
-      setIsNameTaken(null);
+  
+      // بعض السيرفرات ترجع macAddresses كنص—وحّد الشكل
+      const normalized = normalizeMacList((updated).macAddresses);
+  
+      // ثبّت الحالة النهائية
+      setInstitutionInfo(prev => {
+        if (!prev) return prev;
+        return { ...prev, ...updated, macAddresses: normalized };
+      });
+  
+      toast.success("Wi-Fi removed.");
+    } catch (e) {
+      console.error("Error updating institution:", (e as Error).message);
+      toast.error("An error occurred while saving. Please try again.");
+      // Rollback عند الاستثناء
+      setInstitutionInfo(snapshot);
     }
   };
-  const confirmDeletion = () => {
-      if (inputName === institutionInfo.name) {
-        handleDelete();
-      } else {
-        alert('Name does not match. Please enter the correct name to confirm deletion.');
-      }
-    };
-  console.log('Current institutionInfo:', institutionInfo);
-  console.log('Current macAddresses:', institutionInfo.macAddresses);
   
+
+  const handleGenerateNewKey = async () => {
+    if (!institutionInfo) {
+      toast.error("Missing institution info");
+      return;
+    }
+  
+    setIsGenLoading(true);
+    const prevKey = institutionInfo.uniqueKey;
+  
+    try {
+      const newKey = await generateInstitutionKey(institutionInfo.id);
+      setInstitutionInfo(prev => (prev ? { ...prev, uniqueKey: newKey } : prev));
+      toast.success("New key generated.");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Network error");
+      // Rollback on error
+      setInstitutionInfo(prev => (prev ? { ...prev, uniqueKey: prevKey } : prev));
+    } finally {
+      setIsGenLoading(false);
+    }
+  };
+
+  
+
+const handleDelete = async () => {
+  if (!institutionInfo) {
+    toast.error('Missing institution info');
+    return;
+  }
+  if (!institutionInfo.adminId) {
+    toast.error('Cannot delete: Admin ID is missing.');
+    return;
+  }
+
+  setDeleteLoading(true);
+
+  try {
+    const res = await deleteInstitutionInfo(institutionInfo.slug);
+
+    if (!res.ok) {
+      toast.error(res.data?.message ?? `Failed (HTTP ${res.status})`);
+      return;
+    }
+
+    toast.success(res.data?.message || 'Institution deleted successfully');
+
+    // لو حابب تنتظر 1.2s لعرض التوست
+    // await new Promise(r => setTimeout(r, 1200));
+
+    router.push(`/dashboard?adminId=${institutionInfo.adminId}`);
+  } catch (error) {
+    console.error('Error during deletion:', error);
+    toast.error(error instanceof Error ? error.message : 'Failed to delete institution.');
+  } finally {
+    setDeleteLoading(false);
+  }
+};
+
+
+const handleCheckName = () => {
+  if (!institutionInfo) {
+    setIsNameTaken(null);
+    setErrorName('');
+    return;
+  }
+
+  const name = (institutionInfo.name ?? '').trim();
+  const current = (initialName ?? '').trim();
+
+  // ما في اسم أو ما تغيّر
+  if (!name || name === current) {
+    setIsNameTaken(null);
+    setErrorName('');
+    if (nameCheckTimeoutRef.current) clearTimeout(nameCheckTimeoutRef.current);
+    return;
+  }
+
+  // الغِ أي تايمر سابق
+  if (nameCheckTimeoutRef.current) clearTimeout(nameCheckTimeoutRef.current);
+
+  setLoading(true);
+
+  const myReqId = ++reqIdRef.current; // رقم طلب لهالدعوة
+  nameCheckTimeoutRef.current = setTimeout(async () => {
+    try {
+      // احتمال تكون الدالة القديمة:
+      //   (name: string, adminId: number) => Promise<boolean | string>
+      // أو الجديدة:
+      //   Promise<ApiSuccess<{exists:boolean}> | ApiFailure>
+      const res = await checkNameExists(name, institutionInfo.adminId);
+
+      // تجاهل النتيجة إذا صار طلب أحدث بعده
+      if (myReqId !== reqIdRef.current) return;
+
+      if (typeof res === 'boolean') {
+        setIsNameTaken(res);
+        setErrorName('');
+      } else if (typeof res === 'string') {
+        setIsNameTaken(null);
+        setErrorName(res);
+      } else if (res && typeof res === 'object' && 'ok' in res) {
+        // نمط الاتحاد ApiResult
+        const r = res as ApiSuccess<{ exists: boolean }> | ApiFailure;
+        if (!r.ok) {
+          setIsNameTaken(null);
+          setErrorName(r.data?.message ?? `Failed (HTTP ${r.status})`);
+        } else {
+          setIsNameTaken(r.data.exists);
+          setErrorName('');
+        }
+      } else {
+        // fallback
+        setIsNameTaken(null);
+        setErrorName('Unexpected response');
+      }
+    } catch {
+      setIsNameTaken(null);
+      setErrorName('Error checking name availability');
+    } finally {
+      // تجاهل إطفاء اللودينغ لو تم تجاوزه بطلب أحدث
+      if (myReqId === reqIdRef.current) setLoading(false);
+    }
+  }, 600); // debounce 600ms (عدّلها لو بدك)
+};
+
+  const confirmDeletion = async () => {
+    if (!institutionInfo) {
+      toast.error('No institution loaded.');
+      return;
+    }
+    const expected = (institutionInfo.name ?? '').trim();
+    const provided = (inputName ?? '').trim();
+    if (provided !== expected) {
+      toast.error('Name does not match. Please type the exact institution name to confirm.');
+      return;
+    }
+    await handleDelete(); 
+    };
+
+
+  if (isLoading) {
+    return <div className="flex items-center justify-center">Loading…</div>;
+  }
+  
+  if (!institutionInfo) {
+    return <div className="p-4 text-sm text-red-600">Failed to load institution.</div>;
+  }
   return (
     <div className="container w-full max-w-screen mx-auto ">
       <h1 className="p-4 text-2xl font-bold  text-gray-800 ">Settings</h1>
@@ -416,11 +509,11 @@ const SettingsPage: React.FC = () => {
           <p className="flex-1 font-mono bg-gray-100 px-4 py-2 rounded-md text-sm text-gray-800">{institutionInfo.uniqueKey}</p>
           {isEditing && (
             <button
-              onClick={handleGenerateNewKey}
+              onClick={handleGenerateNewKey} disabled={isGenLoading}
               className="mt-3 sm:mt-0 flex items-center px-4 py-2 bg-gray-700 text-white text-sm rounded-md hover:bg-gray-800"
             >
-              <RefreshCw className="w-4 h-4 mr-2" />
-              Generate
+              {isGenLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <RefreshCw className="w-4 h-4 mr-2" />}
+              {isGenLoading ? "Generating..." : "Generate"}
             </button>
           )}
         </div>
@@ -537,11 +630,12 @@ const SettingsPage: React.FC = () => {
                 <DialogFooter className="mt-6 flex justify-end gap-2">
                   <Button
                     variant="destructive"
-                    disabled={inputName !== institutionInfo.name}
+                    disabled={inputName !== institutionInfo.name || deleteLoading}
                     onClick={confirmDeletion}
                     className="px-4 py-2"
                   >
-                    Yes, Delete
+                    {deleteLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Trash2 className="w-4 h-4 mr-2" />}
+                    {deleteLoading ? 'Deleting...' : 'Delete'}
                   </Button>
                   <Button
                     variant="outline"
