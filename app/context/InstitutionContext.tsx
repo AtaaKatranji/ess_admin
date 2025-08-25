@@ -6,6 +6,7 @@ import React, { createContext, useContext, ReactNode, useState, useEffect } from
 interface InstitutionContextType {
   institutionKey: string | null;
   setInstitutionKey: (key: string | null) => void;
+  clearInstitutionKey: () => void;
 }
 
 const InstitutionContext = createContext<InstitutionContextType | undefined>(undefined);
@@ -24,8 +25,12 @@ export const InstitutionProvider: React.FC<{ children: ReactNode }> = ({ childre
     if (key) localStorage.setItem('institutionKey', key);
     else localStorage.removeItem('institutionKey');
   };
+  const clearInstitutionKey = () => {
+    setInstitutionKey(null); // ببساطة نستعمل الدالة نفسها
+  };
+
   return (
-    <InstitutionContext.Provider value={{ institutionKey, setInstitutionKey }}>
+    <InstitutionContext.Provider value={{ institutionKey, setInstitutionKey, clearInstitutionKey  }}>
       {children}
     </InstitutionContext.Provider>
   );

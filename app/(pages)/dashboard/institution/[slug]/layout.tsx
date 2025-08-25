@@ -8,7 +8,7 @@ import { toast, ToastContainer } from "react-toastify";
 import  { useRouter } from "next/navigation";
 // import { fetchInstitution } from "@/app/api/institutions/institutions";
 // import { InstitutionInfo } from "@/app/types/Institution";
-import { InstitutionProvider } from "@/app/context/InstitutionContext";
+import { InstitutionProvider, useInstitution } from "@/app/context/InstitutionContext";
 import { EmployeeProvider } from "@/app/context/EmployeeContext";
 import { SocketProvider } from "@/app/context/SocketContext";
 
@@ -42,9 +42,11 @@ export default function InstitutionLayout( { children }: { children: React.React
   //   return () => { alive = false; };
   // }, [slug]);
 
+  const { clearInstitutionKey } = useInstitution();
   const handleExitInstitution = () => {
 // 
     toast.info(`Exiting institution ${slug}`);
+    clearInstitutionKey();
     setTimeout(() => {
       router.push(`/dashboard`);
     }, 1500);
