@@ -8,6 +8,7 @@ export const fetchShifts = async (institutionKey: string) => {
     const response = await fetch(`${BaseUrl}/shifts/institution?institutionKey=${institutionKey}`, {
       
       method: 'GET',
+      credentials: "include",
       headers: {
         'Content-Type': 'application/json',
       },
@@ -31,6 +32,7 @@ export const fetchTimeShifts = async (employeeId: string) => {
   console.log("fetchTimeShifts",employeeId)
   const response = await fetch(`${BaseUrl}/shifts/time?employeeId=${employeeId}`, {
     method: 'GET',
+    credentials: "include",
     headers: {
       'Content-Type': 'application/json',
     },
@@ -72,6 +74,7 @@ export const addShift = async (newShift: Shift) => {
     const shiftResponse = await fetch(`${BaseUrl}/shifts/`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      credentials: "include",
       body: JSON.stringify(newShift), // No need to set employees here
     })
 
@@ -132,11 +135,13 @@ export const updateShift = async (newShift: Shift) => {
             ? fetch(`${BaseUrl}/break/break-types`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
+                credentials: "include",
                 body: JSON.stringify({ ...breakPayload, shiftId: newShift.id })
               })
             : fetch(`${BaseUrl}/break/break-types/${breakItem.id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
+                credentials: "include",
                 body: JSON.stringify({ ...breakPayload, shiftId: newShift.id })
               });
         });
@@ -145,6 +150,7 @@ export const updateShift = async (newShift: Shift) => {
       const shiftResponse = await fetch(`${BaseUrl}/shifts/${newShift.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
+        credentials: "include",
         body: JSON.stringify(newShift),
       })
 
@@ -190,6 +196,7 @@ export  const deleteBreak = async (breakId: string) => {
     try {
       const response = await fetch(`${BaseUrl}/break/break-types/${breakId}`, {
         method: 'DELETE',
+        credentials: "include",
       });
 
       if (!response.ok) {
@@ -209,6 +216,7 @@ export const fetchShiftReport = async (shiftId: string, month: string, instituti
   try {
     const response = await fetch(`${BaseUrl}/shifts/summary`, {
       method: 'POST',
+      credentials: "include",
       headers: {
         'Content-Type': 'application/json',
       },
