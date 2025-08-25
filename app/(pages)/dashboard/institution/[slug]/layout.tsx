@@ -46,7 +46,7 @@ export default function InstitutionLayout( { children }: { children: React.React
 
     toast.info(`Exiting institution ${slug}`);
     setTimeout(() => {
-      router.push(`/dashboard?adminId=${institutionInfo!.adminId}`);
+      router.push(`/dashboard`);
     }, 1500);
   };
   const toggleSidebar = () => setIsSidebarOpen((v) => !v);
