@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect   } from "react"
-import { Shield, Users, Plus, Edit, Trash2, Settings } from "lucide-react"
+import { Shield, Users, Plus, Edit, Trash2, Settings, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -27,6 +27,7 @@ import type { Role } from "@/app/types/rbac";
 import { usePermissions } from "@/hooks/usePermission"
 import { buildPermissionsUI } from "../utils/permissionMapping"
 import { useRolePermissions } from "@/hooks/useRolePermissions"
+import { useMyPriority } from "@/hooks/useMyPriority"
 const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
 
 const PERMISSION_CATEGORIES = [
@@ -59,7 +60,7 @@ export function RoleManagement({ institutionId }: { institutionId?: number | nul
   const { roles, isLoading: rolesLoading, isError: rolesError, mutateRoles  } = useRoles({ withCounts: true,institutionId: institutionId!}); 
   const { permissions, isLoading: permissionsLoading, isError: permissionsError } = usePermissions();
   const { rolePermsMap, mutateRolePerms,  } = useRolePermissions();
-
+  const { myPriority, isLoading: priorityLoading } = useMyPriority(institutionId!);
   const canSubmitCreate = !!formData.name.trim() && (permissions?.length ?? 0) > 0;
   useEffect(() => {
     if (!isEditDialogOpen || !selectedRole) return;
@@ -168,7 +169,10 @@ export function RoleManagement({ institutionId }: { institutionId?: number | nul
     setIsEditDialogOpen(true);
   };
   
-
+  const canManageRole = (myPriority: number, targetPriority: number) => {
+    // تستطيع إدارة الأدوار الأدنى فقط
+    return targetPriority < myPriority;
+  };
   const resetForm = () => {
     setFormData({
       name: "",
@@ -202,12 +206,13 @@ export function RoleManagement({ institutionId }: { institutionId?: number | nul
       );
     };
 
-  if (rolesLoading || permissionsLoading) {
+  if (rolesLoading || permissionsLoading || priorityLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center space-y-4">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
           <p className="text-muted-foreground">Loading roles...</p>
+          <Loader2></Loader2>
         </div>
       </div>
     )
@@ -343,41 +348,47 @@ export function RoleManagement({ institutionId }: { institutionId?: number | nul
               </TableRow>
             </TableHeader>
             <TableBody>
-              {roles.map((role) => (
-                <TableRow key={role.id}>
-                  <TableCell className="font-medium">
-                    <div className="flex items-center gap-2">
-                      {role.name}
-                      {/* {role.isSystem && (
-                        <Badge variant="outline" className="text-xs">
-                          System
-                        </Badge>
-                      )} */}
-                    </div>
-                  </TableCell>
-                  <TableCell>{getRoleLevelBadge(role.priority)}</TableCell>
-                  <TableCell className="max-w-xs truncate">{role.description}</TableCell>
-                  <TableCell>
-                    <Badge variant="secondary">{role.userCount} users</Badge>
-                  </TableCell>
-                  <TableCell>{role.createdAt}</TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <Button variant="ghost" size="sm" onClick={() => openEditDialog(role)} disabled={role.isSystem}>
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDeleteRole(role.id)}
-                        disabled={role.isSystem || role.userCount > 0}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
+              {roles.map((role) => {
+              const canEdit = canManageRole(myPriority, role.priority);
+              const canDelete = canEdit && !role.isSystem && role.userCount === 0;
+              return (
+              <TableRow key={role.id}>
+                <TableCell className="font-medium">
+                  <div className="flex items-center gap-2">
+                    {role.name}
+                    {/* {role.isSystem && (
+                      <Badge variant="outline" className="text-xs">
+                        System
+                      </Badge>
+                    )} */}
+                  </div>
+                </TableCell>
+                <TableCell>{getRoleLevelBadge(role.priority)}</TableCell>
+                <TableCell className="max-w-xs truncate">{role.description}</TableCell>
+                <TableCell>
+                  <Badge variant="secondary">{role.userCount} users</Badge>
+                </TableCell>
+                <TableCell>{role.createdAt}</TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-2">
+                    <Button variant="ghost" size="sm" onClick={() => openEditDialog(role)} disabled={role.isSystem}>
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleDeleteRole(role.id)}
+                      disabled={!canDelete}
+                      //role.isSystem || role.userCount > 0
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+              );
+
+              })}
             </TableBody>
           </Table>
         </CardContent>
