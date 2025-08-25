@@ -5,6 +5,7 @@ export function mapCategory(resource: string): string {
   switch (resource) {
     case "institution": return "Institution Management";
     case "employee":    return "User Management";
+    case "shift":       return "Shift Management";
     case "manager":     return "Role Management";
     case "system":      return "System Administration";
     case "report":      return "Reports & Analytics";
