@@ -107,10 +107,6 @@ export default function ShiftsPage() {
   const handleEditShift = async (shift: Shift) => {
     setEditingShift(shift)  // shift from your list
     setDialogOpen(true) 
-    // const breaks = await fetchBreaksForShift(shift.id!)
-    // setNewShift({ ...shift, breaks: breaks.data })
-    // setIsEditing(true)
-    // setIsOpen(true)
   }
   const deleteShift = async (id: string) => {
     try {
@@ -128,6 +124,7 @@ export default function ShiftsPage() {
     try {
       const response = await fetch(`${BaseURL}/shifts/${selectedShift}/assign`, {
         method: 'PUT',
+        credentials: "include",
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ employeeId: selectedEmployee }),
       })
@@ -146,6 +143,7 @@ export default function ShiftsPage() {
     console.log(employeeId)
   const response = await fetch(`${BaseURL}/shifts/${shiftId}/remove`, {
     method: 'POST',
+    credentials: "include",
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ employeeId }),
     })
@@ -157,6 +155,7 @@ export default function ShiftsPage() {
     console.log(fromShiftId,toShiftId,employeeId)
     const response = await fetch(`${BaseURL}/shifts/${fromShiftId}/move`, {
       method: 'POST',
+      credentials: "include",
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ toShiftId, employeeId }),
     })
