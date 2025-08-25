@@ -33,6 +33,7 @@ const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
 const PERMISSION_CATEGORIES = [
   "Institution Management",
   "User Management",
+  "Shift Management",
   "Role Management",
   "System Administration",
   "Reports & Analytics",
