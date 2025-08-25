@@ -371,7 +371,7 @@ export function RoleManagement({ institutionId }: { institutionId?: number | nul
                 <TableCell>{role.createdAt}</TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2">
-                    <Button variant="ghost" size="sm" onClick={() => openEditDialog(role)} disabled={role.isSystem}>
+                    <Button variant="ghost" size="sm" onClick={() => openEditDialog(role)} disabled={!canEdit} title={!canEdit ? "You cannot modify a role of the same or higher level as you." : ""}>
                       <Edit className="h-4 w-4" />
                     </Button>
                     <Button
@@ -379,6 +379,16 @@ export function RoleManagement({ institutionId }: { institutionId?: number | nul
                       size="sm"
                       onClick={() => handleDeleteRole(role.id)}
                       disabled={!canDelete}
+                      title={
+                        !canDelete
+                          ? role.isSystem
+                            ? "System role cannot be deleted"
+                            : role.userCount > 0
+                              ? "Cannot delete a role with assigned users"
+                              : "You cannot delete a role at or above your level"
+                          : ""
+                      }
+                      
                       //role.isSystem || role.userCount > 0
                     >
                       <Trash2 className="h-4 w-4" />
