@@ -1,13 +1,13 @@
 // /dashboard/institution/[slug]/layout.tsx
 "use client";
-import React, { useEffect, useState } from "react";
+import React, {  useState } from "react";
 import SideBarIns from "@/app/components/SideBarIns";
 //import InstitutionDashboard from "@/app/components/InstitutionDashboard";
 import { useParams } from 'next/navigation';
 import { toast, ToastContainer } from "react-toastify";
 import  { useRouter } from "next/navigation";
-import { fetchInstitution } from "@/app/api/institutions/institutions";
-import { InstitutionInfo } from "@/app/types/Institution";
+// import { fetchInstitution } from "@/app/api/institutions/institutions";
+// import { InstitutionInfo } from "@/app/types/Institution";
 import { InstitutionProvider } from "@/app/context/InstitutionContext";
 import { EmployeeProvider } from "@/app/context/EmployeeContext";
 import { SocketProvider } from "@/app/context/SocketContext";
@@ -20,30 +20,30 @@ export default function InstitutionLayout( { children }: { children: React.React
 
   // const [activeSection, setActiveSection] = useState("overview");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [institutionInfo, setInstitutionInfo] = useState<InstitutionInfo | null>(null);
+  // const [institutionInfo, setInstitutionInfo] = useState<InstitutionInfo | null>(null);
 
-  useEffect(() => {
-    if (!slug) return;
-    let alive = true;
+  // useEffect(() => {
+  //   if (!slug) return;
+  //   let alive = true;
   
-    (async () => {
-      const r = await fetchInstitution(String(slug));
-      if (!alive) return;
+  //   (async () => {
+  //     const r = await fetchInstitution(String(slug));
+  //     if (!alive) return;
   
-      if (!r.ok) {
-        toast.error(r.data?.message ?? `Failed to load institution (HTTP ${r.status})`);
-        setInstitutionInfo(null);
-        return;
-      }
+  //     if (!r.ok) {
+  //       toast.error(r.data?.message ?? `Failed to load institution (HTTP ${r.status})`);
+  //       setInstitutionInfo(null);
+  //       return;
+  //     }
   
-      setInstitutionInfo(r.data); // r.data هو InstitutionInfo
-    })();
+  //     setInstitutionInfo(r.data); // r.data هو InstitutionInfo
+  //   })();
   
-    return () => { alive = false; };
-  }, [slug]);
+  //   return () => { alive = false; };
+  // }, [slug]);
 
   const handleExitInstitution = () => {
-
+// 
     toast.info(`Exiting institution ${slug}`);
     setTimeout(() => {
       router.push(`/dashboard`);
