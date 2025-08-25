@@ -171,6 +171,8 @@ export function RoleManagement({ institutionId }: { institutionId?: number | nul
   
   const canManageRole = (myPriority: number, targetPriority: number) => {
     // تستطيع إدارة الأدوار الأدنى فقط
+    console.log("canManageRole", myPriority, targetPriority);
+    console.log("can: myPriority < targetPriority", myPriority < targetPriority);
     return targetPriority < myPriority;
   };
   const resetForm = () => {
