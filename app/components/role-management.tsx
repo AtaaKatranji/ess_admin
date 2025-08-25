@@ -61,6 +61,7 @@ export function RoleManagement({ institutionId }: { institutionId?: number | nul
   const { permissions, isLoading: permissionsLoading, isError: permissionsError } = usePermissions();
   const { rolePermsMap, mutateRolePerms,  } = useRolePermissions();
   const { myPriority, isLoading: priorityLoading } = useMyPriority(institutionId!);
+  console.log("myPriority: ", myPriority);
   const canSubmitCreate = !!formData.name.trim() && (permissions?.length ?? 0) > 0;
   useEffect(() => {
     if (!isEditDialogOpen || !selectedRole) return;
@@ -172,7 +173,7 @@ export function RoleManagement({ institutionId }: { institutionId?: number | nul
   const canManageRole = (myPriority: number, targetPriority: number) => {
     // تستطيع إدارة الأدوار الأدنى فقط
     console.log("canManageRole", myPriority, targetPriority);
-    console.log("can: myPriority < targetPriority", myPriority < targetPriority);
+    console.log("can: myPriority < targetPriority", targetPriority < myPriority);
     return targetPriority < myPriority;
   };
   const resetForm = () => {
