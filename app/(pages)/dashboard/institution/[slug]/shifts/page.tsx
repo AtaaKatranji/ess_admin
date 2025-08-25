@@ -151,9 +151,9 @@ export default function ShiftsPage() {
     console.log("in remove employee: ",data)
     setShifts(shifts.map(shift => shift.id === data.id ? data : shift))
   }
-  const moveEmployee = async (fromShiftId: string, toShiftId: string, employeeId: string) => {
-    console.log(fromShiftId,toShiftId,employeeId)
-    const response = await fetch(`${BaseURL}/shifts/${fromShiftId}/move`, {
+  const moveEmployee = async (shiftId: string, toShiftId: string, employeeId: string) => {
+
+    const response = await fetch(`${BaseURL}/shifts/${shiftId}/move`, {
       method: 'POST',
       credentials: "include",
       headers: { 'Content-Type': 'application/json' },
