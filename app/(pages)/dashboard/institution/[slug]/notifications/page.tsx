@@ -27,6 +27,7 @@ export default function NotificationPage() {
   const maxMessageLength = 500
 
   useEffect(() => {
+    if (!institutionKey) return
     const loadShifts = async () => {
       try {
         setShiftsLoading(true)
