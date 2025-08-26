@@ -478,13 +478,13 @@ export function RoleManagement({ institutionId }: { institutionId?: number | nul
             <Separator />
             <div className="flex items-center gap-3">
               <Input
-                placeholder="ابحث عن صلاحية أو مفتاح…"
+                placeholder="Search permissions..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="max-w-sm"
               />
               <div className="ml-auto flex items-center gap-2 text-sm">
-                <Label htmlFor="show-keys">عرض المفتاح</Label>
+                <Label htmlFor="show-keys">Show keys</Label>
                 <Switch id="show-keys" checked={showKeys} onCheckedChange={setShowKeys} />
               </div>
             </div>
