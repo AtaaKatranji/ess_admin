@@ -7,40 +7,80 @@ export default function AdminDashboard() {
   return (
     <div className="flex items-center justify-center min-h-screen space-y-4">
         <div className="absolute inset-0 z-0">
-        <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <linearGradient id="backgroundGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#f5f5f5" stopOpacity="1" />
-              <stop offset="100%" stopColor="#eeeeee" stopOpacity="1" />
-            </linearGradient>
-          </defs>
+          <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+            <defs>
+              {/* Soft diagonal gradient */}
+              <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stopColor="#eef3f8" />
+                <stop offset="100%" stopColor="#dbe6f3" />
+              </linearGradient>
 
-          <rect x="0" y="0" width="100%" height="100%" fill="url(#backgroundGradient)" />
+              {/* Very subtle grid */}
+              <pattern id="grid" width="64" height="64" patternUnits="userSpaceOnUse">
+                <path d="M64 0H0V64" fill="none" stroke="#1e3a8a" strokeOpacity="0.04" strokeWidth="1" />
+              </pattern>
 
-          {/* <!-- Circle with Fingerprint --> */}
-          <circle cx="150" cy="150" r="120" fill="#5a9bd5" opacity="0.2" />
-          <g fill="none" stroke="#5a9bd5" strokeWidth="2" opacity="0.6">
-            <path d="M110,110 C120,90 180,90 190,110" />
-            <path d="M115,125 C125,105 175,105 185,125" />
-            <path d="M120,140 C130,120 170,120 180,140" />
-            <path d="M125,155 C135,135 165,135 175,155" />
-            <path d="M130,170 C140,150 160,150 170,170" />
-            <path d="M135,185 C145,165 155,165 165,185" />
-            <path d="M140,200 C150,180 160,180 170,200" />
-            <path d="M145,215 C155,195 155,195 165,215" />
-          </g>
+              {/* Gentle wave gradient */}
+              <linearGradient id="wave" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.08" />
+                <stop offset="100%" stopColor="#3b82f6" stopOpacity="0" />
+              </linearGradient>
 
-          {/* <!-- Additional Shapes --> */}
-          <rect x="800" y="100" width="400" height="400" rx="100" ry="100" fill="#ffcc00" opacity="0.2" />
-          <circle cx="300" cy="600" r="50" fill="#90caf9" />
-          <rect x="270" y="650" width="60" height="100" fill="#90caf9" />
-          <polygon points="500,50 650,150 500,250" fill="#7b9fd4" opacity="0.15" />
-          <circle cx="950" cy="500" r="200" fill="#f95d6a" opacity="0.1" />
-          <circle cx="1400" cy="250" r="120" fill="#5a9bd5" opacity="0.2" />
-          <path d="M0 700 Q400 800 800 700 Q1200 600 1600 700 V800 H0 Z" fill="#cfd8dc" />
-        </svg>
+              {/* Glow blobs */}
+              <radialGradient id="blobBlue" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stopColor="#60a5fa" stopOpacity="0.25" />
+                <stop offset="100%" stopColor="#60a5fa" stopOpacity="0" />
+              </radialGradient>
+              <radialGradient id="blobTeal" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stopColor="#22c55e" stopOpacity="0.18" />
+                <stop offset="100%" stopColor="#22c55e" stopOpacity="0" />
+              </radialGradient>
+            </defs>
 
-      </div>
+            {/* Base gradient */}
+            <rect x="0" y="0" width="100%" height="100%" fill="url(#bg)" />
+
+            {/* Subtle grid overlay */}
+            <rect x="0" y="0" width="100%" height="100%" fill="url(#grid)" />
+
+            {/* Soft blobs (top-right / bottom-left) */}
+            <circle cx="82%" cy="18%" r="280" fill="url(#blobBlue)" />
+            <circle cx="12%" cy="78%" r="220" fill="url(#blobTeal)" />
+
+            {/* Abstract waves (bottom) */}
+            <path d="M0,70% C20%,66% 32%,76% 50%,72% C68%,68% 80%,76% 100%,72% L100%,100% L0,100% Z" fill="url(#wave)" />
+            <path d="M0,78% C18%,74% 36%,86% 52%,82% C70%,78% 86%,88% 100%,82% L100%,100% L0,100% Z" fill="url(#wave)" />
+
+            {/* Faint, relevant icons */}
+            <g opacity="0.06" fill="none" stroke="#0f172a" strokeWidth="2">
+              {/* Calendar (top-left) */}
+              <rect x="7%" y="12%" rx="10" ry="10" width="140" height="110" />
+              <line x1="7%" y1="18%" x2="16.5%" y2="18%" />
+              <line x1="9%" y1="12%" x2="9%" y2="18%" />
+              <line x1="14%" y1="12%" x2="14%" y2="18%" />
+              <rect x="8.5%" y="21%" width="18" height="14" rx="3" />
+              <rect x="11.5%" y="21%" width="18" height="14" rx="3" />
+              <rect x="14.5%" y="21%" width="18" height="14" rx="3" />
+              <rect x="8.5%" y="24%" width="18" height="14" rx="3" />
+              <rect x="11.5%" y="24%" width="18" height="14" rx="3" />
+
+              {/* Clock (right side) */}
+              <circle cx="88%" cy="36%" r="70" />
+              <line x1="88%" y1="36%" x2="88%" y2="26%" />
+              <line x1="88%" y1="36%" x2="94%" y2="36%" />
+
+              {/* Building (bottom-right) */}
+              <rect x="78%" y="68%" width="220" height="140" rx="8" />
+              <rect x="80%" y="72%" width="28" height="28" rx="4" />
+              <rect x="84%" y="72%" width="28" height="28" rx="4" />
+              <rect x="88%" y="72%" width="28" height="28" rx="4" />
+              <rect x="80%" y="78%" width="28" height="28" rx="4" />
+              <rect x="84%" y="78%" width="28" height="28" rx="4" />
+              <rect x="88%" y="78%" width="28" height="28" rx="4" />
+              <rect x="92%" y="78%" width="28" height="60" rx="4" />
+            </g>
+          </svg>
+        </div>
       <div className='absolute flex flex-col bg-slate-100 rounded-xl shadow-md font-bold font-mono text-xl  items-center justify-center w-full max-w-md p-4 space-y-4 '>
       <div>Welcome to the EES Admin Dashboard</div>
       <Button onClick={() => {
