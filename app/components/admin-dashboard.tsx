@@ -148,13 +148,13 @@ export function AdminDashboard() {
     })
   }
 
-  const handleCardClick = async (slug: string) => {
+  const handleCardClick = async (slug: string, keyNumber: string) => {
     try {
       if (cardClickGuardRef.current) {
         cardClickGuardRef.current = false; // استهلك الحارس
         return; // لا تروح على الداشبورد
       }
-
+      localStorage.setItem('institutionKey', keyNumber);
       // أو إذا بدك تجيب مباشرة من localStorage
       console.log("institutionKey (direct localStorage): ", localStorage.getItem("institutionKey"));
       navigate.push(`/dashboard/institution/${slug}`)
@@ -562,7 +562,7 @@ export function AdminDashboard() {
                     <InstitutionCard
                       name={institution.name}
                       address={institution.address}
-                      onClick={() => handleCardClick(institution.slug)}
+                      onClick={() => handleCardClick(institution.slug,institution.keyNumber!)}
                     >
                       <Building2 className="h-6 w-6 text-muted-foreground" />
                     </InstitutionCard>
