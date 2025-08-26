@@ -248,8 +248,8 @@ export const fetchShiftReport = async (shiftId: string, month: string, instituti
     const data = await response.json();
     console.log("data of shift report",data);
     return data;
-  } catch (error) {
-    console.error('Error fetching shift report:', error);
-    throw error;
+  } catch {
+    // console.error('Error fetching shift report:', error);
+    // throw error;
   }
 };
