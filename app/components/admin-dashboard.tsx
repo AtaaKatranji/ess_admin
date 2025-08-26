@@ -29,7 +29,7 @@ type InstitutionData = {
   id: number
   name: string
   address: string
-  keyNumber?: string
+  uniqueKey?: string
   macAddresses?: { wifiName: string; mac: string }[]
   image?: string
   slug: string
@@ -148,15 +148,15 @@ export function AdminDashboard() {
     })
   }
 
-  const handleCardClick = async (slug: string, keyNumber: string) => {
+  const handleCardClick = async (slug: string, uniqueKey: string) => {
     try {
       if (cardClickGuardRef.current) {
         cardClickGuardRef.current = false; // استهلك الحارس
         return; // لا تروح على الداشبورد
       }
-      console.log("institutionKey from localStorage/context: ", keyNumber);
+      console.log("institutionKey from localStorage/context: ", uniqueKey);
       console.log("slug from localStorage/context: ", slug);
-      localStorage.setItem('institutionKey', keyNumber);
+      localStorage.setItem('institutionKey', uniqueKey);
       // أو إذا بدك تجيب مباشرة من localStorage
       console.log("institutionKey (direct localStorage): ", localStorage.getItem("institutionKey"));
       navigate.push(`/dashboard/institution/${slug}`)
@@ -300,7 +300,7 @@ export function AdminDashboard() {
                       <InstitutionCard
                         name={institution.name}
                         address={institution.address}
-                        onClick={() => handleCardClick(institution.slug,institution.keyNumber!)}
+                        onClick={() => handleCardClick(institution.slug,institution.uniqueKey!)}
                       >
                         <Building2 className="h-6 w-6 text-muted-foreground" />
                       </InstitutionCard>
@@ -457,7 +457,7 @@ export function AdminDashboard() {
                     <InstitutionCard
                       name={institution.name}
                       address={institution.address}
-                      onClick={() => handleCardClick(institution.slug,institution.keyNumber!)} // فتح dashboard بالمؤسسة
+                      onClick={() => handleCardClick(institution.slug,institution.uniqueKey!)} // فتح dashboard بالمؤسسة
                     >
                       <Building2 className="h-6 w-6 text-muted-foreground" />
                     </InstitutionCard>
@@ -564,7 +564,7 @@ export function AdminDashboard() {
                     <InstitutionCard
                       name={institution.name}
                       address={institution.address}
-                      onClick={() => handleCardClick(institution.slug,institution.keyNumber!)}
+                      onClick={() => handleCardClick(institution.slug,institution.uniqueKey!)}
                     >
                       <Building2 className="h-6 w-6 text-muted-foreground" />
                     </InstitutionCard>
