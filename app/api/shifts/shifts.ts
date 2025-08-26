@@ -235,9 +235,9 @@ export const fetchShiftReport = async (shiftId: string, month: string, instituti
 
       let message = serverMsg || "Failed to fetch shift report";
       if (response.status === 403) {
-        message = "لا تملك صلاحية لعرض هذا التقرير.";
+        message = "You do not have permission to view this report.";
       } else if (response.status === 401) {
-        message = "انتهت الجلسة، يرجى تسجيل الدخول من جديد.";
+        message = "Session has ended, please log in again.";
       }
 
       const err: HttpError = new Error(message);
