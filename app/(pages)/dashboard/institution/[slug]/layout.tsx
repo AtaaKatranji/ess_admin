@@ -1,6 +1,6 @@
 // /dashboard/institution/[slug]/layout.tsx
 "use client";
-import React, {  useState } from "react";
+import React, {  useEffect, useState } from "react";
 import SideBarIns from "@/app/components/SideBarIns";
 //import InstitutionDashboard from "@/app/components/InstitutionDashboard";
 import { useParams } from 'next/navigation';
@@ -11,15 +11,45 @@ import  { useRouter } from "next/navigation";
 import { InstitutionProvider, useInstitution } from "@/app/context/InstitutionContext";
 import { EmployeeProvider } from "@/app/context/EmployeeContext";
 import { SocketProvider } from "@/app/context/SocketContext";
+
+async function fetchInstitutionBySlug(slug: string) {
+  // غيّر الـ URL حسب API عندك
+  const res = await fetch(`/api/institutions/by-slug/${slug}`, { cache: "no-store" });
+  if (!res.ok) throw new Error("Failed to load institution");
+  return res.json(); // توقع { institutionKey: '...', name: '...', ... }
+}
+
 function LayoutBody({ children, slug }: { children: React.ReactNode; slug: string }) {
-  const { clearInstitutionKey } = useInstitution(); // الآن داخل Provider
+  const {  setInstitutionKey, clearInstitutionKey } = useInstitution();
   const router = useRouter();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
+  useEffect(() => {
+    let ignore = false;
+    (async () => {
+      if (!slug) return;
+      const existing = typeof window !== 'undefined' ? localStorage.getItem('institutionKey') : null;
+      if (existing) return; // already set
+
+      try {
+        const data = await fetchInstitutionBySlug(slug);
+        if (!ignore && data?.institutionKey) {
+          setInstitutionKey(data.institutionKey);
+          // للتأكد
+          console.log("[layout] institutionKey saved:", localStorage.getItem("institutionKey"));
+        }
+      } catch (e) {
+        console.error(e);
+        toast.error("Failed to resolve institution");
+      }
+    })();
+    return () => { ignore = true; };
+  }, [slug, setInstitutionKey]);
+  
   const handleExitInstitution = () => {
     toast.info(`Exiting institution ${slug}`);
     clearInstitutionKey();
-    setTimeout(() => router.push(`/dashboard`), 1500);
+    setTimeout(() => router.push(`/dashboard`), 1000);
   };
 
   const toggleSidebar = () => setIsSidebarOpen(v => !v);
