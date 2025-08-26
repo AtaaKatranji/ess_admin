@@ -66,6 +66,7 @@ export default function ShiftReport({open, onOpenChange, shiftId, institutionKey
       .then((data: ShiftReportType) => setShiftData(data))
       .catch((err) => {
         setShiftData(null);
+        console.error(err);
         setError(err.message || "Failed to load data.");
       })
       .finally(() => setLoading(false));
