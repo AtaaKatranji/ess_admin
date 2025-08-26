@@ -12,7 +12,7 @@ export function useLogout() {
     if (loading) return
     setLoading(true)
     try {
-        await poster("/auth/logout"); // same axios instance, cookies included
+        await poster("api/v1/admins/logout"); // same axios instance, cookies included
       }  catch {
       /* ignore — we’ll still nuke client state */
     } finally {

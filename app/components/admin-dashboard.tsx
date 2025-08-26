@@ -212,18 +212,21 @@ export function AdminDashboard() {
               : "View your assigned institutions"}
           </p>
         </div>
-        <Badge
-          variant={isSuperAdmin ? "default" : isOwner ? "outline" : "secondary"}
-          className="flex items-center gap-2"
-        >
-          <Shield className="h-4 w-4" />
-          {isSuperAdmin
-            ? "Super Admin"
-            : isOwner
-            ? "Owner"
-            : "Manager"}
-        </Badge>
-        <UserMenu />
+        <div className="flex items-center gap-2">
+          <Badge
+            variant={isSuperAdmin ? "default" : isOwner ? "outline" : "secondary"}
+            className="flex items-center gap-2"
+          >
+            <Shield className="h-4 w-4" />
+            {isSuperAdmin
+              ? "Super Admin"
+              : isOwner
+              ? "Owner"
+              : "Manager"}
+          </Badge>
+          <UserMenu />
+        </div>
+        
       </div>
   
       {isSuperAdmin ? (
