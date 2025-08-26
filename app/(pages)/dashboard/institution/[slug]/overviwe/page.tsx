@@ -120,7 +120,7 @@ const OverviewPage = () => {
   
 
   return (
-    <div className="container mx-auto w-full">
+    <div className="mx-auto w-full max-w-screen-xl px-3 sm:px-6">
       <header>
         <h1 className="text-2xl font-bold m-4  text-gray-800">Institution Dashboard - Overview</h1>
         <div className="flex justify-between items-center mb-4">
@@ -161,7 +161,7 @@ const OverviewPage = () => {
           </CardContent>
         </Card>
 
-        <Card className="overflow-x-auto md:col-span-2 min-h-screen">
+        <Card className="overflow-x-auto md:col-span-2">
           <CardHeader>
             <h2 className="text-xl font-semibold min-h-[24px]">Time Sheet</h2>
             <div className="flex items-center space-x-2">
@@ -169,9 +169,9 @@ const OverviewPage = () => {
               <Input placeholder="Search employees..." className="max-w-sm" />
             </div>
           </CardHeader>
-          <CardContent className="min-h-[280px]">
+          <CardContent>
             <Tabs defaultValue="daily" value={viewMode}>
-              <TabsList className="grid w-full grid-cols-2 min-h-[40px]">
+              <TabsList className="grid w-full grid-cols-2 rounded-lg border p-1 bg-transparent">
                 <TabsTrigger value="daily">Daily View</TabsTrigger>
                 <TabsTrigger value="weekly">Weekly View</TabsTrigger>
               </TabsList>
