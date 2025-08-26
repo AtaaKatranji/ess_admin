@@ -28,6 +28,7 @@ import { usePermissions } from "@/hooks/usePermission"
 import { buildPermissionsUI } from "../utils/permissionMapping"
 import { useRolePermissions } from "@/hooks/useRolePermissions"
 import { useMyPriority } from "@/hooks/useMyPriority"
+import { Checkbox } from "@/components/ui/checkbox"
 const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
 
 const PERMISSION_CATEGORIES = [
@@ -209,6 +210,27 @@ export function RoleManagement({ institutionId }: { institutionId?: number | nul
         </Badge>
       );
     };
+  const [search, setSearch] = useState("");
+  
+  const [showKeys, setShowKeys] = useState(false);
+
+  const matchesSearch = (p: ReturnType<typeof buildPermissionsUI>[number]) => {
+    const q = search.toLowerCase();
+    return (
+      p.name?.toLowerCase().includes(q) ||
+      p.description?.toLowerCase().includes(q) ||
+      String(p.id).toLowerCase().includes(q) // إبحث أيضاً بالمفتاح
+    );
+  };
+
+  const toggleCategory = (category: string, value: boolean) => {
+    setFormData(prev => ({
+      ...prev,
+      permissions: prev.permissions.map((p) =>
+        p.category === category ? { ...p, enabled: value } : p
+      ),
+    }));
+  };
 
   if (rolesLoading || permissionsLoading || priorityLoading) {
     return (
@@ -454,35 +476,81 @@ export function RoleManagement({ institutionId }: { institutionId?: number | nul
               />
             </div>
             <Separator />
+            <div className="flex items-center gap-3">
+              <Input
+                placeholder="ابحث عن صلاحية أو مفتاح…"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="max-w-sm"
+              />
+              <div className="ml-auto flex items-center gap-2 text-sm">
+                <Label htmlFor="show-keys">عرض المفتاح</Label>
+                <Switch id="show-keys" checked={showKeys} onCheckedChange={setShowKeys} />
+              </div>
+            </div>
+            <Separator />
             <div className="space-y-4">
               <h4 className="font-medium">Permissions</h4>
               {PERMISSION_CATEGORIES.map((category) => {
-                const categoryPermissions = formData.permissions.filter((p) => p.category === category)
-                return (
-                  <div key={category} className="space-y-2">
-                    <h5 className="text-sm font-medium text-muted-foreground">{category}</h5>
-                    <div className="grid grid-cols-1 gap-2 pl-4">
-                      {categoryPermissions.map((permission) => (
-                        <div key={permission.id} className="flex items-center justify-between space-x-2">
-                          <div className="flex-1">
-                            <div className="flex items-center space-x-2">
-                              <Label htmlFor={`edit-${permission.id}`} className="text-sm font-medium">
-                                {permission.name}
-                              </Label>
-                            </div>
-                            <p className="text-xs text-muted-foreground">{permission.description}</p>
-                          </div>
-                          <Switch
-                            id={`edit-${permission.id}`}
-                            checked={permission.enabled}
-                            onCheckedChange={(checked) => updatePermission(permission.id, checked)}
+                  const inCategory = formData.permissions
+                    .filter((p) => p.category === category)
+                    .filter(matchesSearch);
+
+                  const total = inCategory.length;
+                  const enabledCount = inCategory.filter(p => p.enabled).length;
+                  const allOn = total > 0 && enabledCount === total;
+                  const someOn = enabledCount > 0 && enabledCount < total;
+
+                  return (
+                    <div key={category} className="space-y-2">
+                      {/* عنوان المجموعة مع تحكم شامل */}
+                      <div className="flex items-center justify-between">
+                        <h5 className="text-sm font-medium text-muted-foreground">{category}</h5>
+
+                        {/* استخدم Checkbox لعرض حالة indeterminate على مستوى المجموعة */}
+                        <div className="flex items-center gap-3">
+                          <span className="text-xs text-muted-foreground">
+                            {enabledCount}/{total} enabled
+                          </span>
+                          <Checkbox
+                            checked={allOn ? true : (someOn ? "indeterminate" : false)}
+                            onCheckedChange={(val) => toggleCategory(category, Boolean(val))}
+                            aria-label={`Toggle all ${category}`}
                           />
                         </div>
-                      ))}
+                      </div>
+
+                      {/* عناصر الصلاحيات */}
+                      <div className="grid grid-cols-1 gap-2 pl-4">
+                        {inCategory.map((permission) => (
+                          <div key={permission.id} className="flex items-center justify-between">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2">
+                                <Label htmlFor={`edit-${permission.id}`} className="text-sm font-medium">
+                                  {permission.name}
+                                </Label>
+                                {showKeys && (
+                                  <Badge variant="outline" className="font-mono text-[11px]">
+                                    {permission.id}
+                                  </Badge>
+                                )}
+                              </div>
+                              <p className="text-xs text-muted-foreground">{permission.description}</p>
+                            </div>
+                            <Switch
+                              id={`edit-${permission.id}`}
+                              checked={permission.enabled}
+                              onCheckedChange={(checked) => updatePermission(permission.id, checked)}
+                            />
+                          </div>
+                        ))}
+                        {inCategory.length === 0 && (
+                          <p className="text-xs text-muted-foreground pl-1">لا توجد نتائج مطابقة</p>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                )
-              })}
+                  );
+                })}
             </div>
           </div>
           <DialogFooter>
