@@ -75,9 +75,9 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center p-4">
+    <div className="flex min-h-[100svh] items-center justify-center overflow-hidden">
         {/* SVG background code */}
-        <div className="absolute inset-0 z-0">
+        <div className="pointer-events-none fixed inset-0 -z-10">
           <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
             <defs>
               {/* Soft diagonal gradient */}
@@ -160,7 +160,7 @@ export default function AdminLogin() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <Card className="w-full max-w-md shadow-md">
+        <Card className="w-full max-w-md px-4 shadow-md">
           <CardHeader>
             <CardTitle className="text-2xl font-bold text-center">Admin Login</CardTitle>
             <CardDescription className="text-center">Enter your credentials to access the admin panel</CardDescription>
@@ -194,7 +194,7 @@ export default function AdminLogin() {
                   <button
                     type="button"
                     onClick={togglePasswordVisibility}
-                    className="absolute right-3 top-1/2 transform-translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
                   >
                     {showPassword ? (
                       <EyeOff size={18} aria-label="Hide password" />

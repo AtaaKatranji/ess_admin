@@ -52,7 +52,7 @@ export default function AdminDashboard() {
             <path d="M0,78% C18%,74% 36%,86% 52%,82% C70%,78% 86%,88% 100%,82% L100%,100% L0,100% Z" fill="url(#wave)" />
 
             {/* Faint, relevant icons */}
-            <g opacity="0.06" fill="none" stroke="#0f172a" strokeWidth="2">
+            <g opacity="0.08" fill="none" stroke="#0f172a" strokeWidth="2">
               {/* Calendar (top-left) */}
               <rect x="7%" y="12%" rx="10" ry="10" width="140" height="110" />
               <line x1="7%" y1="18%" x2="16.5%" y2="18%" />
@@ -81,7 +81,7 @@ export default function AdminDashboard() {
             </g>
           </svg>
         </div>
-      <div className='absolute flex flex-col bg-slate-100 rounded-xl shadow-md font-bold font-mono text-xl  items-center justify-center w-full max-w-md p-4 space-y-4 '>
+      <div className='absolute flex flex-col bg-slate-100 rounded-xl shadow-md font-bold text-xl  items-center justify-center w-full max-w-md p-4 space-y-4 '>
       <div>Welcome to the EES Admin Dashboard</div>
       <Button onClick={() => {
         console.log('Sign In button clicked'); // Log to check if it works
