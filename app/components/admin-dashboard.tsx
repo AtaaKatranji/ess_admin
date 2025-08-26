@@ -298,7 +298,7 @@ export function AdminDashboard() {
                       <InstitutionCard
                         name={institution.name}
                         address={institution.address}
-                        onClick={() => handleCardClick(institution.slug)}
+                        onClick={() => handleCardClick(institution.slug,institution.keyNumber!)}
                       >
                         <Building2 className="h-6 w-6 text-muted-foreground" />
                       </InstitutionCard>
@@ -455,7 +455,7 @@ export function AdminDashboard() {
                     <InstitutionCard
                       name={institution.name}
                       address={institution.address}
-                      onClick={() => handleCardClick(institution.slug)} // فتح dashboard بالمؤسسة
+                      onClick={() => handleCardClick(institution.slug,institution.keyNumber!)} // فتح dashboard بالمؤسسة
                     >
                       <Building2 className="h-6 w-6 text-muted-foreground" />
                     </InstitutionCard>
