@@ -21,6 +21,7 @@ import AddAdminDialog from "./AddAdminDialog"
 import React from "react"
 import Providers from "../providers"
 import { RoleManagement } from "./role-management"
+import { useInstitution } from "../context/InstitutionContext"
 
 
 
@@ -63,7 +64,7 @@ export function AdminDashboard() {
 
   const adminListRef = React.useRef<{ reload?: () => void }>(null)
   const cardClickGuardRef = React.useRef(false);
-  
+  const { institutionKey } = useInstitution();
   useEffect(() => {
     const run = async () => {
       const res = await fetch(`${BaseUrl}/api/v1/admins/me`, { credentials: 'include' });
@@ -153,6 +154,9 @@ export function AdminDashboard() {
         cardClickGuardRef.current = false; // استهلك الحارس
         return; // لا تروح على الداشبورد
       }
+      console.log("institutionKey from localStorage/context: ", institutionKey);
+      // أو إذا بدك تجيب مباشرة من localStorage
+      console.log("institutionKey (direct localStorage): ", localStorage.getItem("institutionKey"));
       navigate.push(`/dashboard/institution/${slug}`)
     } catch (error) {
       toast.error(`Error navigating to institution: ${error}`)
