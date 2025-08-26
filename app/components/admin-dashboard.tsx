@@ -21,6 +21,7 @@ import AddAdminDialog from "./AddAdminDialog"
 import React from "react"
 import Providers from "../providers"
 import { RoleManagement } from "./role-management"
+import UserMenu from "./userMenu"
 
 
 
@@ -222,6 +223,7 @@ export function AdminDashboard() {
             ? "Owner"
             : "Manager"}
         </Badge>
+        <UserMenu />
       </div>
   
       {isSuperAdmin ? (
@@ -471,6 +473,7 @@ export function AdminDashboard() {
                         <Crown className="h-3.5 w-3.5" />
                         Owner
                       </Badge>
+                      
                     )}
 
                     {/* زر إدارة المشرفين للمالك */}
