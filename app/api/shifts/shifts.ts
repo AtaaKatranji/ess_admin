@@ -1,7 +1,7 @@
 const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
 import { Shift } from '@/app/types/Shift';
 
-
+type HttpError = Error & { status?: number };
 
 export const fetchShifts = async (institutionKey: string) => {
   try {
@@ -224,7 +224,25 @@ export const fetchShiftReport = async (shiftId: string, month: string, instituti
     });
 
     if (!response.ok) {
-      throw new Error('Failed to fetch shift report');
+      // جرّب تقرأ رسالة السيرفر إن وُجدت
+      let serverMsg = "";
+      try {
+        const body = await response.json();
+        serverMsg = body?.error || body?.message || "";
+      } catch {
+        /* لا شيء */
+      }
+
+      let message = serverMsg || "Failed to fetch shift report";
+      if (response.status === 403) {
+        message = "لا تملك صلاحية لعرض هذا التقرير.";
+      } else if (response.status === 401) {
+        message = "انتهت الجلسة، يرجى تسجيل الدخول من جديد.";
+      }
+
+      const err: HttpError = new Error(message);
+      err.status = response.status;
+      throw err;
     }
 
     const data = await response.json();
