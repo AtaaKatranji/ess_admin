@@ -154,6 +154,8 @@ export function AdminDashboard() {
         cardClickGuardRef.current = false; // استهلك الحارس
         return; // لا تروح على الداشبورد
       }
+      console.log("institutionKey from localStorage/context: ", keyNumber);
+      console.log("slug from localStorage/context: ", slug);
       localStorage.setItem('institutionKey', keyNumber);
       // أو إذا بدك تجيب مباشرة من localStorage
       console.log("institutionKey (direct localStorage): ", localStorage.getItem("institutionKey"));
