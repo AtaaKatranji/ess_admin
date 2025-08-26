@@ -171,7 +171,7 @@ const OverviewPage = () => {
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="daily" value={viewMode}>
-              <TabsList className="grid w-full grid-cols-2 rounded-lg border p-1 bg-transparent">
+              <TabsList className="grid w-full grid-cols-2 ">
                 <TabsTrigger value="daily">Daily View</TabsTrigger>
                 <TabsTrigger value="weekly">Weekly View</TabsTrigger>
               </TabsList>
