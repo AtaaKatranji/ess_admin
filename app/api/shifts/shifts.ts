@@ -242,6 +242,7 @@ export const fetchShiftReport = async (shiftId: string, month: string, instituti
 
       const err: HttpError = new Error(message);
       err.status = response.status;
+      console.error(err);
       throw err;
     }
 
