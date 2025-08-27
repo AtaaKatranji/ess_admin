@@ -235,7 +235,7 @@ const AttendanceTab = ({ employeeId, selectedMonth }: { employeeId: string; sele
       <Button
         type="button"
         variant="outline"
-        onClick={() => setIsCalendarOpen((v) => !v)}
+        onClick={() => setIsCalendarOpen(v => !v)}
         className={`w-full pl-3 text-left font-normal ${!field.value && "text-muted-foreground"}`}
       >
         {field.value ? format(new Date(field.value), "PPP") : <span>Pick a date</span>}
@@ -247,34 +247,28 @@ const AttendanceTab = ({ employeeId, selectedMonth }: { employeeId: string; sele
   <PopoverContent
     className="w-auto p-0 z-50"
     align="start"
-    // امنع الإغلاق التلقائي الناتج عن تغيّر الفوكس/ضغطات غريبة
-    onEscapeKeyDown={(e) => e.preventDefault()}
-    onPointerDownOutside={(e) => e.preventDefault()}
-    onFocusOutside={(e) => e.preventDefault()}
+    // اسمح بالإغلاق الطبيعي عند الضغط خارجًا
+    // (اختياري) منع إغلاق البوبوفر بـ ESC فقط إذا بدك
+    onEscapeKeyDown={(e) => e.stopPropagation()}
   >
     <Calendar
       mode="single"
       selected={field.value ? new Date(field.value) : undefined}
       onSelect={(date) => {
-        if (!date) return;
-
-        const dayName = days[date.getDay()];
+        if (!date) return
+        const dayName = days[date.getDay()]
         if (!shiftDays.includes(dayName)) {
-          alert("The selected date is not part of the shift days.");
-          return;
+          alert("The selected date is not part of the shift days.")
+          return
         }
+        const localISOTime = new Date(date.getTime() - date.getTimezoneOffset() * 60000)
+          .toISOString()
+          .slice(0, -1)
 
-        const localISOTime = new Date(
-          date.getTime() - date.getTimezoneOffset() * 60000
-        ).toISOString().slice(0, -1);
-
-        field.onChange(localISOTime);
-
-        // سكّر البوبوفر بعد الاختيار
-        setIsCalendarOpen(false);
+        field.onChange(localISOTime)
+        setIsCalendarOpen(false)   // سكّر بعد الاختيار
       }}
-      // حتى لو تغيّرت الأشهر ما نسكّر البوبوفر
-      onMonthChange={() => setIsCalendarOpen(true)}
+      onMonthChange={() => setIsCalendarOpen(true)} // ما يسكر عند تبديل الشهر
       disabled={(date) =>
         !shiftDays.includes(days[date.getDay()]) ||
         date > new Date() ||
@@ -284,6 +278,7 @@ const AttendanceTab = ({ employeeId, selectedMonth }: { employeeId: string; sele
     />
   </PopoverContent>
 </Popover>
+
                     {/* <Popover modal={false}>
                       <PopoverTrigger asChild>
                         <FormControl>
