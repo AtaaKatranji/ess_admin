@@ -257,7 +257,7 @@ return (
           </div>
     </div>
 
-    <div className="w-full bg-white rounded-xl shadow-sm border border-slate-200 p-2 mb-6 inline-flex justify-center">
+    <div className="w-full bg-white rounded-xl shadow-sm border border-slate-200 p-2 mb-6 grid grid-cols-2  gap-4 ">
       <button
         className={`flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
           leaveType === "daily"
