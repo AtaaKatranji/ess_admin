@@ -151,9 +151,9 @@ const AttendanceTab = ({ employeeId, selectedMonth }: { employeeId: string; sele
   if (isLoading) return <p>Loading...</p>;
 
   return (
-    <section className="min-w-0 overflow-x-hidden space-y-4">
+    <section className="min-w-0 overflow-x-hidden overflow-y-hidden space-y-4">
     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-      <h2 className="text-xl sm:text-2xl font-semibold">Attendance Records</h2>
+      <h2 className="text-xl sm:text-2xl font-semibold text-primary-foreground">Attendance Records</h2>
 
       <div className="flex w-full sm:w-auto items-center gap-2">
         <Button size="sm" onClick={openAddDialog} className="gap-1">
@@ -188,7 +188,7 @@ const AttendanceTab = ({ employeeId, selectedMonth }: { employeeId: string; sele
                       onClick={() => openEditDialog(record)}
                     >
                     <div className="min-w-0">
-                      <p className="font-medium truncate">{format(new Date(record.checkDate), "MMMM d, yyyy")}</p>
+                      <p className="font-medium truncate">{format(new Date(record.checkDate), "MMMM d, yyyy : EEEE")}</p>
                       <p className="text-sm text-muted-foreground tabular-nums">
                       Check-in: {record.checkInTime ?? "—"}, Check-out:{" "}
                       {record.checkOutTime ?? "Not yet checked out"}
