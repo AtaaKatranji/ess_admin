@@ -227,7 +227,7 @@ return (
     </div>
     {/* Search and Filter Section */}
 
-    <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
+    <div className="w-full bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
     <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
