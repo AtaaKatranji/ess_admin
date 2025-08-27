@@ -120,7 +120,7 @@ const OverviewPage = () => {
   
 
   return (
-    <div className="mx-auto w-full max-w-screen-xl px-3 sm:px-6">
+    <div className="container mx-auto w-full max-w-screen-xl px-3 sm:px-6">
       <header>
         <h1 className="text-2xl font-bold m-4  text-gray-800">Institution Dashboard - Overview</h1>
         <div className="flex justify-between items-center mb-4">

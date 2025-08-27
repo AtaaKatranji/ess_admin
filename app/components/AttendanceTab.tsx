@@ -156,7 +156,7 @@ const AttendanceTab = ({ employeeId, selectedMonth }: { employeeId: string; sele
         <div className="flex space-x-2">
           <Button variant="outline" className="h-10 w-10 p-0" onClick={openAddDialog}>
             <Plus className="h-10 w-10" />
-            <span className="sr-only">Add item</span>
+            <span className="sr-only">Add Reord</span>
           </Button>
           <div className="relative">
             <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -213,7 +213,10 @@ const AttendanceTab = ({ employeeId, selectedMonth }: { employeeId: string; sele
       </div>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[425px]" onInteractOutside={(e) => {
+    const el = e.target as HTMLElement;
+    if (el.closest('[data-radix-popover-content]')) e.preventDefault();
+  }} >
           <DialogHeader>
             <DialogTitle>{isEditing ? 'Edit Check-in Record' : 'Add New Check-in Record'}</DialogTitle>
           </DialogHeader>
@@ -225,10 +228,11 @@ const AttendanceTab = ({ employeeId, selectedMonth }: { employeeId: string; sele
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
                     <FormLabel>Date</FormLabel>
-                    <Popover>
+                    <Popover modal={false}>
                       <PopoverTrigger asChild>
                         <FormControl>
                           <Button
+                            type="button"
                             variant={"outline"}
                             className={`w-full pl-3 text-left font-normal ${!field.value && "text-muted-foreground"}`}
                           >
