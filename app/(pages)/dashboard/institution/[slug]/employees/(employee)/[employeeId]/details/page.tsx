@@ -398,35 +398,39 @@ const EmployeeDetails = () => {
           </CardContent>
         </Card>
         <Card>
-          <CardHeader>
-            <CardTitle>Monthly Summary</CardTitle>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base">Monthly Summary</CardTitle>
           </CardHeader>
-          <CardContent>
-            {/* بس سكروول أفقي للجدول إذا عريض */}
-            <div >
-              <table className="w-full min-w-[520px]">
-                <thead>
-                  <tr>
-                    <th className="text-left">Month</th>
-                    <th className="text-left">Attendance</th>
-                    <th className="text-left">Absences</th>
-                    <th className="text-left">Tardies</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {data.monthlySummary.map((summary) => (
-                    <tr key={summary.month}>
-                      <td>{summary.month}</td>
-                      <td>{summary.totalAttendance}</td>
-                      <td>{summary.absences}</td>
-                      <td>{summary.tardies}</td>
+
+          {/* مهم: overflow-x-auto مع نِغِتف مارجن ليمتدّ السكروول لحدود الكارد */}
+          <CardContent className="p-0">
+            <div className="-m-4 sm:-m-6 overflow-x-auto">
+              <div className="p-4 sm:p-6">
+                <table className="min-w-[520px] w-full table-auto text-sm">
+                  <thead className="bg-muted/50">
+                    <tr className="text-muted-foreground">
+                      <th className="px-3 py-2 text-left font-medium">Month</th>
+                      <th className="px-3 py-2 text-right font-medium">Attendance</th>
+                      <th className="px-3 py-2 text-right font-medium">Absences</th>
+                      <th className="px-3 py-2 text-right font-medium">Tardies</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="[&_tr:last-child]:border-0">
+                    {data.monthlySummary.map((row) => (
+                      <tr key={row.month} className="border-b">
+                        <td className="px-3 py-2 whitespace-nowrap">{row.month}</td>
+                        <td className="px-3 py-2 text-right tabular-nums">{row.totalAttendance}</td>
+                        <td className="px-3 py-2 text-right tabular-nums">{row.absences}</td>
+                        <td className="px-3 py-2 text-right tabular-nums">{row.tardies}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </CardContent>
         </Card>
+
       </div>
       <Tabs defaultValue="attendance"  className="space-y-4 min-h-0">
         <TabsList>

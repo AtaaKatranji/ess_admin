@@ -240,7 +240,6 @@ const AttendanceTab = ({ employeeId, selectedMonth }: { employeeId: string; sele
                           </Button>
                         </FormControl>
                       </PopoverTrigger>
-
                       <PopoverContent container={dialogRef.current} className="w-auto p-0" align="start">
                         <Calendar
                           mode="single"
@@ -259,7 +258,7 @@ const AttendanceTab = ({ employeeId, selectedMonth }: { employeeId: string; sele
                             field.onChange(localISOTime)
                             setIsCalendarOpen(false)   // سكّر بعد الاختيار
                           }}
-                          // onMonthChange={() => setIsCalendarOpen(true)} // ما يسكر عند تبديل الشهر
+                          onMonthChange={() => setIsCalendarOpen(true)} // ما يسكر عند تبديل الشهر
                           disabled={(date) =>
                             !shiftDays.includes(days[date.getDay()]) ||
                             date > new Date() ||
@@ -269,44 +268,6 @@ const AttendanceTab = ({ employeeId, selectedMonth }: { employeeId: string; sele
                         />
                       </PopoverContent>
                     </Popover>
-
-                    {/* <Popover modal={false}>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            type="button"
-                            variant={"outline"}
-                            className={`w-full pl-3 text-left font-normal ${!field.value && "text-muted-foreground"}`}
-                          >
-                            {field.value ? format(new Date(field.value), "PPP") : <span>Pick a date</span>}
-                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0 z-50" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={field.value ? new Date(field.value) : undefined}
-                          onSelect={(date) => {
-                            if (date) {
-                              const dayName = days[date.getDay()];
-                              if (shiftDays.includes(dayName)) {
-                                const localISOTime = new Date(
-                                  date.getTime() - date.getTimezoneOffset() * 60000
-                                ).toISOString().slice(0, -1);
-                                field.onChange(localISOTime);
-                              } else {
-                                alert("The selected date is not part of the shift days.");
-                              }
-                            }
-                          }}
-                          disabled={(date) =>
-                            !shiftDays.includes(days[date.getDay()]) || date > new Date() || date < new Date("1900-01-01")
-                          }
-                          initialFocus
-                        />
-                      </PopoverContent>
-                    </Popover> */}
                     <FormMessage />
                   </FormItem>
                 )}
