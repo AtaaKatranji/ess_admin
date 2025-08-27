@@ -257,7 +257,7 @@ return (
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-2 mb-6 inline-flex">
+        <div className="w-full bg-white rounded-xl shadow-sm border border-slate-200 p-2 mb-6 inline-flex">
           <button
             className={`flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
               leaveType === "daily"
@@ -285,7 +285,7 @@ return (
     {leaveType === "daily" ? (
       <Tabs defaultValue="pending" className="w-full" onValueChange={setActiveTab} value={activeTab}>
         
-        <TabsList className="grid grid-cols-3">
+        <TabsList className="grid grid-cols-3 mb-4">
           <TabsTrigger value="pending" className="relative">
             Pending
             {pendingRequests.length > 0 && (
