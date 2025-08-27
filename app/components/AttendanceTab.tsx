@@ -18,6 +18,7 @@ import {
   Popover, PopoverContent, PopoverTrigger,
 } from "@/components/ui/popover";
 import { fetchTimeShifts } from '../api/shifts/shifts';
+import React from 'react';
 
 type History = {
   id: string; // Updated to _id
@@ -146,7 +147,7 @@ const AttendanceTab = ({ employeeId, selectedMonth }: { employeeId: string; sele
     });
     setFilteredHistory(filtered);
   }, [searchTerm, history]);
-
+  const [isCalendarOpen, setIsCalendarOpen] = React.useState(false);
   if (isLoading) return <p>Loading...</p>;
 
   return (
@@ -228,7 +229,62 @@ const AttendanceTab = ({ employeeId, selectedMonth }: { employeeId: string; sele
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
                     <FormLabel>Date</FormLabel>
-                    <Popover modal={false}>
+                    <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen} modal={false}>
+  <PopoverTrigger asChild>
+    <FormControl>
+      <Button
+        type="button"
+        variant="outline"
+        onClick={() => setIsCalendarOpen((v) => !v)}
+        className={`w-full pl-3 text-left font-normal ${!field.value && "text-muted-foreground"}`}
+      >
+        {field.value ? format(new Date(field.value), "PPP") : <span>Pick a date</span>}
+        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+      </Button>
+    </FormControl>
+  </PopoverTrigger>
+
+  <PopoverContent
+    className="w-auto p-0 z-50"
+    align="start"
+    // امنع الإغلاق التلقائي الناتج عن تغيّر الفوكس/ضغطات غريبة
+    onEscapeKeyDown={(e) => e.preventDefault()}
+    onPointerDownOutside={(e) => e.preventDefault()}
+    onFocusOutside={(e) => e.preventDefault()}
+  >
+    <Calendar
+      mode="single"
+      selected={field.value ? new Date(field.value) : undefined}
+      onSelect={(date) => {
+        if (!date) return;
+
+        const dayName = days[date.getDay()];
+        if (!shiftDays.includes(dayName)) {
+          alert("The selected date is not part of the shift days.");
+          return;
+        }
+
+        const localISOTime = new Date(
+          date.getTime() - date.getTimezoneOffset() * 60000
+        ).toISOString().slice(0, -1);
+
+        field.onChange(localISOTime);
+
+        // سكّر البوبوفر بعد الاختيار
+        setIsCalendarOpen(false);
+      }}
+      // حتى لو تغيّرت الأشهر ما نسكّر البوبوفر
+      onMonthChange={() => setIsCalendarOpen(true)}
+      disabled={(date) =>
+        !shiftDays.includes(days[date.getDay()]) ||
+        date > new Date() ||
+        date < new Date("1900-01-01")
+      }
+      initialFocus
+    />
+  </PopoverContent>
+</Popover>
+                    {/* <Popover modal={false}>
                       <PopoverTrigger asChild>
                         <FormControl>
                           <Button
@@ -264,7 +320,7 @@ const AttendanceTab = ({ employeeId, selectedMonth }: { employeeId: string; sele
                           initialFocus
                         />
                       </PopoverContent>
-                    </Popover>
+                    </Popover> */}
                     <FormMessage />
                   </FormItem>
                 )}
