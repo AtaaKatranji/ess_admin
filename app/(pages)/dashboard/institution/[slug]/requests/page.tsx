@@ -282,29 +282,18 @@ return (
       <Tabs defaultValue="pending" className="w-full" onValueChange={setActiveTab} value={activeTab}>
         <div className="border-b border-slate-200 px-6 pt-6">
         <TabsList className="grid grid-cols-3 w-full max-w-md bg-slate-100 p-1 rounded-lg">
-        <TabsTrigger
-            value="pending"
-            className="relative data-[state=active]:bg-white data-[state=active]:shadow-sm font-medium"
-          >
+          <TabsTrigger value="pending" className="relative">
             Pending
             {pendingRequests.length > 0 && (
-              <span className="absolute -top-1 -right-1 bg-orange-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+              <span className="absolute top-1 right-1 bg-primary text-primary-foreground text-xs rounded-full w-5 h-5 flex items-center justify-center">
                 {pendingRequests.length}
               </span>
             )}
           </TabsTrigger>
-          <TabsTrigger
-            value="approved"
-            className="data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-green-700 font-medium"
-          >
-            Approved
-          </TabsTrigger>
-          <TabsTrigger
-            value="rejected"
-            className="data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-red-700 font-medium"
-          >
-            Rejected
-          </TabsTrigger>
+          <TabsTrigger value="approved" 
+          >Approved</TabsTrigger>
+          <TabsTrigger value="rejected"
+          >Rejected</TabsTrigger>
         </TabsList>
         </div>
         <TabsContent value="pending" className="mt-0">
