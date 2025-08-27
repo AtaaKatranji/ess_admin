@@ -469,82 +469,84 @@ const EmployeeDetails = () => {
       <section className="mx-auto max-w-6xl px-4 sm:px-6 min-w-0 overflow-x-hidden">
       <Tabs defaultValue="attendance" className="space-y-6">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <TabsList>
-            <TabsTrigger value="attendance" >Attendance Records</TabsTrigger>
-            <TabsTrigger value="leave">Leave Requests</TabsTrigger>
-            <TabsTrigger value="absent">Absences</TabsTrigger>
-            <TabsTrigger value="hourlyLeaves">Hourly Leaves</TabsTrigger>
-            <TabsTrigger value="dayRecords">Day Records</TabsTrigger>
-          </TabsList>
-          <div className="flex w-full sm:w-auto items-center gap-2">
-        <Button size="sm" onClick={() => setIsModalOpen(true)}>
-          <span className="mr-1">+</span> Add
-        </Button>
-        <div className="relative flex-1 sm:flex-none">
-          <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search records"
-            className="pl-8 w-full sm:w-[260px]"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+        <TabsList>
+          <TabsTrigger value="attendance" >Attendance Records</TabsTrigger>
+          <TabsTrigger value="leave">Leave Requests</TabsTrigger>
+          <TabsTrigger value="absent">Absences</TabsTrigger>
+          <TabsTrigger value="hourlyLeaves">Hourly Leaves</TabsTrigger>
+          <TabsTrigger value="dayRecords">Day Records</TabsTrigger>
+        </TabsList>
         </div>
-      </div>
-    </div>
         <TabsContent value="attendance" className="space-y-4">
           <AttendanceTab employeeId={employeeId} selectedMonth={selectedMonth} />
         </TabsContent>
-         {/* Leave Requests */}
-    <TabsContent value="leave" className="space-y-4">
-      <h2 className="text-xl font-semibold">Leave Requests</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-base">Paid Leaves</CardTitle></CardHeader>
-          <CardContent className="p-0">
-            <ul className="divide-y">
-              {filteredLeaves.filter(r => r.type==="Paid").map((record) => (
-                <li key={record.id} className="flex items-center justify-between gap-4 p-4 hover:bg-accent/40">
-                  <div>
-                    <p className="font-medium">{format(new Date(record.startDate), "MMMM d, yyyy")}</p>
-                    <p className="text-sm text-muted-foreground">
-                      Start: {format(new Date(record.startDate), "yyyy-MM-dd")}, End: {format(new Date(record.endDate), "yyyy-MM-dd")}
-                    </p>
-                    <p className="text-sm">For: {record.reason}</p>
-                  </div>
-                  <p className="shrink-0 tabular-nums">Days: {record.durationInDays}</p>
-                </li>
-              ))}
-              {!filteredLeaves.some(r => r.type==="Paid") && (
-                <li className="p-4 text-sm text-muted-foreground">No paid leave records available.</li>
-              )}
-            </ul>
-          </CardContent>
-        </Card>
+        <TabsContent value="leave" className="space-y-4">
+          <div className="flex justify-between items-center">
+            <h2 className="text-xl font-semibold">Leave Requests</h2>
+            <div className="relative">
+              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search records"
+                className="pl-8"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+          </div>
+          <Card>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-4">
+                {/* Paid */}
+                <section>
+                  <h3 className="text-lg font-bold mb-2">Paid Leaves</h3>
+                  {filteredLeaves.filter(r => r.type === "Paid").length ? (
+                    filteredLeaves.filter(r => r.type === "Paid").map((record) => (
+                      <div
+                        key={record.id}
+                        className="flex justify-between items-center py-2 border-b last:border-b-0 hover:bg-accent cursor-pointer"
+                      >
+                        <div>
+                          <p className="font-medium">{format(new Date(record.startDate), "MMMM d, yyyy")}</p>
+                          <p className="text-sm text-muted-foreground">
+                            Start: {format(new Date(record.startDate), "yyyy MM dd")}, End: {format(new Date(record.endDate), "yyyy MM dd")}
+                          </p>
+                          <p>For: {record.reason}</p>
+                        </div>
+                        <p>No. of days: {record.durationInDays}</p>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-sm text-muted-foreground">No paid leave records available.</p>
+                  )}
+                </section>
 
-        <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-base">Unpaid Leaves</CardTitle></CardHeader>
-          <CardContent className="p-0">
-            <ul className="divide-y">
-              {filteredLeaves.filter(r => r.type==="Unpaid").map((record) => (
-                <li key={record.id} className="flex items-center justify-between gap-4 p-4 hover:bg-accent/40">
-                  <div>
-                    <p className="font-medium">{format(new Date(record.startDate), "MMMM d, yyyy")}</p>
-                    <p className="text-sm text-muted-foreground">
-                      Start: {format(new Date(record.startDate), "yyyy-MM-dd")}, End: {format(new Date(record.endDate), "yyyy-MM-dd")}
-                    </p>
-                    <p className="text-sm">For: {record.reason}</p>
-                  </div>
-                  <p className="shrink-0 tabular-nums">Days: {record.durationInDays}</p>
-                </li>
-              ))}
-              {!filteredLeaves.some(r => r.type==="Unpaid") && (
-                <li className="p-4 text-sm text-muted-foreground">No unpaid leave records available.</li>
-              )}
-            </ul>
-          </CardContent>
-        </Card>
-      </div>
-    </TabsContent>
+                {/* Unpaid */}
+                <section>
+                  <h3 className="text-lg font-medium mb-2">Unpaid Leaves</h3>
+                  {filteredLeaves.filter(r => r.type === "Unpaid").length ? (
+                    filteredLeaves.filter(r => r.type === "Unpaid").map((record) => (
+                      <div
+                        key={record.id}
+                        className="flex justify-between items-center py-2 border-b last:border-b-0 hover:bg-accent cursor-pointer"
+                      >
+                        <div>
+                          <p className="font-medium">{format(new Date(record.startDate), "MMMM d, yyyy")}</p>
+                          <p className="text-sm text-muted-foreground">
+                            Start: {format(new Date(record.startDate), "yyyy MM dd")}, End: {format(new Date(record.endDate), "yyyy MM dd")}
+                          </p>
+                          <p>For: {record.reason}</p>
+                        </div>
+                        <p>No. of days: {record.durationInDays}</p>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-sm text-muted-foreground">No unpaid leave records available.</p>
+                  )}
+                </section>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
         <TabsContent value="absent" className="space-y-4">
           <AbsentTab employeeId={employeeId} selectedMonth={selectedMonth} />
         </TabsContent>

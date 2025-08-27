@@ -151,49 +151,62 @@ const AttendanceTab = ({ employeeId, selectedMonth }: { employeeId: string; sele
   if (isLoading) return <p>Loading...</p>;
 
   return (
-    <div className="flex-col space-y-4">
-      <div className="flex justify-between items-center">
-        <h2 className="text-xl font-semibold">Attendance Records</h2>
-        <div className="flex space-x-2">
-          <Button variant="outline" className="h-10 w-10 p-0" onClick={openAddDialog}>
-            <Plus className="h-10 w-10" />
-            <span className="sr-only">Add Reord</span>
-          </Button>
-          <div className="relative">
-            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search records"
-              className="pl-8"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
+    <section className="min-w-0 overflow-x-hidden space-y-4">
+    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <h2 className="text-xl sm:text-2xl font-semibold">Attendance Records</h2>
+
+      <div className="flex w-full sm:w-auto items-center gap-2">
+        <Button size="sm" onClick={openAddDialog} className="gap-1">
+          <Plus className="h-4 w-4" />
+          <span className="hidden sm:inline">Add</span>
+          <span className="sr-only">Add Record</span>
+        </Button>
+
+        <div className="relative flex-1 sm:flex-none">
+          <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search records"
+            className="pl-8 w-full sm:w-[260px]"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
         </div>
       </div>
-      <Card>
+    </div>
+      <Card className="shadow-sm">
         {history.length === 0 ? (
-          <p className="p-10">No Attendance recorded.</p>
+         <div className="p-8 text-sm text-muted-foreground">No attendance recorded.</div>
         ) : (
           // <ScrollArea className="h-[400px]">
-            <div className="p-4">
+            <ul className="divide-y">
               {filteredHistory
                 .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
                 .map((record) => (
-                  <div
-                    key={record.id} // Fixed to use _id
-                    className="flex justify-between items-center py-2 border-b last:border-b-0 cursor-pointer hover:bg-accent"
-                    onClick={() => openEditDialog(record)}
-                  >
-                    <div>
-                      <p className="font-medium">{format(new Date(record.checkDate), "MMMM d, yyyy")}</p>
-                      <p className="text-sm text-muted-foreground">
-                        Check-in: {record.checkInTime}, Check-out: {record.checkOutTime || "Not yet checked out"}
+                  <li
+                      key={record.id}
+                      className="flex items-center justify-between gap-4 p-4 hover:bg-accent/40 cursor-pointer"
+                      onClick={() => openEditDialog(record)}
+                    >
+                    <div className="min-w-0">
+                      <p className="font-medium truncate">{format(new Date(record.checkDate), "MMMM d, yyyy")}</p>
+                      <p className="text-sm text-muted-foreground tabular-nums">
+                      Check-in: {record.checkInTime ?? "—"}, Check-out:{" "}
+                      {record.checkOutTime ?? "Not yet checked out"}
                       </p>
                     </div>
-                    <Button variant="ghost" size="sm">Edit</Button>
-                  </div>
+                    <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    openEditDialog(record);
+                  }}
+                >
+                  Edit
+                </Button>
+                  </li>
                 ))}
-            </div>
+            </ul>
           // </ScrollArea>
         )}
       </Card>
@@ -315,7 +328,8 @@ const AttendanceTab = ({ employeeId, selectedMonth }: { employeeId: string; sele
           </Form>
         </DialogContent>
       </Dialog>
-    </div>
+
+    </section>
   );
 };
 
