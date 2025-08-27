@@ -220,10 +220,10 @@ const filteredHourlyLeaves = useMemo(() =>
   );
 
 return (
-  <div className="container min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4 md:p-6">
+  <div className="container min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
     <div className="mb-8">
-    <h1 className="text-3xl font-bold text-slate-900 mb-2">Leave Requests</h1>
-    <p className="text-slate-600">Manage and review employee leave requests</p>
+      <h1 className="text-3xl font-bold text-slate-900 mb-2">Leave Requests</h1>
+      <p className="text-slate-600">Manage and review employee leave requests</p>
     </div>
     {/* Search and Filter Section */}
 
@@ -255,32 +255,32 @@ return (
               </PopoverContent>
             </Popover>
           </div>
-        </div>
+    </div>
 
-        <div className="w-full bg-white rounded-xl shadow-sm border border-slate-200 p-2 mb-6 inline-flex">
-          <button
-            className={`flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
-              leaveType === "daily"
-                ? "bg-blue-600 text-white shadow-sm"
-                : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
-            }`}
-            onClick={() => setLeaveType("daily")}
-          >
-            <LucideCalendar className="h-4 w-4" />
-            <span>Daily Leaves</span>
-          </button>
-          <button
-            className={`flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
-              leaveType === "hourly"
-                ? "bg-blue-600 text-white shadow-sm"
-                : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
-            }`}
-            onClick={() => setLeaveType("hourly")}
-          >
-            <Clock className="h-4 w-4" />
-            <span>Hourly Leaves</span>
-          </button>
-        </div>
+    <div className="w-full bg-white rounded-xl shadow-sm border border-slate-200 p-2 mb-6 inline-flex justify-between">
+      <button
+        className={`flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
+          leaveType === "daily"
+            ? "bg-blue-600 text-white shadow-sm"
+            : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+        }`}
+        onClick={() => setLeaveType("daily")}
+      >
+        <LucideCalendar className="h-4 w-4" />
+        <span>Daily Leaves</span>
+      </button>
+      <button
+        className={`flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
+          leaveType === "hourly"
+            ? "bg-blue-600 text-white shadow-sm"
+            : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+        }`}
+        onClick={() => setLeaveType("hourly")}
+      >
+        <Clock className="h-4 w-4" />
+        <span>Hourly Leaves</span>
+      </button>
+    </div>
 
     {leaveType === "daily" ? (
       <Tabs defaultValue="pending" className="w-full" onValueChange={setActiveTab} value={activeTab}>
