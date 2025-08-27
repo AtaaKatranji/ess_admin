@@ -215,9 +215,9 @@ const AttendanceTab = ({ employeeId, selectedMonth }: { employeeId: string; sele
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="sm:max-w-[425px]" onInteractOutside={(e) => {
-    const el = e.target as HTMLElement;
-    if (el.closest('[data-radix-popover-content]')) e.preventDefault();
-  }} >
+            const el = e.target as HTMLElement;
+            if (el.closest('[data-radix-popover-content]')) e.preventDefault();
+          }} >
           <DialogHeader>
             <DialogTitle>{isEditing ? 'Edit Check-in Record' : 'Add New Check-in Record'}</DialogTitle>
           </DialogHeader>
@@ -254,26 +254,26 @@ const AttendanceTab = ({ employeeId, selectedMonth }: { employeeId: string; sele
     <Calendar
       mode="single"
       selected={field.value ? new Date(field.value) : undefined}
-      onSelect={(date) => {
-        if (!date) return
-        const dayName = days[date.getDay()]
-        if (!shiftDays.includes(dayName)) {
-          alert("The selected date is not part of the shift days.")
-          return
-        }
-        const localISOTime = new Date(date.getTime() - date.getTimezoneOffset() * 60000)
-          .toISOString()
-          .slice(0, -1)
+      // onSelect={(date) => {
+      //   if (!date) return
+      //   const dayName = days[date.getDay()]
+      //   if (!shiftDays.includes(dayName)) {
+      //     alert("The selected date is not part of the shift days.")
+      //     return
+      //   }
+      //   const localISOTime = new Date(date.getTime() - date.getTimezoneOffset() * 60000)
+      //     .toISOString()
+      //     .slice(0, -1)
 
-        field.onChange(localISOTime)
-        setIsCalendarOpen(false)   // سكّر بعد الاختيار
-      }}
-      onMonthChange={() => setIsCalendarOpen(true)} // ما يسكر عند تبديل الشهر
-      disabled={(date) =>
-        !shiftDays.includes(days[date.getDay()]) ||
-        date > new Date() ||
-        date < new Date("1900-01-01")
-      }
+      //   field.onChange(localISOTime)
+      //   setIsCalendarOpen(false)   // سكّر بعد الاختيار
+      // }}
+      // onMonthChange={() => setIsCalendarOpen(true)} // ما يسكر عند تبديل الشهر
+      // disabled={(date) =>
+      //   !shiftDays.includes(days[date.getDay()]) ||
+      //   date > new Date() ||
+      //   date < new Date("1900-01-01")
+      // }
       initialFocus
     />
   </PopoverContent>
