@@ -284,7 +284,7 @@ return (
 
     {leaveType === "daily" ? (
       <Tabs defaultValue="pending" className="w-full" onValueChange={setActiveTab} value={activeTab}>
-        <div className=" w-full max-w-md bg-slate-100 p-1 rounded-lg">
+        
         <TabsList className="grid grid-cols-3 w-full max-w-md bg-slate-100 p-1 rounded-lg">
           <TabsTrigger value="pending" className="relative">
             Pending
@@ -299,7 +299,7 @@ return (
           <TabsTrigger value="rejected"
           >Rejected</TabsTrigger>
         </TabsList>
-        </div>
+        
         <TabsContent value="pending" className="mt-0">
           {pendingRequests.length === 0 ? (
             <div className="text-center py-8  text-gray-600">No pending requests</div>
