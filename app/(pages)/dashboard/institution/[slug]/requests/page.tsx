@@ -285,7 +285,7 @@ return (
     {leaveType === "daily" ? (
       <Tabs defaultValue="pending" className="w-full" onValueChange={setActiveTab} value={activeTab}>
         
-        <TabsList className="grid grid-cols-3 w-full max-w-md bg-slate-100 p-1 rounded-lg">
+        <TabsList className="grid grid-cols-3">
           <TabsTrigger value="pending" className="relative">
             Pending
             {pendingRequests.length > 0 && (
