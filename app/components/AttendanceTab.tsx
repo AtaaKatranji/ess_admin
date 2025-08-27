@@ -269,11 +269,11 @@ const AttendanceTab = ({ employeeId, selectedMonth }: { employeeId: string; sele
       //   setIsCalendarOpen(false)   // سكّر بعد الاختيار
       // }}
       // onMonthChange={() => setIsCalendarOpen(true)} // ما يسكر عند تبديل الشهر
-      // disabled={(date) =>
-      //   !shiftDays.includes(days[date.getDay()]) ||
-      //   date > new Date() ||
-      //   date < new Date("1900-01-01")
-      // }
+      disabled={(date) =>
+        !shiftDays.includes(days[date.getDay()]) ||
+        date > new Date() ||
+        date < new Date("1900-01-01")
+      }
       initialFocus
     />
   </PopoverContent>
