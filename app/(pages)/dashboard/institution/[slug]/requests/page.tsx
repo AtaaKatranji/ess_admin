@@ -62,11 +62,10 @@ export default function LeaveRequestsPage() {
       const response = await fetch(`${BaseUrl}/leaves/`,
         {
           method: 'GET',
+          credentials: "include",
           headers: {
             'Content-Type': 'application/json',
-            // 'Authorization': `Bearer ${token}`,
           },
-          credentials: 'include', 
         }
       );
       const data = await response.json();
@@ -79,11 +78,10 @@ export default function LeaveRequestsPage() {
     try {
       const response = await fetch(`${BaseUrl}/break/employee-breaks/request-custom-break?customBreak=true`,{
         method: 'GET',
+        credentials: "include",
         headers: {
           'Content-Type': 'application/json',
-          // 'Authorization': `Bearer ${token}`,
         },
-        credentials: 'include', 
       });
       if (!response.ok) {
         throw new Error("Failed to fetch hourly leaves");
@@ -145,6 +143,7 @@ const handleApproveHourlyLeave = async (id: string) => {
   try {
     const response = await fetch(`${BaseUrl}/break/employee-breaks/${id}/status`, {
       method: "POST",
+      credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status: "Approved" }), // Send status as JSON
     });
@@ -167,6 +166,7 @@ const handleRejectHourlyLeave = async (id: string) => {
   try {
     const response = await fetch(`${BaseUrl}/break/employee-breaks/${id}/status`, {
       method: "POST",
+      credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status: "Rejected" }), // Send status as JSON
 
@@ -220,47 +220,42 @@ const filteredHourlyLeaves = useMemo(() =>
   );
 
 return (
-  <div className="container mx-auto p-4 w-full">
-    <h1 className="text-2xl font-bold mb-6  text-gray-800">Leave Requests</h1>
-
-    <div className="flex items-center gap-4 mb-6">
-      <div className="relative flex-1">
-
-        
-        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-        <Input
-          placeholder="Search by employee name..."
-          className="pl-8"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
-      </div>
-      <Popover>
-            <PopoverTrigger asChild>
-              <Button variant="outline">
-                {filterDate || "Pick a date"}
-                <LucideCalendar className="ml-2 h-4 w-4" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0 font-bold" align="end">
-              <Calendar
-                mode="single"
-                selected={filterDate ? new Date(filterDate) : undefined}
-                onSelect={(date) => setFilterDate(date ? date.toISOString().split('T')[0] : "")}
-                initialFocus
-              />
-            </PopoverContent>
-          </Popover>
-        <input
-          type="date"
-          id="filter-date"
-          value={filterDate}
-          onChange={(e) => setFilterDate(e.target.value)}
-          placeholder="Select Date"
-          className="pl-10 pr-3 py-1  text-gray-600 border border-gray-300 bg-transparent rounded-md focus:outline-none focus:ring-1 focus:ring-black"
-        />
-        
+  <div className="container min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4 md:p-6">
+    <div className="mb-8">
+    <h1 className="text-3xl font-bold text-slate-900 mb-2">Leave Requests</h1>
+    <p className="text-slate-600">Manage and review employee leave requests</p>
     </div>
+    {/* Search and Filter Section */}
+
+    <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
+    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
+              <Input
+                placeholder="Search by employee name..."
+                className="pl-10 h-11 border-slate-200 focus:border-blue-500 focus:ring-blue-500/20"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className="h-11 px-4 border-slate-200 hover:bg-slate-50 bg-transparent">
+                  <LucideCalendar className="mr-2 h-4 w-4 text-slate-500" />
+                  {filterDate || "Filter by date"}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="end">
+                <Calendar
+                  mode="single"
+                  selected={filterDate ? new Date(filterDate) : undefined}
+                  onSelect={(date) => setFilterDate(date ? date.toISOString().split("T")[0] : "")}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+        </div>
 
     <div className="flex mb-6 border rounded-md overflow-hidden">
       <button
@@ -285,21 +280,33 @@ return (
 
     {leaveType === "daily" ? (
       <Tabs defaultValue="pending" className="w-full" onValueChange={setActiveTab} value={activeTab}>
-        <TabsList className="grid grid-cols-3 mb-4">
-          <TabsTrigger value="pending" className="relative">
+        <div className="border-b border-slate-200 px-6 pt-6">
+        <TabsList className="grid grid-cols-3 w-full max-w-md bg-slate-100 p-1 rounded-lg">
+        <TabsTrigger
+            value="pending"
+            className="relative data-[state=active]:bg-white data-[state=active]:shadow-sm font-medium"
+          >
             Pending
             {pendingRequests.length > 0 && (
-              <span className="absolute top-1 right-1 bg-primary text-primary-foreground text-xs rounded-full w-5 h-5 flex items-center justify-center">
+              <span className="absolute -top-1 -right-1 bg-orange-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
                 {pendingRequests.length}
               </span>
             )}
           </TabsTrigger>
-          <TabsTrigger value="approved"  className="text-green-700 data-[state=active]:bg-green-100"
-          >Approved</TabsTrigger>
-          <TabsTrigger value="rejected" className="text-red-700 data-[state=active]:bg-red-100"
-          >Rejected</TabsTrigger>
+          <TabsTrigger
+            value="approved"
+            className="data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-green-700 font-medium"
+          >
+            Approved
+          </TabsTrigger>
+          <TabsTrigger
+            value="rejected"
+            className="data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-red-700 font-medium"
+          >
+            Rejected
+          </TabsTrigger>
         </TabsList>
-
+        </div>
         <TabsContent value="pending" className="mt-0">
           {pendingRequests.length === 0 ? (
             <div className="text-center py-8  text-gray-600">No pending requests</div>
