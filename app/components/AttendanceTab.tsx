@@ -215,9 +215,11 @@ const AttendanceTab = ({ employeeId, selectedMonth }: { employeeId: string; sele
       
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="sm:max-w-[425px] z-50" onInteractOutside={(e) => {
-            const el = e.target as HTMLElement;
-            if (el.closest('[data-radix-popover-content]')) e.preventDefault();
-          }} >
+          const el = e.target as HTMLElement;
+          if (el.closest('[data-radix-popover-content]') || el.closest('.rdp')) {
+            e.preventDefault();
+          }
+        }} >
           <DialogHeader>
             <DialogTitle>{isEditing ? 'Edit Check-in Record' : 'Add New Check-in Record'}</DialogTitle>
           </DialogHeader>
@@ -229,7 +231,7 @@ const AttendanceTab = ({ employeeId, selectedMonth }: { employeeId: string; sele
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
                     <FormLabel>Date</FormLabel>
-                    <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen} modal={false}>
+                    <Popover  open={isCalendarOpen} onOpenChange={setIsCalendarOpen} modal={false}>
   <PopoverTrigger asChild>
     <FormControl>
       <Button
@@ -245,26 +247,26 @@ const AttendanceTab = ({ employeeId, selectedMonth }: { employeeId: string; sele
   </PopoverTrigger>
 
   <PopoverContent
-    className="w-auto p-0 z-[60]"
+    className="w-auto p-0 z-[1000]"
     align="start"
   >
     <Calendar
       mode="single"
       selected={field.value ? new Date(field.value) : undefined}
-      // onSelect={(date) => {
-      //   if (!date) return
-      //   const dayName = days[date.getDay()]
-      //   if (!shiftDays.includes(dayName)) {
-      //     alert("The selected date is not part of the shift days.")
-      //     return
-      //   }
-      //   const localISOTime = new Date(date.getTime() - date.getTimezoneOffset() * 60000)
-      //     .toISOString()
-      //     .slice(0, -1)
+      onSelect={(date) => {
+        if (!date) return
+        const dayName = days[date.getDay()]
+        if (!shiftDays.includes(dayName)) {
+          alert("The selected date is not part of the shift days.")
+          return
+        }
+        const localISOTime = new Date(date.getTime() - date.getTimezoneOffset() * 60000)
+          .toISOString()
+          .slice(0, -1)
 
-      //   field.onChange(localISOTime)
-      //   setIsCalendarOpen(false)   // سكّر بعد الاختيار
-      // }}
+        field.onChange(localISOTime)
+        setIsCalendarOpen(false)   // سكّر بعد الاختيار
+      }}
       // onMonthChange={() => setIsCalendarOpen(true)} // ما يسكر عند تبديل الشهر
       disabled={(date) =>
         !shiftDays.includes(days[date.getDay()]) ||
