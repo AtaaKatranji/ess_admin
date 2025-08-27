@@ -402,34 +402,68 @@ const EmployeeDetails = () => {
             <CardTitle className="text-base">Monthly Summary</CardTitle>
           </CardHeader>
 
-          {/* مهم: overflow-x-auto مع نِغِتف مارجن ليمتدّ السكروول لحدود الكارد */}
-          <CardContent className="p-0">
-            <div className="-m-4 sm:-m-6 overflow-x-auto">
-              <div className="p-4 sm:p-6">
-                <table className="min-w-[520px] w-full table-auto text-sm">
-                  <thead className="bg-muted/50">
-                    <tr className="text-muted-foreground">
-                      <th className="px-3 py-2 text-left font-medium">Month</th>
-                      <th className="px-3 py-2 text-right font-medium">Attendance</th>
-                      <th className="px-3 py-2 text-right font-medium">Absences</th>
-                      <th className="px-3 py-2 text-right font-medium">Tardies</th>
+          <CardContent>
+
+            {/* موبايل: بطاقات بدل جدول */}
+            <div className="sm:hidden space-y-3">
+              {data.monthlySummary.map((row) => (
+                <div key={row.month} className="rounded-lg border p-3">
+                  <div className="flex items-center justify-between">
+                    <div className="font-medium">{row.month}</div>
+                  </div>
+                  <dl className="mt-2 grid grid-cols-3 gap-3 text-sm">
+                    <div>
+                      <dt className="text-muted-foreground">Attendance</dt>
+                      <dd className="font-medium tabular-nums">{row.totalAttendance}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-muted-foreground">Absences</dt>
+                      <dd className="font-medium tabular-nums">{row.absences}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-muted-foreground">Tardies</dt>
+                      <dd className="font-medium tabular-nums">{row.tardies}</dd>
+                    </div>
+                  </dl>
+                </div>
+              ))}
+            </div>
+
+            {/* تابلِت/ديسكتوب: جدول بلا سكرول */}
+            <div className="hidden sm:block">
+              <table className="w-full table-fixed border-separate border-spacing-0 text-sm">
+                {/* نسب الأعمدة حتى يضل الجدول ضمن الكارد */}
+                <colgroup>
+                  <col className="w-[40%]" />
+                  <col className="w-[20%]" />
+                  <col className="w-[20%]" />
+                  <col className="w-[20%]" />
+                </colgroup>
+
+                <thead className="bg-muted/50">
+                  <tr className="text-muted-foreground">
+                    <th className="px-3 py-2 text-left font-medium">Month</th>
+                    <th className="px-3 py-2 text-right font-medium">Attendance</th>
+                    <th className="px-3 py-2 text-right font-medium">Absences</th>
+                    <th className="px-3 py-2 text-right font-medium">Tardies</th>
+                  </tr>
+                </thead>
+
+                <tbody className="[&_tr:last-child]:border-0">
+                  {data.monthlySummary.map((row) => (
+                    <tr key={row.month} className="border-b">
+                      <td className="px-3 py-2 whitespace-nowrap">{row.month}</td>
+                      <td className="px-3 py-2 text-right tabular-nums">{row.totalAttendance}</td>
+                      <td className="px-3 py-2 text-right tabular-nums">{row.absences}</td>
+                      <td className="px-3 py-2 text-right tabular-nums">{row.tardies}</td>
                     </tr>
-                  </thead>
-                  <tbody className="[&_tr:last-child]:border-0">
-                    {data.monthlySummary.map((row) => (
-                      <tr key={row.month} className="border-b">
-                        <td className="px-3 py-2 whitespace-nowrap">{row.month}</td>
-                        <td className="px-3 py-2 text-right tabular-nums">{row.totalAttendance}</td>
-                        <td className="px-3 py-2 text-right tabular-nums">{row.absences}</td>
-                        <td className="px-3 py-2 text-right tabular-nums">{row.tardies}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </CardContent>
         </Card>
+
 
       </div>
       <Tabs defaultValue="attendance"  className="space-y-4 min-h-0">
