@@ -214,7 +214,7 @@ const AttendanceTab = ({ employeeId, selectedMonth }: { employeeId: string; sele
       </div>
       
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-[425px] z-10" onInteractOutside={(e) => {
+        <DialogContent className="sm:max-w-[425px] z-20" onInteractOutside={(e) => {
             const el = e.target as HTMLElement;
             if (el.closest('[data-radix-popover-content]')) e.preventDefault();
           }} >
