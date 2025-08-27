@@ -55,7 +55,7 @@ function LayoutBody({ children, slug }: { children: React.ReactNode; slug: strin
   const toggleSidebar = () => setIsSidebarOpen(v => !v);
 
   return (
-    <div className="flex flex-col md:flex-row h-screen min-h-0 min-w-0 overflow-hidden bg-gray-100">
+    <div className="flex flex-col md:flex-row h-dvh min-h-0 min-w-0 overflow-hidden bg-gray-100">
       <SideBarIns
         onExitInstitution={handleExitInstitution}
         isSidebarOpen={isSidebarOpen}
