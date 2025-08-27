@@ -121,7 +121,7 @@ const OverviewPage = () => {
 
   return (
     <div className="container mx-auto w-full max-w-screen-xl px-3 sm:px-6">
-      <header>
+      <div>
         <h1 className="text-2xl font-bold m-4  text-gray-800">Institution Dashboard - Overview</h1>
         <div className="flex justify-between items-center mb-4">
         <DropdownMenu>
@@ -149,7 +149,7 @@ const OverviewPage = () => {
             </Button>
           </div>
         </div>
-      </header>
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card className="md:col-span-1">
