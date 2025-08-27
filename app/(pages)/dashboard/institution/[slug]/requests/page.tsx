@@ -5,8 +5,12 @@ import { LeaveRequestCard } from "@/app/components/leave-request-card"
 import { HourlyLeaveCard } from "@/app/components/hourly-leave-card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Input } from "@/components/ui/input"
-import { Search,Clock, Calendar } from "lucide-react"
+import { Search,Clock, Calendar as LucideCalendar } from "lucide-react"
+import { Calendar } from "@/components/ui/calendar"
 import { useSSE } from "@/app/context/SSEContext"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+ 
+import { Button } from "@/components/ui/button"
 
 
 
@@ -231,6 +235,22 @@ return (
           onChange={(e) => setSearchQuery(e.target.value)}
         />
       </div>
+      <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline">
+                {filterDate || "Pick a date"}
+                <LucideCalendar className="ml-2 h-4 w-4" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0 font-bold" align="end">
+              <Calendar
+                mode="single"
+                selected={filterDate ? new Date(filterDate) : undefined}
+                onSelect={(date) => setFilterDate(date ? date.toISOString().split('T')[0] : "")}
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
         <input
           type="date"
           id="filter-date"
@@ -249,7 +269,7 @@ return (
         }`}
         onClick={() => setLeaveType("daily")}
       >
-        <Calendar className="h-4 w-4" />
+        <LucideCalendar className="h-4 w-4" />
         <span>Daily Leaves</span>
       </button>
       <button
