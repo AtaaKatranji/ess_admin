@@ -38,7 +38,7 @@ const AttendanceTab = ({ employeeId, selectedMonth }: { employeeId: string; sele
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [shiftDays, setShiftDays] = useState<string[]>([]);
-
+  const dialogRef = React.useRef<HTMLDivElement | null>(null)
   const form = useForm<History>();
   const itemsPerPage = 10;
 
@@ -214,12 +214,7 @@ const AttendanceTab = ({ employeeId, selectedMonth }: { employeeId: string; sele
       </div>
       
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-[425px] z-50" onInteractOutside={(e) => {
-          const el = e.target as HTMLElement;
-          if (el.closest('[data-radix-popover-content]') || el.closest('.rdp')) {
-            e.preventDefault();
-          }
-        }} >
+        <DialogContent className="sm:max-w-[425px] z-50"  ref={dialogRef}  >
           <DialogHeader>
             <DialogTitle>{isEditing ? 'Edit Check-in Record' : 'Add New Check-in Record'}</DialogTitle>
           </DialogHeader>
@@ -232,51 +227,48 @@ const AttendanceTab = ({ employeeId, selectedMonth }: { employeeId: string; sele
                   <FormItem className="flex flex-col">
                     <FormLabel>Date</FormLabel>
                     <Popover  open={isCalendarOpen} onOpenChange={setIsCalendarOpen} modal={false}>
-  <PopoverTrigger asChild>
-    <FormControl>
-      <Button
-        type="button"
-        variant="outline"
-        onClick={() => setIsCalendarOpen(v => !v)}
-        className={`w-full pl-3 text-left font-normal ${!field.value && "text-muted-foreground"}`}
-      >
-        {field.value ? format(new Date(field.value), "PPP") : <span>Pick a date</span>}
-        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-      </Button>
-    </FormControl>
-  </PopoverTrigger>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => setIsCalendarOpen(v => !v)}
+                            className={`w-full pl-3 text-left font-normal ${!field.value && "text-muted-foreground"}`}
+                          >
+                            {field.value ? format(new Date(field.value), "PPP") : <span>Pick a date</span>}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
 
-  <PopoverContent
-    className="w-auto p-0 z-[1000]"
-    align="start"
-  >
-    <Calendar
-      mode="single"
-      selected={field.value ? new Date(field.value) : undefined}
-      onSelect={(date) => {
-        if (!date) return
-        const dayName = days[date.getDay()]
-        if (!shiftDays.includes(dayName)) {
-          alert("The selected date is not part of the shift days.")
-          return
-        }
-        const localISOTime = new Date(date.getTime() - date.getTimezoneOffset() * 60000)
-          .toISOString()
-          .slice(0, -1)
+                      <PopoverContent container={dialogRef.current} className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={field.value ? new Date(field.value) : undefined}
+                          onSelect={(date) => {
+                            if (!date) return
+                            const dayName = days[date.getDay()]
+                            if (!shiftDays.includes(dayName)) {
+                              alert("The selected date is not part of the shift days.")
+                              return
+                            }
+                            const localISOTime = new Date(date.getTime() - date.getTimezoneOffset() * 60000)
+                              .toISOString()
+                              .slice(0, -1)
 
-        field.onChange(localISOTime)
-        setIsCalendarOpen(false)   // سكّر بعد الاختيار
-      }}
-      // onMonthChange={() => setIsCalendarOpen(true)} // ما يسكر عند تبديل الشهر
-      disabled={(date) =>
-        !shiftDays.includes(days[date.getDay()]) ||
-        date > new Date() ||
-        date < new Date("1900-01-01")
-      }
-      initialFocus
-    />
-  </PopoverContent>
-</Popover>
+                            field.onChange(localISOTime)
+                            setIsCalendarOpen(false)   // سكّر بعد الاختيار
+                          }}
+                          // onMonthChange={() => setIsCalendarOpen(true)} // ما يسكر عند تبديل الشهر
+                          disabled={(date) =>
+                            !shiftDays.includes(days[date.getDay()]) ||
+                            date > new Date() ||
+                            date < new Date("1900-01-01")
+                          }
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
 
                     {/* <Popover modal={false}>
                       <PopoverTrigger asChild>
