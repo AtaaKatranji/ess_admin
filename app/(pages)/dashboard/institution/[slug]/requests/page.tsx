@@ -257,30 +257,34 @@ return (
           </div>
         </div>
 
-    <div className="flex mb-6 border rounded-md overflow-hidden">
-      <button
-        className={`flex-1 py-2 px-4 flex items-center justify-center gap-2 ${
-          leaveType === "daily" ? "bg-gray-800 text-primary-foreground" : "bg-muted hover:bg-muted/80"
-        }`}
-        onClick={() => setLeaveType("daily")}
-      >
-        <LucideCalendar className="h-4 w-4" />
-        <span>Daily Leaves</span>
-      </button>
-      <button
-        className={`flex-1 py-2 px-4 flex items-center justify-center gap-2 ${
-          leaveType === "hourly" ? "bg-gray-800 text-primary-foreground" : "bg-muted hover:bg-muted/80"
-        }`}
-        onClick={() => setLeaveType("hourly")}
-      >
-        <Clock className="h-4 w-4" />
-        <span>Hourly Leaves</span>
-      </button>
-    </div>
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-2 mb-6 inline-flex">
+          <button
+            className={`flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
+              leaveType === "daily"
+                ? "bg-blue-600 text-white shadow-sm"
+                : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+            }`}
+            onClick={() => setLeaveType("daily")}
+          >
+            <LucideCalendar className="h-4 w-4" />
+            <span>Daily Leaves</span>
+          </button>
+          <button
+            className={`flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
+              leaveType === "hourly"
+                ? "bg-blue-600 text-white shadow-sm"
+                : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+            }`}
+            onClick={() => setLeaveType("hourly")}
+          >
+            <Clock className="h-4 w-4" />
+            <span>Hourly Leaves</span>
+          </button>
+        </div>
 
     {leaveType === "daily" ? (
       <Tabs defaultValue="pending" className="w-full" onValueChange={setActiveTab} value={activeTab}>
-        <div className="border-b border-slate-200 px-6 pt-6">
+        <div className="border-b border-slate-200 px-6 pt-6 grid grid-cols-3 mb-4">
         <TabsList className="grid grid-cols-3 w-full max-w-md bg-slate-100 p-1 rounded-lg">
           <TabsTrigger value="pending" className="relative">
             Pending
