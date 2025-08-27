@@ -151,7 +151,7 @@ const AttendanceTab = ({ employeeId, selectedMonth }: { employeeId: string; sele
   if (isLoading) return <p>Loading...</p>;
 
   return (
-    <section className="min-w-0 overflow-x-hidden space-y-4">
+    <section className="min-w-0 min-h-0 overflow-x-hidden space-y-4">
     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
       <h2 className="text-xl sm:text-2xl font-semibold text-primary">Attendance Records</h2>
 
@@ -227,7 +227,7 @@ const AttendanceTab = ({ employeeId, selectedMonth }: { employeeId: string; sele
       </div>
       
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-[425px] z-50 overflow-visible max-h-none"  ref={dialogRef}  >
+        <DialogContent className="sm:max-w-[425px] z-50"  ref={dialogRef}  >
           <DialogHeader>
             <DialogTitle>{isEditing ? 'Edit Check-in Record' : 'Add New Check-in Record'}</DialogTitle>
           </DialogHeader>

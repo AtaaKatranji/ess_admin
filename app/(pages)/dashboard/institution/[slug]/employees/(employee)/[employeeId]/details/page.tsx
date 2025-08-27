@@ -466,7 +466,7 @@ const EmployeeDetails = () => {
 
 
       </div>
-      <section className="mx-auto max-w-6xl px-4 sm:px-6 min-w-0 overflow-x-hidden">
+      <section className="mx-auto max-w-6xl px-4 sm:px-6 min-w-0 min-h-0 overflow-x-hidden">
       <Tabs defaultValue="attendance" className="space-y-6">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <TabsList>
@@ -477,10 +477,10 @@ const EmployeeDetails = () => {
           <TabsTrigger value="dayRecords">Day Records</TabsTrigger>
         </TabsList>
         </div>
-        <TabsContent value="attendance" className="space-y-4">
+        <TabsContent value="attendance" className="space-y-4 min-h-0">
           <AttendanceTab employeeId={employeeId} selectedMonth={selectedMonth} />
         </TabsContent>
-        <TabsContent value="leave" className="space-y-4">
+        <TabsContent value="leave" className="space-y-4 min-h-0">
           <div className="flex justify-between items-center">
             <h2 className="text-xl font-semibold">Leave Requests</h2>
             <div className="relative">
@@ -547,13 +547,13 @@ const EmployeeDetails = () => {
             </CardContent>
           </Card>
         </TabsContent>
-        <TabsContent value="absent" className="space-y-4">
+        <TabsContent value="absent" className="space-y-4 min-h-0">
           <AbsentTab employeeId={employeeId} selectedMonth={selectedMonth} />
         </TabsContent>
-        <TabsContent value="hourlyLeaves" className="space-y-4">
+        <TabsContent value="hourlyLeaves" className="space-y-4 min-h-0">
           <HourlyLeavesTab employeeId={employeeId} selectedMonth={selectedMonth} />
         </TabsContent>
-        <TabsContent value="dayRecords" className="space-y-4">
+        <TabsContent value="dayRecords" className="space-y-4 min-h-0">
           <NonAttendanceTab employeeId={employeeId} selectedMonth={selectedMonth} institutionKey={institutionKey} holidays={data.holidays}  />
         </TabsContent>
       </Tabs>
