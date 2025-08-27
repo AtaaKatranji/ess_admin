@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
 // import { ScrollArea } from "@/components/ui/scroll-area";
-import {  Plus, Search } from 'lucide-react';
+import { CalendarIcon, Plus, Search } from 'lucide-react';
 import { Input } from "@/components/ui/input";
 import { toast } from 'react-toastify';
 import { Button } from '@/components/ui/button';
@@ -14,9 +14,9 @@ import {
 import {
   Form, FormField, FormItem, FormLabel, FormControl, FormMessage,
 } from "@/components/ui/form";
-// import {
-//   Popover, PopoverContent, PopoverTrigger,
-// } from "@/components/ui/popover";
+import {
+  Popover, PopoverContent, PopoverTrigger,
+} from "@/components/ui/popover";
 import { fetchTimeShifts } from '../api/shifts/shifts';
 import React from 'react';
 
@@ -147,7 +147,7 @@ const AttendanceTab = ({ employeeId, selectedMonth }: { employeeId: string; sele
     });
     setFilteredHistory(filtered);
   }, [searchTerm, history]);
-  // const [isCalendarOpen, setIsCalendarOpen] = React.useState(false);
+  const [isCalendarOpen, setIsCalendarOpen] = React.useState(false);
   if (isLoading) return <p>Loading...</p>;
 
   return (
@@ -212,101 +212,154 @@ const AttendanceTab = ({ employeeId, selectedMonth }: { employeeId: string; sele
           Next
         </Button>
       </div>
+      
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-  <DialogContent className="sm:max-w-[425px]">
-    <DialogHeader>
-      <DialogTitle>
-        {isEditing ? "Edit Check-in Record" : "Add New Check-in Record"}
-      </DialogTitle>
-    </DialogHeader>
+        <DialogContent className="sm:max-w-[425px]" onInteractOutside={(e) => {
+            const el = e.target as HTMLElement;
+            if (el.closest('[data-radix-popover-content]')) e.preventDefault();
+          }} >
+          <DialogHeader>
+            <DialogTitle>{isEditing ? 'Edit Check-in Record' : 'Add New Check-in Record'}</DialogTitle>
+          </DialogHeader>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="checkDate"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Date</FormLabel>
+                    <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen} modal={false}>
+  <PopoverTrigger asChild>
+    <FormControl>
+      <Button
+        type="button"
+        variant="outline"
+        onClick={() => setIsCalendarOpen(v => !v)}
+        className={`w-full pl-3 text-left font-normal ${!field.value && "text-muted-foreground"}`}
+      >
+        {field.value ? format(new Date(field.value), "PPP") : <span>Pick a date</span>}
+        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+      </Button>
+    </FormControl>
+  </PopoverTrigger>
 
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <FormField
-          control={form.control}
-          name="checkDate"
-          render={({ field }) => (
-            <FormItem className="flex flex-col">
-              <FormLabel>Date</FormLabel>
-              <FormControl>
-                <Calendar
-                  mode="single"
-                  selected={field.value ? new Date(field.value) : undefined}
-                  onSelect={(date) => {
-                    if (!date) return;
+  <PopoverContent
+    className="w-auto p-0 z-auto"
+    align="start"
+  >
+    <Calendar
+      mode="single"
+      selected={field.value ? new Date(field.value) : undefined}
+      // onSelect={(date) => {
+      //   if (!date) return
+      //   const dayName = days[date.getDay()]
+      //   if (!shiftDays.includes(dayName)) {
+      //     alert("The selected date is not part of the shift days.")
+      //     return
+      //   }
+      //   const localISOTime = new Date(date.getTime() - date.getTimezoneOffset() * 60000)
+      //     .toISOString()
+      //     .slice(0, -1)
 
-                    const dayName = days[date.getDay()];
-                    if (!shiftDays.includes(dayName)) {
-                      alert("The selected date is not part of the shift days.");
-                      return;
-                    }
+      //   field.onChange(localISOTime)
+      //   setIsCalendarOpen(false)   // سكّر بعد الاختيار
+      // }}
+      // onMonthChange={() => setIsCalendarOpen(true)} // ما يسكر عند تبديل الشهر
+      disabled={(date) =>
+        !shiftDays.includes(days[date.getDay()]) ||
+        date > new Date() ||
+        date < new Date("1900-01-01")
+      }
+      initialFocus
+    />
+  </PopoverContent>
+</Popover>
 
-                    const localISOTime = new Date(
-                      date.getTime() - date.getTimezoneOffset() * 60000
-                    )
-                      .toISOString()
-                      .slice(0, -1);
-
-                    field.onChange(localISOTime);
-                  }}
-                  disabled={(date) =>
-                    !shiftDays.includes(days[date.getDay()]) ||
-                    date > new Date() ||
-                    date < new Date("1900-01-01")
-                  }
-                  initialFocus
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="checkInTime"
-          render={({ field }) => (
-            <FormItem className="flex flex-col">
-              <FormLabel>Check-in Time</FormLabel>
-              <FormControl>
-                <Input
-                  type="time"
-                  {...field}
-                  value={field.value || ""}
-                  onChange={(e) => field.onChange(e.target.value || null)}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="checkOutTime"
-          render={({ field }) => (
-            <FormItem className="flex flex-col">
-              <FormLabel>Check-out Time</FormLabel>
-              <FormControl>
-                <Input
-                  type="time"
-                  {...field}
-                  value={field.value || ""}
-                  onChange={(e) => field.onChange(e.target.value || null)}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <DialogFooter>
-          <Button type="submit">Save</Button>
-        </DialogFooter>
-      </form>
-    </Form>
-  </DialogContent>
-</Dialog>
+                    {/* <Popover modal={false}>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            type="button"
+                            variant={"outline"}
+                            className={`w-full pl-3 text-left font-normal ${!field.value && "text-muted-foreground"}`}
+                          >
+                            {field.value ? format(new Date(field.value), "PPP") : <span>Pick a date</span>}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0 z-50" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={field.value ? new Date(field.value) : undefined}
+                          onSelect={(date) => {
+                            if (date) {
+                              const dayName = days[date.getDay()];
+                              if (shiftDays.includes(dayName)) {
+                                const localISOTime = new Date(
+                                  date.getTime() - date.getTimezoneOffset() * 60000
+                                ).toISOString().slice(0, -1);
+                                field.onChange(localISOTime);
+                              } else {
+                                alert("The selected date is not part of the shift days.");
+                              }
+                            }
+                          }}
+                          disabled={(date) =>
+                            !shiftDays.includes(days[date.getDay()]) || date > new Date() || date < new Date("1900-01-01")
+                          }
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover> */}
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="checkInTime"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Check-in Time</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="time"
+                        {...field}
+                        value={field.value || ""}
+                        onChange={(e) => field.onChange(e.target.value || null)}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="checkOutTime"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Check-out Time</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="time"
+                        {...field}
+                        value={field.value || ""}
+                        onChange={(e) => field.onChange(e.target.value || null)}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <DialogFooter>
+                <Button type="submit">Save</Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
