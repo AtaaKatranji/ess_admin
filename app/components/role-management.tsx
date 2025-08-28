@@ -38,6 +38,9 @@ const PERMISSION_CATEGORIES = [
   "Role Management",
   "System Administration",
   "Reports & Analytics",
+  "Break Management",
+  "Leave Management",
+  "Holiday Management",
 ]
 
 
@@ -255,7 +258,7 @@ export function RoleManagement({ institutionId }: { institutionId?: number | nul
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 bg-gradient-to-br from-slate-50 to-slate-100">
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold tracking-tight">Role Management</h2>

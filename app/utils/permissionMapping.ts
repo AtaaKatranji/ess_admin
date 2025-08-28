@@ -7,6 +7,9 @@ export function mapCategory(resource: string): string {
     case "employee":    return "User Management";
     case "shift":       return "Shift Management";
     case "manager":     return "Role Management";
+    case "break":       return "Break Management";
+    case "leave":       return "Leave Management";
+    case "holiday":     return "Holiday Management";
     case "system":      return "System Administration";
     case "report":      return "Reports & Analytics";
     default:            return "Other";
