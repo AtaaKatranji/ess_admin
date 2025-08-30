@@ -55,7 +55,7 @@ interface ApiResponse {
 }
 
 const OverviewPage = () => {
-  const { institutionKey } = useInstitution();
+  const { slug } = useInstitution(); 
   const [shifts, setShifts] = useState<Shift[]>([]);
   const [selectedShift, setSelectedShift] = useState<Shift | undefined>(); // Start as undefined
   const [viewMode, setViewMode] = useState('daily');
@@ -66,9 +66,9 @@ const OverviewPage = () => {
   useEffect(() => {
     const fetchAndSetShifts = async () => {
       try {
-        if (!institutionKey) return; // If slug is undefined, do nothing
+        if (!slug) return; // If slug is undefined, do nothing
         
-        const data = await fetchShifts(institutionKey);
+        const data = await fetchShifts(slug);
 
         setShifts(data);
         if (data.length > 0) {
@@ -79,7 +79,7 @@ const OverviewPage = () => {
       }
     };
     fetchAndSetShifts();
-  }, [institutionKey]);
+  }, [slug]);
   
   useEffect(() => {
     const fetchData = async () => {

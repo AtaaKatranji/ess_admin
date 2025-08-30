@@ -4,16 +4,16 @@ import { Shift } from '@/app/types/Shift';
 type HttpError = Error & { status?: number };
 
 
-export const fetchShifts = async (institutionKey: string) => {
+export const fetchShifts = async (orgSlug: string) => {
   
   try {
-    const response = await fetch(`${BaseUrl}/shifts/institution?institutionKey=${institutionKey}`, {
+    const response = await fetch(`${BaseUrl}/institutions/${orgSlug}/shifts`, {
       
       method: 'GET',
       credentials: "include",
       headers: {
         'Content-Type': 'application/json',
-        "X-Institution-Id": institutionKey ?? "",
+        
       },
       //body: JSON.stringify({ institutionKey }), // Wrap in an object
     });
