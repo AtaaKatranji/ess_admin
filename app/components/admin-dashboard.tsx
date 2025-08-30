@@ -68,7 +68,7 @@ export function AdminDashboard() {
 
   useEffect(() => {
     const run = async () => {
-      const res = await fetch(`${BaseUrl}/api/v1/admins/me`, { credentials: 'include' });
+      const res = await fetch(`${BaseUrl}/api/v1/admins/me`, { credentials: 'include',  });
       if (!res.ok) {
         // مش مسجّل → رجّعه على صفحة اللوجين
         navigate.replace('/login');
@@ -155,11 +155,10 @@ export function AdminDashboard() {
         cardClickGuardRef.current = false; // استهلك الحارس
         return; // لا تروح على الداشبورد
       }
-      console.log("institutionKey from localStorage/context: ", uniqueKey);
-      console.log("slug from localStorage/context: ", slug);
+
       localStorage.setItem('institutionKey', uniqueKey);
       // أو إذا بدك تجيب مباشرة من localStorage
-      console.log("institutionKey (direct localStorage): ", localStorage.getItem("institutionKey"));
+
       navigate.push(`/dashboard/institution/${slug}`)
     } catch (error) {
       toast.error(`Error navigating to institution: ${error}`)

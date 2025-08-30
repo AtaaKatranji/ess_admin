@@ -11,6 +11,7 @@ import { useSSE } from "@/app/context/SSEContext"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
  
 import { Button } from "@/components/ui/button"
+import { useInstitution } from "@/app/context/InstitutionContext"
 
 
 
@@ -42,64 +43,79 @@ type HourlyLeave = {
     _id: string;
     name: string;
   };
-  // Add any other details here
 }
 export default function LeaveRequestsPage() {
   const [requests, setRequests] = useState<LeaveRequest[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [hourlyLeaves, setHourlyLeaves] = useState<HourlyLeave[]>([]);
   const [activeTab, setActiveTab] = useState("pending")
-  const [leaveType, setLeaveType] = useState("daily") // "daily" or "hourly"
+  const [leaveType, setLeaveType] = useState<"daily" | "hourly">("daily");
   const [filterDate, setFilterDate] = useState("");
 
+  const { slug } = useInstitution(); 
+  //const { institutionKey } = useInstitution();
   // const [expandedRequest, setExpandedRequest] = useState<string | null>(null);
   // const [expandedHourlyLeave, setExpandedHourlyLeave] = useState<string | null>(null);
   const { notificationsHourly, notificationsLeave } = useSSE();
 
   const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
+  const orgApi = useMemo(() => {
+    if (!BaseUrl || !slug) return null;
+    const base = `${BaseUrl}/institutions/${slug}`;
+    return {
+      leaves: {
+        list: `${base}/leaves`,
+        approve: (id: string) => `${base}/leaves/${id}/approve`,
+        reject: (id: string) => `${base}/leaves/${id}/reject`,
+      },
+      hourly: {
+        list: `${base}/break/employee-breaks/request-custom-break?customBreak=true`,
+        status: (id: string) => `${base}/break/employee-breaks/${id}/status`,
+      },
+    };
+  }, [BaseUrl, slug]);
   const fetchLeaveRequests = async () => {
+    if (!orgApi) return;
     try {
-      const response = await fetch(`${BaseUrl}/leaves/`,
-        {
-          method: 'GET',
-          credentials: "include",
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      );
+      const response = await fetch(orgApi.leaves.list, {
+        method: "GET",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        cache: "no-store",
+      });
+      if (!response.ok) throw new Error("Failed to fetch leave requests");
       const data = await response.json();
-      setRequests(data);
+      setRequests(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error("Error fetching leave requests:", error);
+      setRequests([]);
     }
   };
   const fetchHourlyLeaves = async () => {
+    if (!orgApi) return;
     try {
-      const response = await fetch(`${BaseUrl}/break/employee-breaks/request-custom-break?customBreak=true`,{
-        method: 'GET',
+      const response = await fetch(orgApi.hourly.list, {
+        method: "GET",
         credentials: "include",
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { "Content-Type": "application/json" },
+        cache: "no-store",
       });
-      if (!response.ok) {
-        throw new Error("Failed to fetch hourly leaves");
-      }
+      if (!response.ok) throw new Error("Failed to fetch hourly leaves");
       const data = await response.json();
-      console.log(data.data)
-      setHourlyLeaves(Array.isArray(data.data) ? data.data : []); // Ensure data is an array
+      setHourlyLeaves(Array.isArray(data.data) ? data.data : []);
     } catch (error) {
       console.error("Error fetching hourly leaves:", error);
-      setHourlyLeaves([]); // Set to empty array on error
+      setHourlyLeaves([]);
     }
   };
  
   // Fetch hourly leaves (custom breaks)
   useEffect(() => {
+    if (!orgApi) return;
     fetchLeaveRequests();
     fetchHourlyLeaves();
-  }, [BaseUrl]);
+  }, [orgApi]);
+
   useEffect(() => {
     if (notificationsHourly.length > 0) {
       fetchHourlyLeaves();
@@ -112,28 +128,26 @@ export default function LeaveRequestsPage() {
   }, [notificationsLeave]);
   // Handle daily leave requests
   const handleApprove = async(id: string) => {
-    const response = await fetch(`${BaseUrl}/leaves/${id}/approve`, {
+    if (!orgApi) return;
+    const response = await fetch(orgApi.leaves.approve(id), {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      credentials : "include",
+      credentials: "include",
     });
     if (!response.ok) throw new Error("Failed to approve leave request");
-
-    setRequests(requests!.map((req) => (req.id === id ? { ...req, status: "Approved" } : req)))
-  }
+    setRequests((prev) => prev.map((req) => (req.id === id ? { ...req, status: "Approved" } : req)));
+  };
 
   const handleReject = async (id: string) => {
-
-    const response = await fetch(`${BaseUrl}/leaves/${id}/reject`, {
+    if (!orgApi) return;
+    const response = await fetch(orgApi.leaves.reject(id), {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      credentials : "include",
+      credentials: "include",
     });
     if (!response.ok) throw new Error("Failed to reject leave request");
-
-    
-    setRequests(requests!.map((req) => (req.id === id ? { ...req, status: "Rejected" } : req)))
-  }
+    setRequests((prev) => prev.map((req) => (req.id === id ? { ...req, status: "Rejected" } : req)));
+  };
 
   const handleTypeChange = (id: string, type: string) => {
     setRequests(requests!.map((req) => (req.id === id ? { ...req, type: type as "Paid" | "Unpaid" } : req)))

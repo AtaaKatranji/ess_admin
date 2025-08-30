@@ -68,7 +68,6 @@ const OverviewPage = () => {
       try {
         if (!institutionKey) return; // If slug is undefined, do nothing
         
-        console.log("in overview page",institutionKey);
         const data = await fetchShifts(institutionKey);
 
         setShifts(data);

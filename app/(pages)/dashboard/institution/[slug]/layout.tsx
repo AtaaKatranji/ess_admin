@@ -13,14 +13,13 @@ import { EmployeeProvider } from "@/app/context/EmployeeContext";
 import { SocketProvider } from "@/app/context/SocketContext";
 
 async function fetchInstitutionBySlug(slug: string) {
-  // غيّر الـ URL حسب API عندك
   const res = await fetch(`/api/institutions/by-slug/${slug}`, { cache: "no-store" });
   if (!res.ok) throw new Error("Failed to load institution");
-  return res.json(); // توقع { institutionKey: '...', name: '...', ... }
+  return res.json(); // { institutionKey: '...', name: '...', ... }
 }
 
 function LayoutBody({ children, slug }: { children: React.ReactNode; slug: string }) {
-  const {  setInstitutionKey, clearInstitutionKey } = useInstitution();
+  const { setInstitutionKey, clearInstitution, institutionKey } = useInstitution();
   const router = useRouter();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
@@ -28,27 +27,28 @@ function LayoutBody({ children, slug }: { children: React.ReactNode; slug: strin
     let ignore = false;
     (async () => {
       if (!slug) return;
-      const existing = typeof window !== 'undefined' ? localStorage.getItem('institutionKey') : null;
-      if (existing) return; // already set
+      // إذا كان الـ institutionKey متوفّر مسبقاً لنفس الـ slug، لا داعي لإعادة الجلب
+      if (institutionKey) return;
 
       try {
         const data = await fetchInstitutionBySlug(slug);
         if (!ignore && data?.institutionKey) {
           setInstitutionKey(data.institutionKey);
-          // للتأكد
-          console.log("[layout] institutionKey saved:", localStorage.getItem("institutionKey"));
         }
       } catch (e) {
         console.error(e);
         toast.error("Failed to resolve institution");
       }
     })();
-    return () => { ignore = true; };
-  }, [slug, setInstitutionKey]);
+
+    return () => {
+      ignore = true;
+    };
+  }, [slug, institutionKey, setInstitutionKey]);
   
   const handleExitInstitution = () => {
     toast.info(`Exiting institution ${slug}`);
-    clearInstitutionKey();
+    clearInstitution();
     setTimeout(() => router.push(`/dashboard`), 1000);
   };
 
@@ -91,7 +91,7 @@ export default function InstitutionLayout( { children }: { children: React.React
   return (
     <SocketProvider>
       <EmployeeProvider>
-        <InstitutionProvider>
+      <InstitutionProvider initialSlug={slug}>
           <LayoutBody slug={slug}>{children}</LayoutBody>
         </InstitutionProvider>
       </EmployeeProvider>

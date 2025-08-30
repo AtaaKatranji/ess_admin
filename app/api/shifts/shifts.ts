@@ -3,7 +3,9 @@ import { Shift } from '@/app/types/Shift';
 
 type HttpError = Error & { status?: number };
 
+
 export const fetchShifts = async (institutionKey: string) => {
+  
   try {
     const response = await fetch(`${BaseUrl}/shifts/institution?institutionKey=${institutionKey}`, {
       
@@ -11,6 +13,7 @@ export const fetchShifts = async (institutionKey: string) => {
       credentials: "include",
       headers: {
         'Content-Type': 'application/json',
+        "X-Institution-Id": institutionKey ?? "",
       },
       //body: JSON.stringify({ institutionKey }), // Wrap in an object
     });
@@ -29,12 +32,14 @@ export const fetchShifts = async (institutionKey: string) => {
 };
 
 export const fetchTimeShifts = async (employeeId: string) => {
+  
   console.log("fetchTimeShifts",employeeId)
   const response = await fetch(`${BaseUrl}/shifts/time?employeeId=${employeeId}`, {
     method: 'GET',
     credentials: "include",
     headers: {
       'Content-Type': 'application/json',
+     
     },
     //body: JSON.stringify({ employeeId }), // Wrap in an object
   });
