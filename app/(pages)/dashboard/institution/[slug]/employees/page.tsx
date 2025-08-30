@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { useState, useEffect } from "react"
-import { useParams, useRouter } from "next/navigation"
+import {  useRouter } from "next/navigation"
 import { fetchEmployees, fetchTotalHours } from "@/app/api/employees/employeeId"
 import { fetchInstitution } from "@/app/api/institutions/institutions"
 import { fetchShifts } from "@/app/api/shifts/shifts"
@@ -16,6 +16,8 @@ import { Skeleton } from "@/components/ui/skeleton"
 
 import { useEmployee } from "@/app/context/EmployeeContext";
 import { toast } from "react-toastify"
+
+import { useInstitution } from "@/app/context/InstitutionContext"
 interface Employee {
   id: string
   name: string
@@ -46,10 +48,10 @@ const EmployeeList: React.FC = () => {
   const [selectedShift, setSelectedShift] = useState("all")
   const [shiftOptions, setShiftOptions] = useState<Shift[]>([])
   const router = useRouter()
-  const params = useParams()
+  //const params = useParams()
   const { setEmployeeId } = useEmployee(); 
-  const slug = Array.isArray(params?.slug) ? params.slug[0] : params?.slug
-
+  // const slug = Array.isArray(params?.slug) ? params.slug[0] : params?.slug
+  const { slug } = useInstitution();
   const fetchData = async () => {     
     try {
       setLoading(true);
@@ -66,11 +68,11 @@ const EmployeeList: React.FC = () => {
         return;                        // finally رح يشتغل ويطفي اللودينغ
       }
       
-      const uniqueKey = insRes.data.uniqueKey;
+      //const uniqueKey = insRes.data.uniqueKey;
       
 
-      const data = await fetchEmployees(uniqueKey)
-      const dataShifts = await fetchShifts(uniqueKey)
+      const data = await fetchEmployees(slug)
+      const dataShifts = await fetchShifts(slug)
 
       setShiftOptions(dataShifts)
       // if (dataShifts.length > 0) {
