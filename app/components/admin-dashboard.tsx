@@ -149,14 +149,12 @@ export function AdminDashboard() {
     })
   }
 
-  const handleCardClick = async (slug: string, uniqueKey: string) => {
+  const handleCardClick = async (slug: string) => {
     try {
       if (cardClickGuardRef.current) {
         cardClickGuardRef.current = false; // استهلك الحارس
         return; // لا تروح على الداشبورد
       }
-
-      localStorage.setItem('institutionKey', uniqueKey);
       // أو إذا بدك تجيب مباشرة من localStorage
 
       navigate.push(`/dashboard/institution/${slug}`)
@@ -456,7 +454,7 @@ export function AdminDashboard() {
                       <InstitutionCard
                         name={institution.name}
                         address={institution.address}
-                        onClick={() => handleCardClick(institution.slug,institution.uniqueKey!)}
+                        onClick={() => handleCardClick(institution.slug)}
                       >
                         <Building2 className="h-6 w-6 text-muted-foreground" />
                       </InstitutionCard>
@@ -613,7 +611,7 @@ export function AdminDashboard() {
                     <InstitutionCard
                       name={institution.name}
                       address={institution.address}
-                      onClick={() => handleCardClick(institution.slug,institution.uniqueKey!)} // فتح dashboard بالمؤسسة
+                      onClick={() => handleCardClick(institution.slug)} // فتح dashboard بالمؤسسة
                     >
                       <Building2 className="h-6 w-6 text-muted-foreground" />
                     </InstitutionCard>
@@ -721,7 +719,7 @@ export function AdminDashboard() {
                     <InstitutionCard
                       name={institution.name}
                       address={institution.address}
-                      onClick={() => handleCardClick(institution.slug,institution.uniqueKey!)}
+                      onClick={() => handleCardClick(institution.slug)}
                     >
                       <Building2 className="h-6 w-6 text-muted-foreground" />
                     </InstitutionCard>
