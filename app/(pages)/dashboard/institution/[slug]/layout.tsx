@@ -12,8 +12,10 @@ import { InstitutionProvider, useInstitution } from "@/app/context/InstitutionCo
 import { EmployeeProvider } from "@/app/context/EmployeeContext";
 import { SocketProvider } from "@/app/context/SocketContext";
 
+const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
+
 async function fetchInstitutionBySlug(slug: string) {
-  const res = await fetch(`/api/institutions/by-slug/${slug}`, { cache: "no-store" });
+  const res = await fetch(`${BaseUrl}/ins/institutions/slug/${slug}`, { cache: "no-store" });
   if (!res.ok) throw new Error("Failed to load institution");
   return res.json(); // { institutionKey: '...', name: '...', ... }
 }
