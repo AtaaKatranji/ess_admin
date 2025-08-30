@@ -18,6 +18,7 @@ const BaseURL = process.env.NEXT_PUBLIC_API_URL;
 import { Break, Shift } from '@/app/types/Shift'
 import * as shiftAPI from '@/app/api/shifts/shifts'
 import ShiftReport from '@/app/components/ShiftReports'
+import { fetchInstitution } from '@/app/api/institutions/institutions'
 
 type Employee = {
   id: string; // Changed from id to id for MySQL
@@ -54,8 +55,8 @@ const getBreakColor = (iconType: string) => {
   }
 }
 export default function ShiftsPage() {
-  const { institutionKey } = useInstitution();
-
+  const { slug } = useInstitution();
+  const [institutionKey, setInstitutionKey] = useState<string | null>(null);
   const [shifts, setShifts] = useState<Shift[]>([])
   const [employees, setEmployees] = useState<Employee[]>([])
   const [selectedEmployee, setSelectedEmployee] = useState('Select employee')
@@ -67,12 +68,29 @@ export default function ShiftsPage() {
   const [showReports, setShowReports] = useState(false)
 
 
+  useEffect(() => {
+    if (!slug) return;
+    const fetchData = async () => {
+      try {
+        const data = await fetchInstitution(slug);
+        console.log("data in fetch institution", data);
+        if (data?.data && 'uniqueKey' in data.data) {
+          setInstitutionKey(data.data.uniqueKey);
+        }
+      } catch (error) {
+        console.error("Error fetching institution:", error);
+      }
+    };
+    fetchData();
+  }, [slug])
+
+
   // Fetch shifts from the API
   useEffect(() => { 
     const fetchShi = async () => {
       try {
-        if (!institutionKey) return; 
-        const data = await shiftAPI.fetchShifts(institutionKey)
+        if (!slug) return; 
+        const data = await shiftAPI.fetchShifts(slug)
         console.log('Raw shift data:', data)
         // Sanitize data to ensure days is an array and map id
         const sanitizedShifts = data.map((shift : Shift) => ({
@@ -90,8 +108,8 @@ export default function ShiftsPage() {
 
     const fetchEmp = async () => {
       try {
-        if (!institutionKey) return; 
-        const data = await fetchEmployees(institutionKey)
+        if (!slug) return; 
+        const data = await fetchEmployees(slug)
         console.log('Raw employee data:', data)
         setEmployees(data .filter((emp: Employee) => emp.shiftId == null) // Only unassigned
         .map((emp: Employee) => ({ id: emp.id, name: emp.name })))
@@ -99,10 +117,12 @@ export default function ShiftsPage() {
         console.error('Error fetching employees:', error)
       }
     }
-    if (!institutionKey) return;
+
+
+    if (!slug) return;
     fetchShi()
     fetchEmp()
-  }, [institutionKey])
+  }, [slug])
 
   const handleEditShift = async (shift: Shift) => {
     setEditingShift(shift)  // shift from your list

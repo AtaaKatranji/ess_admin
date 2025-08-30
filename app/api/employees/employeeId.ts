@@ -2,14 +2,15 @@ import moment from "moment";
 
 const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
 
-export const fetchEmployees = async (institutionKey: string) => {
+export const fetchEmployees = async (ourSlug: string) => {
   try {
-    const response = await fetch(`${BaseUrl}/api/users`, {
+    const response = await fetch(`${BaseUrl}/institutions/${ourSlug}/api/users`, {
       method: 'POST',
+      credentials: "include",
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ institutionKey }), // Wrap in an object
+       // Wrap in an object
     });
 
     if (!response.ok) {
