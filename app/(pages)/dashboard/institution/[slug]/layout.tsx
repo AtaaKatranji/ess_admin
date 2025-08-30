@@ -15,7 +15,12 @@ import { SocketProvider } from "@/app/context/SocketContext";
 const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
 
 async function fetchInstitutionBySlug(slug: string) {
-  const res = await fetch(`${BaseUrl}/ins/institutions/slug/${slug}`, { cache: "no-store" });
+  const res = await fetch(`${BaseUrl}/ins/institutions/slug/${slug}`,{
+    cache: "no-store",
+    credentials: "include", 
+    headers: {
+      "Content-Type": "application/json",
+    }});
   if (!res.ok) throw new Error("Failed to load institution");
   return res.json(); // { institutionKey: '...', name: '...', ... }
 }
