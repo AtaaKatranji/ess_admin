@@ -153,50 +153,28 @@ export default function LeaveRequestsPage() {
     setRequests(requests!.map((req) => (req.id === id ? { ...req, type: type as "Paid" | "Unpaid" } : req)))
   }
 // Handle hourly leave requests
-const handleApproveHourlyLeave = async (id: string) => {
-  try {
-    const response = await fetch(`${BaseUrl}/break/employee-breaks/${id}/status`, {
-      method: "POST",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: "Approved" }), // Send status as JSON
-    });
-    if (!response.ok) throw new Error("Failed to approve hourly leave");
-    
-    const updatedHourlyLeave = await response.json();
-    console.log("status: ",updatedHourlyLeave)
-    console.log("status: ",updatedHourlyLeave.status)
-    setHourlyLeaves(
-      hourlyLeaves.map((leave) =>
-        leave.breakDetails.id === id ? { ...leave, breakDetails: { ...leave.breakDetails, status: updatedHourlyLeave.status } } : leave
-      )
-    );
-  } catch (error) {
-    console.error("Error approving hourly leave:", error);
-  }
+// ===== Actions (Hourly) =====
+const updateHourlyStatus = async (id: string, status: "Approved" | "Rejected") => {
+  if (!orgApi) return;
+  const response = await fetch(orgApi.hourly.status(id), {
+    method: "POST",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ status }),
+  });
+  if (!response.ok) throw new Error(`Failed to ${status.toLowerCase()} hourly leave`);
+  const updated = await response.json(); // توقع { status: "Approved" | "Rejected" ... }
+  setHourlyLeaves((prev) =>
+    prev.map((leave) =>
+      leave.breakDetails.id === id
+        ? { ...leave, breakDetails: { ...leave.breakDetails, status: updated.status } }
+        : leave
+    )
+  );
 };
 
-const handleRejectHourlyLeave = async (id: string) => {
-  try {
-    const response = await fetch(`${BaseUrl}/break/employee-breaks/${id}/status`, {
-      method: "POST",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: "Rejected" }), // Send status as JSON
-
-    });
-    if (!response.ok) throw new Error("Failed to reject hourly leave");
-
-    const updatedHourlyLeave = await response.json();
-    setHourlyLeaves(
-      hourlyLeaves.map((leave) =>
-        leave.breakDetails.id === id ? { ...leave, breakDetails: { ...leave.breakDetails, status: updatedHourlyLeave.status } } : leave
-      )
-    );
-  } catch (error) {
-    console.error("Error rejecting hourly leave:", error);
-  }
-}
+const handleApproveHourlyLeave = (id: string) => updateHourlyStatus(id, "Approved");
+const handleRejectHourlyLeave = (id: string) => updateHourlyStatus(id, "Rejected");
 
   // Filter daily leave requests
   const filteredRequests = requests!.filter((req) => {
