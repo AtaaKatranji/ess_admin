@@ -5,7 +5,7 @@ const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
 export const fetchEmployees = async (ourSlug: string) => {
   try {
     const response = await fetch(`${BaseUrl}/institutions/${ourSlug}/api/users`, {
-      method: 'POST',
+      method: 'GET',
       credentials: "include",
       headers: {
         'Content-Type': 'application/json',
