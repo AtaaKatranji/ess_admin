@@ -24,7 +24,7 @@ type Holiday = {
 };
 
 export default function PublicHolidaysPage() {
-  const { institutionKey } = useInstitution();
+  const { slug } = useInstitution();
   const [holidays, setHolidays] = useState<Holiday[]>([]);
 
   const [name, setName] = useState("");
@@ -38,7 +38,7 @@ useEffect(() => {
   fetchHolidays();
 }, []);
 const fetchHolidays = async () => {
-  const res = await fetch(`${BaseUrl}/holidays/institution/${institutionKey}`); // replace with dynamic ID
+  const res = await fetch(`${BaseUrl}/institutions/${slug}/holidays/`); // replace with dynamic ID
   const data = await res.json();
   setHolidays(data);
 };
@@ -63,11 +63,11 @@ const handleEditClick = (holiday: Holiday) => {
 const handleSubmit = async (e: React.FormEvent) => {
   e.preventDefault();
 
-  const payload = { name, startDate, endDate, description, uniqueKey: institutionKey };
+  const payload = { name, startDate, endDate, description };
 
   const url = isEditing
-    ? `${BaseUrl}/holidays/${editingHoliday?.id}`
-    : `${BaseUrl}/holidays`;
+    ? `${BaseUrl}/institutions/${slug}/holidays/${editingHoliday?.id}`
+    : `${BaseUrl}/institutions/${slug}/holidays`;
 
   const method = isEditing ? "PUT" : "POST";
 
