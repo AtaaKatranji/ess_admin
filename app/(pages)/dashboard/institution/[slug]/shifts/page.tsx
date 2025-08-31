@@ -234,12 +234,12 @@ const handleSave = async (data : Shift) => {
   let newShift = data;
   if (editingShift) {
     // Edit mode: update shift
-    newShift = await shiftAPI.updateShift(data);
+    newShift = await shiftAPI.updateShift(data, slug);
     toast.success('Shift updated successfully', { autoClose: 1500 });
   } else {
     // Add mode: add new shift
     try {
-      newShift = await shiftAPI.addShift(data);
+      newShift = await shiftAPI.addShift(data, slug);
       toast.success('Shift added successfully', { autoClose: 1500 });
       
     } catch (error) {

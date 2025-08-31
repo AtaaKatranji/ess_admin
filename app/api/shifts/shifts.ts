@@ -69,14 +69,14 @@ export const fetchTimeShifts = async (employeeId: string) => {
   }
 };
 
-export const addShift = async (newShift: Shift) => {
+export const addShift = async (newShift: Shift, orgSlug: string) => {
   // if (!newShift.name || !newShift.startTime || !newShift.endTime || newShift.days.length === 0) {
   //   toast.error('Please fill all required fields')
   //   return
   // }
 
   try {
-    const shiftResponse = await fetch(`${BaseUrl}/shifts/`, {
+    const shiftResponse = await fetch(`${BaseUrl}/institutions/${orgSlug}/shifts/`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: "include",
@@ -119,7 +119,7 @@ export const addShift = async (newShift: Shift) => {
 //     // ...add any fields you want to track
 //   );
 // }
-export const updateShift = async (newShift: Shift) => {
+export const updateShift = async (newShift: Shift, ourSlug: string) => {
 
 
     try {
@@ -152,7 +152,7 @@ export const updateShift = async (newShift: Shift) => {
         });
         await Promise.all(breakPromises);
       }
-      const shiftResponse = await fetch(`${BaseUrl}/shifts/${newShift.id}`, {
+      const shiftResponse = await fetch(`${BaseUrl}instiutions/${ourSlug}/shifts/${newShift.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         credentials: "include",
