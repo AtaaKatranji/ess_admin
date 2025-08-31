@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect} from 'react'
-import { PlusCircle, Trash2, UserPlus, ArrowRightLeft, Edit, Clock, Calendar, Settings, ChevronDown, Plus, Timer, Coffee, Utensils, Pause, Users, FileChartColumn } from 'lucide-react'
+import { PlusCircle, Trash2, UserPlus, ArrowRightLeft, Edit, Clock, Calendar, Settings, ChevronDown, Plus, Timer, Coffee, Utensils, Pause, Users, FileChartColumn, CalendarClock, RefreshCw } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 // import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -86,24 +86,25 @@ export default function ShiftsPage() {
 
 
   // Fetch shifts from the API
-  useEffect(() => { 
-    const fetchShi = async () => {
-      try {
-        if (!slug) return; 
-        const data = await shiftAPI.fetchShifts(slug)
-        console.log('Raw shift data:', data)
-        // Sanitize data to ensure days is an array and map id
-        const sanitizedShifts = data.map((shift : Shift) => ({
-          ...shift,
-          id: shift.id, // Handle both cases if backend mixes id/id
-          days: Array.isArray(shift.days) ? shift.days : JSON.parse(shift.days || '[]'),
-          employees: shift.employees || [] // Ensure employees is always an array
-        }))
-        setShifts(sanitizedShifts)
-      } catch (error) {
-        console.error('Error fetching shifts:', error)
-      }
+  const fetchShi = async () => {
+    try {
+      if (!slug) return; 
+      const data = await shiftAPI.fetchShifts(slug)
+      console.log('Raw shift data:', data)
+      // Sanitize data to ensure days is an array and map id
+      const sanitizedShifts = data.map((shift : Shift) => ({
+        ...shift,
+        id: shift.id, // Handle both cases if backend mixes id/id
+        days: Array.isArray(shift.days) ? shift.days : JSON.parse(shift.days || '[]'),
+        employees: shift.employees || [] // Ensure employees is always an array
+      }))
+      setShifts(sanitizedShifts)
+    } catch (error) {
+      console.error('Error fetching shifts:', error)
     }
+  }
+  useEffect(() => { 
+    
     
 
     const fetchEmp = async () => {
@@ -368,7 +369,33 @@ const editBreakType = (breakType: Break) => {
       <div>
         <h2 className="text-xl font-semibold mb-4  text-gray-800">Current Shifts</h2>
         {shifts.length === 0 ? (
-          <p>No shifts added yet.</p>
+         <Card className="flex flex-col items-center text-center py-16">
+         <CalendarClock className="h-10 w-10 mb-3 text-gray-500" />
+         <h3 className="text-lg font-semibold mb-1">No shifts yet</h3>
+         <p className="text-sm text-muted-foreground max-w-md">
+           Create your first shift to start tracking attendance and time sheets.
+         </p>
+         <div className="mt-5 flex gap-2">
+           <Button
+             onClick={() => {
+              setEditingShift(null);
+              setDialogOpen(true);
+            }}
+             //disabled={!canCreate}
+             //title={canCreate ? undefined : "You don't have permission to create shifts"}
+           >
+             Create a Shift
+           </Button>
+           <Button variant="outline" onClick={() => fetchShi()}>
+             <RefreshCw className="h-4 w-4 mr-2" /> Refresh
+           </Button>
+         </div>
+         {/* {!canCreate && (
+           <p className="mt-2 text-xs text-muted-foreground">
+             Don’t have access? Contact an administrator.
+           </p>
+         )} */}
+       </Card>
         ) : (
           <div className="space-y-6">
           {shifts.map((shift) => {
