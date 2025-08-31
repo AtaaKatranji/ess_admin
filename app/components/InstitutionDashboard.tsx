@@ -92,7 +92,7 @@ const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ( {activeSecti
 
   if (isloading) {
     return (
-      <div className="h-full flex items-center justify-center">
+      <div className="flex items-center justify-center">
         {/* Loading Spinner */}
         <Circles height="80" width="80" color="#002E3BFF" ariaLabel="loading" />
       </div>

@@ -69,7 +69,7 @@ function LayoutBody({ children, slug }: { children: React.ReactNode; slug: strin
         toggleSidebar={toggleSidebar}
       />
 
-      <header className="md:hidden fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-4  bg-gray-800 text-white">
+      <header className="md:hidden fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-4 py-4 bg-gray-800 text-white">
         <h1 className="text-lg font-semibold">Menu</h1>
         <button onClick={toggleSidebar}>
           <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
