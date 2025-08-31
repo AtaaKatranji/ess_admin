@@ -197,7 +197,7 @@ function AttendanceStatus({ response, loading }: { response: ApiResponse, loadin
   const notLoggedInEmployees = employees.filter(e => !e.loggedIn && e.checkOut == "Not checked out"); // not logged in & not logged out
 
   return (
-    <div className="container mx-auto w-full ">
+    <div className="container mx-auto w-full md:py-10 ">
       {loading ? (
         <div className="flex items-center justify-center h-40">
           <div className="loader"></div>
