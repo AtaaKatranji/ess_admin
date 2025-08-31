@@ -44,7 +44,30 @@ const SidebarIns: React.FC<SidebarProps> = ({
     : [];
 
   const isLg = useIsLgUp();
-  const showText = isLg || isSidebarOpen;
+
+  function useMedia(mediaQuery: string) {
+    const [matches, setMatches] = React.useState(false);
+  
+    React.useEffect(() => {
+      const mq = window.matchMedia(mediaQuery);
+      const onChange = () => setMatches(mq.matches);
+      onChange();
+      mq.addEventListener("change", onChange);
+      return () => mq.removeEventListener("change", onChange);
+    }, [mediaQuery]);
+  
+    return matches;
+  }
+  
+  const isMdUp = useMedia("(min-width: 768px)");
+  const isLgUp = useMedia("(min-width: 1024px)");
+  const isMobile = !isMdUp;
+  
+  // labels/text should be visible on lg+ OR on mobile when drawer is open
+  const showText = isLgUp || (isMobile && isSidebarOpen);
+
+
+  // const showText = isLg || isSidebarOpen;
 
   // ===== Helpers =====
   const normalize = (path: string) => path.replace(/\/$/, "");
@@ -205,7 +228,7 @@ const SidebarIns: React.FC<SidebarProps> = ({
               }`}
           >
             <SquareArrowLeftIcon className={`h-5 w-5 shrink-0 ${showText ? "mr-2" : ""}`} />
-            {showText && <span>Exit Institution</span>}
+            {showText && <span className="truncate">Exit Institution</span>}
           </button>
         </div>
       </aside>
