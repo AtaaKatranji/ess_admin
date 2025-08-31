@@ -34,41 +34,41 @@ const SettingsPage: React.FC = () => {
   const nameCheckTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const reqIdRef = useRef(0); // لمنع السباقات (race conditions)
 
-  // Configure toast defaults to prevent persistence issues
-  // useEffect(() => {
-  //   // Set toast defaults - using modern approach
-  //   toast.defaults = {
-  //     autoClose: 3000,
-  //     hideProgressBar: false,
-  //     closeOnClick: true,
-  //     pauseOnHover: true,
-  //     draggable: true,
-  //     position: "top-right" as const,
-  //   };
-  // }, []);
  
   useEffect(() => {
     let mounted = true;
-    if (!slug) return;
-    setIsLoading(true);
+  
     (async () => {
-      const res = await fetchInstitution(String(slug));
-  
-      if (!mounted) return;
-  
-      if (!res.ok) {
-        // استخدم toast إذا حابب
-        toast.error(res.data?.message ?? `Failed to load institution (HTTP ${res.status})`);
-        setInstitutionInfo(null);
-        setInitialName("");
+      if (!slug) {
+        setIsLoading(false);
         return;
       }
   
-      // نجاح: res.data من النوع InstitutionInfo ومطبّق عليه normalize مسبقًا
-      setInstitutionInfo(res.data);
-      setInitialName(res.data.name);
+      try {
+        setIsLoading(true);
+  
+        const res = await fetchInstitution(String(slug));
+        if (!mounted) return;
+  
+        if (!res.ok) {
+          toast.error(res.data?.message ?? `Failed to load institution (HTTP ${res.status})`);
+          setInstitutionInfo(null);
+          setInitialName("");
+          return;
+        }
+  
+        setInstitutionInfo(res.data);
+        setInitialName(res.data.name);
+      } catch {
+        if (!mounted) return;
+        toast.error("Network error while loading institution.");
+        setInstitutionInfo(null);
+        setInitialName("");
+      } finally {
+        if (mounted) setIsLoading(false); // ← only now
+      }
     })();
-   setIsLoading(false);
+  
     return () => { mounted = false; };
   }, [slug]);
   
