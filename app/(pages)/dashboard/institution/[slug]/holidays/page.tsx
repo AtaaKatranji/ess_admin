@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, Trash2, Pencil } from "lucide-react";
+import { Plus, Trash2, Pencil, Lock } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
@@ -12,7 +12,7 @@ import { format } from "date-fns";
 import { Card } from "@mui/material";
 import { CardContent } from "@/components/ui/card";
 import { useInstitution } from "@/app/context/InstitutionContext";
-
+import { toast } from "react-toastify";  
 const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
 type Holiday = {
   id: number;
@@ -26,6 +26,8 @@ type Holiday = {
 export default function PublicHolidaysPage() {
   const { slug } = useInstitution();
   const [holidays, setHolidays] = useState<Holiday[]>([]);
+  const [hasReadAccess, setHasReadAccess] = useState(true);   // controls empty/locked state
+  const [loading, setLoading] = useState(false);
 
   const [name, setName] = useState("");
   const [startDate, setStartDate] = useState("");
@@ -36,13 +38,48 @@ export default function PublicHolidaysPage() {
   const [editingHoliday, setEditingHoliday] = useState<Holiday | null>(null);
 useEffect(() => {
   fetchHolidays();
-}, []);
+}, [slug]);
+const safeJson = async (res: Response) => {
+  try { return await res.json(); } catch { return null; }
+};
 const fetchHolidays = async () => {
+  if (!slug) return;
+    setLoading(true);
+    try {
   const res = await fetch(`${BaseUrl}/institutions/${slug}/holidays/`, {
     credentials: "include",
-  }); // replace with dynamic ID
+  });
+
+  if (res.status === 401) {
+    setHasReadAccess(false);
+    setHolidays([]);
+    toast.error("Your session expired. Please sign in again.");
+    return;
+  }
+  if (res.status === 403) {
+    setHasReadAccess(false);
+    setHolidays([]);
+    const body = await safeJson(res);
+    toast.error(body?.message ?? "You don’t have permission to view public holidays.");
+    return;
+  }
+  if (!res.ok) {
+    const body = await safeJson(res);
+    throw new Error(body?.message ?? `Failed to load holidays (HTTP ${res.status})`);
+  }
+
   const data = await res.json();
+  if (!Array.isArray(data)) {
+    throw new Error("Unexpected response format.");
+  }
+  setHasReadAccess(true);
   setHolidays(data);
+} catch (err: unknown) {
+  toast.error(err instanceof Error ? err.message : "Couldn't load holidays.");
+  setHolidays([]);
+} finally {
+  setLoading(false);
+}
 };
 const openAddDialog = () => {
   setIsEditing(false);
@@ -93,11 +130,28 @@ const handleDelete = async (id: number) => {
   const confirmed = confirm("Are you sure you want to delete this holiday?");
   if (!confirmed) return;
 
-  const res = await fetch(`http://localhost:5000/api/holidays/${id}`, {
-    method: "DELETE",
-  });
+  try {
+    const res = await fetch(`${BaseUrl}/institutions/${slug}/holidays/${id}`, {
+      method: "DELETE",
+      credentials: "include",
+    });
 
-  if (res.ok) fetchHolidays();
+    if (res.status === 403) {
+      const body = await safeJson(res);
+      toast.error(body?.message ?? "You don't have permission to delete holidays.");
+      return;
+    }
+    if (!res.ok) {
+      const body = await safeJson(res);
+      throw new Error(body?.message ?? "Delete failed.");
+    }
+
+    toast.success("Holiday deleted.");
+    fetchHolidays();
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : "Delete failed.";
+    toast.error(errorMessage);
+  }
 };
   return (
     <div className="container mx-auto p-4 w-full ">
@@ -125,10 +179,18 @@ const handleDelete = async (id: number) => {
             </form>
           </DialogContent>
         </Dialog>
-
       </div>
+
       <Card  className="rounded-lg overflow-hidden">
         <CardContent className="p-5"> 
+        {!hasReadAccess ? (
+            <div className="flex flex-col items-center justify-center py-16 text-center text-muted-foreground">
+              <Lock className="w-8 h-8 mb-3" />
+              <p>You don’t have permission to view public holidays.</p>
+            </div>
+          ) : loading ? (
+            <div className="py-10 text-center text-muted-foreground">Loading…</div>
+          ) : (
           <Table>
             <TableHeader>
               <TableRow>
@@ -166,9 +228,9 @@ const handleDelete = async (id: number) => {
               )}
             </TableBody>
           </Table>
+          )}
         </CardContent>
       </Card>
-      
     </div>
   );
 }
