@@ -120,7 +120,6 @@ const EmployeeDetails = () => {
         return;                        // finally رح يشتغل ويطفي اللودينغ
       }
       
-      const uniqueKey = insRes.data.uniqueKey;
       setInstitutionKey(insRes.data.uniqueKey);
       
       const shiftsResRaw = await fetchTimeShifts(employeeId);
@@ -152,7 +151,7 @@ const EmployeeDetails = () => {
           }),
         }).then(res => res.ok ? res.json() : Promise.reject("Failed to fetch time shift")),
         
-        fetch(`${BaseUrl}/holidays/institution/${uniqueKey}?year=${format(month, "yyyy")}&month=${format(month, "MM")}`)
+        fetch(`${BaseUrl}/institutions/${slug}/holidays?year=${format(month, "yyyy")}&month=${format(month, "MM")}`)
         .then(res => res.ok ? res.json() : Promise.reject("Failed to fetch holidays")),
         fetch(`${BaseUrl}/api/users/personal?employeeId=${employeeId}`).then(res => res.ok ? res.json() : Promise.reject("Failed to fetch employee's name")),
       ]);
