@@ -119,7 +119,7 @@ const OverviewPage = () => {
   
 
   return (
-    <div className="container mx-auto w-full max-w-screen-xl px-3 sm:px-6 overflow-hidden">
+    <div className="container mx-auto w-full max-w-screen-xl px-3 sm: py-10 sm:px-6 overflow-hidden">
       <div>
         <h1 className="text-2xl font-bold mb-4  text-gray-800">Institution Dashboard - Overview</h1>
         <div className="flex justify-between items-center mb-4">
@@ -197,7 +197,7 @@ function AttendanceStatus({ response, loading }: { response: ApiResponse, loadin
   const notLoggedInEmployees = employees.filter(e => !e.loggedIn && e.checkOut == "Not checked out"); // not logged in & not logged out
 
   return (
-    <div className="container mx-auto w-full md:py-10 ">
+    <div className="container mx-auto w-full ">
       {loading ? (
         <div className="flex items-center justify-center h-40">
           <div className="loader"></div>
