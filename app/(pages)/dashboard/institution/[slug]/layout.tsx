@@ -69,7 +69,7 @@ function LayoutBody({ children, slug }: { children: React.ReactNode; slug: strin
         toggleSidebar={toggleSidebar}
       />
 
-      <header className="md:hidden fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-4 py-3 bg-gray-800 text-white">
+      <header className="md:hidden fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-4  bg-gray-800 text-white">
         <h1 className="text-lg font-semibold">Menu</h1>
         <button onClick={toggleSidebar}>
           <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -78,9 +78,9 @@ function LayoutBody({ children, slug }: { children: React.ReactNode; slug: strin
         </button>
       </header>
 
-      {/* {isSidebarOpen && (
+      {isSidebarOpen && (
         <div className="fixed inset-0 bg-black opacity-50 z-30 md:hidden" onClick={toggleSidebar} />
-      )} */}
+      )}
 
       <main className="flex-1 overflow-y-auto min-h-0 bg-gradient-to-br from-slate-50 to-slate-100">
         <div className="w-full px-3 sm:px-6 pt-14 md:pt-6 pb-6">

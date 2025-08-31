@@ -106,12 +106,12 @@ const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ( {activeSecti
   return (
     <div className="flex flex-col md:flex-row h-full bg-gray-100">
       {/* Mobile header */}
-      <header className="md:hidden bg-gray-800 text-white p-4 flex justify-between items-center">
+      {/* <header className="md:hidden bg-gray-800 text-white p-4 flex justify-between items-center">
         <h1 className="text-xl font-bold  text-gray-800">{institution.name}</h1>
-        {/* <button onClick={toggleSidebar} className="text-white focus:outline-none">
+        <button onClick={toggleSidebar} className="text-white focus:outline-none">
           <Menu className="h-6 w-6" />
-        </button> */}
-      </header>
+        </button>
+      </header> */}
 
       {/* Main content */}
       <main className="flex-1 p-2 md:p-4 overflow-y-auto">
