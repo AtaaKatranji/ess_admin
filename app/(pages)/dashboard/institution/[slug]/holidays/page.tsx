@@ -109,20 +109,31 @@ const handleSubmit = async (e: React.FormEvent) => {
     : `${BaseUrl}/institutions/${slug}/holidays`;
 
   const method = isEditing ? "PUT" : "POST";
+  try {
+    const res = await fetch(url, {
+      method,
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
 
-  const res = await fetch(url, {
-    method,
-    credentials: "include",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
+    if (res.status === 403) {
+      const body = await safeJson(res);
+      toast.error(body?.message ?? `You don't have permission to ${isEditing ? "update" : "create"} holidays.`);
+      return;
+    }
+    if (!res.ok) {
+      const body = await safeJson(res);
+      throw new Error(body?.message ?? "Something went wrong.");
+    }
 
-  if (res.ok) {
-    fetchHolidays();
+    toast.success(`Holiday ${isEditing ? "updated" : "created"} successfully.`);
     setIsDialogOpen(false);
     setEditingHoliday(null);
-  } else {
-    alert("Something went wrong");
+    fetchHolidays();
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : "Something went wrong.";
+    toast.error(errorMessage);
   }
 };
 
