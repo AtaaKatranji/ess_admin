@@ -268,8 +268,8 @@ export function AdminDashboard() {
 
   return (
     <div className="container mx-auto px-3 sm:px-6 py-4 space-y-6 ">
-      {/* SVG background code */}
-      <div className="pointer-events-none fixed inset-0 -z-10">
+       {/* SVG background code */}
+       <div className="pointer-events-none fixed inset-0 -z-10">
           <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
             <defs>
               {/* Soft diagonal gradient */}
