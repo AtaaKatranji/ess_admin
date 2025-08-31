@@ -217,15 +217,15 @@ export  const deleteBreak = async (breakId: string) => {
     }
   };
 
-export const fetchShiftReport = async (shiftId: string, month: string, institutionKey: string) => {
+export const fetchShiftReport = async (shiftId: string, month: string, orgSlug: string) => {
   try {
-    const response = await fetch(`${BaseUrl}/shifts/summary`, {
+    const response = await fetch(`${BaseUrl}/institutions/${orgSlug}/shifts/summary`, {
       method: 'POST',
       credentials: "include",
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({shiftId, month, institutionKey}), // Wrap in an object
+      body: JSON.stringify({shiftId, month}), // Wrap in an object
     });
 
     if (!response.ok) {
