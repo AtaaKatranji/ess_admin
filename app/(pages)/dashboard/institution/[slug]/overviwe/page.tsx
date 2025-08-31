@@ -1,7 +1,8 @@
 'use client'
 
 import {   useEffect, useState } from 'react'
-
+import { useRouter } from "next/navigation";
+import { CalendarClock, RefreshCw } from "lucide-react";
 
 //import { Toaster } from '@/components/ui/sonner'; // or your notification library
 import { Button } from "@/components/ui/button"
@@ -57,11 +58,16 @@ interface ApiResponse {
 const OverviewPage = () => {
   const { slug } = useInstitution(); 
   const [shifts, setShifts] = useState<Shift[]>([]);
-  const [selectedShift, setSelectedShift] = useState<Shift | undefined>(); // Start as undefined
+  const [selectedShift, setSelectedShift] = useState<Shift | null>(); // Start as undefined
   const [viewMode, setViewMode] = useState('daily');
   const [attendanceData, setAttendanceData] = useState<ApiResponse>({ data: [], message: '' });
   const [loading, setLoading] = useState(true);
- 
+  const [loadingShifts, setLoadingShifts] = useState(false);
+  // optional if you do permission gating
+  //const [canCreateShift, setCanCreateShift] = useState(true); // wire from your caps endpoint if you have one
+  
+  const router = useRouter();
+  const shiftsHref = slug ? `/dashboard/institution/${slug}/shifts` : "/";
   const socket = useSocket();
   useEffect(() => {
     const fetchAndSetShifts = async () => {
@@ -70,12 +76,13 @@ const OverviewPage = () => {
         
         const data = await fetchShifts(slug);
 
-        setShifts(data);
-        if (data.length > 0) {
-          setSelectedShift(data[0]);
-        }
+          setShifts(Array.isArray(data) ? data : []);
+          setSelectedShift((prev) => prev ?? (Array.isArray(data) && data[0] ? data[0] : null));
+        
       } catch (err) {
         console.error("Error fetching shifts:", err);
+      } finally {
+        setLoadingShifts(false);
       }
     };
     fetchAndSetShifts();
@@ -117,7 +124,42 @@ const OverviewPage = () => {
   
   }, [selectedShift, socket]);
   
-
+  useEffect(() => {
+    if (shifts.length > 0 && !selectedShift) setSelectedShift(shifts[0]);
+    if (shifts.length === 0) setSelectedShift(null);
+  }, [shifts]);
+  function EmptyShiftsState({
+    href,
+    onRefresh,
+    //canCreate,canCreate: boolean
+  }: { href: string; onRefresh: () => void;  }) {
+    return (
+      <Card className="flex flex-col items-center text-center py-16">
+        <CalendarClock className="h-10 w-10 mb-3 text-gray-500" />
+        <h3 className="text-lg font-semibold mb-1">No shifts yet</h3>
+        <p className="text-sm text-muted-foreground max-w-md">
+          Create your first shift to start tracking attendance and time sheets.
+        </p>
+        <div className="mt-5 flex gap-2">
+          <Button
+            onClick={() => router.push(href)}
+            //disabled={!canCreate}
+            //title={canCreate ? undefined : "You don't have permission to create shifts"}
+          >
+            Create a Shift
+          </Button>
+          <Button variant="outline" onClick={onRefresh}>
+            <RefreshCw className="h-4 w-4 mr-2" /> Refresh
+          </Button>
+        </div>
+        {/* {!canCreate && (
+          <p className="mt-2 text-xs text-muted-foreground">
+            Don’t have access? Contact an administrator.
+          </p>
+        )} */}
+      </Card>
+    );
+  }
   return (
     <div className="container mx-auto w-full max-w-screen-xl px-3 sm: py-10 sm:px-6 overflow-hidden">
       <div>
@@ -149,12 +191,19 @@ const OverviewPage = () => {
           </div>
         </div>
       </div>
-
+      {loadingShifts ? (
+      <Card className="p-10 text-center text-muted-foreground">Loading shifts…</Card>
+    ) : shifts.length === 0 ? (
+      <EmptyShiftsState
+        href={shiftsHref}         // e.g. /dashboard/institution/[slug]/shifts
+        onRefresh={() => {/* call your fetchShifts() here */}}
+        //canCreate={canCreateShift}
+      />
+    ) : (
+      // your existing grid when shifts exist
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card className="md:col-span-1">
-          <CardHeader>
-          <h2 className="text-xl font-semibold">Attendance Status</h2>
-          </CardHeader>
+          <CardHeader><h2 className="text-xl font-semibold">Attendance Status</h2></CardHeader>
           <CardContent>
             <AttendanceStatus response={attendanceData} loading={loading} />
           </CardContent>
@@ -164,13 +213,13 @@ const OverviewPage = () => {
           <CardHeader>
             <h2 className="text-xl font-semibold min-h-[24px]">Time Sheet</h2>
             <div className="flex items-center space-x-2">
-              <Search className="h-4 w-4  text-gray-600" />
+              <Search className="h-4 w-4 text-gray-600" />
               <Input placeholder="Search employees..." className="max-w-sm" />
             </div>
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="daily" value={viewMode}>
-              <TabsList className="grid w-full grid-cols-2 ">
+              <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="daily">Daily View</TabsTrigger>
                 <TabsTrigger value="weekly">Weekly View</TabsTrigger>
               </TabsList>
@@ -184,9 +233,9 @@ const OverviewPage = () => {
           </CardContent>
         </Card>
       </div>
-    </div>
-  );
-};
+    )}
+  </div>
+);
 
 
 function AttendanceStatus({ response, loading }: { response: ApiResponse, loading: boolean }) {
@@ -282,7 +331,7 @@ function AttendanceStatus({ response, loading }: { response: ApiResponse, loadin
     </div>
   );
 }
-
+}
 
 function DailyTimeSheet({ employees }: { employees: Employee[] }) {
   return (
