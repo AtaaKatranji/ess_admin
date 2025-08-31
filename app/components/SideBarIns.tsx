@@ -204,7 +204,7 @@ const SidebarIns: React.FC<SidebarProps> = ({
                   : "justify-center bg-transparent hover:bg-blue-600/10 text-white"
               }`}
           >
-            <SquareArrowLeftIcon className="h-5 w-5" />
+            <SquareArrowLeftIcon className={`h-5 w-5 shrink-0 ${showText ? "mr-2" : ""}`} />
             {showText && <span>Exit Institution</span>}
           </button>
         </div>
