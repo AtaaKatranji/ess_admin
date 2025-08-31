@@ -104,7 +104,7 @@ const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ( {activeSecti
   }
 
   return (
-    <div className="flex flex-col md:flex-row h-full bg-gray-100">
+    <>
       {/* Mobile header */}
       {/* <header className="md:hidden bg-gray-800 text-white p-4 flex justify-between items-center">
         <h1 className="text-xl font-bold  text-gray-800">{institution.name}</h1>
@@ -114,10 +114,10 @@ const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ( {activeSecti
       </header> */}
 
       {/* Main content */}
-      <main className="flex-1 p-2 md:p-4 overflow-y-auto">
+      
         
         {renderContent()}
-      </main>
+    
 
       {/* Forbidden dialog */}
     <ForbiddenDialog
@@ -127,7 +127,7 @@ const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ( {activeSecti
       institutionNameOrSlug={slug}
       backHref="/ins"
     />
-    </div>
+    </>
   );
 };
 
