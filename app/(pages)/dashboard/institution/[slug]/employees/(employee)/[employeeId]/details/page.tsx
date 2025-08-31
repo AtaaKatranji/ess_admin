@@ -151,7 +151,7 @@ const EmployeeDetails = () => {
           }),
         }).then(res => res.ok ? res.json() : Promise.reject("Failed to fetch time shift")),
         
-        fetch(`${BaseUrl}/institutions/${slug}/holidays?year=${format(month, "yyyy")}&month=${format(month, "MM")}`)
+        fetch(`${BaseUrl}/institutions/${slug}/holidays?year=${format(month, "yyyy")}&month=${format(month, "MM")}`,{credentials: "include"}).then(res => res.ok ? res.json() : Promise.reject("Failed to fetch holidays")),
         .then(res => res.ok ? res.json() : Promise.reject("Failed to fetch holidays")),
         fetch(`${BaseUrl}/api/users/personal?employeeId=${employeeId}`).then(res => res.ok ? res.json() : Promise.reject("Failed to fetch employee's name")),
       ]);
