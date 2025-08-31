@@ -11,7 +11,7 @@ export interface Shift {
           end: string;
         };
       };
-    institutionKey: string;
+    institutionId: number;
     employees?: Employee[];
     lateLimit: number;
     lateMultiplier: number;

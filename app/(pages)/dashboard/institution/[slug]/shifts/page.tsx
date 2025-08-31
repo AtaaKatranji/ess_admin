@@ -272,7 +272,7 @@ const editBreakType = (breakType: Break) => {
 
 
   return (
-    !institutionKey ? (
+    !slug ? (
       <div className="p-6 text-gray-600">
         Please select an institution first (missing institutionKey).
       </div>
@@ -286,7 +286,7 @@ const editBreakType = (breakType: Break) => {
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
         <h1 className="text-2xl font-bold mb-4  text-gray-800">Shift Management</h1>
         <div className="flex gap-2">
-        <Button type="button"  className='bg-gray-800'  onClick={() => { 
+        <Button type="button"  className='bg-primary'  onClick={() => { 
           setEditingShift(null);
           setDialogOpen(true);
           }}>
@@ -294,7 +294,7 @@ const editBreakType = (breakType: Break) => {
           Add Shift
         </Button>
  
-        <Button type="button" className='bg-gray-800' onClick={() => { 
+        <Button type="button" className='bg-primary' onClick={() => { 
           console.log("show reports out", showReports);
           setShowReports(true);
           }}>
@@ -310,7 +310,7 @@ const editBreakType = (breakType: Break) => {
           isEditing={!!editingShift}
           shift={editingShift}
           onSave={ handleSave}
-          institutionKey={institutionKey} />
+          />
         
       
       <Card className="mb-8">
@@ -371,7 +371,7 @@ const editBreakType = (breakType: Break) => {
         {shifts.length === 0 ? (
          <Card className="flex flex-col items-center text-center py-16">
          <CalendarClock className="h-10 w-10 mb-3 text-gray-500" />
-         <h3 className="text-lg font-semibold mb-1">No shifts yet</h3>
+         <h3 className="text-lg font-semibold mb-1 text-primary">No shifts yet</h3>
          <p className="text-sm text-muted-foreground max-w-md">
            Create your first shift to start tracking attendance and time sheets.
          </p>
@@ -387,7 +387,7 @@ const editBreakType = (breakType: Break) => {
              Create a Shift
            </Button>
            <Button variant="outline" onClick={() => fetchShi()}>
-             <RefreshCw className="h-4 w-4 mr-2" /> Refresh
+             <RefreshCw className="h-4 w-4 mr-2 text-primary" /> Refresh
            </Button>
          </div>
          {/* {!canCreate && (

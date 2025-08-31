@@ -28,9 +28,8 @@ type ShiftFormProps = {
   isEditing: boolean
   shift?: Shift | null
   onSave : (shift: Shift) => void
-  institutionKey: string
 }
-export default function ShiftForm({open, onOpenChange, isEditing, shift, onSave , institutionKey }: ShiftFormProps){
+export default function ShiftForm({open, onOpenChange, isEditing, shift, onSave  }: ShiftFormProps){
   const initialShift = {
     name: "",
     mode: "standard",
@@ -43,7 +42,7 @@ export default function ShiftForm({open, onOpenChange, isEditing, shift, onSave 
     lateLimit: 1,
     extraLimit: 1,
     breaks: [],
-    institutionKey: institutionKey,
+    institutionId: 0,
     isDirty: false,
   }
 
