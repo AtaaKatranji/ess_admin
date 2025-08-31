@@ -57,8 +57,8 @@ const SidebarIns: React.FC<SidebarProps> = ({
   };
 
   const itemBase =
-    "flex items-center gap-2 py-2 px-4 rounded-lg transition-colors text-slate-200";
-  const itemLayout = showText ? "flex-row justify-start" : "md:flex-col md:justify-center";
+    "group flex items-center gap-2 py-2 px-4 rounded-lg transition-colors text-slate-200";
+    const itemLayout = "flex-row";
   const itemClasses = (href: string, exact = false) =>
     `${itemBase} ${itemLayout} ${
       isActive(href, exact) ? "bg-blue-600 text-white" : "hover:bg-blue-600/10"
@@ -110,7 +110,7 @@ const SidebarIns: React.FC<SidebarProps> = ({
             className={itemClasses(`/dashboard/institution/${slug}/`, true)}
             onClick={onNavItemClick}
           >
-            <Home className="mr-2 h-5 w-5" />
+            <Home className={`h-5 w-5 shrink-0 ${showText ? "mr-2" : ""}`} />
             {showText && <span className="truncate">Overview</span>}
           </Link>
 
@@ -120,7 +120,7 @@ const SidebarIns: React.FC<SidebarProps> = ({
               className={itemClasses(`/dashboard/institution/${slug}/employees`, false)}
               onClick={onNavItemClick}
             >
-              <Users className="mr-2 h-5 w-5" />
+              <Users className={`h-5 w-5 shrink-0 ${showText ? "mr-2" : ""}`} />
               {showText && <span className="truncate">Employees</span>}
             </Link>
 
@@ -136,8 +136,8 @@ const SidebarIns: React.FC<SidebarProps> = ({
                       }`}
                       onClick={onNavItemClick}
                     >
-                      <span className="hidden lg:inline">{subItem.label}</span>
-                      <span className="sr-only lg:not-sr-only">{subItem.label}</span>
+                       {showText && <span>{subItem.label}</span>}
+                       {!showText && <span className="sr-only">{subItem.label}</span>}
                     </Link>
                   </li>
                 ))}
@@ -150,7 +150,7 @@ const SidebarIns: React.FC<SidebarProps> = ({
             className={itemClasses(`/dashboard/institution/${slug}/shifts`, false)}
             onClick={onNavItemClick}
           >
-            <Table className="mr-2 h-5 w-5" />
+            <Table className={`h-5 w-5 shrink-0 ${showText ? "mr-2" : ""}`} />
             {showText && <span className="truncate">Shifts</span>}
           </Link>
 
@@ -159,7 +159,7 @@ const SidebarIns: React.FC<SidebarProps> = ({
             className={itemClasses(`/dashboard/institution/${slug}/requests`, false)}
             onClick={onNavItemClick}
           >
-            <FileText className="mr-2 h-5 w-5" />
+            <FileText className={`h-5 w-5 shrink-0 ${showText ? "mr-2" : ""}`} />
             {showText && <span className="truncate">Requests</span>}
           </Link>
 
@@ -168,7 +168,7 @@ const SidebarIns: React.FC<SidebarProps> = ({
             className={itemClasses(`/dashboard/institution/${slug}/holidays`, false)}
             onClick={onNavItemClick}
           >
-            <CalendarDaysIcon className="mr-2 h-5 w-5" />
+            <CalendarDaysIcon className={`h-5 w-5 shrink-0 ${showText ? "mr-2" : ""}`} />
             {showText && <span className="truncate">Holidays</span>}
           </Link>
 
@@ -177,7 +177,7 @@ const SidebarIns: React.FC<SidebarProps> = ({
             className={itemClasses(`/dashboard/institution/${slug}/notifications`, false)}
             onClick={onNavItemClick}
           >
-            <Bell className="mr-2 h-5 w-5" />
+            <Bell className={`h-5 w-5 shrink-0 ${showText ? "mr-2" : ""}`} />
             {showText && <span className="truncate">Notifications</span>}
           </Link>
 
@@ -186,7 +186,7 @@ const SidebarIns: React.FC<SidebarProps> = ({
             className={itemClasses(`/dashboard/institution/${slug}/settings`, false)}
             onClick={onNavItemClick}
           >
-            <Settings className="mr-2 h-5 w-5" />
+            <Settings className={`h-5 w-5 shrink-0 ${showText ? "mr-2" : ""}`} />
             {showText && <span className="truncate">Settings</span>}
           </Link>
         </nav>
