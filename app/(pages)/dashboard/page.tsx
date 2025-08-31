@@ -2,7 +2,7 @@ import { AdminDashboard } from "@/app/components/admin-dashboard"
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
         {/* SVG background code */}
         <div className="pointer-events-none fixed inset-0 -z-10">
           <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
