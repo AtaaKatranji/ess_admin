@@ -132,7 +132,7 @@ const EmployeeDetails = () => {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ userId: employeeId, date:formattedMonth }),
         }).then(res => res.ok ? res.json() : Promise.reject("Failed to fetch total hours")),
-        fetch(`${BaseUrl}/leaves/month?userId=${employeeId}&month=${month.getMonth()+1}`, {
+        fetch(`${BaseUrl}/institutions/${slug}/leaves/month?userId=${employeeId}&month=${month.getMonth()+1}`, {
           method: "GET",
           headers: { "Content-Type": "application/json" },
           credentials : "include",
