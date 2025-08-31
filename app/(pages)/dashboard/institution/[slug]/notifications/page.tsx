@@ -15,7 +15,7 @@ import { sendNotifiy } from "@/app/api/notifications/notification-api"
 import { useInstitution } from "@/app/context/InstitutionContext"
 
 export default function NotificationPage() {
-  const { institutionKey } = useInstitution()
+  const { slug } = useInstitution()
   const [shifts, setShifts] = useState<Shift[]>([])
   const [selectedShiftId, setSelectedShiftId] = useState("")
   const [message, setMessage] = useState("")
@@ -27,11 +27,11 @@ export default function NotificationPage() {
   const maxMessageLength = 500
 
   useEffect(() => {
-    if (!institutionKey) return
+    if (!slug) return
     const loadShifts = async () => {
       try {
         setShiftsLoading(true)
-        const data = await fetchShifts(institutionKey)
+        const data = await fetchShifts(slug)
         setShifts(data)
       } catch {
         toast.error("Failed to load shifts")
@@ -40,10 +40,10 @@ export default function NotificationPage() {
       }
     }
 
-    if (institutionKey) {
+    if (slug) {
       loadShifts()
     }
-  }, [institutionKey])
+  }, [slug])
 
   const selectedShift = shifts.find((shift) => shift.id === selectedShiftId)
 
