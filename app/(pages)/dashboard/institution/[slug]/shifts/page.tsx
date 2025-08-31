@@ -282,7 +282,7 @@ const editBreakType = (breakType: Break) => {
       <ShiftReport open={showReports} onOpenChange={setShowReports} institutionKey={slug} shiftId={shifts[0].id!} />
     ) : (
       <div>
-      <div className='flex justify-between'>
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
         <h1 className="text-2xl font-bold mb-4  text-gray-800">Shift Management</h1>
         <div className="flex gap-2">
         <Button type="button"  className='bg-gray-800'  onClick={() => { 
