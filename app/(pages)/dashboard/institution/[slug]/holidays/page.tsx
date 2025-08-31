@@ -38,7 +38,9 @@ useEffect(() => {
   fetchHolidays();
 }, []);
 const fetchHolidays = async () => {
-  const res = await fetch(`${BaseUrl}/institutions/${slug}/holidays/`); // replace with dynamic ID
+  const res = await fetch(`${BaseUrl}/institutions/${slug}/holidays/`, {
+    credentials: "include",
+  }); // replace with dynamic ID
   const data = await res.json();
   setHolidays(data);
 };
@@ -73,6 +75,7 @@ const handleSubmit = async (e: React.FormEvent) => {
 
   const res = await fetch(url, {
     method,
+    credentials: "include",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
