@@ -279,7 +279,7 @@ const editBreakType = (breakType: Break) => {
     <div className="container mx-auto p-4">
       <ToastContainer />
       {showReports ? (
-      <ShiftReport open={showReports} onOpenChange={setShowReports} institutionKey={institutionKey} shiftId={shifts[0].id!} />
+      <ShiftReport open={showReports} onOpenChange={setShowReports} institutionKey={slug} shiftId={shifts[0].id!} />
     ) : (
       <div>
       <div className='flex justify-between'>
