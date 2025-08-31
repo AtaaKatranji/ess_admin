@@ -78,9 +78,9 @@ function LayoutBody({ children, slug }: { children: React.ReactNode; slug: strin
         </button>
       </header>
 
-      {isSidebarOpen && (
+      {/* {isSidebarOpen && (
         <div className="fixed inset-0 bg-black opacity-50 z-30 md:hidden" onClick={toggleSidebar} />
-      )}
+      )} */}
 
       <main className="flex-1 overflow-y-auto min-h-0 bg-gradient-to-br from-slate-50 to-slate-100">
         <div className="w-full px-3 sm:px-6 pt-14 md:pt-6 pb-6">
