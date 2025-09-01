@@ -33,7 +33,15 @@ const SettingsPage: React.FC = () => {
   const [inputName, setInputName] = useState('');
   const nameCheckTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const reqIdRef = useRef(0); // لمنع السباقات (race conditions)
-
+  
+  const [attendanceSettings, setAttendanceSettings] = useState({
+    graceLateMin: 0,
+    absentAfterMin: 0,
+    earlyLeaveGraceMin: 0,
+    checkInWindowBeforeMin: 0,
+    checkInWindowAfterMin: 0,
+  })
+  const [isEditingAttendance, setIsEditingAttendance] = useState(false)
  
   useEffect(() => {
     let mounted = true;
@@ -417,20 +425,31 @@ const handleCheckName = () => {
   }, 600); // debounce 600ms (عدّلها لو بدك)
 };
 
-  const confirmDeletion = async () => {
-    if (!institutionInfo) {
-      toast.error('No institution loaded.');
-      return;
-    }
-    const expected = (institutionInfo.name ?? '').trim();
-    const provided = (inputName ?? '').trim();
-    if (provided !== expected) {
-      toast.error('Name does not match. Please type the exact institution name to confirm.');
-      return;
-    }
-    await handleDelete(); 
-    };
+const confirmDeletion = async () => {
+  if (!institutionInfo) {
+    toast.error('No institution loaded.');
+    return;
+  }
+  const expected = (institutionInfo.name ?? '').trim();
+  const provided = (inputName ?? '').trim();
+  if (provided !== expected) {
+    toast.error('Name does not match. Please type the exact institution name to confirm.');
+    return;
+  }
+  await handleDelete(); 
+  };
 
+const handleSaveAttendanceSettings = async () => {
+  try {
+    setIsLoading(true)
+    console.log("Saving attendance settings:", attendanceSettings)
+    setIsEditingAttendance(false)
+  } catch (error) {
+    console.error("Error saving attendance settings:", error)
+  } finally {
+    setIsLoading(false)
+  }
+}
 
   if (isLoading) {
     return <div className="flex items-center justify-center">Loading…</div>;
@@ -591,6 +610,45 @@ const handleCheckName = () => {
         </button>
       </div>
     </div>
+{/* Check In Window After Minutes */}
+<div>
+  <label className="block text-sm font-medium text-gray-700 mb-1">
+    Check In Window After (Minutes)
+  </label>
+  {isEditingAttendance ? (
+    <input
+      type="number"
+      min="0"
+      value={attendanceSettings.checkInWindowAfterMin}
+      onChange={(e) =>
+        setAttendanceSettings({
+          ...attendanceSettings,
+          checkInWindowAfterMin: Number.parseInt(e.target.value) || 0,
+        })
+      }
+      className="w-full px-4 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+    />
+  ) : (
+    <p className="bg-gray-100 px-4 py-2 rounded-md text-sm text-gray-800">
+      {attendanceSettings.checkInWindowAfterMin} minutes
+    </p>
+  )}
+</div>
+
+{/* Save Button */}
+{isEditingAttendance && (
+  <div className="pt-4">
+    <button
+      onClick={handleSaveAttendanceSettings}
+      className="w-full sm:w-auto px-6 py-3 bg-green-600 text-white text-sm font-medium rounded-md hover:bg-green-700"
+    >
+      <div className="flex items-center justify-center">
+        <Save className="w-4 h-4 mr-2" />
+        Save Attendance Settings
+      </div>
+    </button>
+  </div>
+)}
 
       {/* Delete Institution Section */}
       <div className="m-6 p-6 bg-white rounded-xl shadow-md space-y-4">
