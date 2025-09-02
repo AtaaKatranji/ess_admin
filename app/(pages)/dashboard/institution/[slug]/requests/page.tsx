@@ -5,13 +5,14 @@ import { LeaveRequestCard } from "@/app/components/leave-request-card"
 import { HourlyLeaveCard } from "@/app/components/hourly-leave-card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Input } from "@/components/ui/input"
-import { Search,Clock, Calendar as LucideCalendar } from "lucide-react"
+import { Search,Clock, Calendar as LucideCalendar, AlertCircle } from "lucide-react"
 import { Calendar } from "@/components/ui/calendar"
 import { useSSE } from "@/app/context/SSEContext"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
  
 import { Button } from "@/components/ui/button"
 import { useInstitution } from "@/app/context/InstitutionContext"
+import { toast } from "react-toastify"
 
 
 
@@ -57,6 +58,7 @@ export default function LeaveRequestsPage() {
   // const [expandedRequest, setExpandedRequest] = useState<string | null>(null);
   // const [expandedHourlyLeave, setExpandedHourlyLeave] = useState<string | null>(null);
   const { notificationsHourly, notificationsLeave } = useSSE();
+  const [allowed, setAllowed] = useState<boolean | null>(null);
 
   const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
   const orgApi = useMemo(() => {
@@ -83,6 +85,17 @@ export default function LeaveRequestsPage() {
         headers: { "Content-Type": "application/json" },
         cache: "no-store",
       });
+      if (response?.status === 401) {
+        toast.error("You are not authenticated. Please sign in.");
+        return;
+      }
+      if (response?.status === 403) {
+        const data = await response?.json().catch(() => ({}));
+        const msg = data?.message || "You do not have permission to send notifications.";
+        setAllowed(false); // عطّل الواجهة لاحقًا
+        toast.error(msg);
+        return;
+      }
       if (!response.ok) throw new Error("Failed to fetch leave requests");
       const data = await response.json();
       setRequests(Array.isArray(data) ? data : []);
@@ -100,6 +113,17 @@ export default function LeaveRequestsPage() {
         headers: { "Content-Type": "application/json" },
         cache: "no-store",
       });
+      if (response?.status === 401) {
+        toast.error("You are not authenticated. Please sign in.");
+        return;
+      }
+      if (response?.status === 403) {
+        const data = await response?.json().catch(() => ({}));
+        const msg = data?.message || "You do not have permission to send notifications.";
+        setAllowed(false); // عطّل الواجهة لاحقًا
+        toast.error(msg);
+        return;
+      }
       if (!response.ok) throw new Error("Failed to fetch hourly leaves");
       const data = await response.json();
       setHourlyLeaves(Array.isArray(data.data) ? data.data : []);
@@ -210,7 +234,20 @@ const filteredHourlyLeaves = useMemo(() =>
   const rejectedHourlyLeaves = useMemo(() =>
     filteredHourlyLeaves.filter(leave => leave.breakDetails.status === "Rejected"), [filteredHourlyLeaves]
   );
-
+  const banner =
+  allowed === false ? (
+    <div className="mb-6 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-amber-800">
+      <div className="flex items-start gap-2">
+        <AlertCircle className="h-5 w-5 mt-0.5" />
+        <div>
+          <div className="font-semibold">Permission required</div>
+          <div className="text-sm">
+            Your account doesn’t have <code className="px-1 py-0.5 bg-white rounded border">notification.send</code>. Ask an admin to grant this permission or assign a role that includes it.
+          </div>
+        </div>
+      </div>
+    </div>
+  ) : null;
 return (
   <div className="container min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
     <div className="mb-8">
@@ -218,7 +255,7 @@ return (
       <p className="text-slate-600">Manage and review employee leave requests</p>
     </div>
     {/* Search and Filter Section */}
-
+    {banner}
     <div className="w-full bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
     <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
             <div className="relative flex-1">
