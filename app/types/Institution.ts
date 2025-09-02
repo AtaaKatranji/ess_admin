@@ -13,9 +13,10 @@ export type InstitutionInfo = {
   address: string;
   uniqueKey: string;
   macAddresses: WifiEntry[];
-  createdAt: string; // or Date if you parse it
+  createdAt: string;
   updatedAt: string;
   image: string | null;
+  settings: Record<string, string>; 
 };
 
 type RawInstitution = Omit<InstitutionInfo, "macAddresses"> & {

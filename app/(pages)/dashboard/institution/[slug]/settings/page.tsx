@@ -10,6 +10,7 @@ import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, Dialog
 import { Input } from '@/components/ui/input';
 import { InstitutionInfo, normalizeMacAddress, normalizeMacList, WifiEntry } from '@/app/types/Institution';
 import { ApiFailure, ApiSuccess } from '@/app/lib/api';
+import AttendanceSettingsCard from '@/app/components/AttendanceSettingsCard';
 
 
 
@@ -34,13 +35,6 @@ const SettingsPage: React.FC = () => {
   const nameCheckTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const reqIdRef = useRef(0); // لمنع السباقات (race conditions)
   
-  const [attendanceSettings, setAttendanceSettings] = useState({
-    graceLateMin: 0,
-    absentAfterMin: 0,
-    earlyLeaveGraceMin: 0,
-    checkInWindowBeforeMin: 0,
-    checkInWindowAfterMin: 0,
-  })
   const [isEditingAttendance, setIsEditingAttendance] = useState(false)
  
   useEffect(() => {
@@ -67,6 +61,7 @@ const SettingsPage: React.FC = () => {
   
         setInstitutionInfo(res.data);
         setInitialName(res.data.name);
+        
       } catch {
         if (!mounted) return;
         toast.error("Network error while loading institution.");
@@ -298,8 +293,6 @@ const SettingsPage: React.FC = () => {
       setInstitutionInfo(snapshot);
     }
   };
-  
-
   const handleGenerateNewKey = async () => {
     if (!institutionInfo) {
       toast.error("Missing institution info");
@@ -321,135 +314,140 @@ const SettingsPage: React.FC = () => {
       setIsGenLoading(false);
     }
   };
-
-  
-
-const handleDelete = async () => {
-  if (!institutionInfo) {
-    toast.error('Missing institution info');
-    return;
-  }
-  if (!institutionInfo.adminId) {
-    toast.error('Cannot delete: Admin ID is missing.');
-    return;
-  }
-
-  setDeleteLoading(true);
-
-  try {
-    const res = await deleteInstitutionInfo(institutionInfo.slug);
-
-    if (!res.ok) {
-      toast.error(res.data?.message ?? `Failed (HTTP ${res.status})`);
+  const handleDelete = async () => {
+    if (!institutionInfo) {
+      toast.error('Missing institution info');
+      return;
+    }
+    if (!institutionInfo.adminId) {
+      toast.error('Cannot delete: Admin ID is missing.');
       return;
     }
 
-    toast.success(res.data?.message || 'Institution deleted successfully');
+    setDeleteLoading(true);
 
-    // لو حابب تنتظر 1.2s لعرض التوست
-    // await new Promise(r => setTimeout(r, 1200));
-
-    router.push(`/dashboard?adminId=${institutionInfo.adminId}`);
-  } catch (error) {
-    console.error('Error during deletion:', error);
-    toast.error(error instanceof Error ? error.message : 'Failed to delete institution.');
-  } finally {
-    setDeleteLoading(false);
-  }
-};
-
-
-const handleCheckName = () => {
-  if (!institutionInfo) {
-    setIsNameTaken(null);
-    setErrorName('');
-    return;
-  }
-
-  const name = (institutionInfo.name ?? '').trim();
-  const current = (initialName ?? '').trim();
-
-  // ما في اسم أو ما تغيّر
-  if (!name || name === current) {
-    setIsNameTaken(null);
-    setErrorName('');
-    if (nameCheckTimeoutRef.current) clearTimeout(nameCheckTimeoutRef.current);
-    return;
-  }
-
-  // الغِ أي تايمر سابق
-  if (nameCheckTimeoutRef.current) clearTimeout(nameCheckTimeoutRef.current);
-
-  setLoading(true);
-
-  const myReqId = ++reqIdRef.current; // رقم طلب لهالدعوة
-  nameCheckTimeoutRef.current = setTimeout(async () => {
     try {
-      // احتمال تكون الدالة القديمة:
-      //   (name: string, adminId: number) => Promise<boolean | string>
-      // أو الجديدة:
-      //   Promise<ApiSuccess<{exists:boolean}> | ApiFailure>
-      const res = await checkNameExists(name, institutionInfo.adminId);
+      const res = await deleteInstitutionInfo(institutionInfo.slug);
 
-      // تجاهل النتيجة إذا صار طلب أحدث بعده
-      if (myReqId !== reqIdRef.current) return;
-
-      if (typeof res === 'boolean') {
-        setIsNameTaken(res);
-        setErrorName('');
-      } else if (typeof res === 'string') {
-        setIsNameTaken(null);
-        setErrorName(res);
-      } else if (res && typeof res === 'object' && 'ok' in res) {
-        // نمط الاتحاد ApiResult
-        const r = res as ApiSuccess<{ exists: boolean }> | ApiFailure;
-        if (!r.ok) {
-          setIsNameTaken(null);
-          setErrorName(r.data?.message ?? `Failed (HTTP ${r.status})`);
-        } else {
-          setIsNameTaken(r.data.exists);
-          setErrorName('');
-        }
-      } else {
-        // fallback
-        setIsNameTaken(null);
-        setErrorName('Unexpected response');
+      if (!res.ok) {
+        toast.error(res.data?.message ?? `Failed (HTTP ${res.status})`);
+        return;
       }
-    } catch {
-      setIsNameTaken(null);
-      setErrorName('Error checking name availability');
+
+      toast.success(res.data?.message || 'Institution deleted successfully');
+
+      // لو حابب تنتظر 1.2s لعرض التوست
+      // await new Promise(r => setTimeout(r, 1200));
+
+      router.push(`/dashboard?adminId=${institutionInfo.adminId}`);
+    } catch (error) {
+      console.error('Error during deletion:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to delete institution.');
     } finally {
-      // تجاهل إطفاء اللودينغ لو تم تجاوزه بطلب أحدث
-      if (myReqId === reqIdRef.current) setLoading(false);
+      setDeleteLoading(false);
     }
-  }, 600); // debounce 600ms (عدّلها لو بدك)
-};
-
-const confirmDeletion = async () => {
-  if (!institutionInfo) {
-    toast.error('No institution loaded.');
-    return;
-  }
-  const expected = (institutionInfo.name ?? '').trim();
-  const provided = (inputName ?? '').trim();
-  if (provided !== expected) {
-    toast.error('Name does not match. Please type the exact institution name to confirm.');
-    return;
-  }
-  await handleDelete(); 
   };
+  const handleCheckName = () => {
+    if (!institutionInfo) {
+      setIsNameTaken(null);
+      setErrorName('');
+      return;
+    }
 
-const handleSaveAttendanceSettings = async () => {
-  try {
-    setIsLoading(true)
-    console.log("Saving attendance settings:", attendanceSettings)
-    setIsEditingAttendance(false)
-  } catch (error) {
-    console.error("Error saving attendance settings:", error)
-  } finally {
-    setIsLoading(false)
+    const name = (institutionInfo.name ?? '').trim();
+    const current = (initialName ?? '').trim();
+
+    // ما في اسم أو ما تغيّر
+    if (!name || name === current) {
+      setIsNameTaken(null);
+      setErrorName('');
+      if (nameCheckTimeoutRef.current) clearTimeout(nameCheckTimeoutRef.current);
+      return;
+    }
+
+    // الغِ أي تايمر سابق
+    if (nameCheckTimeoutRef.current) clearTimeout(nameCheckTimeoutRef.current);
+
+    setLoading(true);
+
+    const myReqId = ++reqIdRef.current; // رقم طلب لهالدعوة
+    nameCheckTimeoutRef.current = setTimeout(async () => {
+      try {
+        // احتمال تكون الدالة القديمة:
+        //   (name: string, adminId: number) => Promise<boolean | string>
+        // أو الجديدة:
+        //   Promise<ApiSuccess<{exists:boolean}> | ApiFailure>
+        const res = await checkNameExists(name, institutionInfo.adminId);
+
+        // تجاهل النتيجة إذا صار طلب أحدث بعده
+        if (myReqId !== reqIdRef.current) return;
+
+        if (typeof res === 'boolean') {
+          setIsNameTaken(res);
+          setErrorName('');
+        } else if (typeof res === 'string') {
+          setIsNameTaken(null);
+          setErrorName(res);
+        } else if (res && typeof res === 'object' && 'ok' in res) {
+          // نمط الاتحاد ApiResult
+          const r = res as ApiSuccess<{ exists: boolean }> | ApiFailure;
+          if (!r.ok) {
+            setIsNameTaken(null);
+            setErrorName(r.data?.message ?? `Failed (HTTP ${r.status})`);
+          } else {
+            setIsNameTaken(r.data.exists);
+            setErrorName('');
+          }
+        } else {
+          // fallback
+          setIsNameTaken(null);
+          setErrorName('Unexpected response');
+        }
+      } catch {
+        setIsNameTaken(null);
+        setErrorName('Error checking name availability');
+      } finally {
+        // تجاهل إطفاء اللودينغ لو تم تجاوزه بطلب أحدث
+        if (myReqId === reqIdRef.current) setLoading(false);
+      }
+    }, 600); // debounce 600ms (عدّلها لو بدك)
+  };
+  const confirmDeletion = async () => {
+    if (!institutionInfo) {
+      toast.error('No institution loaded.');
+      return;
+    }
+    const expected = (institutionInfo.name ?? '').trim();
+    const provided = (inputName ?? '').trim();
+    if (provided !== expected) {
+      toast.error('Name does not match. Please type the exact institution name to confirm.');
+      return;
+    }
+    await handleDelete(); 
+  };
+  const handleSaveAttendanceSettings = async () => {
+    try {
+      setIsLoading(true)
+      console.log("Saving attendance settings:")
+      setIsEditingAttendance(false)
+    } catch (error) {
+      console.error("Error saving attendance settings:", error)
+    } finally {
+      setIsLoading(false)
+    }
   }
-}
+  // const handleUpdateAttendanceSettings = async () => {
+  //   try {
+  //     setIsLoading(true)
+  //     console.log("Update attendance settings:", attendanceSettings)
+  //     setAttendanceSettings(attendanceSettings);
+  //     setIsEditingAttendance(false)
+  //   } catch (error) {
+  //     console.error("Error saving attendance settings:", error)
+  //   } finally {
+  //     setIsLoading(false)
+  //   }
+  // }
 
   if (isLoading) {
     return <div className="flex items-center justify-center">Loading…</div>;
@@ -612,27 +610,10 @@ const handleSaveAttendanceSettings = async () => {
     </div>
 {/* Check In Window After Minutes */}
 <div>
-  <label className="block text-sm font-medium text-gray-700 mb-1">
-    Check In Window After (Minutes)
-  </label>
-  {isEditingAttendance ? (
-    <input
-      type="number"
-      min="0"
-      value={attendanceSettings.checkInWindowAfterMin}
-      onChange={(e) =>
-        setAttendanceSettings({
-          ...attendanceSettings,
-          checkInWindowAfterMin: Number.parseInt(e.target.value) || 0,
-        })
-      }
-      className="w-full px-4 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+<AttendanceSettingsCard
+      institutionId={institutionInfo.id}
+      initialValues={institutionInfo.settings}
     />
-  ) : (
-    <p className="bg-gray-100 px-4 py-2 rounded-md text-sm text-gray-800">
-      {attendanceSettings.checkInWindowAfterMin} minutes
-    </p>
-  )}
 </div>
 
 {/* Save Button */}
