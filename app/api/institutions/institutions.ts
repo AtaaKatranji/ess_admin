@@ -219,7 +219,7 @@ export async function checkNameExists(
 
 export const updateAttendanceSettings = async (slug: string, settings: AttendanceSettingsPatch) => {
   const response = await fetch(`${BaseUrl}/institutions/${slug}/settings`, {
-    method: "PATCH",
+    method: "PUT",
     credentials: "include",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(settings),
