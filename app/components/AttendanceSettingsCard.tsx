@@ -18,7 +18,19 @@ const AttendanceSchema = z.object({
   checkInWindowBeforeMin: z.coerce.number().int().min(0).max(1440),
   checkInWindowAfterMin: z.coerce.number().int().min(0).max(1440),
 });
-
+const SettingTile: React.FC<{
+  title: string;
+  description?: string;
+  children: React.ReactNode;
+}> = ({ title, description, children }) => (
+  <div className="h-full rounded-2xl border border-gray-200 bg-white p-5 shadow-sm hover:shadow-md transition">
+    <div className="mb-3">
+      <h3 className="text-sm font-semibold text-gray-900">{title}</h3>
+      {description && <p className="text-xs text-gray-500">{description}</p>}
+    </div>
+    {children}
+  </div>
+);
 export type AttendanceValues = z.infer<typeof AttendanceSchema>;
 
 type Props = {
@@ -68,22 +80,23 @@ export default function AttendanceSettingsCard({ initialValues, onSave }: Props)
     hint,
     min = 0,
     max = 1440,
+    unit = "minutes",
+    showLabel = true, // استخدم false عند وضعه داخل البطاقة
   }: {
     label: string;
     name: keyof AttendanceValues;
     hint?: string;
     min?: number;
     max?: number;
+    unit?: string;
+    showLabel?: boolean;
   }) => {
     const error = form.formState.errors[name]?.message?.toString();
   
     const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-      // current raw value (string); coerce to number
       const raw = e.target.value;
       const n = Number(raw);
       const fixed = clamp(n, min, max);
-  
-      // إذا تغيّرت بعد التصحيح، حدّث قيمة الفورم وحقّلها
       if (fixed !== n) {
         form.setValue(name, fixed, { shouldValidate: true, shouldDirty: true });
       }
@@ -91,32 +104,40 @@ export default function AttendanceSettingsCard({ initialValues, onSave }: Props)
   
     return (
       <div className="space-y-1">
-        <label className="block text-sm font-medium text-gray-700">{label}</label>
+        {showLabel && (
+          <label className="block text-sm font-medium text-gray-700">{label}</label>
+        )}
   
         {isEditing ? (
           <div className="flex items-start gap-3">
-            <input
-              type="number"
-              min={min}
-              max={max}
-              // منع كتابة علامة السالب مباشرة (اختياري):
-              onKeyDown={(e) => {
-                if (e.key === "-" || e.key === "e") e.preventDefault();
-              }}
-              {...form.register(name, { valueAsNumber: true })}
-              onBlur={handleBlur}              // ✅ التصحيح التلقائي
-              className="w-40 px-4 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-              placeholder="0"
-            />
-            <span className="mt-2 text-sm text-gray-600">minutes</span>
+            <div className="relative w-44">
+              <input
+                type="number"
+                min={min}
+                max={max}
+                onKeyDown={(e) => {
+                  if (e.key === "-" || e.key === "e") e.preventDefault();
+                }}
+                {...form.register(name, { valueAsNumber: true })}
+                onBlur={handleBlur}
+                className="w-full pr-16 px-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                placeholder="0"
+              />
+              {/* ✅ البادج داخل الحقل */}
+              <span className="absolute right-1 top-1/2 -translate-y-1/2 rounded-md border border-gray-200 bg-gray-100 px-2 py-0.5 text-[11px] text-gray-600">
+                {unit}
+              </span>
+            </div>
           </div>
         ) : (
-          <p className="bg-gray-100 px-4 py-2 rounded-md text-sm text-gray-800 w-fit">
-            {String(form.getValues(name))} minutes
+          <p className="inline-flex items-center rounded-lg bg-gray-100 px-3 py-1 text-sm text-gray-800">
+            {String(form.getValues(name))}
+            <span className="ml-1 text-xs text-gray-600">{unit}</span>
           </p>
         )}
   
-        {hint && <p className="text-xs text-gray-500">{hint}</p>}
+        {/* عند استخدام داخل البطاقة، خليه فاضي وخلي الوصف بالبطاقة */}
+        {hint && showLabel && <p className="text-xs text-gray-500">{hint}</p>}
         {error && <p className="text-xs text-red-600">{error}</p>}
       </div>
     );
@@ -144,51 +165,59 @@ export default function AttendanceSettingsCard({ initialValues, onSave }: Props)
     </div>
 
     <form className="space-y-6" onSubmit={form.handleSubmit(submit)}>
-      <Row
-        name="graceLateMin"
-        label="Late Grace Period"
-        hint="After this, the employee is marked as late."
-      />
+  <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+    <SettingTile
+      title="Late Grace Period"
+      description="After this, the employee is marked as late."
+    >
+      <Row name="graceLateMin" label="Late Grace Period" showLabel={false} />
+    </SettingTile>
 
-      <Row
-        name="absentAfterMin"
-        label="Absent After"
-        hint="If no check-in within this time after shift start, the employee is absent."
-      />
+    <SettingTile
+      title="Absent After"
+      description="If no check-in within this time after shift start, the employee is absent."
+    >
+      <Row name="absentAfterMin" label="Absent After" showLabel={false} />
+    </SettingTile>
 
-      <Row
-        name="earlyLeaveGraceMin"
-        label="Early Leave Grace"
-        hint="Allowed minutes before shift end without counting as early leave."
-      />
+    <SettingTile
+      title="Early Leave Grace"
+      description="Allowed minutes before shift end without counting as early leave."
+    >
+      <Row name="earlyLeaveGraceMin" label="Early Leave Grace" showLabel={false} />
+    </SettingTile>
 
-      <Row
-        name="checkInWindowBeforeMin"
-        label="Check-in Window (Before)"
-        hint="Minutes allowed before shift start to check in."
-      />
+    <SettingTile
+      title="Check-in Window (Before)"
+      description="Minutes allowed before shift start to check in."
+    >
+      <Row name="checkInWindowBeforeMin" label="Check-in Window (Before)" showLabel={false} />
+    </SettingTile>
 
-      <Row
-        name="checkInWindowAfterMin"
-        label="Check-in Window (After)"
-        hint="Minutes allowed after shift start to check in."
-      />
+    <SettingTile
+      title="Check-in Window (After)"
+      description="Minutes allowed after shift start to check in."
+    >
+      <Row name="checkInWindowAfterMin" label="Check-in Window (After)" showLabel={false} />
+    </SettingTile>
+  </div>
 
-      {isEditing && (
-        <div className="pt-2">
-          <button
-            type="submit"
-            disabled={isSaving}
-            className="w-full sm:w-auto px-6 py-3 bg-green-600 text-white text-sm font-medium rounded-md hover:bg-green-700 disabled:opacity-70"
-          >
-            <div className="flex items-center justify-center">
-              <Save className="w-4 h-4 mr-2" />
-              {isSaving ? "Saving..." : "Save Changes"}
-            </div>
-          </button>
+  {isEditing && (
+    <div className="pt-2">
+      <button
+        type="submit"
+        disabled={isSaving}
+        className="w-full sm:w-auto px-6 py-3 bg-green-600 text-white text-sm font-medium rounded-md hover:bg-green-700 disabled:opacity-70"
+      >
+        <div className="flex items-center justify-center">
+          <Save className="w-4 h-4 mr-2" />
+          {isSaving ? "Saving..." : "Save Changes"}
         </div>
-      )}
-    </form>
+      </button>
+    </div>
+  )}
+</form>
+
   </div>
   );
 }
