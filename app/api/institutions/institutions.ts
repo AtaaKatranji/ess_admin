@@ -6,6 +6,19 @@ const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
 const isBrowser = typeof window !== "undefined";
 import { apiGet, ApiFailure, ApiSuccess, ApiError } from '@/app/lib/api';
 
+export interface AttendanceSettings {
+  graceLateMin: number;
+  absentAfterMin: number;
+  earlyLeaveGraceMin: number;
+  checkInWindowBeforeMin: number;
+  checkInWindowAfterMin: number;
+}
+
+// 2) لو PATCH جزئي خلّيه Partial
+export type AttendanceSettingsPatch = Partial<AttendanceSettings>;
+
+
+
 export const copyToClipboard = async (text: string): Promise<void> => {
     try {
         await navigator.clipboard.writeText(text); // Copy text to clipboard
@@ -201,4 +214,16 @@ export async function checkNameExists(
     return { ok: true, status: res.status, data: (body as { exists: boolean }), res };
   }
   return { ok: false, status: res.status, data: (body as ApiError) ?? null, res };
+}
+
+
+export const updateAttendanceSettings = async (slug: string, settings: AttendanceSettingsPatch) => {
+  const response = await fetch(`${BaseUrl}/institutions/${slug}/settings`, {
+    method: "PATCH",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(settings),
+  });
+  if (!response.ok) throw new Error("Failed to update attendance settings");
+  return response.json();
 }

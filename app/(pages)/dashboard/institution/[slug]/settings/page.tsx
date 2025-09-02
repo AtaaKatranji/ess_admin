@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState, useRef } from 'react';
 import { Edit, Save, Trash2, PlusCircle, RefreshCw, Loader2 } from 'lucide-react';
-import { checkNameExists, deleteInstitutionInfo, fetchInstitution, generateInstitutionKey, updatedInstitutionInfo } from '@/app/api/institutions/institutions';
+import { checkNameExists, deleteInstitutionInfo, fetchInstitution, generateInstitutionKey, updateAttendanceSettings, updatedInstitutionInfo } from '@/app/api/institutions/institutions';
 import { useParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { toast } from 'react-toastify';
@@ -614,19 +614,9 @@ const SettingsPage: React.FC = () => {
 <AttendanceSettingsCard
       institutionId={institutionInfo.id}
       initialValues={attendanceInitial}
-      onSave={async (vals) => {
-        const updates = [
-          { key: "attendance.graceLateMin", value: String(vals.graceLateMin) },
-          { key: "attendance.absentAfterMin", value: String(vals.absentAfterMin) },
-          { key: "attendance.earlyLeaveGraceMin", value: String(vals.earlyLeaveGraceMin) },
-          { key: "attendance.checkInWindowBeforeMin", value: String(vals.checkInWindowBeforeMin) },
-          { key: "attendance.checkInWindowAfterMin", value: String(vals.checkInWindowAfterMin) },
-        ];
-        await fetch(`/api/institutions/${institutionInfo.id}/settings`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ updates }),
-        });
+      onSave={async (values) => {
+        const res = await updateAttendanceSettings(institutionInfo.slug, values);
+        if (!res.ok) throw new Error("Failed to save");
       }}
     />
 </div>
