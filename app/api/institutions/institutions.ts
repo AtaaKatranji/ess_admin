@@ -218,11 +218,18 @@ export async function checkNameExists(
 
 
 export const updateAttendanceSettings = async (slug: string, settings: AttendanceSettingsPatch) => {
+
+  const items = Object.entries(settings).map(([settingKey, settingValue]) => ({
+    settingKey,
+    // إذا جدولك يخزّن value كسلسلة (STRING) يفضَّل تحويلها لنص:
+    settingValue: settingValue == null ? settingValue : String(settingValue),
+  }));
+
   const response = await fetch(`${BaseUrl}/institutions/${slug}/settings`, {
     method: "PUT",
     credentials: "include",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(settings),
+    body: JSON.stringify({items}),
   });
   if (!response.ok) throw new Error("Failed to update attendance settings");
   return response.json();

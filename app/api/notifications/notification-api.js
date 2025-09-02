@@ -3,6 +3,7 @@ export const sendNotifiy = async (shiftId, title,message) => {
     try {
       return await fetch(`${BaseUrl}/api/send-push-shift`, {
         method: 'POST',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
         },
