@@ -6,8 +6,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 // import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 // import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+// import { Input } from "@/components/ui/input";
+// import { Label } from "@/components/ui/label";
 // import { toast } from "sonner";
 import { Edit, Save, X } from "lucide-react";
 
@@ -19,7 +19,7 @@ const AttendanceSchema = z.object({
   checkInWindowAfterMin: z.coerce.number().int().min(0).max(1440),
 });
 
-
+export type AttendanceValues = z.infer<typeof AttendanceSchema>;
 
 type Props = {
   institutionId: number;
@@ -60,40 +60,67 @@ export default function AttendanceSettingsCard({ initialValues, onSave }: Props)
   //     setIsSaving(false);
   //   }
   // };
-
+  const clamp = (n: number, min = 0, max = 1440) =>
+    Number.isFinite(n) ? Math.min(Math.max(n, min), max) : min;
   const Row = ({
-    name,
     label,
+    name,
     hint,
+    min = 0,
+    max = 1440,
   }: {
-    name: keyof Record<string, string>;
     label: string;
+    name: keyof AttendanceValues;
     hint?: string;
-  }) => (
-    <div className="grid grid-cols-1 sm:grid-cols-3 items-center gap-3">
-      <Label htmlFor={name} className="sm:col-span-1">{label}</Label>
-      <div className="sm:col-span-2 flex items-start gap-3">
-        <Input
-          id={name}
-          type="number"
-          {...form.register(name, { valueAsNumber: true })}
-          className="max-w-[200px]"
-          placeholder="0"
-        />
-        <span className="text-sm text-muted-foreground mt-2">دقائق</span>
+    min?: number;
+    max?: number;
+  }) => {
+    const error = form.formState.errors[name]?.message?.toString();
+  
+    const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+      // current raw value (string); coerce to number
+      const raw = e.target.value;
+      const n = Number(raw);
+      const fixed = clamp(n, min, max);
+  
+      // إذا تغيّرت بعد التصحيح، حدّث قيمة الفورم وحقّلها
+      if (fixed !== n) {
+        form.setValue(name, fixed.toString(), { shouldValidate: true, shouldDirty: true });
+      }
+    };
+  
+    return (
+      <div className="space-y-1">
+        <label className="block text-sm font-medium text-gray-700">{label}</label>
+  
+        {isEditing ? (
+          <div className="flex items-start gap-3">
+            <input
+              type="number"
+              min={min}
+              max={max}
+              // منع كتابة علامة السالب مباشرة (اختياري):
+              onKeyDown={(e) => {
+                if (e.key === "-" || e.key === "e") e.preventDefault();
+              }}
+              {...form.register(name, { valueAsNumber: true })}
+              onBlur={handleBlur}              // ✅ التصحيح التلقائي
+              className="w-40 px-4 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+              placeholder="0"
+            />
+            <span className="mt-2 text-sm text-gray-600">minutes</span>
+          </div>
+        ) : (
+          <p className="bg-gray-100 px-4 py-2 rounded-md text-sm text-gray-800 w-fit">
+            {String(form.getValues(name))} minutes
+          </p>
+        )}
+  
+        {hint && <p className="text-xs text-gray-500">{hint}</p>}
+        {error && <p className="text-xs text-red-600">{error}</p>}
       </div>
-      {hint ? (
-        <p className="text-xs text-muted-foreground sm:col-start-2 sm:col-span-2 -mt-2">
-          {hint}
-        </p>
-      ) : null}
-      {form.formState.errors[name] && (
-        <p className="text-xs text-destructive sm:col-start-2 sm:col-span-2">
-          {form.formState.errors[name]?.message?.toString()}
-        </p>
-      )}
-    </div>
-  );
+    );
+  };
 
   return (
     <div className="m-6 p-6 bg-white rounded-xl shadow-md space-y-6">
