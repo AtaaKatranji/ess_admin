@@ -1,7 +1,7 @@
 const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
 export const sendNotifiy = async (shiftId, title,message) => {
     try {
-      return await fetch(`${BaseUrl}/api/send-push-shift`, {
+      return await fetch(`${BaseUrl}/institutions/:orgSlug/api/send-push-shift`, {
         method: 'POST',
         credentials: 'include',
         headers: {
