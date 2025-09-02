@@ -57,7 +57,7 @@ export default function NotificationPage() {
 
     setLoading(true)
     try {
-      const res = await sendNotifiy(selectedShiftId, title.trim(), message.trim())
+      const res = await sendNotifiy(selectedShiftId, title.trim(), message.trim(), slug)
       const data = await res?.json()
 
       if (res?.ok) {
