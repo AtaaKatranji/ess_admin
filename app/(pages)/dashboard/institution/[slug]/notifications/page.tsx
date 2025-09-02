@@ -23,12 +23,18 @@ export default function NotificationPage() {
   const [loading, setLoading] = useState(false)
   const [shiftsLoading, setShiftsLoading] = useState(true)
 
+
+  // const [checkingPerm, setCheckingPerm] = useState(true);
+  const [allowed, setAllowed] = useState<boolean | null>(null);
+
+
   const maxTitleLength = 100
   const maxMessageLength = 500
 
   useEffect(() => {
-    if (!slug) return
-    const loadShifts = async () => {
+    if (!slug) return;
+
+    (async () => {
       try {
         setShiftsLoading(true)
         const data = await fetchShifts(slug)
@@ -38,12 +44,20 @@ export default function NotificationPage() {
       } finally {
         setShiftsLoading(false)
       }
-    }
+    })();
 
-    if (slug) {
-      loadShifts()
-    }
-  }, [slug])
+    // (async () => {
+    //   try {
+    //     setCheckingPerm(true);
+    //     const ok = await canSendNotification(slug);
+    //     setAllowed(ok);
+    //   } catch {
+    //     setAllowed(false);
+    //   } finally {
+    //     setCheckingPerm(false);
+    //   }
+    // })();
+  }, [slug]);
 
   const selectedShift = shifts.find((shift) => shift.id === selectedShiftId)
 
@@ -58,6 +72,17 @@ export default function NotificationPage() {
     setLoading(true)
     try {
       const res = await sendNotifiy(selectedShiftId, title.trim(), message.trim(), slug)
+      if (res?.status === 401) {
+        toast.error("You are not authenticated. Please sign in.");
+        return;
+      }
+      if (res?.status === 403) {
+        const data = await res?.json().catch(() => ({}));
+        const msg = data?.message || "You do not have permission to send notifications.";
+        setAllowed(false); // عطّل الواجهة لاحقًا
+        toast.error(msg);
+        return;
+      }
       const data = await res?.json()
 
       if (res?.ok) {
@@ -78,9 +103,24 @@ export default function NotificationPage() {
     }
   }
 
+  const banner =
+    allowed === false ? (
+      <div className="mb-6 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-amber-800">
+        <div className="flex items-start gap-2">
+          <AlertCircle className="h-5 w-5 mt-0.5" />
+          <div>
+            <div className="font-semibold">Permission required</div>
+            <div className="text-sm">
+              Your account doesn’t have <code className="px-1 py-0.5 bg-white rounded border">notification.send</code>. Ask an admin to grant this permission or assign a role that includes it.
+            </div>
+          </div>
+        </div>
+      </div>
+    ) : null;
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-6">
   <div className="max-w-6xl mx-auto space-y-10">
+  {banner}
     {/* Header */}
     <div className="text-center">
       <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
@@ -180,7 +220,7 @@ export default function NotificationPage() {
           <div className="pt-4">
             <Button
               onClick={sendNotification}
-              disabled={loading || !isFormValid}
+              disabled={loading || !isFormValid || allowed === false}
               className="w-full h-12 bg-blue-600 text-white hover:bg-blue-700 transition disabled:opacity-50"
             >
               {loading ? (
