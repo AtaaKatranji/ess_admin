@@ -121,6 +121,7 @@ export default function AttendanceSettingsCard({ initialValues, onSave }: Props)
       </div>
     );
   };
+  
 
   return (
     <div className="m-6 p-6 bg-white rounded-xl shadow-md space-y-6">
