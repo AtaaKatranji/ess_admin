@@ -23,19 +23,19 @@ export type AttendanceValues = z.infer<typeof AttendanceSchema>;
 
 type Props = {
   institutionId: number;
-  initialValues: Record<string, string>; // اجلبها من السيرفر (institution.attendance)
-  onSave: (values: Record<string, string>) => Promise<void> | void;
+  initialValues: AttendanceValues; // اجلبها من السيرفر (institution.attendance)
+  onSave: (values: AttendanceValues) => Promise<void> | void;
 };
 
 export default function AttendanceSettingsCard({ initialValues, onSave }: Props) {
   const [isSaving, setIsSaving] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
  
-  const form = useForm<Record<string, string>>({
+  const form = useForm<AttendanceValues>({
     resolver: zodResolver(AttendanceSchema),
     defaultValues: initialValues,
   });
-  const submit = async (values: Record<string, string>) => {
+  const submit = async (values: AttendanceValues) => {
     try {
       setIsSaving(true);
       await onSave(values);
@@ -85,7 +85,7 @@ export default function AttendanceSettingsCard({ initialValues, onSave }: Props)
   
       // إذا تغيّرت بعد التصحيح، حدّث قيمة الفورم وحقّلها
       if (fixed !== n) {
-        form.setValue(name, fixed.toString(), { shouldValidate: true, shouldDirty: true });
+        form.setValue(name, fixed, { shouldValidate: true, shouldDirty: true });
       }
     };
   

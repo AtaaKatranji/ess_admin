@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { InstitutionInfo, normalizeMacAddress, normalizeMacList, WifiEntry } from '@/app/types/Institution';
 import { ApiFailure, ApiSuccess } from '@/app/lib/api';
 import AttendanceSettingsCard from '@/app/components/AttendanceSettingsCard';
-
+import { buildAttendanceInitialValues } from '@/app/utils/attendance';
 
 
 const SettingsPage: React.FC = () => {
@@ -35,8 +35,9 @@ const SettingsPage: React.FC = () => {
   const nameCheckTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const reqIdRef = useRef(0); // لمنع السباقات (race conditions)
   
+  
   const [isEditingAttendance, setIsEditingAttendance] = useState(false)
- 
+  const attendanceInitial = buildAttendanceInitialValues(institutionInfo?.settings ?? {});
   useEffect(() => {
     let mounted = true;
   
@@ -612,8 +613,21 @@ const SettingsPage: React.FC = () => {
 <div>
 <AttendanceSettingsCard
       institutionId={institutionInfo.id}
-      initialValues={institutionInfo.settings}
-      onSave={handleSaveAttendanceSettings}
+      initialValues={attendanceInitial}
+      onSave={async (vals) => {
+        const updates = [
+          { key: "attendance.graceLateMin", value: String(vals.graceLateMin) },
+          { key: "attendance.absentAfterMin", value: String(vals.absentAfterMin) },
+          { key: "attendance.earlyLeaveGraceMin", value: String(vals.earlyLeaveGraceMin) },
+          { key: "attendance.checkInWindowBeforeMin", value: String(vals.checkInWindowBeforeMin) },
+          { key: "attendance.checkInWindowAfterMin", value: String(vals.checkInWindowAfterMin) },
+        ];
+        await fetch(`/api/institutions/${institutionInfo.id}/settings`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ updates }),
+        });
+      }}
     />
 </div>
 
