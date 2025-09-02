@@ -613,6 +613,7 @@ const SettingsPage: React.FC = () => {
 <AttendanceSettingsCard
       institutionId={institutionInfo.id}
       initialValues={institutionInfo.settings}
+      onSave={handleSaveAttendanceSettings}
     />
 </div>
 
