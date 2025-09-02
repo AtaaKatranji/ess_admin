@@ -242,7 +242,7 @@ const filteredHourlyLeaves = useMemo(() =>
         <div>
           <div className="font-semibold">Permission required</div>
           <div className="text-sm">
-            Your account doesn’t have <code className="px-1 py-0.5 bg-white rounded border">notification.send</code>. Ask an admin to grant this permission or assign a role that includes it.
+            Your account doesn’t have <code className="px-1 py-0.5 bg-white rounded border">Permissions</code>. Ask an admin to grant this permission or assign a role that includes it.
           </div>
         </div>
       </div>
