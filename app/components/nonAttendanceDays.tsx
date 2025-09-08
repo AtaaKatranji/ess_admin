@@ -49,7 +49,13 @@ const NonAttendanceTab: React.FC<Props> = ({
 
     const fetchAbsences = async () => {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/checks/absences?employeeId=${employeeId}&month=${formattedMonth}`
+        `${process.env.NEXT_PUBLIC_API_URL}/checks/absences?employeeId=${employeeId}&month=${formattedMonth}`,
+        {
+          method: 'GET', // or 'POST', etc.
+          credentials: 'include', // sends cookies and HTTP auth headers
+          headers: {
+            'Content-Type': 'application/json',
+          },},
       );
       const data = await res.json();
       console.log("fetchAbsences", data);
@@ -58,7 +64,13 @@ const NonAttendanceTab: React.FC<Props> = ({
     
     const fetchLeaves = async () => {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/institutions/${slug}/leaves/month?userId=${employeeId}&month=${formattedMonth}`
+        `${process.env.NEXT_PUBLIC_API_URL}/institutions/${slug}/leaves/month?userId=${employeeId}&month=${formattedMonth}`,
+        {
+          method: 'GET', // or 'POST', etc.
+          credentials: 'include', // sends cookies and HTTP auth headers
+          headers: {
+            'Content-Type': 'application/json',
+          },},
       );
       const data = await res.json();
       console.log("fetchLeaves", data);
