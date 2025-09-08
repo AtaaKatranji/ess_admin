@@ -14,8 +14,6 @@ type Leave = {
   durationInDays?: number;
 };
 
-
-
 type DayRecord = {
   date: Date;
   type: "Absent" | "Leave" | "Holiday";
@@ -29,14 +27,14 @@ type DayRecord = {
 type Props = {
   employeeId: string;
   selectedMonth: Date;
-  institutionKey: string;
+  slug: string;
   holidays: Holiday[];
 };
 
 const NonAttendanceTab: React.FC<Props> = ({
   employeeId,
   selectedMonth,
-  institutionKey,
+  slug,
   holidays,
 }) => {
   const [absentDays, setAbsentDays] = useState<string[]>([]);
@@ -44,7 +42,7 @@ const NonAttendanceTab: React.FC<Props> = ({
   //const [holidays, setHolidays] = useState<Holiday[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  console.log("institutionKey", institutionKey);
+  console.log("institutionKey", slug);
   useEffect(() => {
     const formattedMonth = moment(selectedMonth).format("YYYY-MM");
     setLoading(true);
@@ -60,7 +58,7 @@ const NonAttendanceTab: React.FC<Props> = ({
     
     const fetchLeaves = async () => {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/leaves/month?userId=${employeeId}&month=${formattedMonth}`
+        `${process.env.NEXT_PUBLIC_API_URL}/institutions/${slug}/leaves/month?userId=${employeeId}&month=${formattedMonth}`
       );
       const data = await res.json();
       console.log("fetchLeaves", data);
@@ -88,7 +86,7 @@ const NonAttendanceTab: React.FC<Props> = ({
         console.error("Error fetching data:", error);
       })
       .finally(() => setLoading(false));
-  }, [employeeId, selectedMonth, institutionKey]);
+  }, [employeeId, selectedMonth, slug]);
 
   // Utility to get all dates of the selected month
   function getAllDatesInMonth(monthDate: Date): Date[] {

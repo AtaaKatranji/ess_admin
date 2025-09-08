@@ -102,7 +102,7 @@ const EmployeeDetails = () => {
   const [selectedMonth, setSelectedMonth] = useState<Date>(new Date());
   const params = useParams();
   const slug = Array.isArray(params.slug) ? params.slug[0] : params.slug;
-  const [institutionKey, setInstitutionKey] = useState<string>("");
+  //const [institutionKey, setInstitutionKey] = useState<string>("");
   const employeeId = Array.isArray(params.employeeId) ? params.employeeId[0] : params.employeeId as string;
 
   const fetchAllData = useCallback(async (month: Date) => {
@@ -116,11 +116,11 @@ const EmployeeDetails = () => {
       const insRes = await fetchInstitution(slug as string);
       if (!insRes.ok) {
         toast.error(insRes.data?.message ?? `Failed to load institution (HTTP ${insRes.status})`);
-        setInstitutionKey("");       // صفّر المفتاح حتى ما تمرّره للتبويبات
+        // setInstitutionKey("");       // صفّر المفتاح حتى ما تمرّره للتبويبات
         return;                        // finally رح يشتغل ويطفي اللودينغ
       }
       
-      setInstitutionKey(insRes.data.uniqueKey);
+      // setInstitutionKey(insRes.data.uniqueKey);
       
       const shiftsResRaw = await fetchTimeShifts(employeeId);
       const shifts = Array.isArray(shiftsResRaw) ? shiftsResRaw[0] : shiftsResRaw;      
@@ -553,7 +553,7 @@ const EmployeeDetails = () => {
           <HourlyLeavesTab employeeId={employeeId} selectedMonth={selectedMonth} />
         </TabsContent>
         <TabsContent value="dayRecords" className="space-y-4 min-h-0">
-          <NonAttendanceTab employeeId={employeeId} selectedMonth={selectedMonth} institutionKey={institutionKey} holidays={data.holidays}  />
+          <NonAttendanceTab employeeId={employeeId} selectedMonth={selectedMonth} slug={slug!} holidays={data.holidays}  />
         </TabsContent>
       </Tabs>
       </section>
