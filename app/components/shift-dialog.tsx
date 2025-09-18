@@ -345,9 +345,7 @@ export default function ShiftForm({open, onOpenChange, isEditing, shift, onSave 
                 <CardTitle className="text-lg">Multipliers & Limits</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {/* Policy Selector */}
-                  <div className="flex gap-2 items-center">
+              <div className="flex gap-2 items-center">
                     <Select
                       value={newShift.policyId?.toString() ?? ""}
                       onValueChange={(val) => setNewShift({ ...newShift, policyId: Number(val) })}
@@ -376,6 +374,9 @@ export default function ShiftForm({open, onOpenChange, isEditing, shift, onSave 
                       Edit Policy
                     </Button>
                   </div>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {/* Policy Selector */}
+                  
 
                   {/* Now get selected policy values */}
                   {(() => {
