@@ -40,7 +40,7 @@ export type  Break = {
     daysScheduled: number;
     daysAttended: number;
     daysAbsent: number;
-    overTimeHours: number
+    overTimeHours: number;
     holidays: number;
     totalHours: string;
     lateHours: string;
@@ -61,4 +61,18 @@ export  interface ShiftReportType {
     summaryMetrics: SummaryMetric[];
     employees: EmployeeShift[];
   }
+
+export interface ShiftPolicy  {
+  id: number;
+  institutionId: number;
+  name: string;
+  graceMinutes: number;
+  dailyHoursCap?: number;
+  lowUsageThreshold?: number;
+  lateMultiplier?: number;
+  lateLimit?: number;
+  extraMultiplier?: number;
+  extraLimit?: number;
+  isActive: boolean;
+}
 

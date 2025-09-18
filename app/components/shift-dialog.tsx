@@ -13,7 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { PlusCircle, Trash2, Save, Clock, Settings, AlertCircle, Users, Coffee } from "lucide-react"
-import { Shift } from "@/app/types/Shift";
+import { Shift, ShiftPolicy } from "@/app/types/Shift";
 import * as shiftAPI from '@/app/api/shifts/shifts'
 import { toast } from "react-toastify"
 
@@ -47,6 +47,8 @@ export default function ShiftForm({open, onOpenChange, isEditing, shift, onSave 
   }
 
   const [newShift, setNewShift] = useState<Shift>(initialShift)
+  const [policies, setPolicies] = useState<ShiftPolicy[]>([]);
+  const [editPolicyId, setEditPolicyId] = useState<number | null>(null);
   useEffect(() => {
     if (shift) {
       let overrides = shift.overrides;
@@ -64,6 +66,20 @@ export default function ShiftForm({open, onOpenChange, isEditing, shift, onSave 
       setNewShift(initialShift);
     }
   }, [shift, open])
+
+  useEffect(() => {
+    async function fetchPolicies() {
+      try {
+        const res = await fetch(`/api/shift-policies?institutionId=${newShift.institutionId}`);
+        const data: ShiftPolicy[] = await res.json();
+        setPolicies(data);
+      } catch (err) {
+        console.error("Failed to fetch policies", err);
+      }
+    }
+    if (open) fetchPolicies();
+  }, [open, newShift.institutionId]);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
     setNewShift((prev: Shift) => ({
@@ -330,15 +346,17 @@ export default function ShiftForm({open, onOpenChange, isEditing, shift, onSave 
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <Select
-                      value={newShift.policyId?.toString() ?? "0"}
+                  {/* Policy Selector */}
+                  <div className="flex gap-2 items-center">
+                    <Select
+                      value={newShift.policyId?.toString() ?? ""}
                       onValueChange={(val) => setNewShift({ ...newShift, policyId: Number(val) })}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="w-[200px]">
                         <SelectValue placeholder="Select Policy" />
                       </SelectTrigger>
                       <SelectContent>
-                        {policies.map(p => (
+                        {policies.map((p: ShiftPolicy) => (
                           <SelectItem key={p.id} value={String(p.id)}>
                             {p.name}
                           </SelectItem>
@@ -346,52 +364,65 @@ export default function ShiftForm({open, onOpenChange, isEditing, shift, onSave 
                         <SelectItem value="new">+ Create new policy</SelectItem>
                       </SelectContent>
                     </Select>
-                  <div>
-                    <Label htmlFor="lateMultiplier">Late Multiplier</Label>
-                    <Input
-                      id="lateMultiplier"
-                      name="lateMultiplier"
-                      type="number"
-                      step="0.1"
-                      value={newShift.lateMultiplier}
-                      onChange={handleInputChange}
-                      required
-                    />
+
+                    {/* Edit button */}
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      disabled={!newShift.policyId}
+                      onClick={() => setEditPolicyId(newShift.policyId!)} // 👈 يفتح مودال التعديل
+                    >
+                      Edit Policy
+                    </Button>
                   </div>
-                  <div>
-                    <Label htmlFor="lateLimit">Late Limit (min)</Label>
-                    <Input
-                      id="lateLimit"
-                      name="lateLimit"
-                      type="number"
-                      value={newShift.lateLimit}
-                      onChange={handleInputChange}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="extraMultiplier">Extra Multiplier</Label>
-                    <Input
-                      id="extraMultiplier"
-                      name="extraMultiplier"
-                      type="number"
-                      step="0.1"
-                      value={newShift.extraMultiplier}
-                      onChange={handleInputChange}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="extraLimit">Extra Threshold (min)</Label>
-                    <Input
-                      id="extraLimit"
-                      name="extraLimit"
-                      type="number"
-                      value={newShift.extraLimit}
-                      onChange={handleInputChange}
-                      required
-                    />
-                  </div>
+
+                  {/* Now get selected policy values */}
+                  {(() => {
+                    const selected = policies.find(p => p.id === newShift.policyId);
+                    return (
+                      <>
+                        <div>
+                          <Label htmlFor="lateMultiplier">Late Multiplier</Label>
+                          <Input
+                            id="lateMultiplier"
+                            type="number"
+                            step="0.1"
+                            value={selected?.lateMultiplier ?? ""}
+                            readOnly // 👈 ما يتغير من هون
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="lateLimit">Late Limit (min)</Label>
+                          <Input
+                            id="lateLimit"
+                            type="number"
+                            value={selected?.lateLimit ?? ""}
+                            readOnly
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="extraMultiplier">Extra Multiplier</Label>
+                          <Input
+                            id="extraMultiplier"
+                            type="number"
+                            step="0.1"
+                            value={selected?.extraMultiplier ?? ""}
+                            readOnly
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="extraLimit">Extra Threshold (min)</Label>
+                          <Input
+                            id="extraLimit"
+                            type="number"
+                            value={selected?.extraLimit ?? ""}
+                            readOnly
+                          />
+                        </div>
+                      </>
+                    )
+                  })()}
                 </div>
               </CardContent>
             </Card>
@@ -639,6 +670,86 @@ export default function ShiftForm({open, onOpenChange, isEditing, shift, onSave 
           </form>
         </DialogContent>
       </Dialog>
+      {/* Edit Policy Modal */}
+      <Dialog open={!!editPolicyId} onOpenChange={(val) => !val && setEditPolicyId(null)}>
+  <DialogContent>
+    <DialogHeader>
+      <DialogTitle>Edit Policy</DialogTitle>
+    </DialogHeader>
+
+    {(() => {
+      const policy = policies.find(p => p.id === editPolicyId);
+      if (!policy) return <p>Loading...</p>;
+      return (
+        <div className="space-y-4">
+          <div>
+            <Label>Late Multiplier</Label>
+            <Input
+              type="number"
+              step="0.1"
+              value={policy.lateMultiplier}
+              onChange={(e) => {
+                const updated = { ...policy, lateMultiplier: Number(e.target.value) };
+                setPolicies(policies.map(p => p.id === policy.id ? updated : p));
+              }}
+            />
+          </div>
+          <div>
+            <Label>Late Limit (min)</Label>
+            <Input
+              type="number"
+              value={policy.lateLimit}
+              onChange={(e) => {
+                const updated = { ...policy, lateLimit: Number(e.target.value) };
+                setPolicies(policies.map(p => p.id === policy.id ? updated : p));
+              }}
+            />
+          </div>
+          <div>
+            <Label>Extra Multiplier</Label>
+            <Input
+              type="number"
+              step="0.1"
+              value={policy.extraMultiplier}
+              onChange={(e) => {
+                const updated = { ...policy, extraMultiplier: Number(e.target.value) };
+                setPolicies(policies.map(p => p.id === policy.id ? updated : p));
+              }}
+            />
+          </div>
+          <div>
+            <Label>Extra Limit (min)</Label>
+            <Input
+              type="number"
+              value={policy.extraLimit}
+              onChange={(e) => {
+                const updated = { ...policy, extraLimit: Number(e.target.value) };
+                setPolicies(policies.map(p => p.id === policy.id ? updated : p));
+              }}
+            />
+          </div>
+        </div>
+      );
+    })()}
+
+    <DialogFooter>
+      <Button type="button" variant="secondary" onClick={() => setEditPolicyId(null)}>
+        Cancel
+      </Button>
+      <Button
+        type="button"
+        onClick={async () => {
+          // TODO: Save to API
+          toast.success("Policy updated successfully");
+          setEditPolicyId(null);
+        }}
+      >
+        Save Policy
+      </Button>
+    </DialogFooter>
+  </DialogContent>
+      </Dialog>
+
     </div>
   )
 }
