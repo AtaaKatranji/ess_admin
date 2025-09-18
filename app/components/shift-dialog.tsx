@@ -117,63 +117,6 @@ export default function ShiftForm({open, onOpenChange, isEditing, shift, onSave 
     })
   }
  
-  // const resetNewShift = () => {
-  //   setNewShift(initialShift)
-  //   setIsEditing(false)
-  // }
-
-  // const addShift = async() => {
-  //   console.log("Adding shift:", newShift)
-  //   if (!newShift.name || !newShift.startTime || !newShift.endTime || newShift.days.length === 0) {
-  //       toast.error('Please fill all required fields')
-  //       return
-  //     }
-  
-  //     try {
-  //       const shiftResponse = await fetch(`${BaseURL}/shifts/`, {
-  //         method: 'POST',
-  //         headers: { 'Content-Type': 'application/json' },
-  //         body: JSON.stringify(newShift), // No need to set employees here
-  //       })
-  
-  //       if (!shiftResponse.ok) {
-  //         const errorData = await shiftResponse.json()
-  //         throw new Error(errorData.message || 'Failed to add shift')
-  //       }
-  
-  //       const shiftData = await shiftResponse.json()
-  //       console.log('Created shift:', shiftData)
-  
-  //       // Handle breaks
-  //       if (newShift.breaks && newShift.breaks.length > 0) {
-  //         const breakPromises = newShift.breaks.map(breakItem =>
-  //           fetch(`${BaseURL}/break/break-types`, {
-  //             method: 'POST',
-  //             headers: { 'Content-Type': 'application/json' },
-  //             body: JSON.stringify({ ...breakItem, shiftId: shiftData.id })
-  //           })
-  //         )
-  //         await Promise.all(breakPromises)
-  //       }
-  
-        
-  //       resetNewShift()
-  //       //setIsOpen(false)
-  //       toast.success('Shift added successfully', { autoClose: 1500 })
-  //     } catch (error) {
-  //       console.error('Error adding shift:', error)
-  //       toast.error(`Failed to add shift: ${error instanceof Error ? error.message : 'Unknown error'}`, { autoClose: 1500 })
-  //     }
-    
-  //   //setIsOpen(false)
-  //   resetNewShift()
-  // }
-
-  // const updateShift = () => {
-  //   console.log("Updating shift:", newShift)
-  //   //setIsOpen(false)
-  //   resetNewShift()
-  // }
   const handleSubmit = () => {
     onSave(newShift);
   };
@@ -387,6 +330,22 @@ export default function ShiftForm({open, onOpenChange, isEditing, shift, onSave 
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <Select
+                      value={newShift.policyId?.toString() ?? "0"}
+                      onValueChange={(val) => setNewShift({ ...newShift, policyId: Number(val) })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select Policy" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {policies.map(p => (
+                          <SelectItem key={p.id} value={String(p.id)}>
+                            {p.name}
+                          </SelectItem>
+                        ))}
+                        <SelectItem value="new">+ Create new policy</SelectItem>
+                      </SelectContent>
+                    </Select>
                   <div>
                     <Label htmlFor="lateMultiplier">Late Multiplier</Label>
                     <Input

@@ -12,11 +12,8 @@ export interface Shift {
         };
       };
     institutionId: number;
+    policyId?: number; // Changed from policyId to policyId for MySQL
     employees?: Employee[];
-    lateLimit: number;
-    lateMultiplier: number;
-    extraLimit: number;
-    extraMultiplier: number;
     breakTypes?: Break[];
   }
 

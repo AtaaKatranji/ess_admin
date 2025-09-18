@@ -72,7 +72,7 @@ export default function LeaveCard({ employeeId }: LeaveCardProps) {
     try {
         // Make an API call to fetch monthly attendance summary
         const response = await fetch(`${BaseUrl}/api/annual-leave`, {
-          method: "POST",
+          method: "GET",
           headers: {
             "Content-Type": "application/json",
           },
