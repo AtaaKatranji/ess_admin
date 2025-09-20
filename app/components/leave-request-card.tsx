@@ -29,6 +29,7 @@ interface LeaveRequestCardProps {
   onApprove: (id: string) => void
   onReject: (id: string) => void
   onTypeChange: (id: string, type: string) => void
+  canEditType: boolean
 }
 
 // Helper functions
@@ -61,7 +62,7 @@ const getDayNamesInRange = (startDate: string, endDate: string) => {
   return days.join(", ")
 }
 
-export function LeaveRequestCard({ request, onApprove, onReject, onTypeChange }: LeaveRequestCardProps) {
+export function LeaveRequestCard({ request, onApprove, onReject, onTypeChange, canEditType }: LeaveRequestCardProps) {
   const [isExpanded, setIsExpanded] = useState(false)
 
   const handleTypeChange = (value: string) => {
@@ -86,6 +87,7 @@ export function LeaveRequestCard({ request, onApprove, onReject, onTypeChange }:
         </div>
   
         <div className="flex items-center gap-2">
+          {canEditType && (
           <Select defaultValue={request.type} onValueChange={handleTypeChange}>
             <SelectTrigger className="w-[100px] h-8">
               <SelectValue placeholder="Type" />
@@ -95,7 +97,7 @@ export function LeaveRequestCard({ request, onApprove, onReject, onTypeChange }:
               <SelectItem value="Unpaid">Unpaid</SelectItem>
             </SelectContent>
           </Select>
-  
+          )}
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>

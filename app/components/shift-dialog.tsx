@@ -16,7 +16,7 @@ import { PlusCircle, Trash2, Save, Clock, Settings, AlertCircle, Users, Coffee }
 import { Shift, ShiftPolicy } from "@/app/types/Shift";
 import * as shiftAPI from '@/app/api/shifts/shifts'
 import { toast } from "react-toastify"
-
+const BaseURL = process.env.NEXT_PUBLIC_API_URL;
 // const BaseURL = process.env.NEXT_PUBLIC_API_URL;
 const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 
@@ -70,7 +70,7 @@ export default function ShiftForm({open, onOpenChange, isEditing, shift, onSave 
   useEffect(() => {
     async function fetchPolicies() {
       try {
-        const res = await fetch(`/api/shift-policies?institutionId=${newShift.institutionId}`);
+        const res = await fetch(`${BaseURL}/api/shift-policies?institutionId=${newShift.institutionId}`);
         const data: ShiftPolicy[] = await res.json();
         setPolicies(data);
       } catch (err) {

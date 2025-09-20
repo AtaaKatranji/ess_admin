@@ -340,6 +340,7 @@ return (
                 onApprove={handleApprove}
                 onReject={handleReject}
                 onTypeChange={handleTypeChange}
+                canEditType={true}   // ✅ allow editing only in pending
               />
             ))
           )}
@@ -356,6 +357,7 @@ return (
                 onApprove={handleApprove}
                 onReject={handleReject}
                 onTypeChange={handleTypeChange}
+                canEditType={false}  // ❌ no editing in approved
               />
             ))
           )}
@@ -372,6 +374,7 @@ return (
                 onApprove={handleApprove}
                 onReject={handleReject}
                 onTypeChange={handleTypeChange}
+                canEditType={false}  // ❌ no editing in rejected
               />
             ))
           )}
