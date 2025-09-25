@@ -9,7 +9,7 @@ import { CalendarIcon, ClockIcon, Star, Rabbit, Turtle, Search, Loader2, Downloa
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip } from "recharts";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
 //import { ScrollArea } from "@/components/ui/scroll-area";
@@ -25,7 +25,8 @@ import moment from "moment";
 import NonAttendanceTab from "@/app/components/nonAttendanceDays";
 import { fetchInstitution } from "@/app/api/institutions/institutions";
 import OccasionCard from "@/app/components/OccasionCard";
-import { Holiday } from "@/app/types/Employee";
+import { Holiday, Employee } from "@/app/types/Employee";
+import { Badge } from "@/components/ui/badge";
 
 type Leave = {
   id: string;
@@ -89,7 +90,7 @@ const EmployeeDetails = () => {
     paidLeaves: null as number | null,
     unpaidLeaves: null as number | null,
     leaves: [] as Leave[],
-    employeeName: "",
+    employee: {} as Employee,
     holidays: [] as Holiday[],
     worksDays: [],
     shift: null as ShiftType | null,
@@ -126,7 +127,7 @@ const EmployeeDetails = () => {
       const shifts = Array.isArray(shiftsResRaw) ? shiftsResRaw[0] : shiftsResRaw;      
       const formattedMonth = moment(month).format('YYYY-MM-01');
       console.log("test fomat selscted month",format(month, "yyyy"),format(month, "MM") )
-      const [hoursRes, leavesRes, summaryRes, timeShiftRes, holidaysRes,empName] = await Promise.all([
+      const [hoursRes, leavesRes, summaryRes, timeShiftRes, holidaysRes,empRes] = await Promise.all([
         fetch(`${BaseUrl}/checks/calculate-hours`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -179,7 +180,7 @@ const EmployeeDetails = () => {
         unpaidLeaves: leavesRes.leaveDays?.totalUnpaidLeaveDays || 0,
         leaves: leavesRes.leaves?.leaves || [],
         holidays: holidaysRes || [],
-        employeeName: empName.name || "",
+        employee: empRes  || {} as Employee,
         shift: {
           mode: shifts?.mode || "",
           startTime: shifts?.startTime || "",
@@ -262,9 +263,17 @@ const EmployeeDetails = () => {
   return (
     <div className="container px-4 space-y-4">
       <ToastContainer />
-      <div className="flex justify-between items-center">
+      <Tabs defaultValue="attendance">
+  <TabsList>
+    <TabsTrigger value="attendance">Attendance</TabsTrigger>
+    <TabsTrigger value="general">General Info</TabsTrigger>
+  </TabsList>
+
+  {/* Attendance Tab */}
+  <TabsContent value="attendance">
+  <div className="flex justify-between items-center">
         <h1 className="hidden md:block lg:hidden xl:block text-xl md:text-2xl font-bold">
-          {data.employeeName || "Employee"}'s Attendance Dashboard
+          {data.employee.name || "Employee"}'s Attendance Dashboard
         </h1>
         <div className="flex items-center space-x-2">
           <Button className="bg-cyan-900 text-white" onClick={() => setIsModalOpen(true)}>
@@ -557,6 +566,66 @@ const EmployeeDetails = () => {
         </TabsContent>
       </Tabs>
       </section>
+  </TabsContent>
+
+  {/* General Info Tab */}
+  <TabsContent value="general">
+    <Card>
+      <CardHeader>
+        <CardTitle>General Information</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div>
+          <p className="text-sm text-muted-foreground">Name</p>
+          <p className="font-medium">{data.employee.name}</p>
+        </div>
+
+        <div>
+          <p className="text-sm text-muted-foreground">Email</p>
+          <p className="font-medium">{data.employee.email ?? "—"}</p>
+        </div>
+
+        <div>
+          <p className="text-sm text-muted-foreground">Role</p>
+          <p className="font-medium">{data.employee.role}</p>
+        </div>
+
+        <div>
+          <p className="text-sm text-muted-foreground">Department</p>
+          <p className="font-medium">{data.employee.department ?? "—"}</p>
+        </div>
+        <div>
+          <p className="text-sm text-muted-foreground">Shift</p>
+          <p className="font-medium">
+            {data.shift?.startTime && data.shift?.endTime
+              ? `${data.shift.startTime} - ${data.shift.endTime}`
+              : "Unassigned"}
+          </p>
+        </div>
+        <div>
+          <p className="text-sm text-muted-foreground">Status</p>
+          <Badge
+            variant={
+              data.employee.status === "active"
+                ? "secondary"
+                : data.employee.status === "resigned"
+                ? "destructive"
+                : data.employee.status === "suspended"
+                ? "outline"
+                : "default"
+            }
+          >
+            {data.employee.status}
+          </Badge>
+        </div>
+      </CardContent>
+      <CardFooter>
+        <Button>Edit General Info</Button>
+      </CardFooter>
+    </Card>
+  </TabsContent>
+</Tabs>
+
     </div>
   );
 };
