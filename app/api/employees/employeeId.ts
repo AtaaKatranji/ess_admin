@@ -18,7 +18,6 @@ export const fetchEmployees = async (ourSlug: string) => {
     }
 
     const data = await response.json();
-    console.log("data in fetch employee list api",data);
     // Assuming each employee has a property like shiftAssigned or shiftId/null
     // const unassignedEmployees = data.filter(
     //   (emp: Employee) => !emp.shiftId // or !emp.shiftAssigned, adjust as per your model

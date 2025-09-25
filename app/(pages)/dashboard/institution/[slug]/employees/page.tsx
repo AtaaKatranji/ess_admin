@@ -31,6 +31,7 @@ interface Employee {
   }
   shiftId?: string
   shiftName?: string
+  status: string
 }
 
 interface Shift {
@@ -75,11 +76,11 @@ const EmployeeList: React.FC = () => {
       const dataShifts = await fetchShifts(slug)
 
       setShiftOptions(dataShifts)
-      // if (dataShifts.length > 0) {
-      //   setSelectedShift(dataShifts[0]._id)
-      // }
-
-      console.log("users ", data)
+      if (dataShifts.length > 0) {
+        setSelectedShift(dataShifts[0].id)   // 👈 أول شيفت
+      } else {
+        setSelectedShift("all")              // 👈 fallback
+      }
       setEmployees(data)
       if (data.length > 0) {
         // Create a new array with total hours for each employee
@@ -110,7 +111,7 @@ const EmployeeList: React.FC = () => {
   }, [])
 
   const filteredEmployees =
-    selectedShift === "all" ? employees : employees.filter((emp) => emp.shiftId === selectedShift)
+    selectedShift === "all" ? employees : employees.filter((emp) => emp.shiftId === selectedShift && emp.status === "active")
 
   const handleViewDetails = (employeeId: string) => {
     setEmployeeId(employeeId);
@@ -152,8 +153,16 @@ const EmployeeList: React.FC = () => {
               <Card key={employee.id} className="overflow-hidden transition-all hover:shadow-md">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-xl">{employee.name}</CardTitle>
-                  <Badge variant="secondary" className="w-fit">
-                    {employee.role}
+                  <Badge 
+                    variant={
+                      employee.status === "active" ? "secondary" :
+                      employee.status === "resigned" ? "destructive" :
+                      employee.status === "suspended" ? "outline" :
+                      "default"
+                    }
+                    className="w-fit"
+                  >
+                    {employee.role} – {employee.status}
                   </Badge>
                 </CardHeader>
                 <CardContent className="space-y-4">
