@@ -587,7 +587,7 @@ const EmployeeDetails = () => {
 
         <div>
           <p className="text-sm text-muted-foreground">Role</p>
-          <p className="font-medium">{data.employee.role}</p>
+          <p className="font-medium">{data.employee.position}</p>
         </div>
 
         <div>
