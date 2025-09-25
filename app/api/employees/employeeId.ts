@@ -22,6 +22,7 @@ export const fetchEmployees = async (ourSlug: string) => {
     // const unassignedEmployees = data.filter(
     //   (emp: Employee) => !emp.shiftId // or !emp.shiftAssigned, adjust as per your model
     // );
+    console.log('Fetched employees:', data);
     return data;
   } catch (error) {
     console.error('Error fetching employees:', error);
