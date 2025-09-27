@@ -271,7 +271,7 @@ const EmployeeDetails = () => {
 
   {/* Attendance Tab */}
   <TabsContent value="attendance">
-  <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center mb-4">
         <h1 className="hidden md:block lg:hidden xl:block text-xl md:text-2xl font-bold">
           {data.employee.name || "Employee"}'s Attendance Dashboard
         </h1>
@@ -307,7 +307,8 @@ const EmployeeDetails = () => {
           </Button>
         </div>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 mb-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Hours</CardTitle>
@@ -383,11 +384,12 @@ const EmployeeDetails = () => {
           </CardContent>
         </Card>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
       <AnnualLeaveCard employeeId={employeeId} />
       <OccasionCard holidays={data.holidays} shiftType = {data.shift!}/>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
         <Card>
           <CardHeader>
             <CardTitle>Attendance Comparison</CardTitle>
