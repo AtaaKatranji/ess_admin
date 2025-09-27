@@ -26,62 +26,73 @@ export function EmployeeCard({ employee }: EmployeeCardProps) {
 const [isEditOpen, setIsEditOpen] = useState(false);
 const [form, setForm] = useState({
     name: employee.name,
+    phoneNumber: employee.phoneNumber,
     email: employee.email || "",
     department: employee.department || "",
     status: employee.status,
     resignationDate: employee.resignationDate || null,
     });
-    const handleSubmit = async (e: React.FormEvent) => {
+const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-        const res = await fetch(`${BaseUrl}/users/${employee.id}`, {
+        const payload = {
+        name: form.name,
+        email: form.email,
+        department: form.department,
+        status: form.status,
+        resignationDate: form.status === "resigned" ? form.resignationDate : null,
+        };
+    
+        const res = await fetch(`${BaseUrl}/api/users/${employee.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        credentials: "include",
+         // Include credentials for authentication
+        body: JSON.stringify(payload),
         });
+    
         if (!res.ok) throw new Error("Failed to update");
         toast.success("Employee updated!");
         setIsEditOpen(false);
-        // refresh UI
-    } catch  {
+        // refresh
+    } catch {
         toast.error("Error updating employee");
     }
-    };
-         
-  const getStatusVariant = (status: string) => {
-    switch (status) {
-      case "active":
-        return "default"
-      case "resigned":
-        return "destructive"
-      case "suspended":
-        return "secondary"
-      default:
-        return "outline"
-    }
-  }
+    };       
+const getStatusVariant = (status: string) => {
+switch (status) {
+    case "active":
+    return "default"
+    case "resigned":
+    return "destructive"
+    case "suspended":
+    return "secondary"
+    default:
+    return "outline"
+}
+}
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "active":
-        return "bg-success/10 text-success border-success/20"
-      case "resigned":
-        return "bg-destructive/10 text-destructive border-destructive/20"
-      case "suspended":
-        return "bg-warning/10 text-warning border-warning/20"
-      default:
-        return "bg-muted text-muted-foreground"
-    }
-  }
+const getStatusColor = (status: string) => {
+switch (status) {
+    case "active":
+    return "bg-success/10 text-success border-success/20"
+    case "resigned":
+    return "bg-destructive/10 text-destructive border-destructive/20"
+    case "suspended":
+    return "bg-warning/10 text-warning border-warning/20"
+    default:
+    return "bg-muted text-muted-foreground"
+}
+}
 
-  const getInitials = (name: string) => {
-    return name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2)
-  }
+const getInitials = (name: string) => {
+return name
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2)
+}
 
   return (
     <div className="container mx-auto px-4">
@@ -195,11 +206,10 @@ const [form, setForm] = useState({
       </div>
 
       <div>
-        <label className="text-sm font-medium">Email</label>
+        <label className="text-sm font-medium">Phone Number</label>
         <Input
-          type="email"
-          value={form.email}
-          onChange={(e) => setForm({ ...form, email: e.target.value })}
+          value={form.phoneNumber}
+          onChange={(e) => setForm({ ...form, phoneNumber: e.target.value })}
         />
       </div>
 
@@ -208,6 +218,15 @@ const [form, setForm] = useState({
         <Input
           value={form.department}
           onChange={(e) => setForm({ ...form, department: e.target.value })}
+        />
+      </div>
+
+      <div>
+        <label className="text-sm font-medium">Email</label>
+        <Input
+          type="email"
+          value={form.email}
+          onChange={(e) => setForm({ ...form, email: e.target.value })}
         />
       </div>
 
@@ -228,7 +247,7 @@ const [form, setForm] = useState({
           </SelectContent>
         </Select>
       </div>
-      {form.status === "resigned" && (
+{form.status === "resigned" && (
     <div>
       <label className="text-sm font-medium">Resignation Date</label>
       <Input
