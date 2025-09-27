@@ -1,27 +1,64 @@
+
+import { useState } from "react";
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Clock, Mail, User, Building2, PhoneIcon, CalendarX2 } from "lucide-react"
 import { Employee } from "@/app/types/Employee";
-
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogFooter,
+  } from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
+import { toast } from "react-toastify";
+const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
 interface EmployeeCardProps {
   employee: Employee
 }
 
 export function EmployeeCard({ employee }: EmployeeCardProps) {
-  // const getStatusVariant = (status: string) => {
-  //   switch (status) {
-  //     case "active":
-  //       return "default"
-  //     case "resigned":
-  //       return "destructive"
-  //     case "suspended":
-  //       return "secondary"
-  //     default:
-  //       return "outline"
-  //   }
-  // }
+
+const [isEditOpen, setIsEditOpen] = useState(false);
+const [form, setForm] = useState({
+    name: employee.name,
+    email: employee.email || "",
+    department: employee.department || "",
+    status: employee.status,
+    });
+    const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+        const res = await fetch(`${BaseUrl}/users/${employee.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+        });
+        if (!res.ok) throw new Error("Failed to update");
+        toast.success("Employee updated!");
+        setIsEditOpen(false);
+        // refresh UI
+    } catch  {
+        toast.error("Error updating employee");
+    }
+    };
+         
+  const getStatusVariant = (status: string) => {
+    switch (status) {
+      case "active":
+        return "default"
+      case "resigned":
+        return "destructive"
+      case "suspended":
+        return "secondary"
+      default:
+        return "outline"
+    }
+  }
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -64,7 +101,7 @@ export function EmployeeCard({ employee }: EmployeeCardProps) {
               {employee.position || "Employee"}
             </p>
             <div className="mt-2">
-              <Badge className={`${getStatusColor(employee.status)} font-medium px-2 py-1 text-xs lg:text-sm`}>
+              <Badge variant={getStatusVariant(employee.status)} className={`${getStatusColor(employee.status)} font-medium px-2 py-1 text-xs lg:text-sm`}>
                 {employee.status}
               </Badge>
             </div>
@@ -104,7 +141,7 @@ export function EmployeeCard({ employee }: EmployeeCardProps) {
               <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Work Schedule</p>
               <p className="text-xs sm:text-sm lg:text-base font-medium">
                 {employee.shiftId
-                  ? `${employee.shiftId} - ${employee.shiftName}`
+                  ? `${employee.shiftId} - ${employee.shiftName || "Shift"}`
                   : "Unassigned"}
               </p>
             </div>
@@ -129,12 +166,75 @@ export function EmployeeCard({ employee }: EmployeeCardProps) {
       </CardContent>
 
       <CardFooter className="pt-3 px-4 sm:px-6 lg:px-8">
-        <Button className="w-full lg:w-auto font-medium shadow-sm hover:shadow-md transition-all duration-200 text-sm py-2 px-4 lg:px-6">
+        <Button 
+        onClick={() => setIsEditOpen(true)}
+        className="w-full lg:w-auto font-medium shadow-sm hover:shadow-md transition-all duration-200 text-sm py-2 px-4 lg:px-6">
           <User className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
           Edit General Info
         </Button>
       </CardFooter>
     </Card>
+    
+<Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+  <DialogContent className="max-w-md">
+    <DialogHeader>
+      <DialogTitle>Edit General Information</DialogTitle>
+    </DialogHeader>
+    
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-4"
+    >
+      <div>
+        <label className="text-sm font-medium">Name</label>
+        <Input
+          value={form.name}
+          onChange={(e) => setForm({ ...form, name: e.target.value })}
+        />
+      </div>
+
+      <div>
+        <label className="text-sm font-medium">Email</label>
+        <Input
+          type="email"
+          value={form.email}
+          onChange={(e) => setForm({ ...form, email: e.target.value })}
+        />
+      </div>
+
+      <div>
+        <label className="text-sm font-medium">Department</label>
+        <Input
+          value={form.department}
+          onChange={(e) => setForm({ ...form, department: e.target.value })}
+        />
+      </div>
+
+      <div>
+        <label className="text-sm font-medium">Status</label>
+        <Select
+          value={form.status}
+          onValueChange={(val) => setForm({ ...form, status: val })}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Select status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="active">Active</SelectItem>
+            <SelectItem value="resigned">Resigned</SelectItem>
+            <SelectItem value="suspended">Suspended</SelectItem>
+            <SelectItem value="terminated">Terminated</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <DialogFooter>
+        <Button type="submit">Save</Button>
+      </DialogFooter>
+    </form>
+  </DialogContent>
+</Dialog>
     </div>
   )
+
 }
