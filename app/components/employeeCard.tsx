@@ -2,7 +2,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Clock, Mail, User, Building2 } from "lucide-react"
+import { Clock, Mail, User, Building2, PhoneIcon, CalendarX2 } from "lucide-react"
 import { Employee } from "@/app/types/Employee";
 
 interface EmployeeCardProps {
@@ -74,6 +74,14 @@ export function EmployeeCard({ employee }: EmployeeCardProps) {
 
       <CardContent className="space-y-3 pt-0 px-4 sm:px-6 lg:px-8">
         <div className="grid gap-2 sm:gap-3 lg:gap-4 lg:grid-cols-3">
+        <div className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 lg:p-4 rounded-lg bg-muted/30 border border-border/50">
+            <PhoneIcon className="h-3 w-3 sm:h-4 sm:w-4 lg:h-5 lg:w-5 text-muted-foreground flex-shrink-0" />
+            <div className="min-w-0 flex-1">
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Phone</p>
+              <p className="text-xs sm:text-sm lg:text-base font-medium truncate">{employee.phoneNumber || "—"}</p>
+            </div>
+          </div>
+          
           <div className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 lg:p-4 rounded-lg bg-muted/30 border border-border/50">
             <Mail className="h-3 w-3 sm:h-4 sm:w-4 lg:h-5 lg:w-5 text-muted-foreground flex-shrink-0" />
             <div className="min-w-0 flex-1">
@@ -101,6 +109,22 @@ export function EmployeeCard({ employee }: EmployeeCardProps) {
               </p>
             </div>
           </div>
+
+          {employee.status === "resigned" && (
+            <div className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 lg:p-4 rounded-lg bg-red-50 border border-red-200">
+                <CalendarX2 className="h-3 w-3 sm:h-4 sm:w-4 lg:h-5 lg:w-5 text-red-500 flex-shrink-0" />
+                <div className="min-w-0 flex-1">
+                <p className="text-xs font-medium text-red-600 uppercase tracking-wide">
+                    Resignation Date
+                </p>
+                <p className="text-xs sm:text-sm lg:text-base font-medium">
+                    {employee.resignationDate
+                    ? new Date(employee.resignationDate).toLocaleDateString()
+                    : "—"}
+                </p>
+                </div>
+            </div>
+            )}
         </div>
       </CardContent>
 

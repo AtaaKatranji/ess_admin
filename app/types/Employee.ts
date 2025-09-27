@@ -3,11 +3,13 @@ export interface Employee {
     name: string
     position: string
     department: string
+    phoneNumber?: string
     email?: string
     status: string
     shiftId?: string
     shiftName?: string
     avatar?: string
+    resignationDate?: string
   }
 
 export interface  Holiday  {
