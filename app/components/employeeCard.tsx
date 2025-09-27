@@ -29,6 +29,7 @@ const [form, setForm] = useState({
     email: employee.email || "",
     department: employee.department || "",
     status: employee.status,
+    resignationDate: employee.resignationDate || null,
     });
     const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -227,7 +228,18 @@ const [form, setForm] = useState({
           </SelectContent>
         </Select>
       </div>
-
+      {form.status === "resigned" && (
+    <div>
+      <label className="text-sm font-medium">Resignation Date</label>
+      <Input
+        type="date"
+        value={form.resignationDate ? form.resignationDate.split("T")[0] : ""}
+        onChange={(e) =>
+          setForm({ ...form, resignationDate: e.target.value })
+        }
+      />
+    </div>
+  )}
       <DialogFooter>
         <Button type="submit">Save</Button>
       </DialogFooter>
