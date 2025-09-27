@@ -7,7 +7,7 @@ export interface Employee {
     status: string
     shiftId?: string
     shiftName?: string
-
+    avatar?: string
   }
 
 export interface  Holiday  {

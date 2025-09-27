@@ -9,7 +9,7 @@ import { CalendarIcon, ClockIcon, Star, Rabbit, Turtle, Search, Loader2, Downloa
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip } from "recharts";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
 //import { ScrollArea } from "@/components/ui/scroll-area";
@@ -26,7 +26,7 @@ import NonAttendanceTab from "@/app/components/nonAttendanceDays";
 import { fetchInstitution } from "@/app/api/institutions/institutions";
 import OccasionCard from "@/app/components/OccasionCard";
 import { Holiday, Employee } from "@/app/types/Employee";
-import { Badge } from "@/components/ui/badge";
+import { EmployeeCard } from "@/app/components/employeeCard"; 
 
 type Leave = {
   id: string;
@@ -570,60 +570,19 @@ const EmployeeDetails = () => {
 
   {/* General Info Tab */}
   <TabsContent value="general">
-    <Card>
-      <CardHeader>
-        <CardTitle>General Information</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div>
-          <p className="text-sm text-muted-foreground">Name</p>
-          <p className="font-medium">{data.employee.name}</p>
-        </div>
 
-        <div>
-          <p className="text-sm text-muted-foreground">Email</p>
-          <p className="font-medium">{data.employee.email ?? "—"}</p>
-        </div>
+  <div className="container mx-auto max-w-6xl">
+    {/* <div className="text-center mb-6 sm:mb-8">
+      <h1 className="text-2xl sm:text-3xl font-bold mb-2">Employee Information</h1>
+      <p className="text-sm sm:text-base text-muted-foreground">
+        Modern employee management interface
+      </p>
+    </div> */}
 
-        <div>
-          <p className="text-sm text-muted-foreground">Role</p>
-          <p className="font-medium">{data.employee.position}</p>
-        </div>
-
-        <div>
-          <p className="text-sm text-muted-foreground">Department</p>
-          <p className="font-medium">{data.employee.department ?? "—"}</p>
-        </div>
-        <div>
-          <p className="text-sm text-muted-foreground">Shift</p>
-          <p className="font-medium">
-            {data.shift?.startTime && data.shift?.endTime
-              ? `${data.shift.startTime} - ${data.shift.endTime}`
-              : "Unassigned"}
-          </p>
-        </div>
-        <div>
-          <p className="text-sm text-muted-foreground">Status</p>
-          <Badge
-            variant={
-              data.employee.status === "active"
-                ? "secondary"
-                : data.employee.status === "resigned"
-                ? "destructive"
-                : data.employee.status === "suspended"
-                ? "outline"
-                : "default"
-            }
-          >
-            {data.employee.status}
-          </Badge>
-        </div>
-      </CardContent>
-      <CardFooter>
-        <Button>Edit General Info</Button>
-      </CardFooter>
-    </Card>
+    <EmployeeCard employee={data.employee} />
+  </div>
   </TabsContent>
+
 </Tabs>
 
     </div>
