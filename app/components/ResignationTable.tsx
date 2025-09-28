@@ -7,7 +7,7 @@ import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { toast } from "sonner"
 import {  Check, X } from "lucide-react"
-
+const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
 type Resignation = {
   id: number
   employeeName: string
@@ -27,7 +27,7 @@ export default function ResignationTable({ orgSlug }: Props) {
   const fetchResignations = async () => {
     try {
       setLoading(true)
-      const res = await fetch(`/institutions/${orgSlug}/resignations`)
+      const res = await fetch(`${BaseUrl}/institutions/${orgSlug}/resignations`)
       const data = await res.json()
       setResignations(data)
     } catch {
@@ -43,7 +43,7 @@ export default function ResignationTable({ orgSlug }: Props) {
 
   const handleAction = async (id: number, action: "approve" | "reject") => {
     try {
-      const res = await fetch(`/institutions/${orgSlug}/resignations/${id}/${action}`, {
+      const res = await fetch(`${BaseUrl}/institutions/${orgSlug}/resignations/${id}/${action}`, {
         method: "PATCH",
       })
       if (!res.ok) throw new Error("Action failed")
@@ -56,7 +56,7 @@ export default function ResignationTable({ orgSlug }: Props) {
 
   const handleDelete = async (id: number) => {
     try {
-      const res = await fetch(`/institutions/${orgSlug}/resignations/${id}`, {
+      const res = await fetch(`${BaseUrl}/institutions/${orgSlug}/resignations/${id}`, {
         method: "DELETE",
       })
       if (!res.ok) throw new Error("Delete failed")
@@ -75,7 +75,7 @@ export default function ResignationTable({ orgSlug }: Props) {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-xl font-bold">Resignation Requests</h2>
+     
 
       <Tabs defaultValue="pending" className="w-full">
         <TabsList className="grid grid-cols-3 w-full mb-4">
