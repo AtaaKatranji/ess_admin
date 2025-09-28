@@ -316,7 +316,7 @@ return (
           </div>
     </div>
 
-    <div className="w-full bg-white rounded-xl shadow-sm border border-slate-200 p-2 mb-6 grid grid-cols-2 gap-4">
+    <div className="w-full bg-white rounded-xl shadow-sm border border-slate-200 p-2 mb-6 grid grid-cols-3 gap-4">
       <button
         className={`flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
           leaveType === "daily"
@@ -341,7 +341,7 @@ return (
       </button>
       <button
         className={`flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
-          leaveType === "hourly"
+          leaveType === "resignation"
             ? "bg-blue-600 text-white shadow-sm"
             : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
         }`}
