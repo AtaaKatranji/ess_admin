@@ -27,7 +27,13 @@ export default function ResignationTable({ orgSlug }: Props) {
   const fetchResignations = async () => {
     try {
       setLoading(true)
-      const res = await fetch(`${BaseUrl}/institutions/${orgSlug}/resignations`)
+      const res = await fetch(`${BaseUrl}/institutions/${orgSlug}/resignations`, {
+        method: "GET",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
       const data = await res.json()
       setResignations(data)
     } catch {
@@ -45,6 +51,10 @@ export default function ResignationTable({ orgSlug }: Props) {
     try {
       const res = await fetch(`${BaseUrl}/institutions/${orgSlug}/resignations/${id}/${action}`, {
         method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
       })
       if (!res.ok) throw new Error("Action failed")
       toast.success(`Resignation ${action}d`)
@@ -58,6 +68,10 @@ export default function ResignationTable({ orgSlug }: Props) {
     try {
       const res = await fetch(`${BaseUrl}/institutions/${orgSlug}/resignations/${id}`, {
         method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
       })
       if (!res.ok) throw new Error("Delete failed")
       toast.success("Resignation deleted")
