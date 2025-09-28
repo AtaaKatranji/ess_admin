@@ -13,6 +13,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Button } from "@/components/ui/button"
 import { useInstitution } from "@/app/context/InstitutionContext"
 import { toast } from "react-toastify"
+import ResignationTable from "@/app/components/ResignationTable"
 
 
 
@@ -45,14 +46,24 @@ type HourlyLeave = {
     name: string;
   };
 }
+// نوع الاستقالة
+// type ResignationRequest = {
+//   id: string;
+//   employee: { id: string; name: string };
+//   resignationDate: string;
+//   reason: string | null;
+//   status: "Pending" | "Approved" | "Rejected";
+//   reviewedBy?: string | null;
+//   reviewedAt?: string | null;
+// };
 export default function LeaveRequestsPage() {
   const [requests, setRequests] = useState<LeaveRequest[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [hourlyLeaves, setHourlyLeaves] = useState<HourlyLeave[]>([]);
   const [activeTab, setActiveTab] = useState("pending")
-  const [leaveType, setLeaveType] = useState<"daily" | "hourly">("daily");
+  const [leaveType, setLeaveType] = useState<"daily" | "hourly" | "resignation">("daily");
   const [filterDate, setFilterDate] = useState("");
-
+  // const [resignations, setResignations] = useState<ResignationRequest[]>([]);
   const { slug } = useInstitution(); 
   //const { institutionKey } = useInstitution();
   // const [expandedRequest, setExpandedRequest] = useState<string | null>(null);
@@ -74,6 +85,12 @@ export default function LeaveRequestsPage() {
         list: `${base}/break/employee-breaks/request-custom-break?customBreak=true`,
         status: (id: string) => `${base}/break/employee-breaks/${id}/status`,
       },
+      // resignations: {
+      //   list: `${base}/resignations`,
+      //   approve: (id: string) => `${base}/resignations/${id}/approve`,
+      //   reject: (id: string) => `${base}/resignations/${id}/reject`,
+      //   delete: (id: string) => `${base}/resignations/${id}`,
+      // }
     };
   }, [BaseUrl, slug]);
   const fetchLeaveRequests = async () => {
@@ -132,12 +149,27 @@ export default function LeaveRequestsPage() {
       setHourlyLeaves([]);
     }
   };
+  // const fetchResignations = async () => {
+  //   if (!orgApi) return;
+  //   try {
+  //     const res = await fetch(orgApi.resignations.list, {
+  //       method: "GET",
+  //       credentials: "include",
+  //     });
+  //     if (!res.ok) throw new Error("Failed to fetch resignations");
+  //     const data = await res.json();
+  //     setResignations(Array.isArray(data) ? data : []);
+  //   } catch {
+  //     toast.error("Error loading resignations");
+  //   }
+  // }; 
  
   // Fetch hourly leaves (custom breaks)
   useEffect(() => {
     if (!orgApi) return;
     fetchLeaveRequests();
     fetchHourlyLeaves();
+    // fetchResignations();
   }, [orgApi]);
 
   useEffect(() => {
@@ -161,7 +193,6 @@ export default function LeaveRequestsPage() {
     if (!response.ok) throw new Error("Failed to approve leave request");
     setRequests((prev) => prev.map((req) => (req.id === id ? { ...req, status: "Approved" } : req)));
   };
-
   const handleReject = async (id: string) => {
     if (!orgApi) return;
     const response = await fetch(orgApi.leaves.reject(id), {
@@ -172,34 +203,33 @@ export default function LeaveRequestsPage() {
     if (!response.ok) throw new Error("Failed to reject leave request");
     setRequests((prev) => prev.map((req) => (req.id === id ? { ...req, status: "Rejected" } : req)));
   };
-
   const handleTypeChange = (id: string, type: string) => {
     setRequests(requests!.map((req) => (req.id === id ? { ...req, type: type as "Paid" | "Unpaid" } : req)))
   }
-// Handle hourly leave requests
-// ===== Actions (Hourly) =====
-const updateHourlyStatus = async (id: string, status: "Approved" | "Rejected") => {
-  if (!orgApi) return;
-  const response = await fetch(orgApi.hourly.status(id), {
-    method: "POST",
-    credentials: "include",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ status }),
-  });
-  if (!response.ok) throw new Error(`Failed to ${status.toLowerCase()} hourly leave`);
-  const updated = await response.json(); // توقع { status: "Approved" | "Rejected" ... }
-  setHourlyLeaves((prev) =>
-    prev.map((leave) =>
-      leave.breakDetails.id === id
-        ? { ...leave, breakDetails: { ...leave.breakDetails, status: updated.status } }
-        : leave
-    )
-  );
-};
+  // Handle hourly leave requests
+  // ===== Actions (Hourly) =====
+  const updateHourlyStatus = async (id: string, status: "Approved" | "Rejected") => {
+    if (!orgApi) return;
+    const response = await fetch(orgApi.hourly.status(id), {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status }),
+    });
+    if (!response.ok) throw new Error(`Failed to ${status.toLowerCase()} hourly leave`);
+    const updated = await response.json(); // توقع { status: "Approved" | "Rejected" ... }
+    setHourlyLeaves((prev) =>
+      prev.map((leave) =>
+        leave.breakDetails.id === id
+          ? { ...leave, breakDetails: { ...leave.breakDetails, status: updated.status } }
+          : leave
+      )
+    );
+  };
 
-const handleApproveHourlyLeave = (id: string) => updateHourlyStatus(id, "Approved");
-const handleRejectHourlyLeave = (id: string) => updateHourlyStatus(id, "Rejected");
-
+  const handleApproveHourlyLeave = (id: string) => updateHourlyStatus(id, "Approved");
+  const handleRejectHourlyLeave = (id: string) => updateHourlyStatus(id, "Rejected");
+  
   // Filter daily leave requests
   const filteredRequests = requests!.filter((req) => {
     //req.employeeName.toLowerCase().includes(searchQuery.toLowerCase())
@@ -309,6 +339,17 @@ return (
         <Clock className="h-4 w-4" />
         <span>Hourly Leaves</span>
       </button>
+      <button
+        className={`flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
+          leaveType === "hourly"
+            ? "bg-blue-600 text-white shadow-sm"
+            : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+        }`}
+        onClick={() => setLeaveType("resignation")}
+      >
+        <Clock className="h-4 w-4" />
+        <span>Resignations</span>
+      </button>
     </div>
 
     {leaveType === "daily" ? (
@@ -380,7 +421,7 @@ return (
           )}
         </TabsContent>
       </Tabs>
-    ) : (
+    ) : leaveType === "hourly" ? (
       <Tabs defaultValue="pending" className="w-full" onValueChange={setActiveTab} value={activeTab}>
         <TabsList className="grid grid-cols-3 mb-4">
           <TabsTrigger value="pending" className="relative">
@@ -440,7 +481,9 @@ return (
           )}
         </TabsContent>
       </Tabs>
-    )}
+    ) : (
+      // ✨ استدعاء الاستقالات
+      <ResignationTable orgSlug={slug!} /> )}
   </div>
 )
 }
