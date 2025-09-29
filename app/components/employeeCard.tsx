@@ -16,6 +16,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
 import { toast } from "react-toastify";
+import ResignDialog from "./resignDialog";
 const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
 interface EmployeeCardProps {
   employee: Employee
@@ -24,6 +25,7 @@ interface EmployeeCardProps {
 export function EmployeeCard({ employee }: EmployeeCardProps) {
 
 const [isEditOpen, setIsEditOpen] = useState(false);
+const [isResignOpen, setIsResignOpen] = useState(false);
 const [form, setForm] = useState({
     name: employee.name,
     phoneNumber: employee.phoneNumber,
@@ -93,7 +95,28 @@ return name
     .toUpperCase()
     .slice(0, 2)
 }
+const handleResign = async () => {
+  try {
+    const payload = {
+      status: "resigned",
+      resignationDate: new Date().toISOString().split("T")[0], // today’s date
+    };
 
+    const res = await fetch(`${BaseUrl}/api/users/${employee.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) throw new Error("Failed to resign employee");
+
+    toast.success("Employee resigned successfully!");
+    setIsResignOpen(false);
+  } catch {
+    toast.error("Error while resigning employee");
+  }
+};
   return (
     <div className="container mx-auto px-4">
   <Card className="w-full shadow-lg border-0 bg-gradient-to-br from-card to-card/80 backdrop-blur-sm">
@@ -184,6 +207,14 @@ return name
           <User className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
           Edit General Info
         </Button>
+        <Button
+          variant="destructive"
+          onClick={() => setIsResignOpen(true)}
+          className="flex-1 lg:flex-none font-medium shadow-sm"
+        >
+          <CalendarX2 className="h-4 w-4 mr-2" />
+          Resign Employee
+        </Button>
       </CardFooter>
     </Card>
     
@@ -265,6 +296,12 @@ return name
     </form>
   </DialogContent>
 </Dialog>
+<ResignDialog
+  employeeName={employee.name}
+  open={isResignOpen}
+  onOpenChange={setIsResignOpen}
+  onConfirm={handleResign}
+/>
     </div>
   )
 

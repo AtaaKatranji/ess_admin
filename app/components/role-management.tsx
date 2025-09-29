@@ -40,6 +40,7 @@ const PERMISSION_CATEGORIES = [
   "Reports & Analytics",
   "Break Management",
   "Leave Management",
+  "Resignation Management",
   "Holiday Management",
 ]
 
