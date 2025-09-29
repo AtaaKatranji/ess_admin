@@ -6,15 +6,17 @@ import { Input } from "@/components/ui/input"
 import { AlertTriangle } from "lucide-react"
 
 
+
 interface ResignDialogProps {
   employeeName: string
-  onConfirm: () => void
+  onConfirm: (resignReason: string) => void
   open: boolean
   onOpenChange: (open: boolean) => void
 }
 
 function ResignDialog({ employeeName, onConfirm, open, onOpenChange }: ResignDialogProps) {
   const [typedName, setTypedName] = useState("")
+  const [reason, setReason] = useState("")
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -43,6 +45,11 @@ function ResignDialog({ employeeName, onConfirm, open, onOpenChange }: ResignDia
             value={typedName}
             onChange={(e) => setTypedName(e.target.value)}
           />
+          <Input
+            placeholder={`Reason (optional)`}
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+          />
         </div>
 
         <DialogFooter>
@@ -52,7 +59,7 @@ function ResignDialog({ employeeName, onConfirm, open, onOpenChange }: ResignDia
           <Button
             variant="destructive"
             disabled={typedName !== employeeName}
-            onClick={onConfirm}
+            onClick={() => onConfirm(reason)}  
           >
             Confirm Resignation
           </Button>

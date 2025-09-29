@@ -20,9 +20,10 @@ import ResignDialog from "./resignDialog";
 const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
 interface EmployeeCardProps {
   employee: Employee
+  slug: string
 }
 
-export function EmployeeCard({ employee }: EmployeeCardProps) {
+export function EmployeeCard({ employee, slug  }: EmployeeCardProps) {
 
 const [isEditOpen, setIsEditOpen] = useState(false);
 const [isResignOpen, setIsResignOpen] = useState(false);
@@ -95,15 +96,18 @@ return name
     .toUpperCase()
     .slice(0, 2)
 }
-const handleResign = async () => {
+const handleResign = async ( resignReason: string) => {
   try {
     const payload = {
+      employeeId: employee.id,
       status: "resigned",
       resignationDate: new Date().toISOString().split("T")[0], // today’s date
+      shiftId: null, // unassign shift
+      reason: resignReason || null,
     };
 
-    const res = await fetch(`${BaseUrl}/api/users/${employee.id}`, {
-      method: "PUT",
+    const res = await fetch(`${BaseUrl}/institution/${slug}/resignations/force`, {
+      method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
       body: JSON.stringify(payload),
@@ -200,7 +204,7 @@ const handleResign = async () => {
         </div>
       </CardContent>
 
-      <CardFooter className="pt-3 px-4 sm:px-6 lg:px-8">
+      <CardFooter className="pt-3 px-4 sm:px-6 lg:px-8 gap-4 sm:gap-6 lg:gap-8">
         <Button 
         onClick={() => setIsEditOpen(true)}
         className="w-full lg:w-auto font-medium shadow-sm hover:shadow-md transition-all duration-200 text-sm py-2 px-4 lg:px-6">
@@ -300,7 +304,7 @@ const handleResign = async () => {
   employeeName={employee.name}
   open={isResignOpen}
   onOpenChange={setIsResignOpen}
-  onConfirm={handleResign}
+  onConfirm={(resignReason) => handleResign(resignReason)}
 />
     </div>
   )

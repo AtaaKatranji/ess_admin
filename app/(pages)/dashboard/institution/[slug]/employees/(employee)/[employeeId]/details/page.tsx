@@ -581,7 +581,7 @@ const EmployeeDetails = () => {
       </p>
     </div> */}
 
-    <EmployeeCard employee={data.employee} />
+    <EmployeeCard employee={data.employee} slug={slug!} />
   </div>
   </TabsContent>
 
