@@ -106,7 +106,7 @@ const handleResign = async ( resignReason: string) => {
       reason: resignReason || null,
     };
 
-    const res = await fetch(`${BaseUrl}/institutions/${slug}/resignation/force`, {
+    const res = await fetch(`${BaseUrl}//institutions/${slug}/resignations/force`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
