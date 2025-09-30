@@ -266,33 +266,36 @@ const EmployeeDetails = () => {
     <div className="container px-4 space-y-4">
       <ToastContainer />
       <Tabs defaultValue={data.employee?.status === "active" ? "attendance" : "general"}>
-  <TabsList>
-    <TabsTrigger value="attendance">Attendance</TabsTrigger>
-    <TabsTrigger value="general">General Info</TabsTrigger>
-  </TabsList>
+        <TabsList>
+          <TabsTrigger value="attendance">Attendance</TabsTrigger>
+          <TabsTrigger value="general">General Info</TabsTrigger>
+        </TabsList>
 
-  {/* Attendance Tab */}
-  <TabsContent value="attendance">
-      <div className="flex justify-between items-center mb-4">
-      if (!data.shift) ? (
-      
-        <div className="container px-4 space-y-4">
-          <ToastContainer />
-          <Card>
-            <CardContent>
-              <p className="text-muted-foreground">
-                This employee has resigned. No active shift assigned.
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-      
+        {/* Attendance Tab */}
+        <TabsContent value="attendance">
+  <div className="flex justify-between items-center mb-4">
+    {data.employee?.status === "terminated" ? (
+      <div className="flex justify-center items-center w-full">
+        <p className="text-muted-foreground">
+          This employee has been terminated. No attendance records available.
+        </p>
+      </div>
+    ) : !data.shift ? (
+      <div className="flex justify-center items-center w-full">
+        <p className="text-muted-foreground">
+          This employee has resigned or is not assigned to any shift. No active shift available.
+        </p>
+      </div>
     ) : (
+      <>
         <h1 className="hidden md:block lg:hidden xl:block text-xl md:text-2xl font-bold">
           {data.employee.name || "Employee"}'s Attendance Dashboard
         </h1>
         <div className="flex items-center space-x-2">
-          <Button className="bg-cyan-900 text-white" onClick={() => setIsModalOpen(true)}>
+          <Button
+            className="bg-cyan-900 text-white"
+            onClick={() => setIsModalOpen(true)}
+          >
             Add Extra Hours
           </Button>
           <AddExtraHoursModal
@@ -317,302 +320,356 @@ const EmployeeDetails = () => {
               />
             </PopoverContent>
           </Popover>
-          <Button onClick={exportMonthlyReport} className="bg-cyan-900 text-white">
-            {isLoadingPdf ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Download className="mr-2 h-4 w-4" />}
+          <Button
+            onClick={exportMonthlyReport}
+            className="bg-cyan-900 text-white"
+          >
+            {isLoadingPdf ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <Download className="mr-2 h-4 w-4" />
+            )}
             {isLoadingPdf ? "Exporting..." : "Export Report"}
           </Button>
         </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 mb-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Hours</CardTitle>
-            <ClockIcon className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {(data.totalHours || 0) + (data.addedHours || 0)} <span className="text-base font-medium">hours</span>
-            </div>
-            <p className="text-xs text-muted-foreground">{getMonthDisplay(selectedMonth)}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Late Hours</CardTitle>
-            <Turtle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{data.lateHours || 0} <span className="text-base font-medium">hours</span></div>
-            <p className="text-xs text-muted-foreground">{getMonthDisplay(selectedMonth)}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Early Leaves</CardTitle>
-            <Rabbit className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{data.earlyLeaveHours || 0} <span className="text-base font-medium">hours</span></div>
-            <p className="text-xs text-muted-foreground">{getMonthDisplay(selectedMonth)}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Early Arrivals</CardTitle>
-            <ClockIcon className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{data.earlyArrivalHours || 0} <span className="text-base font-medium">hours</span></div>
-            <p className="text-xs text-muted-foreground">{getMonthDisplay(selectedMonth)}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Extra Hours</CardTitle>
-            <Star className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {data.extraAttendanceHours || 0}
-              {data.addedHours ? <> + <span className="text-cyan-800">{data.addedHours}</span></> : null}
-            </div>
-            <p className="text-xs text-muted-foreground">{getMonthDisplay(selectedMonth)}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Leave Days</CardTitle>
-            <LucideArchiveRestore className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="flex justify-between">
-              <div className="flex flex-col items-start">
-                <div className="text-lg font-bold">{data.paidLeaves || 0}</div>
-                <p className="text-xs text-muted-foreground">Paid Leave</p>
-              </div>
-              <div className="px-2 text-muted-foreground">|</div>
-              <div className="flex flex-col items-start">
-                <div className="text-lg font-bold">{data.unpaidLeaves || 0}</div>
-                <p className="text-xs text-muted-foreground">Unpaid Leave</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-      <AnnualLeaveCard employeeId={employeeId} />
-      {data.shift ? (
-    <OccasionCard holidays={data.holidays} shiftType={data.shift} />
-      ) : (
-        <Card>
-          <CardContent>
-            <p className="text-muted-foreground">
-              This employee has resigned. No active shift assigned.
-            </p>
-          </CardContent>
-        </Card>
-      )}
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-        <Card>
-          <CardHeader>
-            <CardTitle>Attendance Comparison</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={data.comparisonData}>
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="attendance" fill="#8884d8" />
-                <Bar dataKey="absences" fill="#82ca9d" />
-                <Bar dataKey="tardies" fill="#ffc658" />
-              </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base">Monthly Summary</CardTitle>
-          </CardHeader>
-
-          <CardContent>
-
-            {/* موبايل: بطاقات بدل جدول */}
-            <div className="sm:hidden space-y-3">
-              {data.monthlySummary.map((row) => (
-                <div key={row.month} className="rounded-lg border p-3">
-                  <div className="flex items-center justify-between">
-                    <div className="font-medium">{row.month}</div>
-                  </div>
-                  <dl className="mt-2 grid grid-cols-3 gap-3 text-sm">
-                    <div>
-                      <dt className="text-muted-foreground">Attendance</dt>
-                      <dd className="font-medium tabular-nums">{row.totalAttendance}</dd>
-                    </div>
-                    <div>
-                      <dt className="text-muted-foreground">Absences</dt>
-                      <dd className="font-medium tabular-nums">{row.absences}</dd>
-                    </div>
-                    <div>
-                      <dt className="text-muted-foreground">Tardies</dt>
-                      <dd className="font-medium tabular-nums">{row.tardies}</dd>
-                    </div>
-                  </dl>
-                </div>
-              ))}
-            </div>
-
-            {/* تابلِت/ديسكتوب: جدول بلا سكرول */}
-            <div className="hidden sm:block">
-              <table className="w-full table-fixed border-separate border-spacing-0 text-sm">
-                {/* نسب الأعمدة حتى يضل الجدول ضمن الكارد */}
-                <colgroup>
-                  <col className="w-[40%]" />
-                  <col className="w-[20%]" />
-                  <col className="w-[20%]" />
-                  <col className="w-[20%]" />
-                </colgroup>
-
-                <thead className="bg-muted/50">
-                  <tr className="text-muted-foreground">
-                    <th className="px-3 py-2 text-left font-medium">Month</th>
-                    <th className="px-3 py-2 text-right font-medium">Attendance</th>
-                    <th className="px-3 py-2 text-right font-medium">Absences</th>
-                    <th className="px-3 py-2 text-right font-medium">Tardies</th>
-                  </tr>
-                </thead>
-
-                <tbody className="[&_tr:last-child]:border-0">
-                  {data.monthlySummary.map((row) => (
-                    <tr key={row.month} className="border-b">
-                      <td className="px-3 py-2 whitespace-nowrap">{row.month}</td>
-                      <td className="px-3 py-2 text-right tabular-nums">{row.totalAttendance}</td>
-                      <td className="px-3 py-2 text-right tabular-nums">{row.absences}</td>
-                      <td className="px-3 py-2 text-right tabular-nums">{row.tardies}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </CardContent>
-        </Card>
-
-
-      </div>
-      <section className="mx-auto max-w-6xl px-4 sm:px-6 min-w-0 min-h-0 overflow-x-hidden">
-      <Tabs defaultValue="attendance" className="space-y-6">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <TabsList>
-          <TabsTrigger value="attendance" >Attendance Records</TabsTrigger>
-          <TabsTrigger value="leave">Leave Requests</TabsTrigger>
-          <TabsTrigger value="absent">Absences</TabsTrigger>
-          <TabsTrigger value="hourlyLeaves">Hourly Leaves</TabsTrigger>
-          <TabsTrigger value="dayRecords">Day Records</TabsTrigger>
-        </TabsList>
-        </div>
-        <TabsContent value="attendance" className="space-y-4 min-h-0">
-          <AttendanceTab employeeId={employeeId} selectedMonth={selectedMonth} />
-        </TabsContent>
-        <TabsContent value="leave" className="space-y-4 min-h-0">
-          <div className="flex justify-between items-center">
-            <h2 className="text-xl font-semibold">Leave Requests</h2>
-            <div className="relative">
-              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search records"
-                className="pl-8"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-          </div>
-          <Card>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-4">
-                {/* Paid */}
-                <section>
-                  <h3 className="text-lg font-bold mb-2">Paid Leaves</h3>
-                  {filteredLeaves.filter(r => r.type === "Paid").length ? (
-                    filteredLeaves.filter(r => r.type === "Paid").map((record) => (
-                      <div
-                        key={record.id}
-                        className="flex justify-between items-center py-2 border-b last:border-b-0 hover:bg-accent cursor-pointer"
-                      >
-                        <div>
-                          <p className="font-medium">{format(new Date(record.startDate), "MMMM d, yyyy")}</p>
-                          <p className="text-sm text-muted-foreground">
-                            Start: {format(new Date(record.startDate), "yyyy MM dd")}, End: {format(new Date(record.endDate), "yyyy MM dd")}
-                          </p>
-                          <p>For: {record.reason}</p>
-                        </div>
-                        <p>No. of days: {record.durationInDays}</p>
-                      </div>
-                    ))
-                  ) : (
-                    <p className="text-sm text-muted-foreground">No paid leave records available.</p>
-                  )}
-                </section>
-
-                {/* Unpaid */}
-                <section>
-                  <h3 className="text-lg font-medium mb-2">Unpaid Leaves</h3>
-                  {filteredLeaves.filter(r => r.type === "Unpaid").length ? (
-                    filteredLeaves.filter(r => r.type === "Unpaid").map((record) => (
-                      <div
-                        key={record.id}
-                        className="flex justify-between items-center py-2 border-b last:border-b-0 hover:bg-accent cursor-pointer"
-                      >
-                        <div>
-                          <p className="font-medium">{format(new Date(record.startDate), "MMMM d, yyyy")}</p>
-                          <p className="text-sm text-muted-foreground">
-                            Start: {format(new Date(record.startDate), "yyyy MM dd")}, End: {format(new Date(record.endDate), "yyyy MM dd")}
-                          </p>
-                          <p>For: {record.reason}</p>
-                        </div>
-                        <p>No. of days: {record.durationInDays}</p>
-                      </div>
-                    ))
-                  ) : (
-                    <p className="text-sm text-muted-foreground">No unpaid leave records available.</p>
-                  )}
-                </section>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-        <TabsContent value="absent" className="space-y-4 min-h-0">
-          <AbsentTab employeeId={employeeId} selectedMonth={selectedMonth} />
-        </TabsContent>
-        <TabsContent value="hourlyLeaves" className="space-y-4 min-h-0">
-          <HourlyLeavesTab employeeId={employeeId} selectedMonth={selectedMonth} />
-        </TabsContent>
-        <TabsContent value="dayRecords" className="space-y-4 min-h-0">
-          <NonAttendanceTab employeeId={employeeId} selectedMonth={selectedMonth} slug={slug!} holidays={data.holidays}  />
-        </TabsContent>
-      </Tabs>
-      </section>
-  </TabsContent>
-
-  {/* General Info Tab */}
-  <TabsContent value="general">
-
-  <div className="container mx-auto max-w-6xl">
-    {/* <div className="text-center mb-6 sm:mb-8">
-      <h1 className="text-2xl sm:text-3xl font-bold mb-2">Employee Information</h1>
-      <p className="text-sm sm:text-base text-muted-foreground">
-        Modern employee management interface
-      </p>
-    </div> */}
-
-    <EmployeeCard employee={data.employee} slug={slug!} />
+      </>
+    )}
   </div>
-  </TabsContent>
 
-</Tabs>
-    );
+  {/* باقي محتوى التاب (الكروت والجداول...) بتحطو هون بس بشرط انه يظهر فقط لما في shift */}
+  {data.employee?.status === "active" && data.shift && (
+    <>
+      {/* Cards + AnnualLeaveCard + OccasionCard + Comparison + Summary + Tabs الداخلية */}
+      <div className="flex justify-between items-center mb-4">
+
+              <h1 className="hidden md:block lg:hidden xl:block text-xl md:text-2xl font-bold">
+                {data.employee.name || "Employee"}'s Attendance Dashboard
+              </h1>
+              <div className="flex items-center space-x-2">
+                <Button className="bg-cyan-900 text-white" onClick={() => setIsModalOpen(true)}>
+                  Add Extra Hours
+                </Button>
+                <AddExtraHoursModal
+                  isOpen={isModalOpen}
+                  onClose={() => setIsModalOpen(false)}
+                  employeeId={employeeId}
+                  monthIndex={selectedMonth}
+                />
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline">
+                      {format(selectedMonth, "MMMM yyyy")}
+                      <CalendarIcon className="ml-2 h-4 w-4" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0 font-bold" align="end">
+                    <Calendar
+                      mode="single"
+                      selected={selectedMonth}
+                      onSelect={(date) => date && setSelectedMonth(date)}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+                <Button onClick={exportMonthlyReport} className="bg-cyan-900 text-white">
+                  {isLoadingPdf ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Download className="mr-2 h-4 w-4" />}
+                  {isLoadingPdf ? "Exporting..." : "Export Report"}
+                </Button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 mb-4">
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Total Hours</CardTitle>
+                  <ClockIcon className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">
+                    {(data.totalHours || 0) + (data.addedHours || 0)} <span className="text-base font-medium">hours</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">{getMonthDisplay(selectedMonth)}</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Late Hours</CardTitle>
+                  <Turtle className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{data.lateHours || 0} <span className="text-base font-medium">hours</span></div>
+                  <p className="text-xs text-muted-foreground">{getMonthDisplay(selectedMonth)}</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Early Leaves</CardTitle>
+                  <Rabbit className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{data.earlyLeaveHours || 0} <span className="text-base font-medium">hours</span></div>
+                  <p className="text-xs text-muted-foreground">{getMonthDisplay(selectedMonth)}</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Early Arrivals</CardTitle>
+                  <ClockIcon className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{data.earlyArrivalHours || 0} <span className="text-base font-medium">hours</span></div>
+                  <p className="text-xs text-muted-foreground">{getMonthDisplay(selectedMonth)}</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Extra Hours</CardTitle>
+                  <Star className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">
+                    {data.extraAttendanceHours || 0}
+                    {data.addedHours ? <> + <span className="text-cyan-800">{data.addedHours}</span></> : null}
+                  </div>
+                  <p className="text-xs text-muted-foreground">{getMonthDisplay(selectedMonth)}</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-sm font-medium">Leave Days</CardTitle>
+                  <LucideArchiveRestore className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="flex justify-between">
+                    <div className="flex flex-col items-start">
+                      <div className="text-lg font-bold">{data.paidLeaves || 0}</div>
+                      <p className="text-xs text-muted-foreground">Paid Leave</p>
+                    </div>
+                    <div className="px-2 text-muted-foreground">|</div>
+                    <div className="flex flex-col items-start">
+                      <div className="text-lg font-bold">{data.unpaidLeaves || 0}</div>
+                      <p className="text-xs text-muted-foreground">Unpaid Leave</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <AnnualLeaveCard employeeId={employeeId} />
+            {data.shift ? (
+          <OccasionCard holidays={data.holidays} shiftType={data.shift} />
+            ) : (
+              <Card>
+                <CardContent>
+                  <p className="text-muted-foreground">
+                    This employee has resigned. No active shift assigned.
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Attendance Comparison</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={data.comparisonData}>
+                      <XAxis dataKey="name" />
+                      <YAxis />
+                      <Tooltip />
+                      <Bar dataKey="attendance" fill="#8884d8" />
+                      <Bar dataKey="absences" fill="#82ca9d" />
+                      <Bar dataKey="tardies" fill="#ffc658" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-base">Monthly Summary</CardTitle>
+                </CardHeader>
+
+                <CardContent>
+
+                  {/* موبايل: بطاقات بدل جدول */}
+                  <div className="sm:hidden space-y-3">
+                    {data.monthlySummary.map((row) => (
+                      <div key={row.month} className="rounded-lg border p-3">
+                        <div className="flex items-center justify-between">
+                          <div className="font-medium">{row.month}</div>
+                        </div>
+                        <dl className="mt-2 grid grid-cols-3 gap-3 text-sm">
+                          <div>
+                            <dt className="text-muted-foreground">Attendance</dt>
+                            <dd className="font-medium tabular-nums">{row.totalAttendance}</dd>
+                          </div>
+                          <div>
+                            <dt className="text-muted-foreground">Absences</dt>
+                            <dd className="font-medium tabular-nums">{row.absences}</dd>
+                          </div>
+                          <div>
+                            <dt className="text-muted-foreground">Tardies</dt>
+                            <dd className="font-medium tabular-nums">{row.tardies}</dd>
+                          </div>
+                        </dl>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* تابلِت/ديسكتوب: جدول بلا سكرول */}
+                  <div className="hidden sm:block">
+                    <table className="w-full table-fixed border-separate border-spacing-0 text-sm">
+                      {/* نسب الأعمدة حتى يضل الجدول ضمن الكارد */}
+                      <colgroup>
+                        <col className="w-[40%]" />
+                        <col className="w-[20%]" />
+                        <col className="w-[20%]" />
+                        <col className="w-[20%]" />
+                      </colgroup>
+
+                      <thead className="bg-muted/50">
+                        <tr className="text-muted-foreground">
+                          <th className="px-3 py-2 text-left font-medium">Month</th>
+                          <th className="px-3 py-2 text-right font-medium">Attendance</th>
+                          <th className="px-3 py-2 text-right font-medium">Absences</th>
+                          <th className="px-3 py-2 text-right font-medium">Tardies</th>
+                        </tr>
+                      </thead>
+
+                      <tbody className="[&_tr:last-child]:border-0">
+                        {data.monthlySummary.map((row) => (
+                          <tr key={row.month} className="border-b">
+                            <td className="px-3 py-2 whitespace-nowrap">{row.month}</td>
+                            <td className="px-3 py-2 text-right tabular-nums">{row.totalAttendance}</td>
+                            <td className="px-3 py-2 text-right tabular-nums">{row.absences}</td>
+                            <td className="px-3 py-2 text-right tabular-nums">{row.tardies}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </CardContent>
+              </Card>
+
+
+            </div>
+            <section className="mx-auto max-w-6xl px-4 sm:px-6 min-w-0 min-h-0 overflow-x-hidden">
+            <Tabs defaultValue="attendance" className="space-y-6">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <TabsList>
+                <TabsTrigger value="attendance" >Attendance Records</TabsTrigger>
+                <TabsTrigger value="leave">Leave Requests</TabsTrigger>
+                <TabsTrigger value="absent">Absences</TabsTrigger>
+                <TabsTrigger value="hourlyLeaves">Hourly Leaves</TabsTrigger>
+                <TabsTrigger value="dayRecords">Day Records</TabsTrigger>
+              </TabsList>
+              </div>
+              <TabsContent value="attendance" className="space-y-4 min-h-0">
+                <AttendanceTab employeeId={employeeId} selectedMonth={selectedMonth} />
+              </TabsContent>
+              <TabsContent value="leave" className="space-y-4 min-h-0">
+                <div className="flex justify-between items-center">
+                  <h2 className="text-xl font-semibold">Leave Requests</h2>
+                  <div className="relative">
+                    <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      placeholder="Search records"
+                      className="pl-8"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                  </div>
+                </div>
+                <Card>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-4">
+                      {/* Paid */}
+                      <section>
+                        <h3 className="text-lg font-bold mb-2">Paid Leaves</h3>
+                        {filteredLeaves.filter(r => r.type === "Paid").length ? (
+                          filteredLeaves.filter(r => r.type === "Paid").map((record) => (
+                            <div
+                              key={record.id}
+                              className="flex justify-between items-center py-2 border-b last:border-b-0 hover:bg-accent cursor-pointer"
+                            >
+                              <div>
+                                <p className="font-medium">{format(new Date(record.startDate), "MMMM d, yyyy")}</p>
+                                <p className="text-sm text-muted-foreground">
+                                  Start: {format(new Date(record.startDate), "yyyy MM dd")}, End: {format(new Date(record.endDate), "yyyy MM dd")}
+                                </p>
+                                <p>For: {record.reason}</p>
+                              </div>
+                              <p>No. of days: {record.durationInDays}</p>
+                            </div>
+                          ))
+                        ) : (
+                          <p className="text-sm text-muted-foreground">No paid leave records available.</p>
+                        )}
+                      </section>
+
+                      {/* Unpaid */}
+                      <section>
+                        <h3 className="text-lg font-medium mb-2">Unpaid Leaves</h3>
+                        {filteredLeaves.filter(r => r.type === "Unpaid").length ? (
+                          filteredLeaves.filter(r => r.type === "Unpaid").map((record) => (
+                            <div
+                              key={record.id}
+                              className="flex justify-between items-center py-2 border-b last:border-b-0 hover:bg-accent cursor-pointer"
+                            >
+                              <div>
+                                <p className="font-medium">{format(new Date(record.startDate), "MMMM d, yyyy")}</p>
+                                <p className="text-sm text-muted-foreground">
+                                  Start: {format(new Date(record.startDate), "yyyy MM dd")}, End: {format(new Date(record.endDate), "yyyy MM dd")}
+                                </p>
+                                <p>For: {record.reason}</p>
+                              </div>
+                              <p>No. of days: {record.durationInDays}</p>
+                            </div>
+                          ))
+                        ) : (
+                          <p className="text-sm text-muted-foreground">No unpaid leave records available.</p>
+                        )}
+                      </section>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+              <TabsContent value="absent" className="space-y-4 min-h-0">
+                <AbsentTab employeeId={employeeId} selectedMonth={selectedMonth} />
+              </TabsContent>
+              <TabsContent value="hourlyLeaves" className="space-y-4 min-h-0">
+                <HourlyLeavesTab employeeId={employeeId} selectedMonth={selectedMonth} />
+              </TabsContent>
+              <TabsContent value="dayRecords" className="space-y-4 min-h-0">
+                <NonAttendanceTab employeeId={employeeId} selectedMonth={selectedMonth} slug={slug!} holidays={data.holidays}  />
+              </TabsContent>
+            </Tabs>
+            </section>
+    </>
+  )}
+</TabsContent>
+
+
+
+        {/* General Info Tab */}
+        <TabsContent value="general">
+
+        <div className="container mx-auto max-w-6xl">
+          {/* <div className="text-center mb-6 sm:mb-8">
+            <h1 className="text-2xl sm:text-3xl font-bold mb-2">Employee Information</h1>
+            <p className="text-sm sm:text-base text-muted-foreground">
+              Modern employee management interface
+            </p>
+          </div> */}
+
+          <EmployeeCard employee={data.employee} slug={slug!} />
+        </div>
+        </TabsContent>
+
+      </Tabs>
     </div>
   );
 };
