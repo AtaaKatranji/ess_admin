@@ -124,6 +124,7 @@ const EmployeeDetails = () => {
       // setInstitutionKey(insRes.data.uniqueKey);
       
       const shiftsResRaw = await fetchTimeShifts(employeeId);
+      console.log("shiftsResRaw:", shiftsResRaw);
       const shifts = Array.isArray(shiftsResRaw) ? shiftsResRaw[0] : shiftsResRaw;      
       const formattedMonth = moment(month).format('YYYY-MM-01');
       console.log("test fomat selscted month",format(month, "yyyy"),format(month, "MM") )
