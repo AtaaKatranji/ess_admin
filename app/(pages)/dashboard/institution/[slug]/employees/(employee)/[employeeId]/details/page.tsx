@@ -261,20 +261,7 @@ const EmployeeDetails = () => {
     );
   }
 // هون شرط إذا ما في shift
-if (!data.shift) {
-  return (
-    <div className="container px-4 space-y-4">
-      <ToastContainer />
-      <Card>
-        <CardContent>
-          <p className="text-muted-foreground">
-            This employee has resigned. No active shift assigned.
-          </p>
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
+
   return (
     <div className="container px-4 space-y-4">
       <ToastContainer />
@@ -287,6 +274,20 @@ if (!data.shift) {
   {/* Attendance Tab */}
   <TabsContent value="attendance">
       <div className="flex justify-between items-center mb-4">
+      if (!data.shift) ? (
+      
+        <div className="container px-4 space-y-4">
+          <ToastContainer />
+          <Card>
+            <CardContent>
+              <p className="text-muted-foreground">
+                This employee has resigned. No active shift assigned.
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      
+    ) : (
         <h1 className="hidden md:block lg:hidden xl:block text-xl md:text-2xl font-bold">
           {data.employee.name || "Employee"}'s Attendance Dashboard
         </h1>
@@ -611,7 +612,7 @@ if (!data.shift) {
   </TabsContent>
 
 </Tabs>
-
+    );
     </div>
   );
 };
