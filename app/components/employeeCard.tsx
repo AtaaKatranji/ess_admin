@@ -99,7 +99,7 @@ return name
 const handleResign = async ( resignReason: string) => {
   try {
     const payload = {
-      employeeId: employee.id,
+      userId: employee.id,
       status: "resigned",
       resignationDate: new Date().toISOString().split("T")[0], // today’s date
       shiftId: null, // unassign shift

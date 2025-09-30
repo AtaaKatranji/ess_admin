@@ -181,13 +181,13 @@ const EmployeeDetails = () => {
         leaves: leavesRes.leaves?.leaves || [],
         holidays: holidaysRes || [],
         employee: empRes  || {} as Employee,
-        shift: {
-          mode: shifts?.mode || "",
-          startTime: shifts?.startTime || "",
-          endTime: shifts?.endTime || "",
-          days: shifts?.days || [],
-          overrides: shifts?.overrides || {},
-        }
+        shift: shifts ? {
+          mode: shifts.mode || "standard",
+          startTime: shifts.startTime || "",
+          endTime: shifts.endTime || "",
+          days: shifts.days || [],
+          overrides: shifts.overrides || {}
+        } : null
       });
       console.log("data in effect see if it works",data.shift);
     } catch (error) {
@@ -387,7 +387,17 @@ const EmployeeDetails = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
       <AnnualLeaveCard employeeId={employeeId} />
-      <OccasionCard holidays={data.holidays} shiftType = {data.shift!}/>
+      {data.shift ? (
+    <OccasionCard holidays={data.holidays} shiftType={data.shift} />
+      ) : (
+        <Card>
+          <CardContent>
+            <p className="text-muted-foreground">
+              This employee has resigned. No active shift assigned.
+            </p>
+          </CardContent>
+        </Card>
+      )}
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
         <Card>
