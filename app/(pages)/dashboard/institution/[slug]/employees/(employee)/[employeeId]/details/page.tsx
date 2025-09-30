@@ -260,7 +260,21 @@ const EmployeeDetails = () => {
       </div>
     );
   }
-
+// هون شرط إذا ما في shift
+if (!data.shift) {
+  return (
+    <div className="container px-4 space-y-4">
+      <ToastContainer />
+      <Card>
+        <CardContent>
+          <p className="text-muted-foreground">
+            This employee has resigned. No active shift assigned.
+          </p>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
   return (
     <div className="container px-4 space-y-4">
       <ToastContainer />
