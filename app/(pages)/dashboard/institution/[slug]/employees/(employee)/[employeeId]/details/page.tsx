@@ -263,7 +263,7 @@ const EmployeeDetails = () => {
   return (
     <div className="container px-4 space-y-4">
       <ToastContainer />
-      <Tabs defaultValue="attendance">
+      <Tabs defaultValue={data.employee?.status === "active" ? "attendance" : "general"}>
   <TabsList>
     <TabsTrigger value="attendance">Attendance</TabsTrigger>
     <TabsTrigger value="general">General Info</TabsTrigger>
