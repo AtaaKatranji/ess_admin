@@ -177,7 +177,13 @@ const [hoursRes, leavesRes, summaryRes, holidaysRes, empRes] = await Promise.all
   }).then(res => res.ok ? res.json() : Promise.reject("Failed to fetch leaves")),
 
   fetch(`${BaseUrl}/checks/summaryLastTwoMonth/${employeeId}`)
-    .then(res => res.ok ? res.json() : Promise.reject("Failed to fetch summary")),
+  .then(res => {
+    if (res.status === 404) {
+      // ما في بيانات لهالموظف
+      return {};
+    }
+    return res.ok ? res.json() : Promise.reject("Failed to fetch summary");
+  }),
 
   fetch(`${BaseUrl}/institutions/${slug}/holidays?year=${format(month, "yyyy")}&month=${format(month, "MM")}`, {
     credentials: "include"
