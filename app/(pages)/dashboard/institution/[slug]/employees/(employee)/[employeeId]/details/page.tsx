@@ -181,7 +181,9 @@ if (shifts && (shifts.startTime || shifts.endTime)) {
       shiftStart: data.startTime || shifts?.startTime,
       shiftEnd: data.endTime || shifts?.endTime,
     }),
-  }).then(res => res.ok ? res.json() : Promise.reject("Failed to fetch time shift"));
+  }).then(res => { if (res.status === 404 ){ console.warn("No summary data found for this employee");
+    return []; }
+    return res.ok ? res.json() : Promise.reject("Failed to fetch time shift")});
 } else {
   console.warn("No shift assigned for this employee");
 }
