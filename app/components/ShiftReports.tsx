@@ -252,6 +252,7 @@ export default function ShiftReport({open, onOpenChange, shiftId, institutionKey
             </Card>
           ))}
         </div>
+        
           {/* Employee Details */}
           <Card>
               <CardHeader>
