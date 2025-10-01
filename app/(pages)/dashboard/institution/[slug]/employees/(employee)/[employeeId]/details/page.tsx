@@ -373,7 +373,7 @@ if (shifts && (shifts.startTime || shifts.endTime)) {
       </>
     )}
   </div> */}
- <>
+ <div className="flex justify-between items-center mb-4">
         <h1 className="hidden md:block lg:hidden xl:block text-xl md:text-2xl font-bold">
           {data.employee.name || "Employee"}'s Attendance Dashboard
         </h1>
@@ -418,7 +418,7 @@ if (shifts && (shifts.startTime || shifts.endTime)) {
             {isLoadingPdf ? "Exporting..." : "Export Report"}
           </Button>
         </div>
-      </>
+      </div>
   {/* باقي محتوى التاب (الكروت والجداول...) بتحطو هون بس بشرط انه يظهر فقط لما في shift */}
   {data.employee?.status === "active" && data.shift && (
     <>

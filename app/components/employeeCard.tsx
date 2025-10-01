@@ -186,23 +186,40 @@ const handleResign = async ( resignReason: string) => {
             </div>
           </div>
 
-          {employee.status === "resigned" && (
-            <div className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 lg:p-4 rounded-lg bg-red-50 border border-red-200">
-                <CalendarX2 className="h-3 w-3 sm:h-4 sm:w-4 lg:h-5 lg:w-5 text-red-500 flex-shrink-0" />
-                <div className="min-w-0 flex-1">
-                <p className="text-xs font-medium text-red-600 uppercase tracking-wide">
-                    Resignation Date
-                </p>
-                <p className="text-xs sm:text-sm lg:text-base font-medium">
-                    {employee.resignationDate
-                    ? new Date(employee.resignationDate).toLocaleDateString()
-                    : "—"}
-                </p>
-                </div>
-            </div>
-            )}
+          
+          {/* Service History */}
+  <div className="p-4 rounded-lg border bg-muted/20">
+    <h3 className="font-semibold text-base mb-3">Service History</h3>
+    <div className="space-y-1 text-sm">
+      <p>Start Date: <span className="font-medium">01/01/2020</span></p>
+      <p>Resignation Date: <span className="font-medium">09/02/2025</span></p>
+      <p>Duration: <span className="font-medium">5 years, 8 months</span></p>
+    </div>
+  </div>
+
+  {/* Resignation Details */}
+  <div className="p-4 rounded-lg border bg-muted/20">
+    <h3 className="font-semibold text-base mb-3">Resignation Details</h3>
+    <div className="space-y-1 text-sm">
+      <p>Reason: <span className="font-medium">Better opportunity abroad</span></p>
+      <p>Notes: <span className="font-medium">Left on good terms, eligible for rehire</span></p>
+    </div>
+  </div>
+
+  {/* Financial & Clearance */}
+  <div className="p-4 rounded-lg border bg-muted/20">
+    <h3 className="font-semibold text-base mb-3">Financial & Clearance</h3>
+    <div className="space-y-1 text-sm">
+      <p>Paid Leave Balance: <span className="font-medium">2 days</span></p>
+      <p>Unpaid Leave Balance: <span className="font-medium">0 days</span></p>
+      <p>Assets Cleared: <span className="font-medium text-green-600">✅ Cleared</span></p>
+      <p>Final Settlement: <span className="font-medium">$1,200</span></p>
+    </div>
+  </div>
+          
         </div>
-      </CardContent>
+        </CardContent>
+
 
       <CardFooter className="pt-3 px-4 sm:px-6 lg:px-8 gap-4 sm:gap-6 lg:gap-8">
         <Button 
