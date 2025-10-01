@@ -208,7 +208,7 @@ const EmployeeDetails = () => {
         const normalizedDate = new Date(selectedMonth);
         const year = normalizedDate.getFullYear();
         const month = String(normalizedDate.getMonth() + 1).padStart(2, "0");
-        const dateToSend = `${year}-${month}-${normalizedDate.getDate()}`;
+        const dateToSend = `${year}-${month}`;
         const response = await fetch(`${BaseUrl}/checks/summary`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -340,43 +340,6 @@ const EmployeeDetails = () => {
   {data.employee?.status === "active" && data.shift && (
     <>
       {/* Cards + AnnualLeaveCard + OccasionCard + Comparison + Summary + Tabs الداخلية */}
-      <div className="flex justify-between items-center mb-4">
-
-              <h1 className="hidden md:block lg:hidden xl:block text-xl md:text-2xl font-bold">
-                {data.employee.name || "Employee"}'s Attendance Dashboard
-              </h1>
-              <div className="flex items-center space-x-2">
-                <Button className="bg-cyan-900 text-white" onClick={() => setIsModalOpen(true)}>
-                  Add Extra Hours
-                </Button>
-                <AddExtraHoursModal
-                  isOpen={isModalOpen}
-                  onClose={() => setIsModalOpen(false)}
-                  employeeId={employeeId}
-                  monthIndex={selectedMonth}
-                />
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button variant="outline">
-                      {format(selectedMonth, "MMMM yyyy")}
-                      <CalendarIcon className="ml-2 h-4 w-4" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0 font-bold" align="end">
-                    <Calendar
-                      mode="single"
-                      selected={selectedMonth}
-                      onSelect={(date) => date && setSelectedMonth(date)}
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
-                <Button onClick={exportMonthlyReport} className="bg-cyan-900 text-white">
-                  {isLoadingPdf ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Download className="mr-2 h-4 w-4" />}
-                  {isLoadingPdf ? "Exporting..." : "Export Report"}
-                </Button>
-              </div>
-            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 mb-4">
               <Card>
