@@ -30,32 +30,40 @@ export const fetchShifts = async (orgSlug: string) => {
     throw error;
   }
 };
-
 export const fetchTimeShifts = async (employeeId: string) => {
   console.log("fetchTimeShifts", employeeId);
-  const response = await fetch(`${BaseUrl}/shifts/time?employeeId=${employeeId}`, {
-    method: 'GET',
-    credentials: "include",
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
-  const data = await response.json();
-  console.log("API shifts response:", data);
 
-  if (data.success) {
-    // إذا shifts موجودة كـ array
-    if (Array.isArray(data.shifts)) {
+  try {
+    const response = await fetch(`${BaseUrl}/shifts/time?employeeId=${employeeId}`, {
+      method: "GET",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      console.warn("Failed to fetch shifts", response.status);
+      return null;
+    }
+
+    const data = await response.json();
+    console.log("API shifts response:", data);
+
+    // حالة النجاح
+    if (data.success && Array.isArray(data.shifts)) {
       if (data.shifts.length === 1) {
+        const shift = data.shifts[0];
         return {
-          mode: data.shifts[0].mode,
-          overrides: data.shifts[0].overrides,
-          startTime: data.shifts[0].startTime,
-          endTime: data.shifts[0].endTime,
-          days: data.shifts[0].days
+          mode: shift.mode,
+          overrides: shift.overrides,
+          startTime: shift.startTime,
+          endTime: shift.endTime,
+          days: shift.days,
         };
       } else {
-        return data.shifts.map((shift: { startTime: string; endTime: string; days: string[] }) => ({
+        // إذا في أكتر من شيفت
+        return data.shifts.map((shift: Shift) => ({
           startTime: shift.startTime,
           endTime: shift.endTime,
           days: shift.days,
@@ -63,14 +71,19 @@ export const fetchTimeShifts = async (employeeId: string) => {
       }
     }
 
-    // إذا رجع object فيه message بدل array
+    // حالة: رجع object فيه message
     if (data.shifts && typeof data.shifts === "object" && data.shifts.message) {
       console.warn("No shifts found:", data.shifts.message);
-      return null; // أو [] حسب كيف بدك تتعامل
+      return null;
     }
-  }
 
-  return null;
+    // حالة: success = false أو ما في shifts
+    return null;
+
+  } catch (error) {
+    console.error("Error fetching shifts:", error);
+    return null;
+  }
 };
 
 export const addShift = async (newShift: Shift, orgSlug: string) => {

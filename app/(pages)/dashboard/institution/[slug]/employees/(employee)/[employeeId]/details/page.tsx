@@ -124,45 +124,20 @@ const EmployeeDetails = () => {
       // setInstitutionKey(insRes.data.uniqueKey);
       
       const shiftsResRaw = await fetchTimeShifts(employeeId);
-      console.log("shiftsResRaw:", shiftsResRaw);
-      const shifts = Array.isArray(shiftsResRaw) ? shiftsResRaw[0] : shiftsResRaw;      
+      let shifts  = [];
+      if (!shiftsResRaw) {
+        console.log("No shift assigned for this employee");
+        // اعرض رسالة بالـ UI أو اعطي default values
+      } else {
+        console.log("shiftsResRaw:", shiftsResRaw);
+        shifts = Array.isArray(shiftsResRaw) ? shiftsResRaw[0] : shiftsResRaw; 
+        // const startTime = shiftsResRaw?.startTime ? shiftsResRaw.startTime.split(":") : [];
+        // const endTime   = shiftsResRaw?.endTime   ? shiftsResRaw.endTime.split(":")   : [];
+        // باقي حساباتك…
+      }
+           
       const formattedMonth = moment(month).format('YYYY-MM-01');
-      // console.log("test fomat selscted month",format(month, "yyyy"),format(month, "MM") )
-      // if (!shifts || (!shifts.startTime && !shifts.endTime)) {
-      //   console.warn("No shift assigned for this employee");
-      //   // ممكن تعرض رسالة عالشاشة: "لا يوجد شفت لهذا الموظف"
-      //   return;
-      // }
-      // const [hoursRes, leavesRes, summaryRes, timeShiftRes, holidaysRes,empRes] = await Promise.all([
-      //   fetch(`${BaseUrl}/checks/calculate-hours`, {
-      //     method: "POST",
-      //     headers: { "Content-Type": "application/json" },
-      //     body: JSON.stringify({ userId: employeeId, date:formattedMonth }),
-      //   }).then(res => res.ok ? res.json() : Promise.reject("Failed to fetch total hours")),
-      //   fetch(`${BaseUrl}/institutions/${slug}/leaves/month?userId=${employeeId}&month=${month.getMonth()+1}`, {
-      //     method: "GET",
-      //     headers: { "Content-Type": "application/json" },
-      //     credentials : "include",
-      //     //body: JSON.stringify({ userId: employeeId, month }),
-      //   }).then(res => res.ok ? res.json() : Promise.reject("Failed to fetch leaves")),
-      //   fetch(`${BaseUrl}/checks/summaryLastTwoMonth/${employeeId}`).then(res => res.ok ? res.json() : Promise.reject("Failed to fetch summary")),        
-      //   fetch(`${BaseUrl}/checks/timeShift`, {
-      //     method: "POST",
-      //     headers: { "Content-Type": "application/json" },
-      //     body: JSON.stringify({
-      //       userId: employeeId,
-      //       month: month.getMonth()+1,
-      //       year: month.getFullYear(),
-      //       shiftStart: data.startTime || shifts?.startTime,
-      //       shiftEnd: data.endTime || shifts?.endTime,
-      //     }),
-      //   }).then(res => res.ok ? res.json() : Promise.reject("Failed to fetch time shift")),
-        
-      //   fetch(`${BaseUrl}/institutions/${slug}/holidays?year=${format(month, "yyyy")}&month=${format(month, "MM")}`,{credentials: "include"})
-      //   .then(res => res.ok ? res.json() : Promise.reject("Failed to fetch holidays")),
-      //   fetch(`${BaseUrl}/api/users/personal?employeeId=${employeeId}`).then(res => res.ok ? res.json() : Promise.reject("Failed to fetch employee's name")),
-      // ]);
-      // جلب الداتا الأساسية (الي ما إلها علاقة بالشفت)
+
 const [hoursRes, leavesRes, summaryRes, holidaysRes, empRes] = await Promise.all([
   fetch(`${BaseUrl}/checks/calculate-hours`, {
     method: "POST",
