@@ -56,7 +56,10 @@ doc.text(data.summary.employeeName, 15 + employeeLabelWidth, 16);
       ["Total Days Attendanced", data.summary.totalDays],
       ["Total Days Absents", data.summary.totalAbsents],
       ["Total Days Holidays", data.summary.totalHolidays],
-      ["Total Hours Holidays", data.summary.totalHolidayHours],
+      [
+        "Total Hours Holidays",
+        `+${data.summary.totalHolidayHours || 0}`
+      ],
       ["Paid Leaves", data.summary.totalLeaves || 0], // Fix mismatch
       ["Unpaid Leaves", 0], // Fix mismatch
       ["Extra Added Hours", data.summary.extraAdjusmentHours],
