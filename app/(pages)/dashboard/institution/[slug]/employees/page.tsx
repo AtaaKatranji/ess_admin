@@ -18,6 +18,11 @@ import { useEmployee } from "@/app/context/EmployeeContext";
 import { toast } from "react-toastify"
 
 import { useInstitution } from "@/app/context/InstitutionContext"
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Label } from "@/components/ui/label"
+import { Input } from "@/components/ui/input"
+
+const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
 interface Employee {
   id: string
   name: string
@@ -42,12 +47,42 @@ interface Shift {
   days: string[]
 }
 
+
 const EmployeeList: React.FC = () => {
   const [employees, setEmployees] = useState<Employee[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [selectedShift, setSelectedShift] = useState("all")
   const [shiftOptions, setShiftOptions] = useState<Shift[]>([])
+  const [open, setOpen] = useState(false)
+  const [form, setForm] = useState({
+    name: "",
+    phoneNumber: "",
+    department: "",
+    role: "",
+    gender: "",
+    hireDate: "",
+    shiftId: "",
+  })
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    try {
+      const payload = { ...form, institutionKey: slug }
+      const res = await fetch(`${BaseUrl}/api/users`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(payload),
+      })
+      if (!res.ok) throw new Error("Failed to add employee")
+      toast.success("Employee added successfully!")
+      setOpen(false)
+      setForm({ name: "", phoneNumber: "", department: "", role: "", gender: "", hireDate: "", shiftId: "" })
+    } catch {
+      toast.error("Error adding employee")
+    }
+  }
   const router = useRouter()
   //const params = useParams()
   const { setEmployeeId } = useEmployee(); 
@@ -138,6 +173,7 @@ const EmployeeList: React.FC = () => {
             </SelectContent>
           </Select>
         </div>
+        <Button onClick={() => setOpen(true)}>➕ Add Employee</Button>
       </div>
 
       {loading ? (
@@ -213,6 +249,85 @@ const EmployeeList: React.FC = () => {
           )}
         </>
       )}
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Add New Employee</DialogTitle>
+          </DialogHeader>
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <Label>Name</Label>
+              <Input
+                value={form.name}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
+                required
+              />
+            </div>
+
+            <div>
+              <Label>Phone</Label>
+              <Input
+                value={form.phoneNumber}
+                onChange={(e) => setForm({ ...form, phoneNumber: e.target.value })}
+                required
+              />
+            </div>
+
+            <div>
+              <Label>Department</Label>
+              <Input
+                value={form.department}
+                onChange={(e) => setForm({ ...form, department: e.target.value })}
+              />
+            </div>
+
+            <div>
+              <Label>Role</Label>
+              <Input
+                value={form.role}
+                onChange={(e) => setForm({ ...form, role: e.target.value })}
+              />
+            </div>
+
+            <div>
+              <Label>Gender</Label>
+              <Select value={form.gender} onValueChange={(val) => setForm({ ...form, gender: val })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select gender" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="male">Male</SelectItem>
+                  <SelectItem value="female">Female</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label>Hire Date</Label>
+              <Input
+                type="date"
+                value={form.hireDate}
+                onChange={(e) => setForm({ ...form, hireDate: e.target.value })}
+                required
+              />
+            </div>
+
+            <div>
+              <Label>Shift (optional)</Label>
+              <Input
+                value={form.shiftId}
+                onChange={(e) => setForm({ ...form, shiftId: e.target.value })}
+                placeholder="Enter shift ID"
+              />
+            </div>
+
+            <DialogFooter>
+              <Button type="submit">Save</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
