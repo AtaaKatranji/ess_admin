@@ -145,110 +145,114 @@ const handleResign = async ( resignReason: string) => {
 };
   return (
     <div className="container mx-auto px-4">
-  <Card className="w-full shadow-lg border-0 bg-gradient-to-br from-card to-card/80 backdrop-blur-sm">
-    <CardHeader className="pb-3 px-4 sm:px-6 lg:px-8">
-      <div className="flex items-start gap-3 sm:gap-4 lg:gap-6">
-        <Avatar className="h-12 w-12 sm:h-16 sm:w-16 lg:h-20 lg:w-20 ring-2 ring-primary/20 flex-shrink-0">
-            <AvatarImage src={employee.avatar || "/placeholder.svg"} alt={employee.name} />
-            <AvatarFallback className="bg-primary/10 text-primary font-semibold text-sm sm:text-lg lg:text-xl">
-              {getInitials(employee.name)}
-            </AvatarFallback>
-          </Avatar>
-          <div className="flex-1 min-w-0">
-          <CardTitle className="text-lg sm:text-xl lg:text-2xl font-bold text-balance leading-tight mb-1">
-              {employee.name}
-            </CardTitle>
-            <p className="text-xs sm:text-sm lg:text-base text-muted-foreground font-medium">
-              {employee.position || "Employee"}
-            </p>
-            <div className="mt-2">
-              <Badge variant={getStatusVariant(employee.status)} className={`${getStatusColor(employee.status)} font-medium px-2 py-1 text-xs lg:text-sm`}>
-                {employee.status}
-              </Badge>
-            </div>
-          </div>
+  <Card className="w-full border-none shadow-md bg-gradient-to-br from-background to-muted/40 rounded-2xl overflow-hidden">
+  {/* HEADER */}
+  <CardHeader className="bg-gradient-to-r from-primary/10 to-blue-100/30 dark:from-primary/5 dark:to-muted py-6 px-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div className="flex items-center gap-4">
+      <Avatar className="h-20 w-20 ring-2 ring-primary/20">
+        <AvatarImage src={employee.avatar || "/placeholder.svg"} alt={employee.name} />
+        <AvatarFallback className="bg-primary/10 text-primary font-semibold text-xl">
+          {getInitials(employee.name)}
+        </AvatarFallback>
+      </Avatar>
+      <div>
+        <h2 className="text-xl font-semibold text-foreground">{employee.name}</h2>
+        <p className="text-sm text-muted-foreground">
+          {employee.role || "Employee"} — {employee.department || "—"}
+        </p>
+        <div className="mt-2">
+          <Badge variant={getStatusVariant(employee.status)} className={`${getStatusColor(employee.status)} capitalize`}>
+            {employee.status}
+          </Badge>
         </div>
-      </CardHeader>
-
-      <CardContent className="space-y-3 pt-0 px-4 sm:px-6 lg:px-8">
-  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-    {/* 🏠 Address */}
-    <div className="p-4 rounded-lg border bg-muted/20">
-      <h3 className="font-semibold text-base mb-2">Basic Information</h3>
-      <div className="space-y-1 text-sm">
-        <p>Gender: <span className="font-medium">{employee.gender || "—"}</span></p>
-        <p>Marital Status: <span className="font-medium capitalize">{employee.maritalStatus || "—"}</span></p>
-        <p>Birth Date: <span className="font-medium">{employee.birthDate ? new Date(employee.birthDate).toLocaleDateString() : "—"}</span></p>
-        <p>Address: <span className="font-medium">{employee.address || "—"}</span></p>
       </div>
     </div>
 
-    {/* 💼 Employment Info */}
-    <div className="p-4 rounded-lg border bg-muted/20">
-      <h3 className="font-semibold text-base mb-2">Employment Details</h3>
-      <div className="space-y-1 text-sm">
-        <p>Department: <span className="font-medium">{employee.address || "—"}</span></p>
-        <p>Role: <span className="font-medium">{employee.role || "—"}</span></p>
-        <p>Contract Type: <span className="font-medium capitalize">{employee.contractType || "—"}</span></p>
-        <p>Hire Date: <span className="font-medium">{employee.hireDate ? new Date(employee.hireDate).toLocaleDateString() : "—"}</span></p>
-        <p>Shift: <span className="font-medium">{employee.shiftName || "Unassigned"}</span></p>
-        <p>Status: <span className="font-medium capitalize">{employee.status || "—"}</span></p>
-      </div>
+    <div className="flex gap-3">
+      <Button onClick={() => setIsEditOpen(true)} size="sm" className="shadow-sm">
+        <User className="mr-2 h-4 w-4" /> Edit
+      </Button>
+      <Button
+        variant="destructive"
+        onClick={() => setIsResignOpen(true)}
+        size="sm"
+        className="shadow-sm"
+      >
+        <CalendarX2 className="mr-2 h-4 w-4" /> Resign
+      </Button>
+    </div>
+  </CardHeader>
+
+  {/* BODY */}
+  <CardContent className="p-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+    {/* Basic Info */}
+    <div className="rounded-xl bg-muted/40 p-5 border border-border/40 hover:shadow-sm transition">
+      <h3 className="font-semibold mb-3 text-foreground/90 flex items-center gap-2">
+        🧍 Basic Information
+      </h3>
+      <ul className="space-y-1 text-sm">
+        <li>Gender: <span className="font-medium">{employee.gender || "—"}</span></li>
+        <li>Marital Status: <span className="font-medium capitalize">{employee.maritalStatus || "—"}</span></li>
+        <li>Birth Date: <span className="font-medium">{employee.birthDate ? new Date(employee.birthDate).toLocaleDateString() : "—"}</span></li>
+        <li>Address: <span className="font-medium">{employee.address || "—"}</span></li>
+      </ul>
     </div>
 
-    {/* ☎️ Emergency Contact */}
-    <div className="p-4 rounded-lg border bg-muted/20">
-      <h3 className="font-semibold text-base mb-2">Emergency Contact</h3>
-      <div className="space-y-1 text-sm">
-        <p>Name: <span className="font-medium">{employee.emergencyContactName || "—"}</span></p>
-        <p>Relation: <span className="font-medium">{employee.emergencyContactRelation || "—"}</span></p>
-        <p>Phone: <span className="font-medium">{employee.emergencyContactPhone || "—"}</span></p>
-      </div>
+    {/* Employment Details */}
+    <div className="rounded-xl bg-muted/40 p-5 border border-border/40 hover:shadow-sm transition">
+      <h3 className="font-semibold mb-3 text-foreground/90 flex items-center gap-2">
+        💼 Employment Details
+      </h3>
+      <ul className="space-y-1 text-sm">
+        <li>Role: <span className="font-medium">{employee.role || "—"}</span></li>
+        <li>Contract Type: <span className="font-medium capitalize">{employee.contractType || "—"}</span></li>
+        <li>Hire Date: <span className="font-medium">{employee.hireDate ? new Date(employee.hireDate).toLocaleDateString() : "—"}</span></li>
+        <li>Shift: <span className="font-medium">{employee.shiftName || "Unassigned"}</span></li>
+        <li>Status: <span className="font-medium capitalize">{employee.status || "—"}</span></li>
+      </ul>
     </div>
 
-    {/* 🧾 Financial & Clearance */}
-    <div className="p-4 rounded-lg border bg-muted/20">
-      <h3 className="font-semibold text-base mb-2">Financial & Clearance</h3>
-      <div className="space-y-1 text-sm">
-        <p>Paid Leave Balance: <span className="font-medium">—</span></p>
-        <p>Unpaid Leave Balance: <span className="font-medium">—</span></p>
-        <p>Assets Cleared: <span className="font-medium text-green-600">✅ Cleared</span></p>
-        <p>Final Settlement: <span className="font-medium">$—</span></p>
-      </div>
+    {/* Emergency Contact */}
+    <div className="rounded-xl bg-muted/40 p-5 border border-border/40 hover:shadow-sm transition">
+      <h3 className="font-semibold mb-3 text-foreground/90 flex items-center gap-2">
+        ☎️ Emergency Contact
+      </h3>
+      <ul className="space-y-1 text-sm">
+        <li>Name: <span className="font-medium">{employee.emergencyContactName || "—"}</span></li>
+        <li>Relation: <span className="font-medium">{employee.emergencyContactRelation || "—"}</span></li>
+        <li>Phone: <span className="font-medium">{employee.emergencyContactPhone || "—"}</span></li>
+      </ul>
     </div>
 
-    {/* 🧳 Resignation (if resigned) */}
+    {/* Financial Info */}
+    <div className="rounded-xl bg-muted/40 p-5 border border-border/40 hover:shadow-sm transition md:col-span-2 lg:col-span-3">
+      <h3 className="font-semibold mb-3 text-foreground/90 flex items-center gap-2">
+        💰 Financial & Clearance
+      </h3>
+      <ul className="space-y-1 text-sm">
+        <li>Paid Leave Balance: <span className="font-medium">—</span></li>
+        <li>Unpaid Leave Balance: <span className="font-medium">—</span></li>
+        <li>Assets Cleared: <span className="font-medium text-green-600">✅ Cleared</span></li>
+        <li>Final Settlement: <span className="font-medium">$—</span></li>
+      </ul>
+    </div>
+
+    {/* Resignation */}
     {employee.status === "resigned" && (
-      <div className="p-4 rounded-lg border bg-muted/20 sm:col-span-2 lg:col-span-3">
-        <h3 className="font-semibold text-base mb-2">Resignation Details</h3>
-        <div className="space-y-1 text-sm">
-          <p>Resignation Date: <span className="font-medium">{employee.resignationDate ? new Date(employee.resignationDate).toLocaleDateString() : "—"}</span></p>
-          <p>Reason: <span className="font-medium">{employee.resignationReason || "—"}</span></p>
-          <p>Notes: <span className="font-medium">{employee.resignationNotes || "—"}</span></p>
-        </div>
+      <div className="rounded-xl bg-destructive/5 border border-destructive/30 p-5 md:col-span-2 lg:col-span-3">
+        <h3 className="font-semibold mb-3 text-destructive flex items-center gap-2">
+          🧳 Resignation Details
+        </h3>
+        <ul className="space-y-1 text-sm">
+          <li>Date: <span className="font-medium">{employee.resignationDate ? new Date(employee.resignationDate).toLocaleDateString() : "—"}</span></li>
+          <li>Reason: <span className="font-medium">{employee.resignationReason || "—"}</span></li>
+          <li>Notes: <span className="font-medium">{employee.resignationNotes || "—"}</span></li>
+        </ul>
       </div>
     )}
-  </div>
-</CardContent>
+  </CardContent>
+</Card>
 
-
-      <CardFooter className="pt-3 px-4 sm:px-6 lg:px-8 gap-4 sm:gap-6 lg:gap-8">
-        <Button 
-        onClick={() => setIsEditOpen(true)}
-        className="w-full lg:w-auto font-medium shadow-sm hover:shadow-md transition-all duration-200 text-sm py-2 px-4 lg:px-6">
-          <User className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
-          Edit General Info
-        </Button>
-        <Button
-          variant="destructive"
-          onClick={() => setIsResignOpen(true)}
-          className="flex-1 lg:flex-none font-medium shadow-sm"
-        >
-          <CalendarX2 className="h-4 w-4 mr-2" />
-          Resign Employee
-        </Button>
-      </CardFooter>
-    </Card>
     <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
   <DialogContent className="max-w-lg">
     <DialogHeader>
