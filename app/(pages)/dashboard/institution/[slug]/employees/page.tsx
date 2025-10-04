@@ -55,6 +55,12 @@ const EmployeeList: React.FC = () => {
   const [selectedShift, setSelectedShift] = useState("all")
   const [shiftOptions, setShiftOptions] = useState<Shift[]>([])
   const [open, setOpen] = useState(false)
+  
+  const router = useRouter()
+  //const params = useParams()
+  const { setEmployeeId } = useEmployee(); 
+  // const slug = Array.isArray(params?.slug) ? params.slug[0] : params?.slug
+  const { slug } = useInstitution();
   const [form, setForm] = useState({
     name: "",
     phoneNumber: "",
@@ -62,10 +68,16 @@ const EmployeeList: React.FC = () => {
     role: "",
     gender: "",
     hireDate: "",
-    shiftId: "",
+    institutionSlug: slug,
+    maritalStatus: "",
+    birthDate: "",
+    emergencyContactName: "",
+    emergencyContactRelation: "",
+    emergencyContactPhone: "",
+    contractType: "",
   })
 
-  const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
       const payload = { ...form, institutionKey: slug }
@@ -78,16 +90,25 @@ const EmployeeList: React.FC = () => {
       if (!res.ok) throw new Error("Failed to add employee")
       toast.success("Employee added successfully!")
       setOpen(false)
-      setForm({ name: "", phoneNumber: "", department: "", role: "", gender: "", hireDate: "", shiftId: "" })
+      setForm({
+        name: "",
+        phoneNumber: "",
+        department: "",
+        role: "",
+        gender: "",
+        hireDate: "",
+        institutionSlug: slug,
+        maritalStatus: "",
+        birthDate: "",
+        emergencyContactName: "",
+        emergencyContactRelation: "",
+        emergencyContactPhone: "",
+        contractType: "",
+      })
     } catch {
       toast.error("Error adding employee")
     }
   }
-  const router = useRouter()
-  //const params = useParams()
-  const { setEmployeeId } = useEmployee(); 
-  // const slug = Array.isArray(params?.slug) ? params.slug[0] : params?.slug
-  const { slug } = useInstitution();
   const fetchData = async () => {     
     try {
       setLoading(true);
@@ -250,80 +271,163 @@ const EmployeeList: React.FC = () => {
         </>
       )}
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Add New Employee</DialogTitle>
           </DialogHeader>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* --- Section 1: Basic Info --- */}
             <div>
-              <Label>Name</Label>
-              <Input
-                value={form.name}
-                onChange={(e) => setForm({ ...form, name: e.target.value })}
-                required
-              />
+              <h3 className="text-sm font-semibold mb-2 text-muted-foreground">Basic Information</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label>Name</Label>
+                  <Input
+                    value={form.name}
+                    onChange={(e) => setForm({ ...form, name: e.target.value })}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <Label>Phone</Label>
+                  <Input
+                    value={form.phoneNumber}
+                    onChange={(e) => setForm({ ...form, phoneNumber: e.target.value })}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <Label>Department</Label>
+                  <Input
+                    value={form.department}
+                    onChange={(e) => setForm({ ...form, department: e.target.value })}
+                  />
+                </div>
+
+                <div>
+                  <Label>Role / Position</Label>
+                  <Input
+                    value={form.role}
+                    onChange={(e) => setForm({ ...form, role: e.target.value })}
+                  />
+                </div>
+
+                <div>
+                  <Label>Gender</Label>
+                  <Select
+                    value={form.gender}
+                    onValueChange={(val) => setForm({ ...form, gender: val })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select gender" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="male">Male</SelectItem>
+                      <SelectItem value="female">Female</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label>Birth Date</Label>
+                  <Input
+                    type="date"
+                    value={form.birthDate}
+                    onChange={(e) => setForm({ ...form, birthDate: e.target.value })}
+                  />
+                </div>
+
+                <div>
+                  <Label>Marital Status</Label>
+                  <Select
+                    value={form.maritalStatus}
+                    onValueChange={(val) => setForm({ ...form, maritalStatus: val })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="single">Single</SelectItem>
+                      <SelectItem value="married">Married</SelectItem>
+                      <SelectItem value="divorced">Divorced</SelectItem>
+                      <SelectItem value="widowed">Widowed</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
             </div>
 
+            {/* --- Section 2: Employment Info --- */}
             <div>
-              <Label>Phone</Label>
-              <Input
-                value={form.phoneNumber}
-                onChange={(e) => setForm({ ...form, phoneNumber: e.target.value })}
-                required
-              />
+              <h3 className="text-sm font-semibold mb-2 text-muted-foreground">Employment Information</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label>Hire Date</Label>
+                  <Input
+                    type="date"
+                    value={form.hireDate}
+                    onChange={(e) => setForm({ ...form, hireDate: e.target.value })}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <Label>Contract Type</Label>
+                  <Select
+                    value={form.contractType}
+                    onValueChange={(val) => setForm({ ...form, contractType: val })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="permanent">Permanent</SelectItem>
+                      <SelectItem value="temporary">Temporary</SelectItem>
+                      <SelectItem value="intern">Intern</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
             </div>
 
+            {/* --- Section 3: Emergency Contact --- */}
             <div>
-              <Label>Department</Label>
-              <Input
-                value={form.department}
-                onChange={(e) => setForm({ ...form, department: e.target.value })}
-              />
-            </div>
+              <h3 className="text-sm font-semibold mb-2 text-muted-foreground">Emergency Contact</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label>Contact Name</Label>
+                  <Input
+                    value={form.emergencyContactName}
+                    onChange={(e) => setForm({ ...form, emergencyContactName: e.target.value })}
+                  />
+                </div>
 
-            <div>
-              <Label>Role</Label>
-              <Input
-                value={form.role}
-                onChange={(e) => setForm({ ...form, role: e.target.value })}
-              />
-            </div>
+                <div>
+                  <Label>Relation</Label>
+                  <Input
+                    value={form.emergencyContactRelation}
+                    onChange={(e) => setForm({ ...form, emergencyContactRelation: e.target.value })}
+                    placeholder="e.g. Brother / Mother / Friend"
+                  />
+                </div>
 
-            <div>
-              <Label>Gender</Label>
-              <Select value={form.gender} onValueChange={(val) => setForm({ ...form, gender: val })}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select gender" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="male">Male</SelectItem>
-                  <SelectItem value="female">Female</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <Label>Hire Date</Label>
-              <Input
-                type="date"
-                value={form.hireDate}
-                onChange={(e) => setForm({ ...form, hireDate: e.target.value })}
-                required
-              />
-            </div>
-
-            <div>
-              <Label>Shift (optional)</Label>
-              <Input
-                value={form.shiftId}
-                onChange={(e) => setForm({ ...form, shiftId: e.target.value })}
-                placeholder="Enter shift ID"
-              />
+                <div>
+                  <Label>Phone</Label>
+                  <Input
+                    value={form.emergencyContactPhone}
+                    onChange={(e) => setForm({ ...form, emergencyContactPhone: e.target.value })}
+                  />
+                </div>
+              </div>
             </div>
 
             <DialogFooter>
-              <Button type="submit">Save</Button>
+              <Button type="submit" className="w-full sm:w-auto">
+                Save Employee
+              </Button>
             </DialogFooter>
           </form>
         </DialogContent>
