@@ -1,8 +1,8 @@
 export interface Employee {
     contractType: string
-    birthDate: any
+    birthDate: string
     maritalStatus: string
-    hireDate: any
+    hireDate: string
     gender: string
     role: string
     department: string
