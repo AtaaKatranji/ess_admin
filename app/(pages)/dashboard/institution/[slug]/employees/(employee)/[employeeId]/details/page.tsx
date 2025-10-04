@@ -61,6 +61,7 @@ type Comp = {
 //   institutionId: number;
 // };
 type ShiftType = {
+  name: string;
   mode: 'standard' | 'advanced';
   startTime: string; // e.g., "08:00:00"
   endTime: string;   // e.g., "16:00:00"
@@ -218,6 +219,7 @@ if (shifts && (shifts.startTime || shifts.endTime)) {
         holidays: holidaysRes || [],
         employee: empRes || {} as Employee,
         shift: shifts ? {
+          name: shifts.name || "",
           mode: shifts.mode || "standard",
           startTime: shifts.startTime || "",
           endTime: shifts.endTime || "",

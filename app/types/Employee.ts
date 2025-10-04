@@ -5,7 +5,6 @@ export interface Employee {
     hireDate: string
     gender: string
     role: string
-    department: string
     resignationNotes: string
     resignationReason: string
     emergencyContactName: string

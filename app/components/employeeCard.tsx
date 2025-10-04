@@ -33,7 +33,6 @@ const [form, setForm] = useState({
   phoneNumber: employee.phoneNumber || "",
   email: employee.email || "",
   address: employee.address || "",
-  department: employee.department || "",
   role: employee.role || "",
   gender: employee.gender || "",
   hireDate: employee.hireDate ? employee.hireDate.split("T")[0] : "",
@@ -54,7 +53,6 @@ const handleSubmit = async (e: React.FormEvent) => {
         phoneNumber: form.phoneNumber,
         email: form.email,
         address: form.address,
-        department: form.department,
         role: form.role,
         gender: form.gender,
         hireDate: form.hireDate,
@@ -158,7 +156,7 @@ const handleResign = async ( resignReason: string) => {
       <div>
         <h2 className="text-xl font-semibold text-foreground">{employee.name}</h2>
         <p className="text-sm text-muted-foreground">
-          {employee.role || "Employee"}  —  {employee.department ||  employee.shiftName}
+          {employee.role || "Employee"}  —  {employee.shiftName || "Unassigned"}
         </p>
         <div className="mt-2">
           <Badge variant={getStatusVariant(employee.status)} className={`${getStatusColor(employee.status)} capitalize`}>
@@ -201,21 +199,21 @@ const handleResign = async ( resignReason: string) => {
     {/* Employment Details */}
     <div className="rounded-xl bg-muted/40 p-5 border border-border/40 hover:shadow-md transition duration-300">
   <h3 className="font-semibold mb-4 text-foreground flex items-center gap-2 text-base">
-    💼 Employment Details
+  Employment Details
   </h3>
 
   <div className="grid grid-cols-1 sm:grid-cols-1 gap-3 text-sm">
-    <div className="flex items-center gap-2 p-2 bg-muted/50 rounded-md">
+    <div className="flex items-center gap-2 p-2 bg-white rounded-md">
       <span className="text-muted-foreground font-bold"> Role:</span>
       <span className="font-medium capitalize">{employee.role || "—"}</span>
     </div>
 
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-2 p-2 bg-white rounded-md">
       <span className="text-muted-foreground font-bold"> Contract Type:</span>
       <span className="font-medium capitalize">{employee.contractType || "—"}</span>
     </div>
 
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-2 p-2 bg-white rounded-md">
       <span className="text-muted-foreground font-bold"> Hire Date:</span>
       <span className="font-medium">
         {employee.hireDate
@@ -224,12 +222,12 @@ const handleResign = async ( resignReason: string) => {
       </span>
     </div>
 
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-2 p-2 bg-white rounded-md">
       <span className="text-muted-foreground font-bold"> Shift:</span>
       <span className="font-medium">{employee.shiftName || "Unassigned"}</span>
     </div>
 
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-2 p-2 bg-white rounded-md">
       <span className="text-muted-foreground font-bold"> Status:</span>
       <Badge
         variant={getStatusVariant(employee.status)}
