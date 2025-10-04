@@ -195,6 +195,13 @@ if (shifts && (shifts.startTime || shifts.endTime)) {
         absences: stats.absences,
         tardies: stats.tardies,
       }));
+      const shiftName = shifts?.name || empRes?.shift?.name || "Unassigned";
+
+// 🔹 شكّل نسخة جديدة من الموظف مع shiftName مضافة
+const employee: Employee = {
+  ...empRes,
+  shiftName, // ✅ ضفنا اسم الشفت
+};
   
       setData({
         totalHours: hoursRes.totalHours,
@@ -217,7 +224,7 @@ if (shifts && (shifts.startTime || shifts.endTime)) {
         unpaidLeaves: leavesRes.leaveDays?.totalUnpaidLeaveDays || 0,
         leaves: leavesRes.leaves?.leaves || [],
         holidays: holidaysRes || [],
-        employee: empRes || {} as Employee,
+        employee,
         shift: shifts ? {
           name: shifts.name || "",
           mode: shifts.mode || "standard",
