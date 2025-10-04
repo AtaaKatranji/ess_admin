@@ -204,8 +204,8 @@ const handleResign = async ( resignReason: string) => {
     💼 Employment Details
   </h3>
 
-  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-    <div className="flex items-center gap-2">
+  <div className="grid grid-cols-1 sm:grid-cols-1 gap-3 text-sm">
+    <div className="flex items-center gap-2 p-2 bg-muted/50 rounded-md">
       <span className="text-muted-foreground font-bold"> Role:</span>
       <span className="font-medium capitalize">{employee.role || "—"}</span>
     </div>
