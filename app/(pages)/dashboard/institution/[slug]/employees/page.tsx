@@ -64,7 +64,7 @@ const EmployeeList: React.FC = () => {
   const [form, setForm] = useState({
     name: "",
     phoneNumber: "",
-    department: "",
+    address: "",
     role: "",
     gender: "",
     hireDate: "",
@@ -93,7 +93,7 @@ const EmployeeList: React.FC = () => {
       setForm({
         name: "",
         phoneNumber: "",
-        department: "",
+        address: "",
         role: "",
         gender: "",
         hireDate: "",
@@ -301,10 +301,12 @@ const EmployeeList: React.FC = () => {
                 </div>
 
                 <div>
-                  <Label>Department</Label>
+                  <label className="text-sm font-medium">Address</label>
                   <Input
-                    value={form.department}
-                    onChange={(e) => setForm({ ...form, department: e.target.value })}
+                    type="text"
+                    value={form.address}
+                    onChange={(e) => setForm({ ...form, address: e.target.value })}
+                    placeholder="Enter home address"
                   />
                 </div>
 
