@@ -1,8 +1,21 @@
 export interface Employee {
+    contractType: string
+    birthDate: any
+    maritalStatus: string
+    hireDate: any
+    gender: string
+    role: string
+    department: string
+    resignationNotes: string
+    resignationReason: string
+    emergencyContactName: string
+    emergencyContactRelation: string
+    emergencyContactPhone: string
+    
     id: number
     name: string
     position: string
-    department: string
+    address: string
     phoneNumber?: string
     email?: string
     status: string

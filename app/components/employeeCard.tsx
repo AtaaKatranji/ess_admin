@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Clock, Mail, User, Building2, PhoneIcon, CalendarX2 } from "lucide-react"
+import { User, CalendarX2 } from "lucide-react"
 import { Employee } from "@/app/types/Employee";
 import {
     Dialog,
@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
 import { toast } from "react-toastify";
 import ResignDialog from "./resignDialog";
+
 const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
 interface EmployeeCardProps {
   employee: Employee
@@ -28,23 +29,44 @@ export function EmployeeCard({ employee, slug  }: EmployeeCardProps) {
 const [isEditOpen, setIsEditOpen] = useState(false);
 const [isResignOpen, setIsResignOpen] = useState(false);
 const [form, setForm] = useState({
-    name: employee.name,
-    phoneNumber: employee.phoneNumber,
-    email: employee.email || "",
-    department: employee.department || "",
-    status: employee.status,
-    resignationDate: employee.resignationDate || null,
-    });
+  name: employee.name || "",
+  phoneNumber: employee.phoneNumber || "",
+  email: employee.email || "",
+  address: employee.address || "",
+  department: employee.department || "",
+  role: employee.role || "",
+  gender: employee.gender || "",
+  hireDate: employee.hireDate ? employee.hireDate.split("T")[0] : "",
+  maritalStatus: employee.maritalStatus || "",
+  birthDate: employee.birthDate ? employee.birthDate.split("T")[0] : "",
+  emergencyContactName: employee.emergencyContactName || "",
+  emergencyContactRelation: employee.emergencyContactRelation || "",
+  emergencyContactPhone: employee.emergencyContactPhone || "",
+  contractType: employee.contractType || "",
+  status: employee.status || "active",
+  resignationDate: employee.resignationDate || null,
+});
 const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-        const payload = {
+      const payload = {
         name: form.name,
+        phoneNumber: form.phoneNumber,
         email: form.email,
+        address: form.address,
         department: form.department,
+        role: form.role,
+        gender: form.gender,
+        hireDate: form.hireDate,
+        maritalStatus: form.maritalStatus,
+        birthDate: form.birthDate,
+        emergencyContactName: form.emergencyContactName,
+        emergencyContactRelation: form.emergencyContactRelation,
+        emergencyContactPhone: form.emergencyContactPhone,
+        contractType: form.contractType,
         status: form.status,
         resignationDate: form.status === "resigned" ? form.resignationDate : null,
-        };
+      };
     
         const res = await fetch(`${BaseUrl}/api/users/${employee.id}`, {
         method: "PUT",
@@ -149,76 +171,65 @@ const handleResign = async ( resignReason: string) => {
       </CardHeader>
 
       <CardContent className="space-y-3 pt-0 px-4 sm:px-6 lg:px-8">
-        <div className="grid gap-2 sm:gap-3 lg:gap-4 lg:grid-cols-3">
-        <div className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 lg:p-4 rounded-lg bg-muted/30 border border-border/50">
-            <PhoneIcon className="h-3 w-3 sm:h-4 sm:w-4 lg:h-5 lg:w-5 text-muted-foreground flex-shrink-0" />
-            <div className="min-w-0 flex-1">
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Phone</p>
-              <p className="text-xs sm:text-sm lg:text-base font-medium truncate">{employee.phoneNumber || "—"}</p>
-            </div>
-          </div>
-          
-          <div className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 lg:p-4 rounded-lg bg-muted/30 border border-border/50">
-            <Mail className="h-3 w-3 sm:h-4 sm:w-4 lg:h-5 lg:w-5 text-muted-foreground flex-shrink-0" />
-            <div className="min-w-0 flex-1">
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Email</p>
-              <p className="text-xs sm:text-sm lg:text-base font-medium truncate">{employee.email || "—"}</p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 lg:p-4 rounded-lg bg-muted/30 border border-border/50">
-            <Building2 className="h-3 w-3 sm:h-4 sm:w-4 lg:h-5 lg:w-5 text-muted-foreground flex-shrink-0" />
-            <div className="min-w-0 flex-1">
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Department</p>
-              <p className="text-xs sm:text-sm lg:text-base font-medium truncate">{employee.department || "—"}</p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 lg:p-4 rounded-lg bg-muted/30 border border-border/50">
-            <Clock className="h-3 w-3 sm:h-4 sm:w-4 lg:h-5 lg:w-5 text-muted-foreground flex-shrink-0" />
-            <div className="min-w-0 flex-1">
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Work Schedule</p>
-              <p className="text-xs sm:text-sm lg:text-base font-medium">
-                {employee.shiftId
-                  ? `${employee.shiftId} - ${employee.shiftName || "Shift"}`
-                  : "Unassigned"}
-              </p>
-            </div>
-          </div>
-
-          
-          {/* Service History */}
-  <div className="p-4 rounded-lg border bg-muted/20">
-    <h3 className="font-semibold text-base mb-3">Service History</h3>
-    <div className="space-y-1 text-sm">
-      <p>Start Date: <span className="font-medium">01/01/2020</span></p>
-      <p>Resignation Date: <span className="font-medium">09/02/2025</span></p>
-      <p>Duration: <span className="font-medium">5 years, 8 months</span></p>
+  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    {/* 🏠 Address */}
+    <div className="p-4 rounded-lg border bg-muted/20">
+      <h3 className="font-semibold text-base mb-2">Basic Information</h3>
+      <div className="space-y-1 text-sm">
+        <p>Gender: <span className="font-medium">{employee.gender || "—"}</span></p>
+        <p>Marital Status: <span className="font-medium capitalize">{employee.maritalStatus || "—"}</span></p>
+        <p>Birth Date: <span className="font-medium">{employee.birthDate ? new Date(employee.birthDate).toLocaleDateString() : "—"}</span></p>
+        <p>Address: <span className="font-medium">{employee.address || "—"}</span></p>
+      </div>
     </div>
-  </div>
 
-  {/* Resignation Details */}
-  <div className="p-4 rounded-lg border bg-muted/20">
-    <h3 className="font-semibold text-base mb-3">Resignation Details</h3>
-    <div className="space-y-1 text-sm">
-      <p>Reason: <span className="font-medium">Better opportunity abroad</span></p>
-      <p>Notes: <span className="font-medium">Left on good terms, eligible for rehire</span></p>
+    {/* 💼 Employment Info */}
+    <div className="p-4 rounded-lg border bg-muted/20">
+      <h3 className="font-semibold text-base mb-2">Employment Details</h3>
+      <div className="space-y-1 text-sm">
+        <p>Department: <span className="font-medium">{employee.address || "—"}</span></p>
+        <p>Role: <span className="font-medium">{employee.role || "—"}</span></p>
+        <p>Contract Type: <span className="font-medium capitalize">{employee.contractType || "—"}</span></p>
+        <p>Hire Date: <span className="font-medium">{employee.hireDate ? new Date(employee.hireDate).toLocaleDateString() : "—"}</span></p>
+        <p>Shift: <span className="font-medium">{employee.shiftName || "Unassigned"}</span></p>
+        <p>Status: <span className="font-medium capitalize">{employee.status || "—"}</span></p>
+      </div>
     </div>
-  </div>
 
-  {/* Financial & Clearance */}
-  <div className="p-4 rounded-lg border bg-muted/20">
-    <h3 className="font-semibold text-base mb-3">Financial & Clearance</h3>
-    <div className="space-y-1 text-sm">
-      <p>Paid Leave Balance: <span className="font-medium">2 days</span></p>
-      <p>Unpaid Leave Balance: <span className="font-medium">0 days</span></p>
-      <p>Assets Cleared: <span className="font-medium text-green-600">✅ Cleared</span></p>
-      <p>Final Settlement: <span className="font-medium">$1,200</span></p>
+    {/* ☎️ Emergency Contact */}
+    <div className="p-4 rounded-lg border bg-muted/20">
+      <h3 className="font-semibold text-base mb-2">Emergency Contact</h3>
+      <div className="space-y-1 text-sm">
+        <p>Name: <span className="font-medium">{employee.emergencyContactName || "—"}</span></p>
+        <p>Relation: <span className="font-medium">{employee.emergencyContactRelation || "—"}</span></p>
+        <p>Phone: <span className="font-medium">{employee.emergencyContactPhone || "—"}</span></p>
+      </div>
     </div>
-  </div>
-          
+
+    {/* 🧾 Financial & Clearance */}
+    <div className="p-4 rounded-lg border bg-muted/20">
+      <h3 className="font-semibold text-base mb-2">Financial & Clearance</h3>
+      <div className="space-y-1 text-sm">
+        <p>Paid Leave Balance: <span className="font-medium">—</span></p>
+        <p>Unpaid Leave Balance: <span className="font-medium">—</span></p>
+        <p>Assets Cleared: <span className="font-medium text-green-600">✅ Cleared</span></p>
+        <p>Final Settlement: <span className="font-medium">$—</span></p>
+      </div>
+    </div>
+
+    {/* 🧳 Resignation (if resigned) */}
+    {employee.status === "resigned" && (
+      <div className="p-4 rounded-lg border bg-muted/20 sm:col-span-2 lg:col-span-3">
+        <h3 className="font-semibold text-base mb-2">Resignation Details</h3>
+        <div className="space-y-1 text-sm">
+          <p>Resignation Date: <span className="font-medium">{employee.resignationDate ? new Date(employee.resignationDate).toLocaleDateString() : "—"}</span></p>
+          <p>Reason: <span className="font-medium">{employee.resignationReason || "—"}</span></p>
+          <p>Notes: <span className="font-medium">{employee.resignationNotes || "—"}</span></p>
         </div>
-        </CardContent>
+      </div>
+    )}
+  </div>
+</CardContent>
 
 
       <CardFooter className="pt-3 px-4 sm:px-6 lg:px-8 gap-4 sm:gap-6 lg:gap-8">
@@ -238,85 +249,118 @@ const handleResign = async ( resignReason: string) => {
         </Button>
       </CardFooter>
     </Card>
-    
-<Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-  <DialogContent className="max-w-md">
+    <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+  <DialogContent className="max-w-lg">
     <DialogHeader>
       <DialogTitle>Edit General Information</DialogTitle>
     </DialogHeader>
-    
-    <form
-      onSubmit={handleSubmit}
-      className="space-y-4"
-    >
-      <div>
-        <label className="text-sm font-medium">Name</label>
-        <Input
-          value={form.name}
-          onChange={(e) => setForm({ ...form, name: e.target.value })}
-        />
+
+    <form onSubmit={handleSubmit} className="space-y-3">
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="text-sm font-medium">Name</label>
+          <Input
+            value={form.name}
+            onChange={(e) => setForm({ ...form, name: e.target.value })}
+          />
+        </div>
+
+        <div>
+          <label className="text-sm font-medium">Phone</label>
+          <Input
+            value={form.phoneNumber}
+            onChange={(e) => setForm({ ...form, phoneNumber: e.target.value })}
+          />
+        </div>
+
+        <div className="col-span-2">
+          <label className="text-sm font-medium">Address</label>
+          <Input
+            value={form.address}
+            onChange={(e) => setForm({ ...form, address: e.target.value })}
+          />
+        </div>
+
+        <div>
+          <label className="text-sm font-medium">Gender</label>
+          <Select
+            value={form.gender}
+            onValueChange={(val) => setForm({ ...form, gender: val })}
+          >
+            <SelectTrigger><SelectValue placeholder="Select gender" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="male">Male</SelectItem>
+              <SelectItem value="female">Female</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div>
+          <label className="text-sm font-medium">Marital Status</label>
+          <Select
+            value={form.maritalStatus}
+            onValueChange={(val) => setForm({ ...form, maritalStatus: val })}
+          >
+            <SelectTrigger><SelectValue placeholder="Select status" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="single">Single</SelectItem>
+              <SelectItem value="married">Married</SelectItem>
+              <SelectItem value="divorced">Divorced</SelectItem>
+              <SelectItem value="widowed">Widowed</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div>
+          <label className="text-sm font-medium">Birth Date</label>
+          <Input
+            type="date"
+            value={form.birthDate}
+            onChange={(e) => setForm({ ...form, birthDate: e.target.value })}
+          />
+        </div>
+
+        <div>
+          <label className="text-sm font-medium">Hire Date</label>
+          <Input
+            type="date"
+            value={form.hireDate}
+            onChange={(e) => setForm({ ...form, hireDate: e.target.value })}
+          />
+        </div>
+
+        <div className="col-span-2">
+          <label className="text-sm font-medium">Emergency Contact Name</label>
+          <Input
+            value={form.emergencyContactName}
+            onChange={(e) => setForm({ ...form, emergencyContactName: e.target.value })}
+          />
+        </div>
+
+        <div>
+          <label className="text-sm font-medium">Relation</label>
+          <Input
+            value={form.emergencyContactRelation}
+            onChange={(e) => setForm({ ...form, emergencyContactRelation: e.target.value })}
+          />
+        </div>
+
+        <div>
+          <label className="text-sm font-medium">Contact Phone</label>
+          <Input
+            value={form.emergencyContactPhone}
+            onChange={(e) => setForm({ ...form, emergencyContactPhone: e.target.value })}
+          />
+        </div>
       </div>
 
-      <div>
-        <label className="text-sm font-medium">Phone Number</label>
-        <Input
-          value={form.phoneNumber}
-          onChange={(e) => setForm({ ...form, phoneNumber: e.target.value })}
-        />
-      </div>
-
-      <div>
-        <label className="text-sm font-medium">Department</label>
-        <Input
-          value={form.department}
-          onChange={(e) => setForm({ ...form, department: e.target.value })}
-        />
-      </div>
-
-      <div>
-        <label className="text-sm font-medium">Email</label>
-        <Input
-          type="email"
-          value={form.email}
-          onChange={(e) => setForm({ ...form, email: e.target.value })}
-        />
-      </div>
-
-      <div>
-        <label className="text-sm font-medium">Status</label>
-        <Select
-          value={form.status}
-          onValueChange={(val) => setForm({ ...form, status: val })}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Select status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="active">Active</SelectItem>
-            <SelectItem value="resigned">Resigned</SelectItem>
-            <SelectItem value="suspended">Suspended</SelectItem>
-            <SelectItem value="terminated">Terminated</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-{form.status === "resigned" && (
-    <div>
-      <label className="text-sm font-medium">Resignation Date</label>
-      <Input
-        type="date"
-        value={form.resignationDate ? form.resignationDate.split("T")[0] : ""}
-        onChange={(e) =>
-          setForm({ ...form, resignationDate: e.target.value })
-        }
-      />
-    </div>
-  )}
       <DialogFooter>
-        <Button type="submit">Save</Button>
+        <Button type="submit">Save Changes</Button>
       </DialogFooter>
     </form>
   </DialogContent>
 </Dialog>
+
 <ResignDialog
   employeeName={employee.name}
   open={isResignOpen}
