@@ -206,17 +206,17 @@ const handleResign = async ( resignReason: string) => {
 
   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
     <div className="flex items-center gap-2">
-      <span className="text-muted-foreground">🧩 Role:</span>
+      <span className="text-muted-foreground font-bold"> Role:</span>
       <span className="font-medium capitalize">{employee.role || "—"}</span>
     </div>
 
     <div className="flex items-center gap-2">
-      <span className="text-muted-foreground">📃 Contract Type:</span>
+      <span className="text-muted-foreground font-bold"> Contract Type:</span>
       <span className="font-medium capitalize">{employee.contractType || "—"}</span>
     </div>
 
     <div className="flex items-center gap-2">
-      <span className="text-muted-foreground">📅 Hire Date:</span>
+      <span className="text-muted-foreground font-bold"> Hire Date:</span>
       <span className="font-medium">
         {employee.hireDate
           ? new Date(employee.hireDate).toLocaleDateString()
@@ -225,12 +225,12 @@ const handleResign = async ( resignReason: string) => {
     </div>
 
     <div className="flex items-center gap-2">
-      <span className="text-muted-foreground">🕒 Shift:</span>
+      <span className="text-muted-foreground font-bold"> Shift:</span>
       <span className="font-medium">{employee.shiftName || "Unassigned"}</span>
     </div>
 
     <div className="flex items-center gap-2">
-      <span className="text-muted-foreground">📊 Status:</span>
+      <span className="text-muted-foreground font-bold"> Status:</span>
       <Badge
         variant={getStatusVariant(employee.status)}
         className={`${getStatusColor(employee.status)} font-medium capitalize`}
