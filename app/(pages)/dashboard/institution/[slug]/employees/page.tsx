@@ -80,8 +80,8 @@ const EmployeeList: React.FC = () => {
     const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
-      const payload = { ...form, institutionKey: slug }
-      const res = await fetch(`${BaseUrl}/api/users`, {
+      const payload = { ...form }
+      const res = await fetch(`${BaseUrl}/api/users/create`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -193,8 +193,9 @@ const EmployeeList: React.FC = () => {
               ))}
             </SelectContent>
           </Select>
+          <Button onClick={() => setOpen(true)}>➕ Add Employee</Button>
         </div>
-        <Button onClick={() => setOpen(true)}>➕ Add Employee</Button>
+        
       </div>
 
       {loading ? (
