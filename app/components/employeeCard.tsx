@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { User, CalendarX2 } from "lucide-react"
 import { Employee } from "@/app/types/Employee";
