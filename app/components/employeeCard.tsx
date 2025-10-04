@@ -158,7 +158,7 @@ const handleResign = async ( resignReason: string) => {
       <div>
         <h2 className="text-xl font-semibold text-foreground">{employee.name}</h2>
         <p className="text-sm text-muted-foreground">
-          {employee.role || "Employee"} — {employee.department || "—"}
+          {employee.role || "Employee"}  —  {employee.department ||  employee.shiftName}
         </p>
         <div className="mt-2">
           <Badge variant={getStatusVariant(employee.status)} className={`${getStatusColor(employee.status)} capitalize`}>
@@ -199,18 +199,47 @@ const handleResign = async ( resignReason: string) => {
     </div>
 
     {/* Employment Details */}
-    <div className="rounded-xl bg-muted/40 p-5 border border-border/40 hover:shadow-sm transition">
-      <h3 className="font-semibold mb-3 text-foreground/90 flex items-center gap-2">
-        💼 Employment Details
-      </h3>
-      <ul className="space-y-1 text-sm">
-        <li>Role: <span className="font-medium">{employee.role || "—"}</span></li>
-        <li>Contract Type: <span className="font-medium capitalize">{employee.contractType || "—"}</span></li>
-        <li>Hire Date: <span className="font-medium">{employee.hireDate ? new Date(employee.hireDate).toLocaleDateString() : "—"}</span></li>
-        <li>Shift: <span className="font-medium">{employee.shiftName || "Unassigned"}</span></li>
-        <li>Status: <span className="font-medium capitalize">{employee.status || "—"}</span></li>
-      </ul>
+    <div className="rounded-xl bg-muted/40 p-5 border border-border/40 hover:shadow-md transition duration-300">
+  <h3 className="font-semibold mb-4 text-foreground flex items-center gap-2 text-base">
+    💼 Employment Details
+  </h3>
+
+  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+    <div className="flex items-center gap-2">
+      <span className="text-muted-foreground">🧩 Role:</span>
+      <span className="font-medium capitalize">{employee.role || "—"}</span>
     </div>
+
+    <div className="flex items-center gap-2">
+      <span className="text-muted-foreground">📃 Contract Type:</span>
+      <span className="font-medium capitalize">{employee.contractType || "—"}</span>
+    </div>
+
+    <div className="flex items-center gap-2">
+      <span className="text-muted-foreground">📅 Hire Date:</span>
+      <span className="font-medium">
+        {employee.hireDate
+          ? new Date(employee.hireDate).toLocaleDateString()
+          : "—"}
+      </span>
+    </div>
+
+    <div className="flex items-center gap-2">
+      <span className="text-muted-foreground">🕒 Shift:</span>
+      <span className="font-medium">{employee.shiftName || "Unassigned"}</span>
+    </div>
+
+    <div className="flex items-center gap-2">
+      <span className="text-muted-foreground">📊 Status:</span>
+      <Badge
+        variant={getStatusVariant(employee.status)}
+        className={`${getStatusColor(employee.status)} font-medium capitalize`}
+      >
+        {employee.status || "—"}
+      </Badge>
+    </div>
+  </div>
+</div>
 
     {/* Emergency Contact */}
     <div className="rounded-xl bg-muted/40 p-5 border border-border/40 hover:shadow-sm transition">
