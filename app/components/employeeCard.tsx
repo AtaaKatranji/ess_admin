@@ -203,11 +203,7 @@ const handleResign = async ( resignReason: string) => {
   </h3>
 
   <div className="grid grid-cols-1 sm:grid-cols-1 gap-3 text-sm">
-    <div className="flex items-center gap-2 p-2 bg-white rounded-md">
-      <span className="text-muted-foreground font-bold"> Role:</span>
-      <span className="font-medium capitalize">{employee.role || "—"}</span>
-    </div>
-
+   
     <div className="flex items-center gap-2 p-2 bg-white rounded-md">
       <span className="text-muted-foreground font-bold"> Contract Type:</span>
       <span className="font-medium capitalize">{employee.contractType || "—"}</span>
@@ -221,61 +217,63 @@ const handleResign = async ( resignReason: string) => {
           : "—"}
       </span>
     </div>
-
-    <div className="flex items-center gap-2 p-2 bg-white rounded-md">
-      <span className="text-muted-foreground font-bold"> Shift:</span>
-      <span className="font-medium">{employee.shiftName || "Unassigned"}</span>
-    </div>
-
-    <div className="flex items-center gap-2 p-2 bg-white rounded-md">
-      <span className="text-muted-foreground font-bold"> Status:</span>
-      <Badge
-        variant={getStatusVariant(employee.status)}
-        className={`${getStatusColor(employee.status)} font-medium capitalize`}
-      >
-        {employee.status || "—"}
-      </Badge>
-    </div>
   </div>
 </div>
 
     {/* Emergency Contact */}
-    <div className="rounded-xl bg-muted/40 p-5 border border-border/40 hover:shadow-sm transition">
-      <h3 className="font-semibold mb-3 text-foreground/90 flex items-center gap-2">
-        ☎️ Emergency Contact
+    <div className="rounded-xl bg-muted/40 p-5 border border-border/40 hover:shadow-md transition duration-300">
+      <h3 className="font-semibold mb-4 text-foreground flex items-center gap-2 text-base">
+        Emergency Contact
       </h3>
-      <ul className="space-y-1 text-sm">
-        <li>Name: <span className="font-medium">{employee.emergencyContactName || "—"}</span></li>
-        <li>Relation: <span className="font-medium">{employee.emergencyContactRelation || "—"}</span></li>
-        <li>Phone: <span className="font-medium">{employee.emergencyContactPhone || "—"}</span></li>
-      </ul>
+
+      <div className="grid grid-cols-1 sm:grid-cols-1 gap-3 text-sm">
+        <div className="flex items-center gap-2 p-2 bg-white rounded-md">
+          <span className="text-muted-foreground font-bold">Name:</span>
+          <span className="font-medium">{employee.emergencyContactName || "—"}</span>
+        </div>
+
+        <div className="flex items-center gap-2 p-2 bg-white rounded-md">
+          <span className="text-muted-foreground font-bold">Relation:</span>
+          <span className="font-medium">{employee.emergencyContactRelation || "—"}</span>
+        </div>
+
+        <div className="flex items-center gap-2 p-2 bg-white rounded-md">
+          <span className="text-muted-foreground font-bold">Phone:</span>
+          <span className="font-medium">{employee.emergencyContactPhone || "—"}</span>
+        </div>
+      </div>
     </div>
 
-    {/* Financial Info */}
-    <div className="rounded-xl bg-muted/40 p-5 border border-border/40 hover:shadow-sm transition md:col-span-2 lg:col-span-3">
-      <h3 className="font-semibold mb-3 text-foreground/90 flex items-center gap-2">
-        💰 Financial & Clearance
-      </h3>
-      <ul className="space-y-1 text-sm">
-        <li>Paid Leave Balance: <span className="font-medium">—</span></li>
-        <li>Unpaid Leave Balance: <span className="font-medium">—</span></li>
-        <li>Assets Cleared: <span className="font-medium text-green-600">✅ Cleared</span></li>
-        <li>Final Settlement: <span className="font-medium">$—</span></li>
-      </ul>
-    </div>
 
     {/* Resignation */}
     {employee.status === "resigned" && (
-      <div className="rounded-xl bg-destructive/5 border border-destructive/30 p-5 md:col-span-2 lg:col-span-3">
-        <h3 className="font-semibold mb-3 text-destructive flex items-center gap-2">
-          🧳 Resignation Details
-        </h3>
-        <ul className="space-y-1 text-sm">
-          <li>Date: <span className="font-medium">{employee.resignationDate ? new Date(employee.resignationDate).toLocaleDateString() : "—"}</span></li>
-          <li>Reason: <span className="font-medium">{employee.resignationReason || "—"}</span></li>
-          <li>Notes: <span className="font-medium">{employee.resignationNotes || "—"}</span></li>
-        </ul>
+      <div className="rounded-xl bg-destructive/5 p-5 border border-destructive/30 hover:shadow-md transition duration-300 md:col-span-2 lg:col-span-3">
+      <h3 className="font-semibold mb-4 text-destructive flex items-center gap-2 text-base">
+        Resignation Details
+      </h3>
+    
+      <div className="grid grid-cols-1 sm:grid-cols-1 gap-3 text-sm">
+        <div className="flex items-center gap-2 p-2 bg-white rounded-md">
+          <span className="text-destructive font-bold">Date:</span>
+          <span className="font-medium">
+            {employee.resignationDate
+              ? new Date(employee.resignationDate).toLocaleDateString()
+              : "—"}
+          </span>
+        </div>
+    
+        <div className="flex items-center gap-2 p-2 bg-white rounded-md">
+          <span className="text-destructive font-bold">Reason:</span>
+          <span className="font-medium">{employee.resignationReason || "—"}</span>
+        </div>
+    
+        <div className="flex items-center gap-2 p-2 bg-white rounded-md">
+          <span className="text-destructive font-bold">Notes:</span>
+          <span className="font-medium">{employee.resignationNotes || "—"}</span>
+        </div>
       </div>
+    </div>
+    
     )}
   </CardContent>
 </Card>
