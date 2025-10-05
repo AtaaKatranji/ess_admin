@@ -263,7 +263,34 @@ const handleResign = async ( resignReason: string) => {
         </div>
       </div>
     </div>
+    {/* Financial Info */}
+    {/* <div className="rounded-xl bg-muted/40 p-5 border border-border/40 hover:shadow-md transition duration-300 md:col-span-2 lg:col-span-3">
+      <h3 className="font-semibold mb-4 text-foreground flex items-center gap-2 text-base">
+        Financial & Clearance
+      </h3>
 
+      <div className="grid grid-cols-1 sm:grid-cols-1 gap-3 text-sm">
+        <div className="flex items-center gap-2 p-2 bg-white rounded-md">
+          <span className="text-muted-foreground font-bold">Paid Leave Balance:</span>
+          <span className="font-medium">—</span>
+        </div>
+
+        <div className="flex items-center gap-2 p-2 bg-white rounded-md">
+          <span className="text-muted-foreground font-bold">Unpaid Leave Balance:</span>
+          <span className="font-medium">—</span>
+        </div>
+
+        <div className="flex items-center gap-2 p-2 bg-white rounded-md">
+          <span className="text-muted-foreground font-bold">Assets Cleared:</span>
+          <span className="font-medium text-green-600">✅ Cleared</span>
+        </div>
+
+        <div className="flex items-center gap-2 p-2 bg-white rounded-md">
+          <span className="text-muted-foreground font-bold">Final Settlement:</span>
+          <span className="font-medium">$—</span>
+        </div>
+      </div>
+    </div> */}
 
     {/* Resignation */}
     {employee.status === "resigned" && (
