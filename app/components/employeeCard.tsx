@@ -52,7 +52,7 @@ const [form, setForm] = useState({
 const fetchEmployee = async () => {
   try {
     setIsRefreshing(true);
-    const res = await fetch(`${BaseUrl}/api/users/${employee.id}`, {
+    const res = await fetch(`${BaseUrl}/api/users/personal?employeeId=${employee.id}`, {
       credentials: "include",
     });
     if (!res.ok) throw new Error("Failed to fetch employee");
