@@ -55,6 +55,7 @@ export const fetchTimeShifts = async (employeeId: string) => {
       if (data.shifts.length === 1) {
         const shift = data.shifts[0];
         return {
+          name: shift.name,
           mode: shift.mode,
           overrides: shift.overrides,
           startTime: shift.startTime,
