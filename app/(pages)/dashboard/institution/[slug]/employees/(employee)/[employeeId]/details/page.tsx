@@ -195,6 +195,7 @@ if (shifts && (shifts.startTime || shifts.endTime)) {
         absences: stats.absences,
         tardies: stats.tardies,
       }));
+      console.log("Shift Name:", shifts?.name || empRes?.shift?.name);
       const shiftName = shifts?.name || empRes?.shift?.name || "Unassigned";
 
 // 🔹 شكّل نسخة جديدة من الموظف مع shiftName مضافة
