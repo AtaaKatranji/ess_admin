@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { User, CalendarX2 } from "lucide-react"
+import { User, CalendarX2, Loader2 } from "lucide-react"
 import { Employee } from "@/app/types/Employee";
 import {
     Dialog,
@@ -28,6 +28,9 @@ export function EmployeeCard({ employee, slug  }: EmployeeCardProps) {
 
 const [isEditOpen, setIsEditOpen] = useState(false);
 const [isResignOpen, setIsResignOpen] = useState(false);
+const [isRefreshing, setIsRefreshing] = useState(false);
+const [employeeData, setEmployeeData] = useState(employee); 
+
 const [form, setForm] = useState({
   name: employee.name || "",
   phoneNumber: employee.phoneNumber || "",
@@ -45,43 +48,64 @@ const [form, setForm] = useState({
   status: employee.status || "active",
   resignationDate: employee.resignationDate || null,
 });
+
+const fetchEmployee = async () => {
+  try {
+    setIsRefreshing(true);
+    const res = await fetch(`${BaseUrl}/api/users/${employee.id}`, {
+      credentials: "include",
+    });
+    if (!res.ok) throw new Error("Failed to fetch employee");
+    const data = await res.json();
+    setEmployeeData(data.user || data); // adjust depending on API structure
+  } catch (err) {
+    console.error("Error fetching employee:", err);
+    toast.error("Could not refresh employee data");
+  } finally {
+    setIsRefreshing(false);
+  }
+};
 const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      const payload = {
-        name: form.name,
-        phoneNumber: form.phoneNumber,
-        email: form.email,
-        address: form.address,
-        role: form.role,
-        gender: form.gender,
-        hireDate: form.hireDate,
-        maritalStatus: form.maritalStatus,
-        birthDate: form.birthDate,
-        emergencyContactName: form.emergencyContactName,
-        emergencyContactRelation: form.emergencyContactRelation,
-        emergencyContactPhone: form.emergencyContactPhone,
-        contractType: form.contractType,
-        status: form.status,
-        resignationDate: form.status === "resigned" ? form.resignationDate : null,
-      };
-    
-        const res = await fetch(`${BaseUrl}/api/users/${employee.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-         // Include credentials for authentication
-        body: JSON.stringify(payload),
-        });
-    
-        if (!res.ok) throw new Error("Failed to update");
-        toast.success("Employee updated!");
-        setIsEditOpen(false);
-        // refresh
-    } catch {
-        toast.error("Error updating employee");
-    }
-    };       
+  e.preventDefault();
+  try {
+    const payload = {
+      name: form.name,
+      phoneNumber: form.phoneNumber,
+      email: form.email,
+      address: form.address,
+      role: form.role,
+      gender: form.gender,
+      hireDate: form.hireDate,
+      maritalStatus: form.maritalStatus,
+      birthDate: form.birthDate,
+      emergencyContactName: form.emergencyContactName,
+      emergencyContactRelation: form.emergencyContactRelation,
+      emergencyContactPhone: form.emergencyContactPhone,
+      contractType: form.contractType,
+      status: form.status,
+      resignationDate: form.status === "resigned" ? form.resignationDate : null,
+    };
+
+    const res = await fetch(`${BaseUrl}/api/users/${employee.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) throw new Error("Failed to update");
+
+    toast.success("Employee updated!");
+    setIsEditOpen(false);
+
+    // ✅ Refresh data from backend
+    await fetchEmployee();
+
+  } catch (error) {
+    console.error("Error updating employee:", error);
+    toast.error("Error updating employee");
+  }
+};       
 const getStatusVariant = (status: string) => {
 switch (status) {
     case "active":
@@ -119,7 +143,7 @@ return name
 const handleResign = async ( resignReason: string) => {
   try {
     const payload = {
-      userId: employee.id,
+      userId: employeeData.id,
       status: "resigned",
       resignationDate: new Date().toISOString().split("T")[0], // today’s date
       shiftId: null, // unassign shift
@@ -137,6 +161,9 @@ const handleResign = async ( resignReason: string) => {
 
     toast.success("Employee resigned successfully!");
     setIsResignOpen(false);
+
+    await fetchEmployee();
+
   } catch {
     toast.error("Error while resigning employee");
   }
@@ -144,23 +171,29 @@ const handleResign = async ( resignReason: string) => {
   return (
     <div className="container mx-auto px-4">
   <Card className="w-full border-none shadow-md bg-gradient-to-br from-background to-muted/40 rounded-2xl overflow-hidden">
+  {isRefreshing && (
+          <div className="absolute inset-0 bg-background/60 flex items-center justify-center z-20 backdrop-blur-sm rounded-2xl">
+            <Loader2 className="h-6 w-6 animate-spin text-primary" />
+            <span className="ml-2 text-sm text-muted-foreground">Refreshing...</span>
+          </div>
+        )}
   {/* HEADER */}
   <CardHeader className="bg-gradient-to-r from-primary/10 to-blue-100/30 dark:from-primary/5 dark:to-muted py-6 px-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
     <div className="flex items-center gap-4">
       <Avatar className="h-20 w-20 ring-2 ring-primary/20">
-        <AvatarImage src={employee.avatar || "/placeholder.svg"} alt={employee.name} />
+        <AvatarImage src={employeeData.avatar || "/placeholder.svg"} alt={employeeData.name} />
         <AvatarFallback className="bg-primary/10 text-primary font-semibold text-xl">
-          {getInitials(employee.name)}
+          {getInitials(employeeData.name)}
         </AvatarFallback>
       </Avatar>
       <div>
-        <h2 className="text-xl font-semibold text-foreground">{employee.name}</h2>
+        <h2 className="text-xl font-semibold text-foreground">{employeeData.name}</h2>
         <p className="text-sm text-muted-foreground">
-          {employee.role || "Employee"}  —  {employee.shiftName || "Unassigned"}
+          {employeeData.role || "Employee"}  —  {employeeData.shiftName || "Unassigned"}
         </p>
         <div className="mt-2">
-          <Badge variant={getStatusVariant(employee.status)} className={`${getStatusColor(employee.status)} capitalize`}>
-            {employee.status}
+          <Badge variant={getStatusVariant(employeeData.status)} className={`${getStatusColor(employeeData.status)} capitalize`}>
+            {employeeData.status}
           </Badge>
         </div>
       </div>
@@ -192,26 +225,26 @@ const handleResign = async ( resignReason: string) => {
       <div className="grid grid-cols-1 sm:grid-cols-1 gap-3 text-sm">
         <div className="flex items-center gap-2 p-2 bg-white rounded-md">
           <span className="text-muted-foreground font-bold">Gender:</span>
-          <span className="font-medium">{employee.gender || "—"}</span>
+          <span className="font-medium">{employeeData.gender || "—"}</span>
         </div>
 
         <div className="flex items-center gap-2 p-2 bg-white rounded-md">
           <span className="text-muted-foreground font-bold">Marital Status:</span>
-          <span className="font-medium capitalize">{employee.maritalStatus || "—"}</span>
+          <span className="font-medium capitalize">{employeeData.maritalStatus || "—"}</span>
         </div>
 
         <div className="flex items-center gap-2 p-2 bg-white rounded-md">
           <span className="text-muted-foreground font-bold">Birth Date:</span>
           <span className="font-medium">
-            {employee.birthDate
-              ? new Date(employee.birthDate).toLocaleDateString()
+            {employeeData.birthDate
+              ? new Date(employeeData.birthDate).toLocaleDateString()
               : "—"}
           </span>
         </div>
 
         <div className="flex items-center gap-2 p-2 bg-white rounded-md">
           <span className="text-muted-foreground font-bold">Address:</span>
-          <span className="font-medium">{employee.address || "—"}</span>
+          <span className="font-medium">{employeeData.address || "—"}</span>
         </div>
       </div>
     </div>
@@ -226,14 +259,14 @@ const handleResign = async ( resignReason: string) => {
       
         <div className="flex items-center gap-2 p-2 bg-white rounded-md">
           <span className="text-muted-foreground font-bold"> Contract Type:</span>
-          <span className="font-medium capitalize">{employee.contractType || "—"}</span>
+          <span className="font-medium capitalize">{employeeData.contractType || "—"}</span>
         </div>
 
         <div className="flex items-center gap-2 p-2 bg-white rounded-md">
           <span className="text-muted-foreground font-bold"> Hire Date:</span>
           <span className="font-medium">
-            {employee.hireDate
-              ? new Date(employee.hireDate).toLocaleDateString()
+            {employeeData.hireDate
+              ? new Date(employeeData.hireDate).toLocaleDateString()
               : "—"}
           </span>
         </div>
@@ -249,17 +282,17 @@ const handleResign = async ( resignReason: string) => {
       <div className="grid grid-cols-1 sm:grid-cols-1 gap-3 text-sm">
         <div className="flex items-center gap-2 p-2 bg-white rounded-md">
           <span className="text-muted-foreground font-bold">Name:</span>
-          <span className="font-medium">{employee.emergencyContactName || "—"}</span>
+          <span className="font-medium">{employeeData.emergencyContactName || "—"}</span>
         </div>
 
         <div className="flex items-center gap-2 p-2 bg-white rounded-md">
           <span className="text-muted-foreground font-bold">Relation:</span>
-          <span className="font-medium">{employee.emergencyContactRelation || "—"}</span>
+          <span className="font-medium">{employeeData.emergencyContactRelation || "—"}</span>
         </div>
 
         <div className="flex items-center gap-2 p-2 bg-white rounded-md">
           <span className="text-muted-foreground font-bold">Phone:</span>
-          <span className="font-medium">{employee.emergencyContactPhone || "—"}</span>
+          <span className="font-medium">{employeeData.emergencyContactPhone || "—"}</span>
         </div>
       </div>
     </div>
@@ -293,7 +326,7 @@ const handleResign = async ( resignReason: string) => {
     </div> */}
 
     {/* Resignation */}
-    {employee.status === "resigned" && (
+    {employeeData.status === "resigned" && (
       <div className="rounded-xl bg-destructive/5 p-5 border border-destructive/30 hover:shadow-md transition duration-300 md:col-span-2 lg:col-span-3">
       <h3 className="font-semibold mb-4 text-destructive flex items-center gap-2 text-base">
         Resignation Details
@@ -303,20 +336,20 @@ const handleResign = async ( resignReason: string) => {
         <div className="flex items-center gap-2 p-2 bg-white rounded-md">
           <span className="text-destructive font-bold">Date:</span>
           <span className="font-medium">
-            {employee.resignationDate
-              ? new Date(employee.resignationDate).toLocaleDateString()
+            {employeeData.resignationDate
+              ? new Date(employeeData.resignationDate).toLocaleDateString()
               : "—"}
           </span>
         </div>
     
         <div className="flex items-center gap-2 p-2 bg-white rounded-md">
           <span className="text-destructive font-bold">Reason:</span>
-          <span className="font-medium">{employee.resignationReason || "—"}</span>
+          <span className="font-medium">{employeeData.resignationReason || "—"}</span>
         </div>
     
         <div className="flex items-center gap-2 p-2 bg-white rounded-md">
           <span className="text-destructive font-bold">Notes:</span>
-          <span className="font-medium">{employee.resignationNotes || "—"}</span>
+          <span className="font-medium">{employeeData.resignationNotes || "—"}</span>
         </div>
       </div>
     </div>
@@ -438,7 +471,7 @@ const handleResign = async ( resignReason: string) => {
 </Dialog>
 
 <ResignDialog
-  employeeName={employee.name}
+  employeeName={employeeData.name}
   open={isResignOpen}
   onOpenChange={setIsResignOpen}
   onConfirm={(resignReason) => handleResign(resignReason)}
