@@ -184,41 +184,61 @@ const handleResign = async ( resignReason: string) => {
   {/* BODY */}
   <CardContent className="p-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
     {/* Basic Info */}
-    <div className="rounded-xl bg-muted/40 p-5 border border-border/40 hover:shadow-sm transition">
-      <h3 className="font-semibold mb-3 text-foreground/90 flex items-center gap-2">
-        🧍 Basic Information
+    <div className="rounded-xl bg-muted/40 p-5 border border-border/40 hover:shadow-md transition duration-300">
+      <h3 className="font-semibold mb-4 text-foreground flex items-center gap-2 text-base">
+        Basic Information
       </h3>
-      <ul className="space-y-1 text-sm">
-        <li>Gender: <span className="font-medium">{employee.gender || "—"}</span></li>
-        <li>Marital Status: <span className="font-medium capitalize">{employee.maritalStatus || "—"}</span></li>
-        <li>Birth Date: <span className="font-medium">{employee.birthDate ? new Date(employee.birthDate).toLocaleDateString() : "—"}</span></li>
-        <li>Address: <span className="font-medium">{employee.address || "—"}</span></li>
-      </ul>
+
+      <div className="grid grid-cols-1 sm:grid-cols-1 gap-3 text-sm">
+        <div className="flex items-center gap-2 p-2 bg-white rounded-md">
+          <span className="text-muted-foreground font-bold">Gender:</span>
+          <span className="font-medium">{employee.gender || "—"}</span>
+        </div>
+
+        <div className="flex items-center gap-2 p-2 bg-white rounded-md">
+          <span className="text-muted-foreground font-bold">Marital Status:</span>
+          <span className="font-medium capitalize">{employee.maritalStatus || "—"}</span>
+        </div>
+
+        <div className="flex items-center gap-2 p-2 bg-white rounded-md">
+          <span className="text-muted-foreground font-bold">Birth Date:</span>
+          <span className="font-medium">
+            {employee.birthDate
+              ? new Date(employee.birthDate).toLocaleDateString()
+              : "—"}
+          </span>
+        </div>
+
+        <div className="flex items-center gap-2 p-2 bg-white rounded-md">
+          <span className="text-muted-foreground font-bold">Address:</span>
+          <span className="font-medium">{employee.address || "—"}</span>
+        </div>
+      </div>
     </div>
 
     {/* Employment Details */}
     <div className="rounded-xl bg-muted/40 p-5 border border-border/40 hover:shadow-md transition duration-300">
-  <h3 className="font-semibold mb-4 text-foreground flex items-center gap-2 text-base">
-  Employment Details
-  </h3>
+      <h3 className="font-semibold mb-4 text-foreground flex items-center gap-2 text-base">
+      Employment Details
+      </h3>
 
-  <div className="grid grid-cols-1 sm:grid-cols-1 gap-3 text-sm">
-   
-    <div className="flex items-center gap-2 p-2 bg-white rounded-md">
-      <span className="text-muted-foreground font-bold"> Contract Type:</span>
-      <span className="font-medium capitalize">{employee.contractType || "—"}</span>
-    </div>
+      <div className="grid grid-cols-1 sm:grid-cols-1 gap-3 text-sm">
+      
+        <div className="flex items-center gap-2 p-2 bg-white rounded-md">
+          <span className="text-muted-foreground font-bold"> Contract Type:</span>
+          <span className="font-medium capitalize">{employee.contractType || "—"}</span>
+        </div>
 
-    <div className="flex items-center gap-2 p-2 bg-white rounded-md">
-      <span className="text-muted-foreground font-bold"> Hire Date:</span>
-      <span className="font-medium">
-        {employee.hireDate
-          ? new Date(employee.hireDate).toLocaleDateString()
-          : "—"}
-      </span>
+        <div className="flex items-center gap-2 p-2 bg-white rounded-md">
+          <span className="text-muted-foreground font-bold"> Hire Date:</span>
+          <span className="font-medium">
+            {employee.hireDate
+              ? new Date(employee.hireDate).toLocaleDateString()
+              : "—"}
+          </span>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
 
     {/* Emergency Contact */}
     <div className="rounded-xl bg-muted/40 p-5 border border-border/40 hover:shadow-md transition duration-300">
