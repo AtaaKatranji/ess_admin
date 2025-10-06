@@ -39,6 +39,7 @@ export default function CovenantDetailsPage() {
   }
   const handleCancelAssignment = async () => {
     if (!covenant?.latestAssignment?.id) return;
+    if (!covenant?.assignments?.[0]?.id) return;
     if (!confirm('Are you sure you want to cancel this pending assignment?')) return;
   
     try {
@@ -46,7 +47,7 @@ export default function CovenantDetailsPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ assignmentId: covenant.latestAssignment.id }),
+        body: JSON.stringify({ assignmentId: covenant.assignments?.[0]?.id }),
       });
   
       if (!res.ok) throw new Error('Failed to cancel assignment');
@@ -125,7 +126,7 @@ export default function CovenantDetailsPage() {
             >
               <UserCheck className="w-4 h-4" /> Assign Covenant
             </Button>
-            {covenant.latestAssignment?.status === 'pending' && (
+            {covenant.assignments?.[0]?.status === 'pending' && (
                 <Button
                 variant="destructive"
                 className="flex items-center gap-2"
