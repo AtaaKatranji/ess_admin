@@ -29,6 +29,7 @@ export default function CovenantDetailsPage() {
       if (!res.ok) throw new Error('Failed to fetch covenant')
       const data = await res.json()
       setCovenant(data.covenant || data)
+      console.log(data.covenant)
     } catch (err) {
       console.error(err)
       toast.error('Error loading covenant details')
