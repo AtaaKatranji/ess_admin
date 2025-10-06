@@ -6,6 +6,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@
 import { toast } from 'react-toastify'
 import { Employee } from '../types/Employee'
 import { fetchEmployees } from '../api/employees/employeeId'
+import { useInstitution } from '../context/InstitutionContext'
 const BaseUrl = process.env.NEXT_PUBLIC_API_URL
 
 interface AssignCovenantDialogProps {
@@ -20,7 +21,7 @@ export default function AssignCovenantDialog({ open, onOpenChange, covenantId, o
   const [employeeId, setEmployeeId] = useState('')
   const [notes, setNotes] = useState('')
   const [loading, setLoading] = useState(false)
-  const slug = window.location.pathname.split('/')[2]
+  const { slug } = useInstitution();
 
 
   useEffect(() => {
