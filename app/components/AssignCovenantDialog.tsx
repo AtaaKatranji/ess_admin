@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select'
 import { toast } from 'react-toastify'
 import { Employee } from '../types/Employee'
-
+import { fetchEmployees } from '../api/employees/employeeId'
 const BaseUrl = process.env.NEXT_PUBLIC_API_URL
 
 interface AssignCovenantDialogProps {
@@ -20,22 +20,11 @@ export default function AssignCovenantDialog({ open, onOpenChange, covenantId, o
   const [employeeId, setEmployeeId] = useState('')
   const [notes, setNotes] = useState('')
   const [loading, setLoading] = useState(false)
+  const slug = window.location.pathname.split('/')[2]
 
-  const fetchEmployees = async () => {
-    try {
-      const slug = window.location.pathname.split('/')[2]
-      const res = await fetch(`${BaseUrl}/institutions/${slug}/employees`, { credentials: 'include' })
-      if (!res.ok) throw new Error('Failed to load employees')
-      const data = await res.json()
-      setEmployees(data.items || [])
-    } catch (err) {
-      console.error(err)
-      toast.error('Error loading employees')
-    }
-  }
 
   useEffect(() => {
-    if (open) fetchEmployees()
+    if (open) fetchEmployees(slug).then(setEmployees)
   }, [open])
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -46,7 +35,7 @@ export default function AssignCovenantDialog({ open, onOpenChange, covenantId, o
     }
     try {
       setLoading(true)
-      const slug = window.location.pathname.split('/')[2]
+      
       const res = await fetch(`${BaseUrl}/institutions/${slug}/covenants/assign`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
