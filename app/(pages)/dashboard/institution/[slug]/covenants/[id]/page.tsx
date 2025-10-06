@@ -36,7 +36,28 @@ export default function CovenantDetailsPage() {
       setLoading(false)
     }
   }
-
+  const handleCancelAssignment = async () => {
+    if (!covenant?.latestAssignment?.id) return;
+    if (!confirm('Are you sure you want to cancel this pending assignment?')) return;
+  
+    try {
+      const res = await fetch(`${BaseUrl}/institutions/${slug}/covenants/cancel`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ assignmentId: covenant.latestAssignment.id }),
+      });
+  
+      if (!res.ok) throw new Error('Failed to cancel assignment');
+  
+      toast.success('Assignment canceled successfully');
+      await fetchCovenant(); // ✅ تحديث الحالة مباشرة
+    } catch (err) {
+      console.error(err);
+      toast.error('Error canceling assignment');
+    }
+  };
+  
   useEffect(() => {
     fetchCovenant()
   }, [id])
@@ -103,7 +124,15 @@ export default function CovenantDetailsPage() {
             >
               <UserCheck className="w-4 h-4" /> Assign Covenant
             </Button>
-
+            {covenant.latestAssignment?.status === 'pending' && (
+                <Button
+                variant="destructive"
+                className="flex items-center gap-2"
+                onClick={handleCancelAssignment}
+                >
+                <RotateCcw className="w-4 h-4" /> Cancel Pending Assignment
+                </Button>
+            )}
             <Button
               variant="outline"
               className="flex items-center gap-2"

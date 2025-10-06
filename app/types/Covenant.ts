@@ -17,6 +17,7 @@ export interface Covenant {
   
     // optional relational fields
     assignments?: CovenantAssignment[]
+    latestAssignment?: CovenantAssignment | null
   }
   
   export interface CovenantAssignment {
