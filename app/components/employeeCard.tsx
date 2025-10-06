@@ -200,7 +200,7 @@ const handleResign = async ( resignReason: string) => {
     </div>
 
     <div className="flex gap-3">
-      <Button onClick={() => setIsEditOpen(true)} size="sm" className="shadow-sm">
+      <Button onClick={() => setIsEditOpen(true)} size="sm"  disabled={isRefreshing} className="shadow-sm">
         <User className="mr-2 h-4 w-4" /> Edit
       </Button>
       <Button
@@ -208,6 +208,7 @@ const handleResign = async ( resignReason: string) => {
         onClick={() => setIsResignOpen(true)}
         size="sm"
         className="shadow-sm"
+        disabled={isRefreshing}
       >
         <CalendarX2 className="mr-2 h-4 w-4" /> Resign
       </Button>
