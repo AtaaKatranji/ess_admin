@@ -28,7 +28,7 @@ export default function AddCovenantDialog({ open, onOpenChange, onAdded }: AddCo
     e.preventDefault()
     try {
       setLoading(true)
-      const res = await fetch(`${BaseUrl}/institutions/${window.location.pathname.split('/')[2]}/covenants`, {
+      const res = await fetch(`${BaseUrl}/institutions/${window.location.pathname.split('/')[3]}/covenants`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
