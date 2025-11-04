@@ -34,20 +34,28 @@ const exportMonthlyReportPDF = (data) => {
   doc.text(summary.employeeName, 15 + employeeLabelWidth, 16);
 
   // === بيانات الملخص (بدون أي حساب يدوي) ===
-  const summaryData = [
-    ["Total Hours", summary.totalHours],
-    ["Late Hours", summary.lateHours],
-    ["Early Leave Hours", summary.earlyLeaveHours],
-    ["Early Arrival Hours", summary.earlyArrivalHours],
-    ["Extra Attendance Hours", summary.extraAttendanceHours],
-    ["Extra Added Hours", summary.extraAdjustmentHours || 0],
-    ["Total Days Attendanced", summary.totalDays],
-    ["Total Days Absents", summary.totalAbsents],
-    ["Total Days Holidays", summary.totalHolidays],
-    ["Total Hours Holidays", `+${summary.totalHolidayHours}`],
-    ["Paid Leaves", summary.totalLeaves],
-    ["Paid Leave Hours", `+${summary.totalPaidLeaveHours}`],
-  ];
+  // === بيانات الملخص (بدون حسابات يدوية) ===
+          const summaryData = [
+            ["Total Hours", summary.totalHours],
+            ["Late Hours", summary.lateHours],
+            ["Early Leave Hours", summary.earlyLeaveHours],
+            ["Early Arrival Hours", summary.earlyArrivalHours],
+            ["Extra Attendance Hours", summary.extraAttendanceHours],
+            ["Total Days Attendanced", summary.totalDays],
+            ["Total Days Absents", summary.totalAbsents],
+            ["Total Days Holidays", summary.totalHolidays],
+            ["Total Hours Holidays", `+${summary.totalHolidayHours}`],
+            ["Paid Leaves", summary.totalLeaves],
+            ["Paid Leave Hours", `+${summary.totalPaidLeaveHours}`],
+          ];
+
+          // ✅ أضف صف “Extra Adjustment Hours” فقط إذا كانت > 0
+          if (Number(summary.extraAdjustmentHours) > 0) {
+            summaryData.push([
+              { content: "Bonus Hours (Manager Reward)", styles: { fontStyle: 'italic', textColor: [120, 85, 0] } },
+              { content: `+${summary.extraAdjustmentHours}`, styles: { fontStyle: 'bold', textColor: [120, 85, 0] } }
+            ]);
+          }
 
   // === إنشاء جدول الملخص ===
   doc.autoTable({
