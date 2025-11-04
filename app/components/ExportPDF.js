@@ -6,7 +6,8 @@ const exportMonthlyReportPDF = (data) => {
   if (typeof window === 'undefined') return;
   const doc = new jsPDF();
 
-  const monthNameText = data.summary.monthName;
+  const { summary } = data;
+  const monthNameText = summary.monthName;
   const reportText = " Attendance Report";
   const fullLine = monthNameText + reportText;
   const fullLineWidth = doc.getTextWidth(fullLine);
@@ -30,54 +31,43 @@ const exportMonthlyReportPDF = (data) => {
 
   const employeeLabelWidth = doc.getTextWidth(employeeLabel);
   doc.setFont(undefined, 'bold');
-  doc.text(data.summary.employeeName, 15 + employeeLabelWidth, 16);
+  doc.text(summary.employeeName, 15 + employeeLabelWidth, 16);
 
-  // === حساب الساعات الكلية مع الإجازات والعطل ===
-  let totalHoursAttendance = Number(data.summary.totalHours) || 0;
-
-  // أضف الساعات الإضافية
-  if (Number(data.summary.extraAdjusmentHours) > 0) {
-    totalHoursAttendance += Number(data.summary.extraAdjusmentHours);
-  }
-
-  // أضف ساعات العطل الرسمية
-  const totalHolidayHours = Number(data.summary.totalHolidayHours) || 0;
-  totalHoursAttendance += totalHolidayHours;
-
-  // أضف ساعات الإجازات المدفوعة (نفترض أن كل يوم = 8 ساعات)
-  const paidLeaveDays = Number(data.summary.totalLeaves) || 0;
-  const paidLeaveHours = paidLeaveDays * 8;
-  totalHoursAttendance += paidLeaveHours;
-
-  // === بيانات الملخص ===
+  // === بيانات الملخص (بدون أي حساب يدوي) ===
   const summaryData = [
-    ["Total Hours Attendance", (Number(data.summary.totalHours) || 0).toFixed(2)],
-    ["Late Hours", data.summary.lateHours],
-    ["Early Leave Hours", data.summary.earlyLeaveHours],
-    ["Early Arrival Hours", data.summary.earlyArrivalHours],
-    ["Extra Attendance Hours", data.summary.extraAttendanceHours],
-    ["Total Days Attendanced", data.summary.totalDays],
-    ["Total Days Absents", data.summary.totalAbsents],
-    ["Total Days Holidays", data.summary.totalHolidays],
-    ["Total Hours Holidays", `+${totalHolidayHours}`],
-    ["Paid Leaves", paidLeaveDays],
-    ["Unpaid Leaves", 0],
-    ["Extra Added Hours", data.summary.extraAdjusmentHours],
+    ["Total Hours", summary.totalHours],
+    ["Late Hours", summary.lateHours],
+    ["Early Leave Hours", summary.earlyLeaveHours],
+    ["Early Arrival Hours", summary.earlyArrivalHours],
+    ["Extra Attendance Hours", summary.extraAttendanceHours],
+    ["Extra Added Hours", summary.extraAdjustmentHours || 0],
+    ["Total Days Attendanced", summary.totalDays],
+    ["Total Days Absents", summary.totalAbsents],
+    ["Total Days Holidays", summary.totalHolidays],
+    ["Total Hours Holidays", `+${summary.totalHolidayHours}`],
+    ["Paid Leaves", summary.totalLeaves],
+    ["Paid Leave Hours", `+${summary.totalPaidLeaveHours}`],
   ];
 
-  // === إنشاء الجدول ===
+  // === إنشاء جدول الملخص ===
   doc.autoTable({
     head: [["Metric", "Value"]],
     body: summaryData,
     startY: 20,
   });
 
-  // === إضافة الصف النهائي "Grand Total" بخط غامق ولون رمادي فاتح ===
+  // === إضافة صف "Grand Total Hours (Including Paid Leaves & Holidays)" ===
   doc.autoTable({
     body: [
       [
-        { content: "Grand Total Hours (Including Paid Leaves & Holidays)", styles: { fontStyle: 'bold', textColor: [0, 0, 0], fillColor: [230, 230, 230] } },
-        { content: `${totalHoursAttendance.toFixed(2)}`, styles: { fontStyle: 'bold', textColor: [0, 0, 0], fillColor: [230, 230, 230] } }
+        { 
+          content: "Grand Total Hours (Including Paid Leaves & Holidays)", 
+          styles: { fontStyle: 'bold', textColor: [0, 0, 0], fillColor: [230, 230, 230] } 
+        },
+        { 
+          content: `${summary.totalHoursAttendance.toFixed(2)}`, 
+          styles: { fontStyle: 'bold', textColor: [0, 0, 0], fillColor: [230, 230, 230] } 
+        }
       ]
     ],
     startY: doc.lastAutoTable.finalY,
@@ -94,6 +84,7 @@ const exportMonthlyReportPDF = (data) => {
       const month = String(date.getUTCMonth() + 1).padStart(2, '0');
       const dayNum = String(date.getUTCDate()).padStart(2, '0');
       const shortDay = entry.dayOfWeek || new Intl.DateTimeFormat('en-US', { weekday: 'short' }).format(date);
+
       return [
         `${year}-${month}-${dayNum}`,
         shortDay,
@@ -117,7 +108,8 @@ const exportMonthlyReportPDF = (data) => {
   });
 
   // === حفظ الملف ===
-  doc.save(`${data.summary.monthName}_Attendance_Report_${data.summary.employeeName}.pdf`);
+  const fileName = `${summary.monthName}_Attendance_Report_${summary.employeeName.trim()}.pdf`;
+  doc.save(fileName);
 };
 
 export default exportMonthlyReportPDF;
