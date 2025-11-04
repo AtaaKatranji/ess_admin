@@ -2,73 +2,89 @@
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 
-
 const exportMonthlyReportPDF = (data) => {
   if (typeof window === 'undefined') return;
   const doc = new jsPDF();
+
   const monthNameText = data.summary.monthName;
   const reportText = " Attendance Report";
   const fullLine = monthNameText + reportText;
-  
-  // Calculate total width
   const fullLineWidth = doc.getTextWidth(fullLine);
-  
-  // Calculate X so the line is centered
   const pageWidth = doc.internal.pageSize.getWidth();
   const centerX = (pageWidth - fullLineWidth) / 2;
-  
-  // Draw bold month name
+
+  // === Header ===
   doc.setFont(undefined, 'bold');
-  doc.setFontSize(11); 
+  doc.setFontSize(11);
   doc.text(monthNameText, centerX, 10);
-  
-  // Draw regular " Attendance Report" right after bold text
+
   const monthNameWidth = doc.getTextWidth(monthNameText);
   doc.setFont(undefined, 'normal');
-  doc.setFontSize(11); 
   doc.text(reportText, centerX + monthNameWidth, 10);
 
-// 2. Print "Employee: John Doe" with "Employee:" regular, "John Doe" bold
+  // === Employee name ===
+  const employeeLabel = "Employee: ";
+  doc.setFont(undefined, 'normal');
+  doc.setFontSize(9);
+  doc.text(employeeLabel, 14, 16);
 
-// Set font to normal for "Employee:"
-const employeeLabel = "Employee: ";
-doc.setFont(undefined, 'normal');
-doc.setFontSize(9); 
-doc.text(employeeLabel, 14,16);
+  const employeeLabelWidth = doc.getTextWidth(employeeLabel);
+  doc.setFont(undefined, 'bold');
+  doc.text(data.summary.employeeName, 15 + employeeLabelWidth, 16);
 
-// Calculate width of the label to position the bold name correctly
-const employeeLabelWidth = doc.getTextWidth(employeeLabel);
+  // === حساب الساعات الكلية مع الإجازات والعطل ===
+  let totalHoursAttendance = Number(data.summary.totalHours) || 0;
 
-// Set font to bold for employee name
-doc.setFont(undefined, 'bold');
-doc.setFontSize(9); 
-doc.text(data.summary.employeeName, 15 + employeeLabelWidth, 16);
-  let totalHours = Number(data.summary.totalHours) || 0;
+  // أضف الساعات الإضافية
   if (Number(data.summary.extraAdjusmentHours) > 0) {
-      totalHours += Number(data.summary.extraAdjusmentHours) || 0;
+    totalHoursAttendance += Number(data.summary.extraAdjusmentHours);
   }
+
+  // أضف ساعات العطل الرسمية
+  const totalHolidayHours = Number(data.summary.totalHolidayHours) || 0;
+  totalHoursAttendance += totalHolidayHours;
+
+  // أضف ساعات الإجازات المدفوعة (نفترض أن كل يوم = 8 ساعات)
+  const paidLeaveDays = Number(data.summary.totalLeaves) || 0;
+  const paidLeaveHours = paidLeaveDays * 8;
+  totalHoursAttendance += paidLeaveHours;
+
+  // === بيانات الملخص ===
   const summaryData = [
-      ["Total Hours", totalHours],
-      ["Late Hours", data.summary.lateHours],
-      ["Early Leave Hours", data.summary.earlyLeaveHours],
-      ["Early Arrival Hours", data.summary.earlyArrivalHours],
-      ["Extra Attendance Hours", data.summary.extraAttendanceHours],
-      ["Total Days Attendanced", data.summary.totalDays],
-      ["Total Days Absents", data.summary.totalAbsents],
-      ["Total Days Holidays", data.summary.totalHolidays],
-      [
-        "Total Hours Holidays",
-        `+${data.summary.totalHolidayHours || 0}`
-      ],
-      ["Paid Leaves", data.summary.totalLeaves || 0], // Fix mismatch
-      ["Unpaid Leaves", 0], // Fix mismatch
-      ["Extra Added Hours", data.summary.extraAdjusmentHours],
+    ["Total Hours Attendance", (Number(data.summary.totalHours) || 0).toFixed(2)],
+    ["Late Hours", data.summary.lateHours],
+    ["Early Leave Hours", data.summary.earlyLeaveHours],
+    ["Early Arrival Hours", data.summary.earlyArrivalHours],
+    ["Extra Attendance Hours", data.summary.extraAttendanceHours],
+    ["Total Days Attendanced", data.summary.totalDays],
+    ["Total Days Absents", data.summary.totalAbsents],
+    ["Total Days Holidays", data.summary.totalHolidays],
+    ["Total Hours Holidays", `+${totalHolidayHours}`],
+    ["Paid Leaves", paidLeaveDays],
+    ["Unpaid Leaves", 0],
+    ["Extra Added Hours", data.summary.extraAdjusmentHours],
   ];
+
+  // === إنشاء الجدول ===
   doc.autoTable({
-      head: [["Metric", "Value"]],
-      body: summaryData,
-      startY: 20,
+    head: [["Metric", "Value"]],
+    body: summaryData,
+    startY: 20,
   });
+
+  // === إضافة الصف النهائي "Grand Total" بخط غامق ولون رمادي فاتح ===
+  doc.autoTable({
+    body: [
+      [
+        { content: "Grand Total Hours (Including Paid Leaves & Holidays)", styles: { fontStyle: 'bold', textColor: [0, 0, 0], fillColor: [230, 230, 230] } },
+        { content: `${totalHoursAttendance.toFixed(2)}`, styles: { fontStyle: 'bold', textColor: [0, 0, 0], fillColor: [230, 230, 230] } }
+      ]
+    ],
+    startY: doc.lastAutoTable.finalY,
+    theme: 'plain',
+  });
+
+  // === تفاصيل الأيام ===
   doc.autoTable({
     head: [["Date", "Day", "Type", "Check-In", "Check-Out", "Daily Hours", "Holiday Name"]],
     body: data.details.map(entry => {
@@ -99,6 +115,8 @@ doc.text(data.summary.employeeName, 15 + employeeLabelWidth, 16);
       }
     }
   });
+
+  // === حفظ الملف ===
   doc.save(`${data.summary.monthName}_Attendance_Report_${data.summary.employeeName}.pdf`);
 };
 
