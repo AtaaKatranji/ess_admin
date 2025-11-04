@@ -108,9 +108,11 @@ const exportMonthlyReportPDF = (data) => {
       if (data.section === 'body') {
         const rowType = data.row.raw[2];
         if (rowType === "Offical Holiday") data.cell.styles.fillColor = [220, 235, 255]; // Light blue
-        if (rowType === "Weekend") data.cell.styles.fillColor = [255, 255, 237]; // Light gray
-        if (rowType === "Leave") data.cell.styles.fillColor = [255, 240, 220]; // Light orange
-        if (rowType === "Absent") data.cell.styles.fillColor = [255, 225, 225]; // Light red
+        if (rowType === "Weekend") data.cell.styles.fillColor = [255, 255, 237]; // Light yellowish
+        if (rowType === "Paid Leave") data.cell.styles.fillColor = [255, 240, 220]; // Light orange
+        if (rowType === "Unpaid Leave") data.cell.styles.fillColor = [255, 220, 220]; // Light red-pink
+        if (rowType === "Absent") data.cell.styles.fillColor = [255, 200, 200]; // Slightly darker red
+
       }
     }
   });
