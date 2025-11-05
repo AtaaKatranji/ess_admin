@@ -22,6 +22,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+import { DateRange } from "react-day-picker";
 interface AddManualLeaveProps {
   employeeId: string;
   onLeaveAdded?: () => void; // ✅ دالة اختيارية للتحديث بعد الإضافة
@@ -30,7 +31,9 @@ interface AddManualLeaveProps {
 export default function AddManualLeave({ employeeId, onLeaveAdded }: AddManualLeaveProps) {
   const [open, setOpen] = useState(false);
   const [openCalendar, setOpenCalendar] = useState(false); 
-  const [date, setDate] = useState<Date | undefined>(new Date());
+  
+  
+  const [date, setDate] = useState<DateRange | undefined>();
   const [leaveType, setLeaveType] = useState<string>("Paid");
   const [notes, setNotes] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
@@ -48,7 +51,8 @@ export default function AddManualLeave({ employeeId, onLeaveAdded }: AddManualLe
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           employeeId,
-          date: format(date, "yyyy-MM-dd"),
+          startDate: format(date?.from ?? new Date(), "yyyy-MM-dd"),
+          endDate: format(date?.to ?? date?.from ?? new Date(), "yyyy-MM-dd"),
           type: leaveType,
           notes,
           addedByAdmin: true,
@@ -89,41 +93,42 @@ export default function AddManualLeave({ employeeId, onLeaveAdded }: AddManualLe
             {/* 🗓️ اختيار التاريخ */}
       
             <div className="flex flex-col space-y-2">
-  <Label>Date</Label>
-  <Popover open={openCalendar} onOpenChange={setOpenCalendar}>
-    <PopoverTrigger asChild>
-      <Button
-        variant="outline"
-        className="justify-start text-left font-normal"
-      >
-        <CalendarIcon className="mr-2 h-4 w-4 text-gray-500" />
-        {date ? format(date, "PPP") : <span>Select a date</span>}
-      </Button>
-    </PopoverTrigger>
+                <Label>Date</Label>
+                <Popover open={openCalendar} onOpenChange={setOpenCalendar}>
+                    <PopoverTrigger asChild>
+                    <Button
+                        variant="outline"
+                        className="justify-start text-left font-normal"
+                    >
+                        <CalendarIcon className="mr-2 h-4 w-4 text-gray-500" />
+                        {date?.from && date?.to
+                        ? `${format(date.from, "PPP")} → ${format(date.to, "PPP")}`
+                        : "Select date range"}
+                    </Button>
+                    </PopoverTrigger>
 
-    <PopoverContent
-      className="w-auto p-0"
-      align="start"
-      onInteractOutside={(e) => {
-        if ((e.target as HTMLElement).closest(".calendar-container")) {
-          e.preventDefault();
-        }
-      }}
-    >
-      <div className="calendar-container p-2">
-        <Calendar
-          mode="single"
-          selected={date}
-          onSelect={(selectedDate) => {
-            setDate(selectedDate);
-            setOpenCalendar(false); // ✅ يغلق التقويم فقط
-          }}
-          initialFocus
-        />
-      </div>
-    </PopoverContent>
-  </Popover>
-</div>
+                    <PopoverContent
+                    className="w-auto p-0"
+                    align="start"
+                    onInteractOutside={(e) => {
+                        if ((e.target as HTMLElement).closest(".calendar-container")) {
+                        e.preventDefault();
+                        }
+                    }}
+                    >
+                    <div className="calendar-container p-2">
+                    <Calendar
+                        mode="range"
+                        selected={date}
+                        onSelect={(range) => {
+                            setDate(range);
+                        }}
+                        numberOfMonths={2} // ✅ يعرض شهرين متتاليين (احترافي أكتر)
+                        />
+                    </div>
+                    </PopoverContent>
+                </Popover>
+                </div>
 
             {/* 🧾 نوع الإجازة */}
             <div className="flex flex-col space-y-2">
