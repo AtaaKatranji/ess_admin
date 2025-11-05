@@ -29,6 +29,7 @@ interface AddManualLeaveProps {
 
 export default function AddManualLeave({ employeeId, onLeaveAdded }: AddManualLeaveProps) {
   const [open, setOpen] = useState(false);
+  const [openCalendar, setOpenCalendar] = useState(false); 
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [leaveType, setLeaveType] = useState<string>("Paid");
   const [notes, setNotes] = useState<string>("");
@@ -88,43 +89,41 @@ export default function AddManualLeave({ employeeId, onLeaveAdded }: AddManualLe
             {/* 🗓️ اختيار التاريخ */}
       
             <div className="flex flex-col space-y-2">
-      <Label>Date</Label>
-      <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            className="justify-start text-left font-normal"
-          >
-            <CalendarIcon className="mr-2 h-4 w-4 text-gray-500" />
-            {date ? format(date, "PPP") : <span>Select a date</span>}
-          </Button>
-        </PopoverTrigger>
+  <Label>Date</Label>
+  <Popover open={openCalendar} onOpenChange={setOpenCalendar}>
+    <PopoverTrigger asChild>
+      <Button
+        variant="outline"
+        className="justify-start text-left font-normal"
+      >
+        <CalendarIcon className="mr-2 h-4 w-4 text-gray-500" />
+        {date ? format(date, "PPP") : <span>Select a date</span>}
+      </Button>
+    </PopoverTrigger>
 
-        {/* ✅ الحل هنا */}
-        <PopoverContent
-          className="w-auto p-0"
-          align="start"
-          onInteractOutside={(e) => {
-            // لا يغلق عند الضغط داخل التقويم
-            if ((e.target as HTMLElement).closest(".calendar-container")) {
-              e.preventDefault();
-            }
+    <PopoverContent
+      className="w-auto p-0"
+      align="start"
+      onInteractOutside={(e) => {
+        if ((e.target as HTMLElement).closest(".calendar-container")) {
+          e.preventDefault();
+        }
+      }}
+    >
+      <div className="calendar-container p-2">
+        <Calendar
+          mode="single"
+          selected={date}
+          onSelect={(selectedDate) => {
+            setDate(selectedDate);
+            setOpenCalendar(false); // ✅ يغلق التقويم فقط
           }}
-        >
-          <div className="calendar-container p-2">
-            <Calendar
-              mode="single"
-              selected={date}
-              onSelect={(selectedDate) => {
-                setDate(selectedDate);
-                setOpen(false); // ✅ يغلق بعد الاختيار
-              }}
-              initialFocus
-            />
-          </div>
-        </PopoverContent>
-      </Popover>
-    </div>
+          initialFocus
+        />
+      </div>
+    </PopoverContent>
+  </Popover>
+</div>
 
             {/* 🧾 نوع الإجازة */}
             <div className="flex flex-col space-y-2">
