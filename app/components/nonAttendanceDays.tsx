@@ -6,6 +6,8 @@ import { format, eachDayOfInterval } from "date-fns";
 import { Input } from "@/components/ui/input";
 import moment from "moment";
 import { Holiday } from "@/app/types/Employee";
+import AddManualLeave from "@/app/components/AddManualLeave";
+
 type Leave = {
   startDate: string;
   endDate: string;
@@ -43,61 +45,34 @@ const NonAttendanceTab: React.FC<Props> = ({
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   console.log("institutionKey", slug);
-  useEffect(() => {
+  const fetchData = async () => {
     const formattedMonth = moment(selectedMonth).format("YYYY-MM");
     setLoading(true);
-
-    const fetchAbsences = async () => {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/checks/absences?employeeId=${employeeId}&month=${formattedMonth}`,
-        {
-          method: 'GET', // or 'POST', etc.
-          credentials: 'include', // sends cookies and HTTP auth headers
-          headers: {
-            'Content-Type': 'application/json',
-          },},
-      );
-      const data = await res.json();
-      console.log("fetchAbsences", data);
-      return data.absentDates || [];
-    };
-    
-    const fetchLeaves = async () => {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/institutions/${slug}/leaves/month?userId=${employeeId}&month=${formattedMonth}`,
-        {
-          method: 'GET', // or 'POST', etc.
-          credentials: 'include', // sends cookies and HTTP auth headers
-          headers: {
-            'Content-Type': 'application/json',
-          },},
-      );
-      const data = await res.json();
-      console.log("fetchLeaves", data);
-      return data.leaves?.leaves || [];
-    };
-
-    // const fetchHolidays = async () => {
-    //   const res = await fetch(
-    //     `${process.env.NEXT_PUBLIC_API_URL}/holidays/institution/${institutionKey}`
-    //   );
-    //   const data = await res.json();
-    //   console.log("fetchHolidays", data);
-    //   return data || [];
-    // };
-
-
-    //Promise.all([fetchAbsences(), fetchLeaves(), fetchHolidays()])
-    Promise.all([fetchAbsences(), fetchLeaves()])
-      .then(([absences, leaves]) => {
-        setAbsentDays(absences);
-        setLeaves(leaves);
-        //setHolidays(holidays);
-      })
-      .catch((error) => {
-        console.error("Error fetching data:", error);
-      })
-      .finally(() => setLoading(false));
+    try {
+      const [absences, leaves] = await Promise.all([
+        fetch(`${process.env.NEXT_PUBLIC_API_URL}/checks/absences?employeeId=${employeeId}&month=${formattedMonth}`, {
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+        }).then((r) => r.json()).then((d) => d.absentDates || []),
+  
+        fetch(`${process.env.NEXT_PUBLIC_API_URL}/institutions/${slug}/leaves/month?userId=${employeeId}&month=${formattedMonth}`, {
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+        }).then((r) => r.json()).then((d) => d.leaves?.leaves || []),
+      ]);
+  
+      setAbsentDays(absences);
+      setLeaves(leaves);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  // 2️⃣ استدعها داخل useEffect أول مرة
+  useEffect(() => {
+    fetchData();
   }, [employeeId, selectedMonth, slug]);
 
   // Utility to get all dates of the selected month
@@ -186,19 +161,25 @@ const NonAttendanceTab: React.FC<Props> = ({
   return (
     <div className="flex-col space-y-4">
       <div className="flex justify-between items-center">
-        <h2 className="text-xl font-semibold">Non-Attendance Records</h2>
-        <div className="flex space-x-2">
-          <div className="relative">
-            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search records"
-              className="pl-8"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-        </div>
-      </div>
+  <h2 className="text-xl font-semibold">Non-Attendance Records</h2>
+  
+  <div className="flex space-x-2 items-center">
+    {/* 🔍 مربع البحث */}
+    <div className="relative">
+      <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+      <Input
+        placeholder="Search records"
+        className="pl-8"
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+      />
+    </div>
+
+    {/* 🟦 زر إضافة إجازة يدوية */}
+    <AddManualLeave employeeId={employeeId} onLeaveAdded={fetchData} />
+  </div>
+</div>
+
       <Card>
         {/* <ScrollArea className="h-[400px]"> */}
           <div className="p-4 space-y-4">
