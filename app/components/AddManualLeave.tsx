@@ -31,7 +31,7 @@ export default function AddManualLeave({ employeeId, onLeaveAdded }: AddManualLe
   const [open, setOpen] = useState(false);
   const [openCalendar, setOpenCalendar] = useState(false); 
   const [duration, setDuration] = useState<number>(0);
-  
+  const [error, setError] = useState<string>("");
   const [date, setDate] = useState<DateRange | undefined>();
   const [leaveType, setLeaveType] = useState<string>("Paid");
   const [notes, setNotes] = useState<string>("");
@@ -125,21 +125,37 @@ export default function AddManualLeave({ employeeId, onLeaveAdded }: AddManualLe
         mode="range"
         selected={date}
         onSelect={(range) => {
-          setDate(range);
-          if (range?.from && range?.to) {
-            const diffInMs = range.to.getTime() - range.from.getTime();
-            const days = Math.round(diffInMs / (1000 * 60 * 60 * 24)) + 1;
-            setDuration(days);
-          } else {
+          if (!range?.from || !range?.to) {
+            setDate(range);
             setDuration(0);
+            setError("");
+            return;
           }
+
+          // ✅ تحقق من الترتيب الصحيح للتواريخ
+          if (range.from > range.to) {
+            setError("⚠️ Start date cannot be after end date.");
+            return;
+          }
+
+          // ✅ كل شي تمام
+          setError("");
+          setDate(range);
+          const diffInMs = range.to.getTime() - range.from.getTime();
+          const days = Math.round(diffInMs / (1000 * 60 * 60 * 24)) + 1;
+          setDuration(days);
         }}
         numberOfMonths={2}
         initialFocus
       />
 
+      {/* ⚠️ رسالة الخطأ الأنيقة */}
+      {error && (
+        <p className="text-red-600 text-sm mt-2 text-center">{error}</p>
+      )}
+
       {/* 🔹 عرض المدة */}
-      {duration > 0 && (
+      {duration > 0 && !error && (
         <div className="flex items-center justify-between text-sm text-slate-600 mt-2 border-t pt-2">
           <span className="font-medium">Total Leave Duration:</span>
           <span className="font-semibold text-blue-700">
@@ -148,7 +164,7 @@ export default function AddManualLeave({ employeeId, onLeaveAdded }: AddManualLe
         </div>
       )}
 
-      {/* 🔹 أزرار التحكم */}
+      {/* 🔹 الأزرار */}
       <div className="flex justify-end gap-2 mt-3">
         <Button
           size="sm"
@@ -156,13 +172,16 @@ export default function AddManualLeave({ employeeId, onLeaveAdded }: AddManualLe
           onClick={() => {
             setDate(undefined);
             setDuration(0);
+            setError("");
           }}
         >
           Clear
         </Button>
         <Button
           size="sm"
-          onClick={() => setOpenCalendar(false)}
+          onClick={() => {
+            if (!error) setOpenCalendar(false);
+          }}
           className="bg-blue-600 hover:bg-blue-700 text-white"
         >
           Done
