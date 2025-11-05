@@ -31,7 +31,7 @@ interface AddManualLeaveProps {
 export default function AddManualLeave({ employeeId, onLeaveAdded }: AddManualLeaveProps) {
   const [open, setOpen] = useState(false);
   const [openCalendar, setOpenCalendar] = useState(false); 
-  
+  const [duration, setDuration] = useState<number>(0);
   
   const [date, setDate] = useState<DateRange | undefined>();
   const [leaveType, setLeaveType] = useState<string>("Paid");
@@ -53,6 +53,7 @@ export default function AddManualLeave({ employeeId, onLeaveAdded }: AddManualLe
           employeeId,
           startDate: format(date?.from ?? new Date(), "yyyy-MM-dd"),
           endDate: format(date?.to ?? date?.from ?? new Date(), "yyyy-MM-dd"),
+          durationInDays: duration,
           type: leaveType,
           notes,
           addedByAdmin: true,
@@ -106,7 +107,7 @@ export default function AddManualLeave({ employeeId, onLeaveAdded }: AddManualLe
       
             <div className="flex flex-col space-y-2">
                 <Label>Date</Label>
-                <Popover open={openCalendar} onOpenChange={setOpenCalendar}>
+                <Popover modal={false} open={openCalendar} onOpenChange={setOpenCalendar}>
                     <PopoverTrigger asChild>
                     <Button
                         variant="outline"
@@ -120,25 +121,48 @@ export default function AddManualLeave({ employeeId, onLeaveAdded }: AddManualLe
                     </PopoverTrigger>
 
                     <PopoverContent
-                    className="w-auto p-0"
-                    align="start"
-                    onInteractOutside={(e) => {
-                        if ((e.target as HTMLElement).closest(".calendar-container")) {
-                        e.preventDefault();
-                        }
-                    }}
-                    >
-                    <div className="calendar-container p-2">
-                    <Calendar
-                        mode="range"
-                        selected={date}
-                        onSelect={(range) => {
-                            setDate(range);
-                        }}
-                        numberOfMonths={2} // ✅ يعرض شهرين متتاليين (احترافي أكتر)
-                        />
-                    </div>
-                    </PopoverContent>
+  className="w-auto p-0"
+  align="start"
+  onPointerDownOutside={(e) => {
+    if ((e.target as HTMLElement).closest(".calendar-container")) {
+      e.preventDefault();
+    }
+  }}
+>
+  <div className="calendar-container p-2">
+    <Calendar
+      mode="range"
+      selected={date}
+      onSelect={(range) => {
+        setDate(range);
+        if (range?.from && range?.to) {
+          const diffInMs = range.to.getTime() - range.from.getTime();
+          const days = Math.round(diffInMs / (1000 * 60 * 60 * 24)) + 1;
+          setDuration(days);
+        } else {
+          setDuration(0);
+        }
+      }}
+      numberOfMonths={2}
+    />
+    {duration > 0 && (
+  <div className="flex items-center justify-between text-sm text-slate-600 mt-2 border-t pt-2">
+    <span className="font-medium">Total Leave Duration:</span>
+    <span className="font-semibold text-blue-700">{duration} day{duration > 1 ? "s" : ""}</span>
+  </div>
+)}
+    <div className="flex justify-end mt-2">
+      <Button
+        size="sm"
+        onClick={() => setOpenCalendar(false)}
+        className="bg-blue-600 hover:bg-blue-700 text-white"
+      >
+        Done
+      </Button>
+    </div>
+  </div>
+</PopoverContent>
+
                 </Popover>
                 </div>
 
