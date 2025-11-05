@@ -121,7 +121,7 @@ export default function AddManualLeave({ employeeId, onLeaveAdded }: AddManualLe
                     </PopoverTrigger>
 
                     <PopoverContent
-  className="w-auto p-0"
+  className="w-auto p-0 z-[9999] shadow-lg border rounded-md bg-white"
   align="start"
   onPointerDownOutside={(e) => {
     if ((e.target as HTMLElement).closest(".calendar-container")) {
@@ -144,6 +144,7 @@ export default function AddManualLeave({ employeeId, onLeaveAdded }: AddManualLe
         }
       }}
       numberOfMonths={2}
+      initialFocus
     />
     {duration > 0 && (
   <div className="flex items-center justify-between text-sm text-slate-600 mt-2 border-t pt-2">
