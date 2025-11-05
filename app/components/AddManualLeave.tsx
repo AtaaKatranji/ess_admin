@@ -21,7 +21,6 @@ import {
 import { Calendar } from "@/components/ui/calendar";
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
-import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { DateRange } from "react-day-picker";
 interface AddManualLeaveProps {
   employeeId: string;
@@ -107,64 +106,56 @@ export default function AddManualLeave({ employeeId, onLeaveAdded }: AddManualLe
       
             <div className="flex flex-col space-y-2">
                 <Label>Date</Label>
-                <Popover modal={false} open={openCalendar} onOpenChange={setOpenCalendar}>
-                    <PopoverTrigger asChild>
+
+                {!openCalendar ? (
                     <Button
-                        variant="outline"
-                        className="justify-start text-left font-normal"
+                    variant="outline"
+                    onClick={() => setOpenCalendar(true)}
+                    className="justify-start text-left font-normal"
                     >
-                        <CalendarIcon className="mr-2 h-4 w-4 text-gray-500" />
-                        {date?.from && date?.to
+                    <CalendarIcon className="mr-2 h-4 w-4 text-gray-500" />
+                    {date?.from && date?.to
                         ? `${format(date.from, "PPP")} → ${format(date.to, "PPP")}`
                         : "Select date range"}
                     </Button>
-                    </PopoverTrigger>
-
-                    <PopoverContent
-  className="w-auto p-0 z-[9999] shadow-lg border rounded-md bg-white"
-  align="start"
-  onPointerDownOutside={(e) => {
-    if ((e.target as HTMLElement).closest(".calendar-container")) {
-      e.preventDefault();
-    }
-  }}
->
-  <div className="calendar-container p-2">
-    <Calendar
-      mode="range"
-      selected={date}
-      onSelect={(range) => {
-        setDate(range);
-        if (range?.from && range?.to) {
-          const diffInMs = range.to.getTime() - range.from.getTime();
-          const days = Math.round(diffInMs / (1000 * 60 * 60 * 24)) + 1;
-          setDuration(days);
-        } else {
-          setDuration(0);
-        }
-      }}
-      numberOfMonths={2}
-      initialFocus
-    />
-    {duration > 0 && (
-  <div className="flex items-center justify-between text-sm text-slate-600 mt-2 border-t pt-2">
-    <span className="font-medium">Total Leave Duration:</span>
-    <span className="font-semibold text-blue-700">{duration} day{duration > 1 ? "s" : ""}</span>
-  </div>
-)}
-    <div className="flex justify-end mt-2">
-      <Button
-        size="sm"
-        onClick={() => setOpenCalendar(false)}
-        className="bg-blue-600 hover:bg-blue-700 text-white"
-      >
-        Done
-      </Button>
-    </div>
-  </div>
-</PopoverContent>
-
-                </Popover>
+                ) : (
+                    <div className="border rounded-md p-3 bg-white shadow-inner">
+                    <Calendar
+                        mode="range"
+                        selected={date}
+                        onSelect={(range) => {
+                        setDate(range);
+                        if (range?.from && range?.to) {
+                            const diffInMs = range.to.getTime() - range.from.getTime();
+                            const days = Math.round(diffInMs / (1000 * 60 * 60 * 24)) + 1;
+                            setDuration(days);
+                        } else {
+                            setDuration(0);
+                        }
+                        }}
+                        numberOfMonths={2}
+                        initialFocus
+                    />
+                    {duration > 0 && (
+                        <div className="flex items-center justify-between text-sm text-slate-600 mt-2 border-t pt-2">
+                        <span className="font-medium">Total Leave Duration:</span>
+                        <span className="font-semibold text-blue-700">
+                            {duration} day{duration > 1 ? "s" : ""}
+                        </span>
+                        </div>
+                    )}
+                    <div className="flex justify-end mt-3">
+                        <Button
+                        size="sm"
+                        onClick={() => setOpenCalendar(false)}
+                        className="bg-blue-600 hover:bg-blue-700 text-white"
+                        >
+                        Done
+                        </Button>
+                    </div>
+                    </div>
+                )}
+                </div>
                 </div>
 
             {/* 🧾 نوع الإجازة */}
@@ -190,7 +181,7 @@ export default function AddManualLeave({ employeeId, onLeaveAdded }: AddManualLe
                 placeholder="Write a note about this leave..."
               />
             </div>
-          </div>
+          
 
           {/* ✅ الأزرار */}
           <DialogFooter className="mt-4 flex justify-end">
