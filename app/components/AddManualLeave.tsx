@@ -88,27 +88,43 @@ export default function AddManualLeave({ employeeId, onLeaveAdded }: AddManualLe
             {/* 🗓️ اختيار التاريخ */}
       
             <div className="flex flex-col space-y-2">
-            <Label>Date</Label>
-            <Popover>
-                <PopoverTrigger asChild>
-                <Button
-                    variant="outline"
-                    className="justify-start text-left font-normal"
-                >
-                    <CalendarIcon className="mr-2 h-4 w-4 text-gray-500" />
-                    {date ? format(date, "PPP") : <span>Select a date</span>}
-                </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                    mode="single"
-                    selected={date}
-                    onSelect={(selectedDate) => setDate(selectedDate)}
-                    initialFocus
-                />
-                </PopoverContent>
-            </Popover>
-            </div>
+      <Label>Date</Label>
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            className="justify-start text-left font-normal"
+          >
+            <CalendarIcon className="mr-2 h-4 w-4 text-gray-500" />
+            {date ? format(date, "PPP") : <span>Select a date</span>}
+          </Button>
+        </PopoverTrigger>
+
+        {/* ✅ الحل هنا */}
+        <PopoverContent
+          className="w-auto p-0"
+          align="start"
+          onInteractOutside={(e) => {
+            // لا يغلق عند الضغط داخل التقويم
+            if ((e.target as HTMLElement).closest(".calendar-container")) {
+              e.preventDefault();
+            }
+          }}
+        >
+          <div className="calendar-container p-2">
+            <Calendar
+              mode="single"
+              selected={date}
+              onSelect={(selectedDate) => {
+                setDate(selectedDate);
+                setOpen(false); // ✅ يغلق بعد الاختيار
+              }}
+              initialFocus
+            />
+          </div>
+        </PopoverContent>
+      </Popover>
+    </div>
 
             {/* 🧾 نوع الإجازة */}
             <div className="flex flex-col space-y-2">
