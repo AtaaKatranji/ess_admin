@@ -133,7 +133,7 @@ export default function AddManualLeave({ employeeId, onLeaveAdded }: AddManualLe
                             setDuration(0);
                         }
                         }}
-                        numberOfMonths={2}
+                        numberOfMonths={1}
                         initialFocus
                     />
                     {duration > 0 && (
