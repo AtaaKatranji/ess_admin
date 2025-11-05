@@ -84,7 +84,19 @@ export default function AddManualLeave({ employeeId, onLeaveAdded }: AddManualLe
       </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md"
+        onPointerDownOutside={(e) => {
+            // منع إغلاق المودال لما نضغط داخل التقويم أو الـ Popover
+            if ((e.target as HTMLElement).closest(".calendar-container")) {
+              e.preventDefault();
+            }
+          }}
+          onInteractOutside={(e) => {
+            if ((e.target as HTMLElement).closest(".calendar-container")) {
+              e.preventDefault();
+            }
+          }}
+        >
           <DialogHeader>
             <DialogTitle>Add Manual Leave</DialogTitle>
           </DialogHeader>
