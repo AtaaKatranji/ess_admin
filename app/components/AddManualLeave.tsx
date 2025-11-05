@@ -21,7 +21,7 @@ import {
 import { Calendar } from "@/components/ui/calendar";
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
-
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 interface AddManualLeaveProps {
   employeeId: string;
   onLeaveAdded?: () => void; // ✅ دالة اختيارية للتحديث بعد الإضافة
@@ -86,17 +86,28 @@ export default function AddManualLeave({ employeeId, onLeaveAdded }: AddManualLe
 
           <div className="space-y-4 mt-2">
             {/* 🗓️ اختيار التاريخ */}
+      
             <div className="flex flex-col space-y-2">
-              <Label>Date</Label>
-              <div className="flex items-center space-x-2">
-                <CalendarIcon className="h-4 w-4 text-gray-500" />
+            <Label>Date</Label>
+            <Popover>
+                <PopoverTrigger asChild>
+                <Button
+                    variant="outline"
+                    className="justify-start text-left font-normal"
+                >
+                    <CalendarIcon className="mr-2 h-4 w-4 text-gray-500" />
+                    {date ? format(date, "PPP") : <span>Select a date</span>}
+                </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
                 <Calendar
-                  mode="single"
-                  selected={date}
-                  onSelect={setDate}
-                  className="rounded-md border"
+                    mode="single"
+                    selected={date}
+                    onSelect={(selectedDate) => setDate(selectedDate)}
+                    initialFocus
                 />
-              </div>
+                </PopoverContent>
+            </Popover>
             </div>
 
             {/* 🧾 نوع الإجازة */}
