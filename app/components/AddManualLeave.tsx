@@ -103,59 +103,74 @@ export default function AddManualLeave({ employeeId, onLeaveAdded }: AddManualLe
 
           <div className="space-y-4 mt-2">
             {/* 🗓️ اختيار التاريخ */}
-      
             <div className="flex flex-col space-y-2">
-                <Label>Date</Label>
+  <Label>Date</Label>
 
-                {!openCalendar ? (
-                    <Button
-                    variant="outline"
-                    onClick={() => setOpenCalendar(true)}
-                    className="justify-start text-left font-normal"
-                    >
-                    <CalendarIcon className="mr-2 h-4 w-4 text-gray-500" />
-                    {date?.from && date?.to
-                        ? `${format(date.from, "PPP")} → ${format(date.to, "PPP")}`
-                        : "Select date range"}
-                    </Button>
-                ) : (
-                    <div className="border rounded-md p-3 bg-white shadow-inner">
-                    <Calendar
-                        mode="range"
-                        selected={date}
-                        onSelect={(range) => {
-                        setDate(range);
-                        if (range?.from && range?.to) {
-                            const diffInMs = range.to.getTime() - range.from.getTime();
-                            const days = Math.round(diffInMs / (1000 * 60 * 60 * 24)) + 1;
-                            setDuration(days);
-                        } else {
-                            setDuration(0);
-                        }
-                        }}
-                        numberOfMonths={1}
-                        initialFocus
-                    />
-                    {duration > 0 && (
-                        <div className="flex items-center justify-between text-sm text-slate-600 mt-2 border-t pt-2">
-                        <span className="font-medium">Total Leave Duration:</span>
-                        <span className="font-semibold text-blue-700">
-                            {duration} day{duration > 1 ? "s" : ""}
-                        </span>
-                        </div>
-                    )}
-                    <div className="flex justify-end mt-3">
-                        <Button
-                        size="sm"
-                        onClick={() => setOpenCalendar(false)}
-                        className="bg-blue-600 hover:bg-blue-700 text-white"
-                        >
-                        Done
-                        </Button>
-                    </div>
-                    </div>
-                )}
-                </div>
+  {!openCalendar ? (
+    // 🔹 الزر العادي لفتح التقويم
+    <Button
+      variant="outline"
+      onClick={() => setOpenCalendar(true)}
+      className="justify-start text-left font-normal"
+    >
+      <CalendarIcon className="mr-2 h-4 w-4 text-gray-500" />
+      {date?.from && date?.to
+        ? `${format(date.from, "PPP")} → ${format(date.to, "PPP")}`
+        : "Select date range"}
+    </Button>
+  ) : (
+    // 🔹 التقويم المعروض داخل المودال
+    <div className="border rounded-md p-3 bg-white shadow-inner">
+      <Calendar
+        mode="range"
+        selected={date}
+        onSelect={(range) => {
+          setDate(range);
+          if (range?.from && range?.to) {
+            const diffInMs = range.to.getTime() - range.from.getTime();
+            const days = Math.round(diffInMs / (1000 * 60 * 60 * 24)) + 1;
+            setDuration(days);
+          } else {
+            setDuration(0);
+          }
+        }}
+        numberOfMonths={2}
+        initialFocus
+      />
+
+      {/* 🔹 عرض المدة */}
+      {duration > 0 && (
+        <div className="flex items-center justify-between text-sm text-slate-600 mt-2 border-t pt-2">
+          <span className="font-medium">Total Leave Duration:</span>
+          <span className="font-semibold text-blue-700">
+            {duration} day{duration > 1 ? "s" : ""}
+          </span>
+        </div>
+      )}
+
+      {/* 🔹 أزرار التحكم */}
+      <div className="flex justify-end gap-2 mt-3">
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => {
+            setDate(undefined);
+            setDuration(0);
+          }}
+        >
+          Clear
+        </Button>
+        <Button
+          size="sm"
+          onClick={() => setOpenCalendar(false)}
+          className="bg-blue-600 hover:bg-blue-700 text-white"
+        >
+          Done
+        </Button>
+      </div>
+    </div>
+  )}
+</div>
                 </div>
 
             {/* 🧾 نوع الإجازة */}
