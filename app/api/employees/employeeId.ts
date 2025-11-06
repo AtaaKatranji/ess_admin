@@ -29,9 +29,10 @@ export const fetchEmployees = async (ourSlug: string) => {
     throw error;
   }
 };
-export const fetchCheckInOutData = async (shiftId : string) => {
+export const fetchCheckInOutData = async (shiftId : string, date?: string) => {
   try {
-    const response = await fetch(`${BaseUrl}/checks/checkinout?shiftId=${shiftId}`);
+    const query = date ? `?date=${date}` : '';
+    const response = await fetch(`${BaseUrl}/checks/checkinout?shiftId=${shiftId}${query}`);
     const data = await response.json();
     return data;
   } catch (error) {

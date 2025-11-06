@@ -145,7 +145,7 @@ export default function AddManualLeave({ employeeId, onLeaveAdded }: AddManualLe
           const days = Math.round(diffInMs / (1000 * 60 * 60 * 24)) + 1;
           setDuration(days);
         }}
-        numberOfMonths={2}
+        
         initialFocus
       />
 

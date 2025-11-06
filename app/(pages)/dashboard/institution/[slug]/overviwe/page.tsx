@@ -2,8 +2,9 @@
 
 import {   useEffect, useState } from 'react'
 import { useRouter } from "next/navigation";
-import { CalendarClock, RefreshCw } from "lucide-react";
 
+import { format } from "date-fns";
+import { Calendar } from "@/components/ui/calendar"
 //import { Toaster } from '@/components/ui/sonner'; // or your notification library
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
@@ -17,11 +18,12 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ChevronDown, Download, Search } from 'lucide-react'
+import { ChevronDown, Download, Search, CalendarIcon,CalendarClock, RefreshCw } from 'lucide-react'
 import { fetchShifts } from '@/app/api/shifts/shifts'
 import { fetchCheckInOutData } from '@/app/api/employees/employeeId'
 import { useInstitution } from '@/app/context/InstitutionContext';
 import { useSocket } from "@/app/context/SocketContext";
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 
 //const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
 // types/AttendanceRecord.ts
@@ -232,6 +234,20 @@ const OverviewPage = () => {
             </Tabs>
           </CardContent>
         </Card>
+        {/* Previous Day Attendance Card */}
+        <div className="mt-6">
+          <Card>
+            <CardHeader>
+              <h2 className="text-xl font-semibold">Previous Day Attendance</h2>
+              <p className="text-sm text-muted-foreground">
+                Overview of yesterday’s check-ins and check-outs
+              </p>
+            </CardHeader>
+            <CardContent>
+              <PreviousDayAttendance shift={selectedShift} slug={slug} />
+            </CardContent>
+          </Card>
+        </div>
       </div>
     )}
   </div>
@@ -406,6 +422,108 @@ function WeeklyTimeSheet({ employees }: { employees: Employee[] }) {
     </div>
   );
 }
+
+function PreviousDayAttendance({ shift, slug }: { shift: Shift | null | undefined; slug?: string }) {
+  const [data, setData] = useState<Employee[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedDate, setSelectedDate] = useState<Date>(() => {
+    const y = new Date();
+    y.setDate(y.getDate() - 1);
+    return y; // يبدأ من الأمس افتراضيًا
+  });
+
+  const router = useRouter();
+
+  const fetchPrevDayData = async (date: Date) => {
+    if (!shift) return;
+    try {
+      setLoading(true);
+      const formattedDate = date.toISOString().split("T")[0];
+      const result = await fetchCheckInOutData(shift.id, formattedDate);
+      setData(Array.isArray(result.data) ? result.data : []);
+    } catch (err) {
+      console.error("Error fetching previous day data:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPrevDayData(selectedDate);
+  }, [shift, selectedDate]);
+
+  return (
+    <div className="w-full">
+      {/* 🔹 العنوان و أدوات التحكم */}
+      <div className="flex flex-wrap items-center justify-between mb-4 gap-2">
+        <div className="flex items-center gap-2">
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className="flex items-center">
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {format(selectedDate, "yyyy-MM-dd")}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent align="start" className="p-2">
+              <Calendar
+                mode="single"
+                selected={selectedDate}
+                onSelect={(date) => date && setSelectedDate(date)}
+              />
+            </PopoverContent>
+          </Popover>
+
+          <Button
+            variant="outline"
+            onClick={() => fetchPrevDayData(selectedDate)}
+            className="flex items-center gap-1"
+          >
+            <RefreshCw className="h-4 w-4" /> Refresh
+          </Button>
+        </div>
+      </div>
+
+      {/* 🔹 محتوى الجدول */}
+      {loading ? (
+        <p className="text-center text-gray-500 py-4">Loading attendance data...</p>
+      ) : data.length === 0 ? (
+        <p className="text-center text-gray-500 py-4">
+          No records found for {format(selectedDate, "yyyy-MM-dd")}.
+        </p>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b">
+                <th className="text-left py-2">Employee</th>
+                <th className="text-left py-2">Check-in</th>
+                <th className="text-left py-2">Check-out</th>
+                <th className="text-left py-2">Total Hours</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.map((emp) => (
+                <tr
+                  key={emp.id}
+                  onClick={() =>
+                    router.push(`/dashboard/institution/${slug}/employees/${emp.id}`)
+                  }
+                  className="border-b hover:bg-gray-50 cursor-pointer transition"
+                >
+                  <td className="py-2 font-medium text-blue-600">{emp.name}</td>
+                  <td className="py-2">{emp.checkIn}</td>
+                  <td className="py-2">{emp.checkOut}</td>
+                  <td className="py-2">{emp.totalHours}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
 
 
 export default OverviewPage;
