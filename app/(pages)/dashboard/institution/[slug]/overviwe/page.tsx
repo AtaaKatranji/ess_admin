@@ -550,7 +550,7 @@ function PreviousDayAttendance({ shift, slug }: { shift: Shift | null | undefine
               {sortedData.map((emp) => (
                 <tr
                   key={emp.id}
-                  onClick={() => router.push(`/dashboard/institution/${slug}/employees/${emp.id}`)}
+                  onClick={() => router.push(`/dashboard/institution/${slug}/employees/${emp.id}/details`)}
                   className="border-b hover:bg-gray-50 transition cursor-pointer"
                 >
                   <td className="py-2 px-4 font-medium text-blue-600">{emp.name}</td>
