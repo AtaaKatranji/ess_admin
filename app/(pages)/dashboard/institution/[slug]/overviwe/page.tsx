@@ -18,7 +18,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ChevronDown, Download, Search, CalendarIcon,CalendarClock, RefreshCw } from 'lucide-react'
+import { ChevronDown, Download, Search, CalendarIcon,CalendarClock, RefreshCw, ArrowUpDown } from 'lucide-react'
 import { fetchShifts } from '@/app/api/shifts/shifts'
 import { fetchCheckInOutData } from '@/app/api/employees/employeeId'
 import { useInstitution } from '@/app/context/InstitutionContext';
@@ -235,8 +235,8 @@ const OverviewPage = () => {
           </CardContent>
         </Card>
         {/* Previous Day Attendance Card */}
-        <div className="mt-6">
-          <Card>
+        <div className="mt-6 grid md:grid-cols-3 gap-6">
+  <Card className="md:col-span-3">
             <CardHeader>
               <h2 className="text-xl font-semibold">Previous Day Attendance</h2>
               <p className="text-sm text-muted-foreground">
@@ -422,16 +422,16 @@ function WeeklyTimeSheet({ employees }: { employees: Employee[] }) {
     </div>
   );
 }
-
 function PreviousDayAttendance({ shift, slug }: { shift: Shift | null | undefined; slug?: string }) {
   const [data, setData] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState<Date>(() => {
     const y = new Date();
     y.setDate(y.getDate() - 1);
-    return y; // يبدأ من الأمس افتراضيًا
+    return y;
   });
 
+  const [sortConfig, setSortConfig] = useState<{ key: keyof Employee; direction: "asc" | "desc" } | null>(null);
   const router = useRouter();
 
   const fetchPrevDayData = async (date: Date) => {
@@ -452,10 +452,31 @@ function PreviousDayAttendance({ shift, slug }: { shift: Shift | null | undefine
     fetchPrevDayData(selectedDate);
   }, [shift, selectedDate]);
 
+  // 🧠 فرز الأعمدة عند الضغط على الرأس
+  const handleSort = (key: keyof Employee) => {
+    let direction: "asc" | "desc" = "asc";
+    if (sortConfig && sortConfig.key === key && sortConfig.direction === "asc") {
+      direction = "desc";
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const sortedData = [...data].sort((a, b) => {
+    if (!sortConfig) return 0;
+    const { key, direction } = sortConfig;
+    const order = direction === "asc" ? 1 : -1;
+
+    if (typeof a[key] === "string" && typeof b[key] === "string") {
+      return (a[key] as string).localeCompare(b[key] as string) * order;
+    }
+    return 0;
+  });
+
   return (
     <div className="w-full">
-      {/* 🔹 العنوان و أدوات التحكم */}
+      {/* 🔹 الأدوات */}
       <div className="flex flex-wrap items-center justify-between mb-4 gap-2">
+        <h2 className="text-xl font-semibold">Previous Day Attendance</h2>
         <div className="flex items-center gap-2">
           <Popover>
             <PopoverTrigger asChild>
@@ -483,43 +504,61 @@ function PreviousDayAttendance({ shift, slug }: { shift: Shift | null | undefine
         </div>
       </div>
 
-      {/* 🔹 محتوى الجدول */}
-      {loading ? (
-        <p className="text-center text-gray-500 py-4">Loading attendance data...</p>
-      ) : data.length === 0 ? (
-        <p className="text-center text-gray-500 py-4">
-          No records found for {format(selectedDate, "yyyy-MM-dd")}.
-        </p>
-      ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full">
+      {/* 🔹 الجدول */}
+      <div className="overflow-x-auto bg-white rounded-xl shadow-sm">
+        {loading ? (
+          <p className="text-center text-gray-500 py-4">Loading attendance data...</p>
+        ) : sortedData.length === 0 ? (
+          <p className="text-center text-gray-500 py-4">
+            No records found for {format(selectedDate, "yyyy-MM-dd")}.
+          </p>
+        ) : (
+          <table className="w-full text-sm border-collapse">
             <thead>
-              <tr className="border-b">
-                <th className="text-left py-2">Employee</th>
-                <th className="text-left py-2">Check-in</th>
-                <th className="text-left py-2">Check-out</th>
-                <th className="text-left py-2">Total Hours</th>
+              <tr className="border-b bg-gray-50 text-gray-700">
+                <th
+                  className="py-3 px-4 text-left cursor-pointer"
+                  onClick={() => handleSort("name")}
+                >
+                  Employee <ArrowUpDown className="inline-block w-3 h-3 ml-1 text-gray-400" />
+                </th>
+                <th
+                  className="py-3 px-4 text-left cursor-pointer"
+                  onClick={() => handleSort("checkIn")}
+                >
+                  Check-in <ArrowUpDown className="inline-block w-3 h-3 ml-1 text-gray-400" />
+                </th>
+                <th
+                  className="py-3 px-4 text-left cursor-pointer"
+                  onClick={() => handleSort("checkOut")}
+                >
+                  Check-out <ArrowUpDown className="inline-block w-3 h-3 ml-1 text-gray-400" />
+                </th>
+                <th
+                  className="py-3 px-4 text-left cursor-pointer"
+                  onClick={() => handleSort("totalHours")}
+                >
+                  Total Hours <ArrowUpDown className="inline-block w-3 h-3 ml-1 text-gray-400" />
+                </th>
               </tr>
             </thead>
             <tbody>
-              {data.map((emp) => (
+              {sortedData.map((emp) => (
                 <tr
                   key={emp.id}
-                  onClick={() =>
-                    router.push(`/dashboard/institution/${slug}/employees/${emp.id}`)
-                  }
-                  className="border-b hover:bg-gray-50 cursor-pointer transition"
+                  onClick={() => router.push(`/dashboard/institution/${slug}/employees/${emp.id}`)}
+                  className="border-b hover:bg-gray-50 transition cursor-pointer"
                 >
-                  <td className="py-2 font-medium text-blue-600">{emp.name}</td>
-                  <td className="py-2">{emp.checkIn}</td>
-                  <td className="py-2">{emp.checkOut}</td>
-                  <td className="py-2">{emp.totalHours}</td>
+                  <td className="py-2 px-4 font-medium text-blue-600">{emp.name}</td>
+                  <td className="py-2 px-4">{emp.checkIn}</td>
+                  <td className="py-2 px-4">{emp.checkOut}</td>
+                  <td className="py-2 px-4">{emp.totalHours}</td>
                 </tr>
               ))}
             </tbody>
           </table>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
