@@ -203,6 +203,8 @@ const OverviewPage = () => {
       />
     ) : (
       // your existing grid when shifts exist
+      <div>
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card className="md:col-span-1">
           <CardHeader><h2 className="text-xl font-semibold">Attendance Status</h2></CardHeader>
@@ -234,6 +236,7 @@ const OverviewPage = () => {
             </Tabs>
           </CardContent>
         </Card>
+        </div>
         {/* Previous Day Attendance Card */}
         <div className="mt-6 grid md:grid-cols-3 gap-6">
   <Card className="md:col-span-3">
@@ -248,7 +251,8 @@ const OverviewPage = () => {
             </CardContent>
           </Card>
         </div>
-      </div>
+        </div>
+      
     )}
   </div>
 );
