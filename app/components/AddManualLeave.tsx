@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -35,13 +35,29 @@ export default function AddManualLeave({ employeeId, onLeaveAdded }: AddManualLe
   const [duration, setDuration] = useState<number>(0);
   const [error, setError] = useState<string>("");
   const [date, setDate] = useState<DateRange | undefined>();
-  const [leaveType, setLeaveType] = useState<string>("Paid");
+  
   const [notes, setNotes] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
 
   const { annualPaidLeaves } = useAnnualLeave();
   const hasPaidLeaves = (annualPaidLeaves ?? 0) > 0;
-
+  
+  const [leaveType, setLeaveType] = useState<string>(hasPaidLeaves ? "Paid" : "Unpaid");
+  const [warning, setWarning] = useState<string>("");
+  console.log("📦 Annual leave API response:", annualPaidLeaves)
+  
+  useEffect(() => {
+    // ✅ كل ما تتحدث قيمة الإجازات، عدل نوع الإجازة
+    if (annualPaidLeaves !== null) {
+      if (annualPaidLeaves <= 0) {
+        setLeaveType("Unpaid");
+        setWarning("⚠ Paid leave unavailable (no balance)");
+      } else {
+        setWarning("");
+      }
+    }
+  }, [annualPaidLeaves]);
+  
   const handleSubmit = async () => {
     if (!date) {
       alert("Please select a date.");
@@ -200,7 +216,15 @@ export default function AddManualLeave({ employeeId, onLeaveAdded }: AddManualLe
             {/* 🧾 نوع الإجازة */}
             <div className="flex flex-col space-y-2">
               <Label>Leave Type</Label>
-              <Select onValueChange={setLeaveType} defaultValue={leaveType}>
+              <Select onValueChange={(val) => {
+          if (val === "Paid" && !hasPaidLeaves) {
+            setWarning("⚠ Paid leave unavailable (no balance)");
+            setLeaveType("Unpaid");
+            return;
+          }
+          setWarning("");
+          setLeaveType(val);
+        }} defaultValue={leaveType}>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select type" />
                 </SelectTrigger>
@@ -210,6 +234,9 @@ export default function AddManualLeave({ employeeId, onLeaveAdded }: AddManualLe
                 </SelectContent>
               </Select>
             </div>
+            {warning && (
+        <p className="text-red-600 text-sm mt-1">{warning}</p>
+      )}
 
             {/* 📝 الملاحظات */}
             <div className="flex flex-col space-y-2">
