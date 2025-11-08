@@ -3,7 +3,7 @@
 
 import * as Dialog from '@radix-ui/react-dialog';
 import { X } from 'lucide-react';
-import { useState, ReactNode, SetStateAction } from 'react';
+import { useState, ReactNode, SetStateAction, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
@@ -30,6 +30,10 @@ const LeaveUpdateDialog = ({
   const [days, setDays] = useState<number>(initialDays);
   const [reason, setReason] = useState<string>('');
 
+  useEffect(() => {
+    setDays(initialDays);
+  }, [initialDays]);
+  
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (days && reason) {
@@ -41,7 +45,7 @@ const LeaveUpdateDialog = ({
       });
       setOpen(false);
       setReason('');
-      setDays(initialDays);
+      
     }
   };
 
