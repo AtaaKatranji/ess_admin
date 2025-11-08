@@ -31,23 +31,13 @@ export function AnnualLeaveProvider({
 
       if (!response.ok) throw new Error("Network response was not ok");
       const data = await response.json();
+      console.log("📦 Annual leave API response in context:", data)
 
       let value = 0;
-
-        // ✅ تحقق من نوع الاستجابة
-        if (Array.isArray(data.annualLeave)) {
-        // الحالة الأولى: Array
-        if (data.annualLeave.length > 0) {
-            value = data.annualLeave[0]?.value ?? 0;
+        if (Array.isArray(data.annualLeave) && data.annualLeave.length > 0) {
+        value = data.annualLeave[0].value ?? 0;
         }
-        } else if (typeof data.annualLeave === "object" && data.annualLeave !== null) {
-        // الحالة الثانية: Object
-        value = data.annualLeave.value ?? 0;
-        } else if (typeof data.annualLeave === "number") {
-        // الحالة الثالثة: رقم مباشر
-        value = data.annualLeave;
-        }
-
+        console.log("📦 Annual leave API response in context:", value)
         setAnnualPaidLeaves(value);
     } catch (error) {
       console.error("Error fetching annual leaves:", error);
