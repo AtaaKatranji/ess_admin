@@ -18,7 +18,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ChevronDown, Download, Search, CalendarIcon,CalendarClock, RefreshCw, ArrowUpDown } from 'lucide-react'
+import { ChevronDown, Download, Search, CalendarIcon,CalendarClock, RefreshCw, ArrowUpDown, CalendarDays  } from 'lucide-react'
 import { fetchShifts } from '@/app/api/shifts/shifts'
 import { fetchCheckInOutData } from '@/app/api/employees/employeeId'
 import { useInstitution } from '@/app/context/InstitutionContext';
@@ -509,7 +509,7 @@ function PreviousDayAttendance({ shift, slug }: { shift: Shift | null | undefine
           </Button>
         </div>
       </div>
-      
+
       {serverMessage && (
         <div className="text-center py-3">
           <p className="text-gray-600 italic">{serverMessage}</p>
@@ -520,6 +520,13 @@ function PreviousDayAttendance({ shift, slug }: { shift: Shift | null | undefine
       <div className="overflow-x-auto bg-white rounded-xl shadow-sm">
         {loading ? (
           <p className="text-center text-gray-500 py-4">Loading attendance data...</p>
+        ) : serverMessage ? (
+          <div className="flex items-center justify-center py-4">
+            <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 shadow-sm">
+              <CalendarDays className="h-5 w-5 text-gray-500" />
+              <p className="text-gray-700 italic">{serverMessage}</p>
+            </div>
+          </div>
         ) : sortedData.length === 0 ? (
           <p className="text-center text-gray-500 py-4">
             No records found for {format(selectedDate, "yyyy-MM-dd")}.
