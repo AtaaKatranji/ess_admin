@@ -510,12 +510,6 @@ function PreviousDayAttendance({ shift, slug }: { shift: Shift | null | undefine
         </div>
       </div>
 
-      {serverMessage && (
-        <div className="text-center py-3">
-          <p className="text-gray-600 italic">{serverMessage}</p>
-        </div>
-      )}
-
       {/* 🔹 الجدول */}
       <div className="overflow-x-auto bg-white rounded-xl shadow-sm">
         {loading ? (

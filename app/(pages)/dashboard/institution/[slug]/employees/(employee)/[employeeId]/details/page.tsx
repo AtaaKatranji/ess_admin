@@ -27,6 +27,7 @@ import { fetchInstitution } from "@/app/api/institutions/institutions";
 import OccasionCard from "@/app/components/OccasionCard";
 import { Holiday, Employee } from "@/app/types/Employee";
 import { EmployeeCard } from "@/app/components/employeeCard"; 
+import { AnnualLeaveProvider } from "@/app/context/AnnualLeaveContext";
 
 type Leave = {
   id: string;
@@ -308,6 +309,7 @@ const employee: Employee = {
 // هون شرط إذا ما في shift
 
   return (
+    <AnnualLeaveProvider employeeId={employeeId}>
     <div className="container px-4 space-y-4">
       <ToastContainer />
       <Tabs defaultValue={data.employee?.status === "active" ? "attendance" : "general"}>
@@ -727,6 +729,7 @@ const employee: Employee = {
 
       </Tabs>
     </div>
+    </AnnualLeaveProvider>
   );
 };
 

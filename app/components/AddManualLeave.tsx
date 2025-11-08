@@ -22,6 +22,8 @@ import { Calendar } from "@/components/ui/calendar";
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { DateRange } from "react-day-picker";
+import { useAnnualLeave } from "@/app/context/AnnualLeaveContext";
+
 interface AddManualLeaveProps {
   employeeId: string;
   onLeaveAdded?: () => void; // ✅ دالة اختيارية للتحديث بعد الإضافة
@@ -36,6 +38,9 @@ export default function AddManualLeave({ employeeId, onLeaveAdded }: AddManualLe
   const [leaveType, setLeaveType] = useState<string>("Paid");
   const [notes, setNotes] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
+
+  const { annualPaidLeaves } = useAnnualLeave();
+  const hasPaidLeaves = (annualPaidLeaves ?? 0) > 0;
 
   const handleSubmit = async () => {
     if (!date) {
@@ -200,7 +205,7 @@ export default function AddManualLeave({ employeeId, onLeaveAdded }: AddManualLe
                   <SelectValue placeholder="Select type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Paid">Paid Leave</SelectItem>
+                  <SelectItem value="Paid" disabled={!hasPaidLeaves}>Paid Leave {hasPaidLeaves ? "" : "(No balance)"}</SelectItem>
                   <SelectItem value="Unpaid">Unpaid Leave</SelectItem>
                 </SelectContent>
               </Select>
