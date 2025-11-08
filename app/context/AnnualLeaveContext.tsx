@@ -22,7 +22,7 @@ export function AnnualLeaveProvider({
 
   const fetchAnnualPaidLeaves = async (employeeId: string) => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/annual-leave-admin`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/annual-leave-admin`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

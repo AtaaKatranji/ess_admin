@@ -4,9 +4,9 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Edit2 } from 'lucide-react';
 import LeaveUpdateDialog from './AnnualLeaveUpdateDialog';
-import { useEffect, useState } from 'react';
-import { isArray } from "util";
-
+ import {  useState } from 'react';
+// import { isArray } from "util";
+import { useAnnualLeave } from "@/app/context/AnnualLeaveContext";
 interface LeaveUpdate {
   days: number;
   reason: string;
@@ -17,7 +17,10 @@ interface LeaveCardProps {
     employeeId: string; // Add employeeId as a prop
   }
 export default function LeaveCard({ employeeId }: LeaveCardProps) {
-  const [annualPaidLeaves, setAnnualPaidLeaves] = useState<number>(1000);
+  const { annualPaidLeaves } = useAnnualLeave();
+  console.log("📦5 Annual leave API response in context:", annualPaidLeaves)
+
+  //const [annualPaidLeaves, setAnnualPaidLeaves] = useState<number>(1000);
   
   const [history, setHistory] = useState<LeaveUpdate[]>([]);
   const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -58,7 +61,7 @@ export default function LeaveCard({ employeeId }: LeaveCardProps) {
       await updateAnnualPaidLeaves(update);
 
       // If successful, update local state
-      setAnnualPaidLeaves(update.days);
+      //setAnnualPaidLeaves(update.days);
       setHistory((prev) => [update, ...prev]);
       console.log(`Successfully updated leave for employee ${employeeId}`);
     } catch (error) {
@@ -68,54 +71,57 @@ export default function LeaveCard({ employeeId }: LeaveCardProps) {
     }
   };
   
-  const fetchAnnualPaidLeaves = async (employeeId: string) => {
-    try {
-        // Make an API call to fetch monthly attendance summary
-        const response = await fetch(`${BaseUrl}/api/annual-leave-admin`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ userId: employeeId}),
-          credentials: "include",
-        });
+//   const fetchAnnualPaidLeaves = async (employeeId: string) => {
+//     try {
+//         // Make an API call to fetch monthly attendance summary
+//         const response = await fetch(`${BaseUrl}/api/annual-leave-admin`, {
+//           method: "POST",
+//           headers: {
+//             "Content-Type": "application/json",
+//           },
+//           body: JSON.stringify({ userId: employeeId}),
+//           credentials: "include",
+//         });
         
-        // Check if the response is okay
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
+//         // Check if the response is okay
+//         if (!response.ok) {
+//             throw new Error('Network response was not ok');
+//         }
   
-        console.log("data4", response);
-        const data = await response.json();
-        console.log("data5", data);
-        // Map over the monthly attendance data
-        if(!isArray(data.annualLeave)){
-        // Set the state with the fetched summary
-        setAnnualPaidLeaves(data[ "annualLeave"]); 
-    }else{
-        console.log("data6", data.annualLeave[0].value);
-        setAnnualPaidLeaves(data.annualLeave[0].value);
-        // Assuming data.annualLeave is an array
-const transformedLeaves: LeaveUpdate[] = data.annualLeave.map((item: { value: number; reason: string; timestamp: string | number | Date; }) => ({
-    days: item.value, // Map 'value' from the response to 'days'
-    reason: item.reason,
-    timestamp: new Date(item.timestamp).toISOString() // Convert to ISO string if needed
-    }));
+//         console.log("data4", response);
+//         const data = await response.json();
+//         console.log("data5", data);
+//         // Map over the monthly attendance data
+//         if(!isArray(data.annualLeave)){
+//         // Set the state with the fetched summary
+//         setAnnualPaidLeaves(data[ "annualLeave"]); 
+//     }else{
+//         console.log("data6", data.annualLeave[0].value);
+//         setAnnualPaidLeaves(data.annualLeave[0].value);
+//         // Assuming data.annualLeave is an array
+// const transformedLeaves: LeaveUpdate[] = data.annualLeave.map((item: { value: number; reason: string; timestamp: string | number | Date; }) => ({
+//     days: item.value, // Map 'value' from the response to 'days'
+//     reason: item.reason,
+//     timestamp: new Date(item.timestamp).toISOString() // Convert to ISO string if needed
+//     }));
     
-    // Now update your state
-    setHistory(transformedLeaves);
-    }
+//     // Now update your state
+//     setHistory(transformedLeaves);
+//     }
 
         
-    } catch (error) {
-        console.error('Error fetching monthly summary:', error);
-    }
-  };
+//     } catch (error) {
+//         console.error('Error fetching monthly summary:', error);
+//     }
+//   };
+
   
-   useEffect(() => {
-    fetchAnnualPaidLeaves(employeeId);
-    }
-    ,[employeeId]);
+  
+  
+  //  useEffect(() => {
+  //   fetchAnnualPaidLeaves(employeeId);
+  //   }
+  //   ,[employeeId]);
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between pb-2">
