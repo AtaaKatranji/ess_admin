@@ -429,6 +429,7 @@ function WeeklyTimeSheet({ employees }: { employees: Employee[] }) {
 function PreviousDayAttendance({ shift, slug }: { shift: Shift | null | undefined; slug?: string }) {
   const [data, setData] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
+  const [serverMessage, setServerMessage] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date>(() => {
     const y = new Date();
     y.setDate(y.getDate() - 1);
@@ -445,6 +446,7 @@ function PreviousDayAttendance({ shift, slug }: { shift: Shift | null | undefine
       const formattedDate = date.toISOString().split("T")[0];
       const result = await fetchCheckInOutData(shift.id, formattedDate);
       setData(Array.isArray(result.data) ? result.data : []);
+      setServerMessage(result.message || null);
     } catch (err) {
       console.error("Error fetching previous day data:", err);
     } finally {
@@ -507,6 +509,12 @@ function PreviousDayAttendance({ shift, slug }: { shift: Shift | null | undefine
           </Button>
         </div>
       </div>
+      
+      {serverMessage && (
+        <div className="text-center py-3">
+          <p className="text-gray-600 italic">{serverMessage}</p>
+        </div>
+      )}
 
       {/* 🔹 الجدول */}
       <div className="overflow-x-auto bg-white rounded-xl shadow-sm">
