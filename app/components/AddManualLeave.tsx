@@ -229,7 +229,9 @@ export default function AddManualLeave({ employeeId, onLeaveAdded }: AddManualLe
                   <SelectValue placeholder="Select type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Paid" disabled={!hasPaidLeaves}>Paid Leave {hasPaidLeaves ? "" : "(No balance)"}</SelectItem>
+                  <SelectItem value="Paid" disabled={!hasPaidLeaves}>{hasPaidLeaves
+              ? `Paid Leave (${annualPaidLeaves} days remaining)`
+              : "Paid Leave (No balance)"}</SelectItem>
                   <SelectItem value="Unpaid">Unpaid Leave</SelectItem>
                 </SelectContent>
               </Select>
