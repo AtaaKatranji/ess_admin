@@ -58,13 +58,11 @@ const NonAttendanceTab: React.FC<Props> = ({
         fetch(`${process.env.NEXT_PUBLIC_API_URL}/institutions/${slug}/leaves/month?userId=${employeeId}&month=${formattedMonth}`, {
           credentials: "include",
           headers: { "Content-Type": "application/json" },
-        }).then((r) => r.json()).then((d) => d.leaves?.leaves || []),
+        }).then((r) => r.json()).then((d) => d.leaves || []),
       ]);
   
       setAbsentDays(absences);
       setLeaves(leaves);
-      console.log("absences", absences);
-      console.log("leaves", leaves);  
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
