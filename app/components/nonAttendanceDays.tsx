@@ -214,7 +214,11 @@ const NonAttendanceTab: React.FC<Props> = ({
                 )}
                 {record.type === "Leave" && (
                   <span>
-                    <span className="font-medium">{record.leaveType}</span>
+                    <span className={
+                        record.leaveType === "Paid"
+                          ? "font-medium text-blue-700"
+                          : "font-medium text-gray-500"
+                      }>{record.leaveType === "Paid" ? "Paid Leave" : "Unpaid Leave"}</span>
                     {record.reason && (
                       <span className="ml-2 text-muted-foreground">
                         ({record.reason})
