@@ -63,6 +63,8 @@ const NonAttendanceTab: React.FC<Props> = ({
   
       setAbsentDays(absences);
       setLeaves(leaves);
+      console.log("absences", absences);
+      console.log("leaves", leaves);  
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
