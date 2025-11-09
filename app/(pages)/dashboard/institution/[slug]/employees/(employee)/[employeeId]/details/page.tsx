@@ -1,22 +1,22 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams } from "next/navigation";
 import { format } from "date-fns";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { CalendarIcon, ClockIcon, Star, Rabbit, Turtle, Search, Loader2, Download, LucideArchiveRestore } from "lucide-react";
+import { CalendarIcon, ClockIcon, Star, Rabbit, Turtle, Loader2, Download, LucideArchiveRestore } from "lucide-react";
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip } from "recharts";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Input } from "@/components/ui/input";
+// import { Input } from "@/components/ui/input";
 //import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { fetchTimeShifts } from "@/app/api/shifts/shifts";
 import exportMonthlyReportPDF from "@/app/components/ExportPDF";
-import AbsentTab from "@/app/components/AbsentTab";
+// import AbsentTab from "@/app/components/AbsentTab";
 import AttendanceTab from "@/app/components/AttendanceTab";
 import AddExtraHoursModal from "@/app/components/AddExtraHoursModal";
 import AnnualLeaveCard from "@/app/components/AnnualLeaveCard";
@@ -101,7 +101,7 @@ const EmployeeDetails = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingPdf, setIsLoadingPdf] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
+  // const [searchTerm, setSearchTerm] = useState("");
   const [selectedMonth, setSelectedMonth] = useState<Date>(new Date());
   const params = useParams();
   const slug = Array.isArray(params.slug) ? params.slug[0] : params.slug;
@@ -281,13 +281,13 @@ const employee: Employee = {
 
   }, [fetchAllData, selectedMonth]);
 
-  const filteredLeaves = useMemo(() => {
-    const lowerSearch = searchTerm.toLowerCase();
-    return data.leaves.filter(leave =>
-      format(new Date(leave.startDate), "MMMM d, yyyy").toLowerCase().includes(lowerSearch) ||
-      leave.reason.toLowerCase().includes(lowerSearch)
-    );
-  }, [data.leaves, searchTerm]);
+  // const filteredLeaves = useMemo(() => {
+  //   const lowerSearch = searchTerm.toLowerCase();
+  //   return data.leaves.filter(leave =>
+  //     format(new Date(leave.startDate), "MMMM d, yyyy").toLowerCase().includes(lowerSearch) ||
+  //     leave.reason.toLowerCase().includes(lowerSearch)
+  //   );
+  // }, [data.leaves, searchTerm]);
   // Function to format the month display
   const getMonthDisplay = (date: Date) => {
     const now = new Date();
@@ -628,6 +628,7 @@ const employee: Employee = {
               <TabsContent value="attendance" className="space-y-4 min-h-0">
                 <AttendanceTab employeeId={employeeId} selectedMonth={selectedMonth} />
               </TabsContent>
+              {/*
               <TabsContent value="leave" className="space-y-4 min-h-0">
                 <div className="flex justify-between items-center">
                   <h2 className="text-xl font-semibold">Leave Requests</h2>
@@ -644,7 +645,7 @@ const employee: Employee = {
                 <Card>
                   <CardContent>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-4">
-                      {/* Paid */}
+                      {/* Paid */} {/*
                       <section>
                         <h3 className="text-lg font-bold mb-2">Paid Leaves</h3>
                         {filteredLeaves.filter(r => r.type === "Paid").length ? (
@@ -668,7 +669,7 @@ const employee: Employee = {
                         )}
                       </section>
 
-                      {/* Unpaid */}
+                      {/* Unpaid */}{/*
                       <section>
                         <h3 className="text-lg font-medium mb-2">Unpaid Leaves</h3>
                         {filteredLeaves.filter(r => r.type === "Unpaid").length ? (
@@ -695,9 +696,10 @@ const employee: Employee = {
                   </CardContent>
                 </Card>
               </TabsContent>
-              <TabsContent value="absent" className="space-y-4 min-h-0">
+              */}
+              {/* <TabsContent value="absent" className="space-y-4 min-h-0">
                 <AbsentTab employeeId={employeeId} selectedMonth={selectedMonth} />
-              </TabsContent>
+              </TabsContent> */}
               <TabsContent value="hourlyLeaves" className="space-y-4 min-h-0">
                 <HourlyLeavesTab employeeId={employeeId} selectedMonth={selectedMonth} />
               </TabsContent>
