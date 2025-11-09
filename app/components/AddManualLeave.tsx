@@ -23,13 +23,15 @@ import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { DateRange } from "react-day-picker";
 import { useAnnualLeave } from "@/app/context/AnnualLeaveContext";
-
+import { toast } from "react-toastify";
+import { useInstitution } from '@/app/context/InstitutionContext'
 interface AddManualLeaveProps {
   employeeId: string;
   onLeaveAdded?: () => void; // ✅ دالة اختيارية للتحديث بعد الإضافة
 }
 
 export default function AddManualLeave({ employeeId, onLeaveAdded }: AddManualLeaveProps) {
+  const { slug } = useInstitution();
   const [open, setOpen] = useState(false);
   const [openCalendar, setOpenCalendar] = useState(false); 
   const [duration, setDuration] = useState<number>(0);
@@ -60,15 +62,16 @@ export default function AddManualLeave({ employeeId, onLeaveAdded }: AddManualLe
   
   const handleSubmit = async () => {
     if (!date) {
-      alert("Please select a date.");
+      toast.warning("Please select a date range first.");
       return;
     }
-
+  
     setLoading(true);
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/leaves/manual`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/institutions/${slug}/leaves/manual`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({
           employeeId,
           startDate: format(date?.from ?? new Date(), "yyyy-MM-dd"),
@@ -79,17 +82,37 @@ export default function AddManualLeave({ employeeId, onLeaveAdded }: AddManualLe
           addedByAdmin: true,
         }),
       });
-
-      if (!res.ok) throw new Error("Failed to add leave");
-
-      alert("Leave added successfully ✅");
+  
+      if (!res.ok) {
+        const errorText = await res.text(); // نحاول نقرأ رسالة السيرفر
+        let errorMessage = "Failed to add leave";
+  
+        if (res.status === 405) {
+          errorMessage = "Method not allowed (check API route).";
+        } else if (res.status === 401) {
+          errorMessage = "Unauthorized — please log in again.";
+        } else if (res.status === 403) {
+          errorMessage = "You don't have permission to add leave.";
+        } else if (errorText) {
+          try {
+            const json = JSON.parse(errorText);
+            errorMessage = json.message || errorMessage;
+          } catch {
+            errorMessage = errorText;
+          }
+        }
+  
+        throw new Error(errorMessage);
+      }
+  
+      // ✅ النجاح
+      toast.success("Leave added successfully ✅");
       setOpen(false);
-
-      // ✅ استدعاء الدالة القادمة من الأب لتحديث البيانات
+  
       if (onLeaveAdded) onLeaveAdded();
-    } catch (err) {
-      console.error(err);
-      alert("Error adding leave ❌");
+    } catch (err: unknown) {
+      console.error("Error adding leave:", err);
+      toast.error((err as Error).message || "Something went wrong while adding leave.");
     } finally {
       setLoading(false);
     }
