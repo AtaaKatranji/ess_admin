@@ -66,7 +66,7 @@ export default function AddManualLeave({ employeeId, onLeaveAdded }: AddManualLe
 
     setLoading(true);
     try {
-      const res = await fetch("/api/leaves/manual", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/leaves/manual`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
