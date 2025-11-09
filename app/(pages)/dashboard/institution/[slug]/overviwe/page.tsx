@@ -292,7 +292,7 @@ function AttendanceStatus({ response, loading }: { response: ApiResponse, loadin
                             : 'bg-gray-200 text-black'
                         }`}
                       >
-                        <span className="text-xs font-semibold">{employee.name.charAt(0)}</span>
+                        <span className={/[\u0600-\u06FF]/.test(employee.name) ? "arabic-text text-xs font-semibold" : "text-xs font-semibold"}>{employee.name.charAt(0)}</span>
                         <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></span>
                       </div>
                       <span>{employee.name}</span>

@@ -5,6 +5,7 @@ import { SSEProvider  } from '@/app/context/SSEContext';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { AuthProvider } from '@/app/context/AuthContext';
+
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
   variable: "--font-geist-sans",
@@ -15,6 +16,7 @@ const geistMono = localFont({
   variable: "--font-geist-mono",
   weight: "100 900",
 });
+
 
 export const metadata: Metadata = {
   title: "Create Next App",

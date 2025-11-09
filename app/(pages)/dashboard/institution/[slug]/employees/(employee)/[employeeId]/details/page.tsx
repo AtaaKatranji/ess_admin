@@ -619,8 +619,8 @@ const employee: Employee = {
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <TabsList>
                 <TabsTrigger value="attendance" >Attendance Records</TabsTrigger>
-                <TabsTrigger value="leave">Leave Requests</TabsTrigger>
-                <TabsTrigger value="absent">Absences</TabsTrigger>
+                {/* <TabsTrigger value="leave">Leave Requests</TabsTrigger>
+                <TabsTrigger value="absent">Absences</TabsTrigger> */}
                 <TabsTrigger value="hourlyLeaves">Hourly Leaves</TabsTrigger>
                 <TabsTrigger value="dayRecords">Day Records</TabsTrigger>
               </TabsList>

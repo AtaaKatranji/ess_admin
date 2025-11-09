@@ -114,3 +114,7 @@ body {
   }
 }
 
+.arabic-text {
+  font-family: 'Cairo', sans-serif;
+  direction: ltr; /* نحافظ على الاتجاه الإنكليزي */
+}
