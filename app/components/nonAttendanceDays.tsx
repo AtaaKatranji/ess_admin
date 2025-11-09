@@ -56,7 +56,7 @@ const NonAttendanceTab: React.FC<Props> = ({
         fetch(`${process.env.NEXT_PUBLIC_API_URL}/institutions/${slug}/leaves/month?userId=${employeeId}&month=${formattedMonth}`, {
           credentials: "include",
           headers: { "Content-Type": "application/json" },
-        }).then((r) => r.json()).then((d) => d.leaves || []),
+        }).then((r) => r.json()).then((d) => Array.isArray(d.leaves) ? d.leaves : d.leaves?.leaves || []),
       ]);
   
       setAbsentDays(absences);
