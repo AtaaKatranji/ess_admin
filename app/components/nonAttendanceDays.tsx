@@ -79,7 +79,8 @@ const NonAttendanceTab: React.FC<Props> = ({
     const end = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0);
     return eachDayOfInterval({ start, end });
   }
-
+  console.log("holidays type:", Array.isArray(holidays), holidays);
+  console.log("leaves type:", Array.isArray(leaves), leaves);
   // Build and memoize day records
   const dayRecords: DayRecord[] = useMemo(() => {
     const allDates = getAllDatesInMonth(selectedMonth);
@@ -131,7 +132,9 @@ const NonAttendanceTab: React.FC<Props> = ({
       })
       .filter(Boolean) as DayRecord[];
   }, [selectedMonth, absentDays, leaves, holidays]);
+
   console.log("holidays type:", Array.isArray(holidays), holidays);
+  console.log("leaves type:", Array.isArray(leaves), leaves);
   // Search/filter logic
   const filteredRecords = useMemo(() => {
     if (!searchTerm) return dayRecords;
