@@ -106,8 +106,8 @@ const NonAttendanceTab: React.FC<Props> = ({
         // 2. Check Leave
         const leave = leaves.find(
           (l) =>
-            date >= new Date(l.startDate) &&
-            date <= new Date(l.endDate)
+            dateStr >= format(new Date(l.startDate), "yyyy-MM-dd") &&
+            dateStr <= format(new Date(l.endDate), "yyyy-MM-dd")
         );
         if (leave) {
           return {
