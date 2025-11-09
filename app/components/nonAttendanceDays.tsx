@@ -41,10 +41,8 @@ const NonAttendanceTab: React.FC<Props> = ({
 }) => {
   const [absentDays, setAbsentDays] = useState<string[]>([]);
   const [leaves, setLeaves] = useState<Leave[]>([]);
-  //const [holidays, setHolidays] = useState<Holiday[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  console.log("institutionKey", slug);
   const fetchData = async () => {
     const formattedMonth = moment(selectedMonth).format("YYYY-MM");
     setLoading(true);
@@ -133,7 +131,7 @@ const NonAttendanceTab: React.FC<Props> = ({
       })
       .filter(Boolean) as DayRecord[];
   }, [selectedMonth, absentDays, leaves, holidays]);
-
+  console.log("holidays type:", Array.isArray(holidays), holidays);
   // Search/filter logic
   const filteredRecords = useMemo(() => {
     if (!searchTerm) return dayRecords;
