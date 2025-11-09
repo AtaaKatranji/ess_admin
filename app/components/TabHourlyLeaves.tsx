@@ -23,11 +23,7 @@ import {
   FormControl,
   //FormMessage,
 } from "@/components/ui/form";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+
 
 type BreakRecord = {
   id: string;
@@ -132,16 +128,40 @@ const HourlyLeavesTab = ({ employeeId, selectedMonth }: { employeeId: string; se
 
   const onSubmit = async (data: BreakRecord) => {
     try {
+      // 1️⃣ حدد الرابط وطريقة الإرسال (نفس السابق)
       const url = isEditing 
-        ? `${process.env.NEXT_PUBLIC_API_URL}/breaks/update` 
+        ? `${process.env.NEXT_PUBLIC_API_URL}/breaks/update`
         : `${process.env.NEXT_PUBLIC_API_URL}/breaks/add`;
       const method = isEditing ? "PUT" : "POST";
-
+  
+      // 2️⃣ جهّز التاريخ الكامل بصيغة ISO
+      const dateStr = selectedDate ? format(selectedDate, "yyyy-MM-dd") : null;
+      const startDateTime = dateStr && startTime ? `${dateStr}T${startTime}:00` : null;
+      const endDateTime = dateStr && endTime ? `${dateStr}T${endTime}:00` : null;
+  
+      // 3️⃣ تحقق من الحقول قبل الإرسال
+      if (!dateStr || !startDateTime || !endDateTime) {
+        toast.warning("Please select date and both start & end times.");
+        return;
+      }
+  
+      if (error) {
+        toast.error(error);
+        return;
+      }
+  
+      // 4️⃣ جهّز البيانات لإرسالها للسيرفر
       const requestData = {
-        ...data,
         employeeId,
+        startTime: startDateTime,
+        endTime: endDateTime,
+        duration,
+        isCustomBreak: true,
+        customBreakName: data.customBreakName,
+        addedByAdmin: true, // ✅ لتحديد أنها أُضيفت من المدير
       };
-
+  
+      // 5️⃣ أرسل الطلب
       const response = await fetch(url, {
         method,
         headers: {
@@ -149,19 +169,48 @@ const HourlyLeavesTab = ({ employeeId, selectedMonth }: { employeeId: string; se
         },
         body: JSON.stringify(requestData),
       });
-
+  
       if (!response.ok) {
         throw new Error("Failed to save break record");
       }
-
+  
+      // 6️⃣ بعد النجاح
       await fetchMonthlyBreaks(selectedMonth);
-      toast.success(isEditing ? "Updated successfully" : "Added successfully");
+      toast.success(isEditing ? "Updated successfully ✅" : "Added successfully ✅");
       setIsDialogOpen(false);
+  
     } catch (error) {
       console.error("Error saving break:", error);
-      toast.error("Failed to save break record. Please try again.");
+      toast.error("Failed to save break record. Please try again ❌");
     }
   };
+  
+  const [openCalendar, setOpenCalendar] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>();
+  const [startTime, setStartTime] = useState("");
+  const [endTime, setEndTime] = useState("");
+  const [duration, setDuration] = useState<number | null>(null);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (startTime && endTime) {
+      const [sh, sm] = startTime.split(":").map(Number);
+      const [eh, em] = endTime.split(":").map(Number);
+      const start = new Date();
+      const end = new Date();
+      start.setHours(sh, sm, 0, 0);
+      end.setHours(eh, em, 0, 0);
+  
+      if (end < start) {
+        setError("⚠️ End time cannot be before start time.");
+        setDuration(null);
+      } else {
+        const diffMinutes = Math.round((end.getTime() - start.getTime()) / (1000 * 60));
+        setDuration(diffMinutes);
+        setError("");
+      }
+    }
+  }, [startTime, endTime]);
 
   if (isLoading) return <p>Loading...</p>;
 
@@ -201,6 +250,8 @@ const HourlyLeavesTab = ({ employeeId, selectedMonth }: { employeeId: string; se
       </Card>
     </div>
   );
+
+
 
   return (
     <div className="flex-col space-y-4">
@@ -263,75 +314,97 @@ const HourlyLeavesTab = ({ employeeId, selectedMonth }: { employeeId: string; se
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>{isEditing ? 'Edit Break' : 'Add New Custom Break'}</DialogTitle>
+            <DialogTitle>{isEditing ? 'Edit Hourly Leave' : 'Add New Hourly Leave'}</DialogTitle>
           </DialogHeader>
+
+          {/* 🕒 نموذج الإجازة الساعية */}
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <FormField
-                control={form.control}
-                name="startTime"
-                render={({ field }) => (
-                  <FormItem className="flex flex-col">
-                    <FormLabel>Start Time</FormLabel>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button variant="outline" className="w-full">
-                            {field.value ? format(new Date(field.value), "PPP HH:mm") : "Pick a date"}
-                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent>
-                        <Calendar
-                          mode="single"
-                          selected={field.value ? new Date(field.value) : undefined}
-                          onSelect={(date) => date && field.onChange(date.toISOString())}
-                        />
-                        <Input
-                          type="time"
-                          onChange={(e) => {
-                            const [hours, minutes] = e.target.value.split(':');
-                            const date = field.value ? new Date(field.value) : new Date();
-                            date.setHours(parseInt(hours), parseInt(minutes));
-                            field.onChange(date.toISOString());
-                          }}
-                        />
-                      </PopoverContent>
-                    </Popover>
-                  </FormItem>
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="space-y-4"
+            >
+              {/* ✅ اختيار اليوم */}
+              <div className="flex flex-col space-y-2">
+                <label className="text-sm font-medium">Date</label>
+
+                {!openCalendar ? (
+                  <Button
+                    variant="outline"
+                    onClick={() => setOpenCalendar(true)}
+                    className="justify-start text-left font-normal"
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4 text-gray-500" />
+                    {selectedDate ? format(selectedDate, "PPP") : "Select a day"}
+                  </Button>
+                ) : (
+                  <div className="border rounded-md p-3 bg-white shadow-inner">
+                    <Calendar
+                      mode="single"
+                      selected={selectedDate}
+                      onSelect={(day) => {
+                        setSelectedDate(day);
+                        setOpenCalendar(false);
+                      }}
+                      initialFocus
+                    />
+                    <div className="flex justify-end mt-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setOpenCalendar(false)}
+                      >
+                        Done
+                      </Button>
+                    </div>
+                  </div>
                 )}
-              />
-              <FormField
-                control={form.control}
-                name="endTime"
-                render={({ field }) => (
-                  <FormItem className="flex flex-col">
-                    <FormLabel>End Time</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="datetime-local"
-                        value={field.value ? new Date(field.value).toISOString().slice(0,16) : ""}
-                        onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value).toISOString() : null)}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
+              </div>
+
+              {/* ⏰ وقت البداية */}
+              <div className="flex flex-col space-y-2">
+                <label className="text-sm font-medium">Start Time</label>
+                <Input
+                  type="time"
+                  value={startTime}
+                  onChange={(e) => setStartTime(e.target.value)}
+                />
+              </div>
+
+              {/* ⏰ وقت النهاية */}
+              <div className="flex flex-col space-y-2">
+                <label className="text-sm font-medium">End Time</label>
+                <Input
+                  type="time"
+                  value={endTime}
+                  onChange={(e) => setEndTime(e.target.value)}
+                />
+              </div>
+
+              {/* 💬 اسم الإجازة */}
               <FormField
                 control={form.control}
                 name="customBreakName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Break Name</FormLabel>
+                    <FormLabel>Reason / Break Name</FormLabel>
                     <FormControl>
-                      <Input {...field} value={field.value || ""} />
+                      <Input {...field} value={field.value || ""} placeholder="Reason for hourly leave" />
                     </FormControl>
                   </FormItem>
                 )}
               />
+
+              {/* ⚠️ المدة أو الخطأ */}
+              {error ? (
+                <p className="text-sm text-red-600 mt-2">{error}</p>
+              ) : duration && (
+                <p className="text-sm text-muted-foreground mt-2">
+                  Total duration: {duration} minutes
+                </p>
+              )}
+
               <DialogFooter>
-                <Button type="submit">Save</Button>
+                <Button type="submit" className="w-full">Save</Button>
               </DialogFooter>
             </form>
           </Form>

@@ -133,8 +133,6 @@ const NonAttendanceTab: React.FC<Props> = ({
       .filter(Boolean) as DayRecord[];
   }, [selectedMonth, absentDays, leaves, holidays]);
 
-  console.log("holidays type:", Array.isArray(holidays), holidays);
-  console.log("leaves type:", Array.isArray(leaves), leaves);
   // Search/filter logic
   const filteredRecords = useMemo(() => {
     if (!searchTerm) return dayRecords;
