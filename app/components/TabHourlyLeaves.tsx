@@ -168,7 +168,9 @@ const HourlyLeavesTab = ({ employeeId, selectedMonth }: { employeeId: string; se
         method,
         headers: {
           "Content-Type": "application/json",
+
         },
+        credentials: "include",
         body: JSON.stringify(requestData),
       });
   
