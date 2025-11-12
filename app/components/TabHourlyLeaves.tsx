@@ -130,8 +130,8 @@ const HourlyLeavesTab = ({ employeeId, selectedMonth }: { employeeId: string; se
     try {
       // 1️⃣ حدد الرابط وطريقة الإرسال (نفس السابق)
       const url = isEditing 
-        ? `${process.env.NEXT_PUBLIC_API_URL}/breaks/update`
-        : `${process.env.NEXT_PUBLIC_API_URL}/breaks/add`;
+        ? `${process.env.NEXT_PUBLIC_API_URL}/breaks/employee-breaks/admin/update`
+        : `${process.env.NEXT_PUBLIC_API_URL}/breaks/employee-breaks/admin/add`;
       const method = isEditing ? "PUT" : "POST";
   
       // 2️⃣ جهّز التاريخ الكامل بصيغة ISO
@@ -158,7 +158,7 @@ const HourlyLeavesTab = ({ employeeId, selectedMonth }: { employeeId: string; se
         duration,
         isCustomBreak: true,
         customBreakName: data.customBreakName,
-        addedByAdmin: true, // ✅ لتحديد أنها أُضيفت من المدير
+        
       };
   
       // 5️⃣ أرسل الطلب
