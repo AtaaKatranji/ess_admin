@@ -62,7 +62,7 @@ const HourlyLeavesTab = ({ employeeId, selectedMonth }: { employeeId: string; se
 
   const fetchMonthlyBreaks = async (date: Date) => {
     try {
-      const response = await fetch(`${BaseUrl}/institutions/${slug}/break/employee-breaks/AllEmployeeBreaksByUserId`, {
+      const response = await fetch(`${BaseUrl}/break/employee-breaks/AllEmployeeBreaksByUserId`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -133,7 +133,7 @@ const HourlyLeavesTab = ({ employeeId, selectedMonth }: { employeeId: string; se
       // 1️⃣ حدد الرابط وطريقة الإرسال (نفس السابق)
       const url = isEditing 
         ? `${process.env.NEXT_PUBLIC_API_URL}/breaks/employee-breaks/admin/update`
-        : `${process.env.NEXT_PUBLIC_API_URL}/breaks/employee-breaks/admin/add`;
+        : `${process.env.NEXT_PUBLIC_API_URL}/institutions/${slug}/break/employee-breaks/admin/add`;
       const method = isEditing ? "PUT" : "POST";
   
       // 2️⃣ جهّز التاريخ الكامل بصيغة ISO
