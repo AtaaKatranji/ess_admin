@@ -23,6 +23,7 @@ import {
   FormControl,
   //FormMessage,
 } from "@/components/ui/form";
+import { useInstitution } from '../context/InstitutionContext';
 
 
 type BreakRecord = {
@@ -41,6 +42,7 @@ type BreakRecord = {
 };
 
 const HourlyLeavesTab = ({ employeeId, selectedMonth }: { employeeId: string; selectedMonth: Date }) => {
+  const { slug } = useInstitution();
   const [breaks, setBreaks] = useState<BreakRecord[]>([]);
   const [customBreaks, setCustomBreaks] = useState<BreakRecord[]>([]);
   const [regularBreaks, setRegularBreaks] = useState<BreakRecord[]>([]);
@@ -60,7 +62,7 @@ const HourlyLeavesTab = ({ employeeId, selectedMonth }: { employeeId: string; se
 
   const fetchMonthlyBreaks = async (date: Date) => {
     try {
-      const response = await fetch(`${BaseUrl}/break/employee-breaks/AllEmployeeBreaksByUserId`, {
+      const response = await fetch(`${BaseUrl}/institutions/${slug}/break/employee-breaks/AllEmployeeBreaksByUserId`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
