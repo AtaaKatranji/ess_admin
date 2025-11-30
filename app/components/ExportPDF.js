@@ -33,7 +33,7 @@ const exportMonthlyReportPDF = (data) => {
   doc.text(employeeLabel, 14, 16);
 
   const employeeLabelWidth = doc.getTextWidth(employeeLabel);
-  doc.setFont(undefined, 'bold');
+  doc.setFont("Cairo-Regular", "normal");
   doc.text(summary.employeeName, 16 + employeeLabelWidth, 16, {
     direction: "rtl",
     lang: "ar",
@@ -122,6 +122,23 @@ const exportMonthlyReportPDF = (data) => {
       }
     }
   });
+  // === توقيع المدير والموظف ===
+  let finalY = doc.lastAutoTable.finalY + 20; // مسافة قبل التوقيع
+
+  doc.setFontSize(11);
+  doc.setFont(undefined, 'bold');
+  doc.text("Signatures", 14, finalY);
+
+  finalY += 10;
+
+  doc.setFont(undefined, 'normal');
+  doc.text("Manager Signature:", 14, finalY);
+  doc.line(55, finalY + 1, 120, finalY + 1); // خط التوقيع
+
+  finalY += 15;
+
+  doc.text("Employee Signature:", 14, finalY);
+  doc.line(55, finalY + 1, 120, finalY + 1); // خط التوقيع
 
   // === حفظ الملف ===
   const fileName = `${summary.monthName}_Attendance_Report_${summary.employeeName.trim()}.pdf`;
