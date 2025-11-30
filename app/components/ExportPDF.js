@@ -7,8 +7,8 @@ import "@/app/fonts/Cairo-Regular-normal.js";
 const exportMonthlyReportPDF = (data) => {
   if (typeof window === 'undefined') return;
   const doc = new jsPDF();
-  doc.addFont("Cairo.ttf", "Cairo", "normal");
-  doc.setFont("Cairo");
+  // doc.addFont("Cairo.ttf", "Cairo", "normal");
+  doc.setFont("Cairo-Regular", "normal");
   const { summary } = data;
   const monthNameText = summary.monthName;
   const reportText = " Attendance Report";
