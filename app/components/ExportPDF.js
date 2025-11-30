@@ -1,148 +1,208 @@
 // components/ExportPDF.js
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
-import "@/app/fonts/Cairo-Regular-normal.js";
 
+const getRowBackground = (type) => {
+  switch (type) {
+    case "Offical Holiday":
+      return "#DCEBFF"; // أزرق فاتح
+    case "Weekend":
+      return "#FFFFED"; // أصفر فاتح
+    case "Paid Leave":
+      return "#FFF0DC"; // برتقالي فاتح
+    case "Unpaid Leave":
+      return "#FFDCDC"; // أحمر فاتح
+    case "Absent":
+      return "#FFC8C8"; // أحمر أغمق
+    default:
+      return undefined;
+  }
+};
 
-const exportMonthlyReportPDF = (data) => {
-  if (typeof window === 'undefined') return;
-  const doc = new jsPDF();
-  // doc.addFont("Cairo.ttf", "Cairo", "normal");
-  doc.setFont("Cairo-Regular", "normal");
-  const { summary } = data;
-  const monthNameText = summary.monthName;
-  const reportText = " Attendance Report";
-  const fullLine = monthNameText + reportText;
-  const fullLineWidth = doc.getTextWidth(fullLine);
-  const pageWidth = doc.internal.pageSize.getWidth();
-  const centerX = (pageWidth - fullLineWidth) / 2;
+const exportMonthlyReportPDF = async (data) => {
+  if (typeof window === "undefined") return;
 
-  // === Header ===
-  doc.setFont(undefined, 'bold');
-  doc.setFontSize(11);
-  doc.text(monthNameText, centerX, 10);
+  // import ديناميكي عشان ما يخرب الـ SSR
+  const pdfMakeModule = await import("@digicole/pdfmake-rtl");
+  const pdfMake = pdfMakeModule.default || pdfMakeModule;
 
-  const monthNameWidth = doc.getTextWidth(monthNameText);
-  doc.setFont(undefined, 'normal');
-  doc.text(reportText, centerX + monthNameWidth, 10);
+  const { summary, details } = data;
 
-  // === Employee name ===
-  const employeeLabel = "Employee: ";
-  doc.setFont(undefined, 'normal');
-  doc.setFontSize(9);
-  doc.text(employeeLabel, 14, 16);
+  // === جدول الملخص ===
+  const summaryRows = [
+    { label: "Total Hours", value: summary.totalHours },
+    { label: "Late Hours", value: summary.lateHours },
+    { label: "Early Leave Hours", value: summary.earlyLeaveHours },
+    { label: "Early Arrival Hours", value: summary.earlyArrivalHours },
+    { label: "Extra Attendance Hours", value: summary.extraAttendanceHours },
+    { label: "Total Days Attendanced", value: summary.totalDays },
+    { label: "Total Days Absents", value: summary.totalAbsents },
+    { label: "Total Days Holidays", value: summary.totalHolidays },
+    { label: "Total Hours Holidays", value: `+${summary.totalHolidayHours}` },
+    { label: "Paid Leaves", value: summary.totalLeaves },
+    { label: "Paid Leave Hours", value: `+${summary.totalPaidLeaveHours}` },
+  ];
 
-  const employeeLabelWidth = doc.getTextWidth(employeeLabel);
-  doc.setFont("Cairo-Regular", "normal");
-  doc.text(summary.employeeName, 16 + employeeLabelWidth, 16, {
-    direction: "rtl",
-    lang: "ar",
-  });
+  if (Number(summary.extraAdjustmentHours) > 0) {
+    summaryRows.push({
+      label: "Bonus Hours (Manager Reward)",
+      value: `+${summary.extraAdjustmentHours}`,
+      isBonus: true,
+    });
+  }
 
-  // === بيانات الملخص (بدون أي حساب يدوي) ===
-  // === بيانات الملخص (بدون حسابات يدوية) ===
-          const summaryData = [
-            ["Total Hours", summary.totalHours],
-            ["Late Hours", summary.lateHours],
-            ["Early Leave Hours", summary.earlyLeaveHours],
-            ["Early Arrival Hours", summary.earlyArrivalHours],
-            ["Extra Attendance Hours", summary.extraAttendanceHours],
-            ["Total Days Attendanced", summary.totalDays],
-            ["Total Days Absents", summary.totalAbsents],
-            ["Total Days Holidays", summary.totalHolidays],
-            ["Total Hours Holidays", `+${summary.totalHolidayHours}`],
-            ["Paid Leaves", summary.totalLeaves],
-            ["Paid Leave Hours", `+${summary.totalPaidLeaveHours}`],
-          ];
-
-          // ✅ أضف صف “Extra Adjustment Hours” فقط إذا كانت > 0
-          if (Number(summary.extraAdjustmentHours) > 0) {
-            summaryData.push([
-              { content: "Bonus Hours (Manager Reward)", styles: { fontStyle: 'italic', textColor: [120, 85, 0] } },
-              { content: `+${summary.extraAdjustmentHours}`, styles: { fontStyle: 'bold', textColor: [120, 85, 0] } }
-            ]);
-          }
-
-  // === إنشاء جدول الملخص ===
-  doc.autoTable({
-    head: [["Metric", "Value"]],
-    body: summaryData,
-    startY: 20,
-  });
-
-  // === إضافة صف "Grand Total Hours (Including Paid Leaves & Holidays)" ===
-  doc.autoTable({
-    body: [
-      [
-        { 
-          content: "Grand Total Hours (Including Paid Leaves & Holidays)", 
-          styles: { fontStyle: 'bold', textColor: [0, 0, 0], fillColor: [230, 230, 230] } 
-        },
-        { 
-          content: `${summary.totalHoursAttendance.toFixed(2)}`, 
-          styles: { fontStyle: 'bold', textColor: [0, 0, 0], fillColor: [230, 230, 230] } 
-        }
-      ]
+  const summaryTableBody = [
+    [
+      { text: "Metric", bold: true },
+      { text: "Value", bold: true },
     ],
-    startY: doc.lastAutoTable.finalY,
-    theme: 'plain',
-  });
+    ...summaryRows.map((row) => [
+      {
+        text: row.label,
+        italics: !!row.isBonus,
+        fillColor: row.isBonus ? "#FFF8E6" : undefined,
+      },
+      {
+        text: String(row.value),
+        bold: !!row.isBonus,
+        fillColor: row.isBonus ? "#FFF8E6" : undefined,
+      },
+    ]),
+    [
+      {
+        text: "Grand Total Hours (Including Paid Leaves & Holidays)",
+        bold: true,
+        fillColor: "#E6E6E6",
+      },
+      {
+        text: summary.totalHoursAttendance.toFixed(2),
+        bold: true,
+        fillColor: "#E6E6E6",
+      },
+    ],
+  ];
 
-  // === تفاصيل الأيام ===
-  doc.autoTable({
-    head: [["Date", "Day", "Type", "Check-In", "Check-Out", "Daily Hours", "Holiday Name"]],
-    body: data.details.map(entry => {
-      const date = new Date(entry.date);
-      if (isNaN(date.getTime())) return ["Invalid Date", "-", "-", "-", "-", "-", "-"];
-      const year = date.getUTCFullYear();
-      const month = String(date.getUTCMonth() + 1).padStart(2, '0');
-      const dayNum = String(date.getUTCDate()).padStart(2, '0');
-      const shortDay = entry.dayOfWeek || new Intl.DateTimeFormat('en-US', { weekday: 'short' }).format(date);
+  // === جدول تفاصيل الأيام ===
+  const detailsTableBody = [
+    [
+      { text: "Date", bold: true },
+      { text: "Day", bold: true },
+      { text: "Type", bold: true },
+      { text: "Check-In", bold: true },
+      { text: "Check-Out", bold: true },
+      { text: "Daily Hours", bold: true },
+      { text: "Holiday Name", bold: true },
+    ],
+    ...details.map((entry) => {
+      const dateObj = new Date(entry.date);
+      let dateDisplay = "Invalid Date";
+      if (!isNaN(dateObj.getTime())) {
+        const y = dateObj.getUTCFullYear();
+        const m = String(dateObj.getUTCMonth() + 1).padStart(2, "0");
+        const d = String(dateObj.getUTCDate()).padStart(2, "0");
+        dateDisplay = `${y}-${m}-${d}`;
+      }
+
+      const rowBg = getRowBackground(entry.type);
 
       return [
-        `${year}-${month}-${dayNum}`,
-        shortDay,
-        entry.type || "-",
-        entry.checkIn || "-",
-        entry.checkOut || "-",
-        entry.dailyHours || "-",
-        entry.holidayName || ""
+        { text: dateDisplay, fillColor: rowBg },
+        { text: entry.dayOfWeek ?? "-", fillColor: rowBg },
+        { text: entry.type || "-", fillColor: rowBg },
+        { text: entry.checkIn || "-", fillColor: rowBg },
+        { text: entry.checkOut || "-", fillColor: rowBg },
+        { text: entry.dailyHours || "-", fillColor: rowBg },
+        { text: entry.holidayName || "", fillColor: rowBg },
       ];
     }),
-    startY: doc.lastAutoTable.finalY + 10,
-    didParseCell: function (data) {
-      if (data.section === 'body') {
-        const rowType = data.row.raw[2];
-        if (rowType === "Offical Holiday") data.cell.styles.fillColor = [220, 235, 255]; // Light blue
-        if (rowType === "Weekend") data.cell.styles.fillColor = [255, 255, 237]; // Light yellowish
-        if (rowType === "Paid Leave") data.cell.styles.fillColor = [255, 240, 220]; // Light orange
-        if (rowType === "Unpaid Leave") data.cell.styles.fillColor = [255, 220, 220]; // Light red-pink
-        if (rowType === "Absent") data.cell.styles.fillColor = [255, 200, 200]; // Slightly darker red
+  ];
 
-      }
-    }
-  });
-  // === توقيع المدير والموظف ===
-  let finalY = doc.lastAutoTable.finalY + 20; // مسافة قبل التوقيع
+  // === تعريف الـ PDF ===
+  const docDefinition = {
+    content: [
+      {
+        text: `${summary.monthName} Attendance Report`,
+        style: "header",
+        alignment: "center",
+        margin: [0, 0, 0, 10],
+      },
+      {
+        text: [
+          { text: "Employee: ", bold: false },
+          { text: summary.employeeName, bold: true },
+        ],
+        margin: [0, 0, 0, 15],
+      },
+      {
+        table: {
+          widths: ["*", "auto"],
+          body: summaryTableBody,
+        },
+        layout: "lightHorizontalLines",
+        margin: [0, 0, 0, 20],
+      },
+      {
+        text: "Daily Details",
+        style: "subheader",
+        margin: [0, 0, 0, 6],
+      },
+      {
+        table: {
+          headerRows: 1,
+          widths: ["auto", "auto", "auto", "auto", "auto", "auto", "*"],
+          body: detailsTableBody,
+        },
+        layout: "lightHorizontalLines",
+        margin: [0, 0, 0, 25],
+      },
+      {
+        text: "Signatures",
+        style: "subheader",
+        margin: [0, 0, 0, 10],
+      },
+      {
+        columns: [
+          {
+            width: "50%",
+            stack: [
+              { text: "Manager Signature:", margin: [0, 0, 0, 5] },
+              {
+                canvas: [
+                  { type: "line", x1: 0, y1: 0, x2: 180, y2: 0, lineWidth: 0.5 },
+                ],
+              },
+            ],
+          },
+          {
+            width: "50%",
+            stack: [
+              { text: "Employee Signature:", margin: [0, 0, 0, 5] },
+              {
+                canvas: [
+                  { type: "line", x1: 0, y1: 0, x2: 180, y2: 0, lineWidth: 0.5 },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    styles: {
+      header: {
+        fontSize: 14,
+        bold: true,
+      },
+      subheader: {
+        fontSize: 12,
+        bold: true,
+      },
+    },
+    defaultStyle: {
+      // direction: "rtl",  // فعّلها لو حاب كل النص RTL
+      // font: "YourArabicFont" // لو ضفت خط عربي مخصص لـ pdfmake
+    },
+  };
 
-  doc.setFontSize(11);
-  doc.setFont(undefined, 'bold');
-  doc.text("Signatures", 14, finalY);
-
-  finalY += 10;
-
-  doc.setFont(undefined, 'normal');
-  doc.text("Manager Signature:", 14, finalY);
-  doc.line(55, finalY + 1, 120, finalY + 1); // خط التوقيع
-
-  finalY += 15;
-
-  doc.text("Employee Signature:", 14, finalY);
-  doc.line(55, finalY + 1, 120, finalY + 1); // خط التوقيع
-
-  // === حفظ الملف ===
   const fileName = `${summary.monthName}_Attendance_Report_${summary.employeeName.trim()}.pdf`;
-  doc.save(fileName);
+  pdfMake.createPdf(docDefinition).download(fileName);
 };
 
 export default exportMonthlyReportPDF;
