@@ -32,6 +32,22 @@ const exportMonthlyReportPDF = async (data) => {
     pdfMake.vfs = pdfFonts.pdfMake.vfs;
   }
 
+  pdfMake.fonts = {
+    Nillima: {
+      normal: "Nillima.ttf",
+      bold: "Nillima.ttf",
+      italics: "Nillima.ttf",
+      bolditalics: "Nillima.ttf",
+    },
+    Roboto: {
+      normal: "Roboto-Regular.ttf",
+      bold: "Roboto-Medium.ttf",
+      italics: "Roboto-Italic.ttf",
+      bolditalics: "Roboto-MediumItalic.ttf",
+    },
+  };
+
+  
   const { summary, details } = data;
 
   // === جدول الملخص ===
