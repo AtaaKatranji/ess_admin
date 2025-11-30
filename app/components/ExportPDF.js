@@ -40,10 +40,10 @@ const exportMonthlyReportPDF = async (data) => {
       bolditalics: "Nillima.ttf",
     },
     Roboto: {
-      normal: "Poppins-Regular.ttf",
-      bold: "Poppins-Medium.ttf",
-      italics: "Poppins-Italic.ttf",
-      bolditalics: "Poppins-MediumItalic.ttf",
+      normal: "Roboto-Regular.ttf",
+      bold: "Roboto-Regular.ttf",
+      italics: "Roboto-Italic.ttf",
+      bolditalics: "Roboto-MediumItalic.ttf",
     },
   };
 
