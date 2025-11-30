@@ -263,7 +263,7 @@ const employee: Employee = {
         if (!response.ok) throw new Error("Failed to fetch report");
         const data = await response.json(); // Log number of days
         setData(prev => ({ ...prev, employeeName: data.summary.employeeName }));
-        exportMonthlyReportPDF(data);
+        await exportMonthlyReportPDF(data);
         toast.info("Monthly report exported as PDF!");
     } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);

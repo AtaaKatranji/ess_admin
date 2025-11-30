@@ -21,8 +21,16 @@ const exportMonthlyReportPDF = async (data) => {
   if (typeof window === "undefined") return;
 
   // import ديناميكي عشان ما يخرب الـ SSR
-  const pdfMakeModule = await import("@digicole/pdfmake-rtl");
+  const pdfMakeModule = await import("@digicole/pdfmake-rtl/build/pdfmake");
+  const pdfFontsModule = await import("@digicole/pdfmake-rtl/build/vfs_fonts");
+
   const pdfMake = pdfMakeModule.default || pdfMakeModule;
+  const pdfFonts = pdfFontsModule.default || pdfFontsModule;
+
+  // ربط الـ vfs حتى يلاقي Roboto-Medium.ttf و غيرها
+  if (pdfFonts.pdfMake && pdfFonts.pdfMake.vfs) {
+    pdfMake.vfs = pdfFonts.pdfMake.vfs;
+  }
 
   const { summary, details } = data;
 
