@@ -72,7 +72,9 @@ const exportMonthlyReportPDF = async (data) => {
       isBonus: true,
     });
   }
-
+  const bonusHours = Number(summary.extraAdjustmentHours || 0);
+  const baseTotal = Number(summary.totalHoursAttendance || 0);
+  const grandTotalWithBonus = (baseTotal + bonusHours).toFixed(2);
   const summaryTableBody = [
   // 🔵 الهيدر الأزرق
   [
@@ -102,19 +104,21 @@ const exportMonthlyReportPDF = async (data) => {
     ];
   }),
 
-  // 🩶 صف الـ Grand Total
+
+    // 🩶 صف الـ Grand Total (يشمل الـ Bonus كمان)
   [
     {
-      text: "Grand Total Hours (Including Paid Leaves & Holidays)",
+      text: "Grand Total Hours (Including Paid Leaves & Holidays & Bonus)",
       bold: true,
       fillColor: "#E6E6E6",
     },
     {
-      text: summary.totalHoursAttendance.toFixed(2),
+      text: grandTotalWithBonus,
       bold: true,
       fillColor: "#E6E6E6",
     },
   ],
+
 ];
 
 
