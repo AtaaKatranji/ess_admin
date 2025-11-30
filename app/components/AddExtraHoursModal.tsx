@@ -58,7 +58,7 @@ const AddExtraHoursModal = ({ isOpen, onClose, employeeId, monthIndex }: AddExtr
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ ...data, employeeId }),
+        body: JSON.stringify({ ...data, userId: employeeId }),
       });
   
       if (!response.ok) {
