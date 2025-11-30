@@ -1,11 +1,14 @@
 // components/ExportPDF.js
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
+import "@/app/fonts/Cairo-Regular-normal.js";
+
 
 const exportMonthlyReportPDF = (data) => {
   if (typeof window === 'undefined') return;
   const doc = new jsPDF();
-
+  doc.addFont("Cairo.ttf", "Cairo", "normal");
+  doc.setFont("Cairo");
   const { summary } = data;
   const monthNameText = summary.monthName;
   const reportText = " Attendance Report";
@@ -31,7 +34,10 @@ const exportMonthlyReportPDF = (data) => {
 
   const employeeLabelWidth = doc.getTextWidth(employeeLabel);
   doc.setFont(undefined, 'bold');
-  doc.text(summary.employeeName, 15 + employeeLabelWidth, 16);
+  doc.text(summary.employeeName, 16 + employeeLabelWidth, 16, {
+    direction: "rtl",
+    lang: "ar",
+  });
 
   // === بيانات الملخص (بدون أي حساب يدوي) ===
   // === بيانات الملخص (بدون حسابات يدوية) ===

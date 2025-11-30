@@ -32,6 +32,15 @@ type ShiftReportProps = {
     }
     return months;
   };
+
+  // type AttendanceIssue = {
+  //   employeeId: string
+  //   employeeName: string
+  //   date: string
+  //   issueType: 'missed_checkin' | 'missed_checkout' | 'both'
+  //   notes?: string
+  // }
+
   const months = generateLastMonths();
 export default function ShiftReport({open, onOpenChange, shiftId, institutionKey}: ShiftReportProps) {
   console.log("months",months, open);
@@ -41,6 +50,8 @@ export default function ShiftReport({open, onOpenChange, shiftId, institutionKey
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null);
   const [shifts, setShifts] = useState<Shift[]>([]);
+  // const [attendanceIssues, setAttendanceIssues] = useState<AttendanceIssue[]>([])
+  
   useEffect(() => {
     if (!institutionKey) return;
     const fetchAndSetShifts = async () => {
@@ -81,6 +92,38 @@ export default function ShiftReport({open, onOpenChange, shiftId, institutionKey
   //   if (rate >= 90) return "text-green-600"
   //   if (rate >= 80) return "text-yellow-600"
   //   return "text-red-600"
+  // }
+  // const getIssueIcon = (issueType: AttendanceIssue['issueType']) => {
+  //   switch (issueType) {
+  //     case 'missed_checkin':
+  //       return <LogIn className="w-4 h-4" />
+  //     case 'missed_checkout':
+  //       return <LogOut className="w-4 h-4" />
+  //     case 'both':
+  //       return <XCircle className="w-4 h-4" />
+  //   }
+  // }
+
+  // const getIssueLabel = (issueType: AttendanceIssue['issueType']) => {
+  //   switch (issueType) {
+  //     case 'missed_checkin':
+  //       return 'Missed Check-in'
+  //     case 'missed_checkout':
+  //       return 'Missed Check-out'
+  //     case 'both':
+  //       return 'Missed Both'
+  //   }
+  // }
+
+  // const getIssueBadgeColor = (issueType: AttendanceIssue['issueType']) => {
+  //   switch (issueType) {
+  //     case 'missed_checkin':
+  //       return 'bg-orange-100 text-orange-800'
+  //     case 'missed_checkout':
+  //       return 'bg-yellow-100 text-yellow-800'
+  //     case 'both':
+  //       return 'bg-red-100 text-red-800'
+  //   }
   // }
   const getProgressColor = (rate: number) => {
     if (rate >= 90) return "bg-green-600";
@@ -252,6 +295,61 @@ export default function ShiftReport({open, onOpenChange, shiftId, institutionKey
             </Card>
           ))}
         </div>
+        {/* {attendanceIssues.length > 0 && (
+            <Card className="border-orange-200 bg-orange-50/50">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-gray-800">
+                  <AlertCircle className="w-5 h-5 text-orange-600" />
+                  Attendance Issues
+                </CardTitle>
+                <CardDescription>
+                  Days where employees had problems with check-in or check-out requiring admin review
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {attendanceIssues.map((issue, index) => (
+                    <div
+                      key={`${issue.employeeId}-${issue.date}-${index}`}
+                      className="flex items-center justify-between p-4 bg-white rounded-lg border border-gray-200 hover:border-orange-300 transition-colors"
+                    >
+                      <div className="flex items-center gap-4 flex-1">
+                        <div className="flex items-center gap-2 min-w-[150px]">
+                          <Users className="w-4 h-4 text-gray-500" />
+                          <span className="font-medium text-gray-900">{issue.employeeName}</span>
+                        </div>
+                        <div className="flex items-center gap-2 min-w-[120px]">
+                          <Calendar className="w-4 h-4 text-gray-500" />
+                          <span className="text-sm text-gray-600">
+                            {new Date(issue.date).toLocaleDateString('en-US', { 
+                              month: 'short', 
+                              day: 'numeric',
+                              year: 'numeric'
+                            })}
+                          </span>
+                        </div>
+                        <Badge className={`${getIssueBadgeColor(issue.issueType)} flex items-center gap-1`}>
+                          {getIssueIcon(issue.issueType)}
+                          {getIssueLabel(issue.issueType)}
+                        </Badge>
+                      </div>
+                      <Button variant="outline" size="sm" className="text-gray-700 hover:bg-gray-100">
+                        Review
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+                
+                {attendanceIssues.length > 10 && (
+                  <div className="mt-4 text-center">
+                    <Button variant="ghost" className="text-gray-600">
+                      View All {attendanceIssues.length} Issues
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )} */}
         
           {/* Employee Details */}
           <Card>
