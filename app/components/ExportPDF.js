@@ -180,7 +180,12 @@ const exportMonthlyReportPDF = async (data) => {
           widths: ["*", "auto"],
           body: summaryTableBody,
         },
-        layout: "lightHorizontalLines",
+        layout: {
+          hLineWidth: function () { return 0.5; },
+          vLineWidth: function () { return 0.3; },
+          hLineColor: function () { return "#CCCCCC"; },
+          vLineColor: function () { return "#EEEEEE"; },
+        },
         margin: [0, 0, 0, 20],
       },
       {
@@ -241,7 +246,7 @@ const exportMonthlyReportPDF = async (data) => {
       },
       subheader: {
         fontSize: 12,
-        bold: true,
+        // bold: true,
       },
     },
     defaultStyle: {
