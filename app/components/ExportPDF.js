@@ -47,7 +47,7 @@ const exportMonthlyReportPDF = async (data) => {
     },
   };
 
-  
+
   const { summary, details } = data;
 
   // === جدول الملخص ===
@@ -74,48 +74,65 @@ const exportMonthlyReportPDF = async (data) => {
   }
 
   const summaryTableBody = [
-    [
-      { text: "Metric", bold: true },
-      { text: "Value", bold: true },
-    ],
-    ...summaryRows.map((row) => [
+  // 🔵 الهيدر الأزرق
+  [
+    { text: "Metric", bold: true, color: "#FFFFFF", fillColor: "#1E88E5" },
+    { text: "Value", bold: true, color: "#FFFFFF", fillColor: "#1E88E5" },
+  ],
+
+  // 🩶 الصفوف العادية (مع bonus لو موجود)
+  ...summaryRows.map((row, index) => {
+    const stripeColor = index % 2 === 0 ? "#F5F5F5" : "#FFFFFF"; // zebra
+
+    const baseCellStyle = {
+      fillColor: row.isBonus ? "#FFF8E6" : stripeColor,
+    };
+
+    return [
       {
         text: row.label,
         italics: !!row.isBonus,
-        fillColor: row.isBonus ? "#FFF8E6" : undefined,
+        ...baseCellStyle,
       },
       {
         text: String(row.value),
         bold: !!row.isBonus,
-        fillColor: row.isBonus ? "#FFF8E6" : undefined,
+        ...baseCellStyle,
       },
-    ]),
-    [
-      {
-        text: "Grand Total Hours (Including Paid Leaves & Holidays)",
-        bold: true,
-        fillColor: "#E6E6E6",
-      },
-      {
-        text: summary.totalHoursAttendance.toFixed(2),
-        bold: true,
-        fillColor: "#E6E6E6",
-      },
-    ],
-  ];
+    ];
+  }),
+
+  // 🩶 صف الـ Grand Total
+  [
+    {
+      text: "Grand Total Hours (Including Paid Leaves & Holidays)",
+      bold: true,
+      fillColor: "#E6E6E6",
+    },
+    {
+      text: summary.totalHoursAttendance.toFixed(2),
+      bold: true,
+      fillColor: "#E6E6E6",
+    },
+  ],
+];
+
 
   // === جدول تفاصيل الأيام ===
   const detailsTableBody = [
+    // 🔵 هيدر أزرق مثل القديم
     [
-      { text: "Date", bold: true },
-      { text: "Day", bold: true },
-      { text: "Type", bold: true },
-      { text: "Check-In", bold: true },
-      { text: "Check-Out", bold: true },
-      { text: "Daily Hours", bold: true },
-      { text: "Holiday Name", bold: true },
+      { text: "Date", bold: true, color: "#FFFFFF", fillColor: "#1E88E5" },
+      { text: "Day", bold: true, color: "#FFFFFF", fillColor: "#1E88E5" },
+      { text: "Type", bold: true, color: "#FFFFFF", fillColor: "#1E88E5" },
+      { text: "Check-In", bold: true, color: "#FFFFFF", fillColor: "#1E88E5" },
+      { text: "Check-Out", bold: true, color: "#FFFFFF", fillColor: "#1E88E5" },
+      { text: "Daily Hours", bold: true, color: "#FFFFFF", fillColor: "#1E88E5" },
+      { text: "Holiday Name", bold: true, color: "#FFFFFF", fillColor: "#1E88E5" },
     ],
-    ...details.map((entry) => {
+  
+    // الصفوف
+    ...details.map((entry, index) => {
       const dateObj = new Date(entry.date);
       let dateDisplay = "Invalid Date";
       if (!isNaN(dateObj.getTime())) {
@@ -124,9 +141,11 @@ const exportMonthlyReportPDF = async (data) => {
         const d = String(dateObj.getUTCDate()).padStart(2, "0");
         dateDisplay = `${y}-${m}-${d}`;
       }
-
-      const rowBg = getRowBackground(entry.type);
-
+  
+      const typeColor = getRowBackground(entry.type);
+      const stripeColor = index % 2 === 0 ? "#F9F9F9" : "#FFFFFF";
+      const rowBg = typeColor || stripeColor; // لو فيه نوع ملوّن، استخدمو، غير هيك zebra
+  
       return [
         { text: dateDisplay, fillColor: rowBg },
         { text: entry.dayOfWeek ?? "-", fillColor: rowBg },
@@ -138,6 +157,7 @@ const exportMonthlyReportPDF = async (data) => {
       ];
     }),
   ];
+  
 
   // === تعريف الـ PDF ===
   const docDefinition = {
@@ -174,7 +194,12 @@ const exportMonthlyReportPDF = async (data) => {
           widths: ["auto", "auto", "auto", "auto", "auto", "auto", "*"],
           body: detailsTableBody,
         },
-        layout: "lightHorizontalLines",
+        layout: {
+          hLineWidth: function () { return 0.5; },
+          vLineWidth: function () { return 0.3; },
+          hLineColor: function () { return "#CCCCCC"; },
+          vLineColor: function () { return "#EEEEEE"; },
+        },
         margin: [0, 0, 0, 25],
       },
       {
