@@ -8,6 +8,8 @@ import { Button } from '@/components/ui/button';
 import { useForm } from "react-hook-form";
 import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
+import { Textarea } from "@/components/ui/textarea";
+
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog";
@@ -25,6 +27,7 @@ type History = {
   checkDate: string;
   checkInTime: string;
   checkOutTime: string | null;
+  note?: string | null;
 };
 
 const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -98,7 +101,6 @@ const AttendanceTab = ({ employeeId, selectedMonth }: { employeeId: string; sele
           body: JSON.stringify(data),
         });
       } else {
-        console.log("data", data)
         const existingRecordsResponse = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/checks/checks?date=${data.checkDate}&employeeId=${employeeId}`,
           { method: "GET", headers: { "Content-Type": "application/json" } }
@@ -316,6 +318,24 @@ const AttendanceTab = ({ employeeId, selectedMonth }: { employeeId: string; sele
                         {...field}
                         value={field.value || ""}
                         onChange={(e) => field.onChange(e.target.value || null)}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="note"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Note</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Write a note (optional)"
+                        {...field}
+                        value={field.value ?? ""}
+                        onChange={(e) => field.onChange(e.target.value)}
                       />
                     </FormControl>
                     <FormMessage />
