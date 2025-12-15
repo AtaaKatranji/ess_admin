@@ -93,6 +93,7 @@ const AttendanceTab = ({ employeeId, selectedMonth }: { employeeId: string; sele
       if (isEditing) {
         response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/checks/update`, {
           method: "PUT",
+          credentials: "include",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(data),
         });
