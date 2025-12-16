@@ -327,12 +327,13 @@ const AttendanceTab = ({ employeeId, selectedMonth }: { employeeId: string; sele
               <FormField
                 control={form.control}
                 name="note"
+                rules={{ required: "Note is required" }}
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
-                    <FormLabel>Note</FormLabel>
+                    <FormLabel>Note  <span className="text-red-500">*</span></FormLabel>
                     <FormControl>
                       <Textarea
-                        placeholder="Write a note (optional)"
+                        placeholder="Write a note"
                         {...field}
                         value={field.value ?? ""}
                         onChange={(e) => field.onChange(e.target.value)}
