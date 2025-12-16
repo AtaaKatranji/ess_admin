@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { useEffect } from "react";
 
 type Adjustment = {
   id: number;
@@ -18,41 +19,41 @@ type Adjustment = {
   note: string;
 };
 
-const MOCK_ADJUSTMENTS: Adjustment[] = [
-  {
-    id: 1,
-    logDate: "2025-12-16",
-    oldCheckIn: "09:35:00",
-    oldCheckOut: null,
-    newCheckIn: "08:47:00",
-    newCheckOut: null,
-    editedByName: "Supervisor Ahmad",
-    editedAt: "2025-12-16 10:12",
-    note: "Employee forgot to check-in on time.",
-  },
-  {
-    id: 2,
-    logDate: "2025-12-15",
-    oldCheckIn: "09:50:00",
-    oldCheckOut: "15:10:00",
-    newCheckIn: "09:35:00",
-    newCheckOut: "15:55:00",
-    editedByName: "Supervisor Rami",
-    editedAt: "2025-12-15 16:05",
-    note: "Adjusted based on gate log.",
-  },
-  {
-    id: 3,
-    logDate: "2025-12-10",
-    oldCheckIn: "10:05:00",
-    oldCheckOut: "14:40:00",
-    newCheckIn: "09:22:00",
-    newCheckOut: "16:21:00",
-    editedByName: "Supervisor Ahmad",
-    editedAt: "2025-12-10 18:40",
-    note: "Correction after manager review.",
-  },
-];
+// const MOCK_ADJUSTMENTS: Adjustment[] = [
+//   {
+//     id: 1,
+//     logDate: "2025-12-16",
+//     oldCheckIn: "09:35:00",
+//     oldCheckOut: null,
+//     newCheckIn: "08:47:00",
+//     newCheckOut: null,
+//     editedByName: "Supervisor Ahmad",
+//     editedAt: "2025-12-16 10:12",
+//     note: "Employee forgot to check-in on time.",
+//   },
+//   {
+//     id: 2,
+//     logDate: "2025-12-15",
+//     oldCheckIn: "09:50:00",
+//     oldCheckOut: "15:10:00",
+//     newCheckIn: "09:35:00",
+//     newCheckOut: "15:55:00",
+//     editedByName: "Supervisor Rami",
+//     editedAt: "2025-12-15 16:05",
+//     note: "Adjusted based on gate log.",
+//   },
+//   {
+//     id: 3,
+//     logDate: "2025-12-10",
+//     oldCheckIn: "10:05:00",
+//     oldCheckOut: "14:40:00",
+//     newCheckIn: "09:22:00",
+//     newCheckOut: "16:21:00",
+//     editedByName: "Supervisor Ahmad",
+//     editedAt: "2025-12-10 18:40",
+//     note: "Correction after manager review.",
+//   },
+// ];
 
 function formatTime(t: string | null) {
   if (!t) return "—";
@@ -65,6 +66,16 @@ function formatDate(d: string) {
   return d;
 }
 
+function formatDateTime(d: string) {
+    return new Date(d).toLocaleString("en-GB", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  }
+
 export default function AttendanceAdjustmentsTab({
   employeeId,
   selectedMonth,
@@ -73,22 +84,60 @@ export default function AttendanceAdjustmentsTab({
   selectedMonth: Date; // مثال: "2025-12"
 }) {
   const [query, setQuery] = React.useState("");
-
+  const [data, setData] = React.useState<Adjustment[]>([]);
+  const [loading, setLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
   // حالياً mock، لاحقاً استبدله بالبيانات القادمة من السيرفر
-  const data = React.useMemo(() => {
-    const monthFiltered = MOCK_ADJUSTMENTS.filter((x) => x.logDate.startsWith(selectedMonth.toISOString().slice(0, 7)));
-    if (!query.trim()) return monthFiltered;
-
+  useEffect(() => {
+    const controller = new AbortController();
+  
+    const fetchAdjustments = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+  
+        const monthKey = selectedMonth.toISOString().slice(0, 7); // YYYY-MM
+  
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/checks/edit-logs?userId=${employeeId}&month=${monthKey}`,
+          {
+            method: "GET",
+            credentials: "include",
+            signal: controller.signal,
+          }
+        );
+  
+        if (!res.ok) {
+          throw new Error("Failed to load attendance adjustments");
+        }
+  
+        const json = await res.json();
+        setData(json.items || []);
+      } catch (err ) {
+        if (err instanceof Error && err.name !== "AbortError") {
+          console.error(err);
+          setError("Failed to load adjustments");
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    fetchAdjustments();
+  
+    return () => controller.abort();
+  }, [employeeId, selectedMonth]);
+  const filteredData = React.useMemo(() => {
+    if (!query.trim()) return data;
+  
     const q = query.toLowerCase();
-    return monthFiltered.filter((x) => {
-      return (
-        x.logDate.includes(q) ||
-        x.editedByName.toLowerCase().includes(q) ||
-        x.note.toLowerCase().includes(q) ||
-        `${x.oldCheckIn ?? ""} ${x.oldCheckOut ?? ""} ${x.newCheckIn ?? ""} ${x.newCheckOut ?? ""}`.includes(q)
-      );
-    });
-  }, [query, selectedMonth]);
+    return data.filter((x) =>
+      x.logDate.includes(q) ||
+      x.editedByName.toLowerCase().includes(q) ||
+      (x.note || "").toLowerCase().includes(q) ||
+      `${x.oldCheckIn ?? ""} ${x.oldCheckOut ?? ""} ${x.newCheckIn ?? ""} ${x.newCheckOut ?? ""}`.includes(q)
+    );
+  }, [query, data]);
   
   return (
     <div className="space-y-4">
@@ -106,13 +155,17 @@ export default function AttendanceAdjustmentsTab({
       </div>
 
       <Card className="p-0 overflow-hidden">
-        {data.length === 0 ? (
+      {loading ? (
+    <div className="p-6 text-sm text-muted-foreground">Loading adjustments…</div>
+  ) : error ? (
+    <div className="p-6 text-sm text-red-500">{error}</div>
+  ) : filteredData.length === 0 ? (
           <div className="p-6 text-sm text-muted-foreground">
             No adjustments found for this month.
           </div>
         ) : (
           <div className="divide-y">
-            {data.map((item) => (
+            {filteredData.map((item) => (
               <div key={item.id} className="p-4">
                 <div className="flex items-start justify-between gap-4">
                   <div>
@@ -126,7 +179,7 @@ export default function AttendanceAdjustmentsTab({
                     <div className="mt-1 text-sm text-muted-foreground">
                       Edited by <span className="font-medium text-foreground">{item.editedByName}</span>{" "}
                       <span className="mx-1">•</span>
-                      <span>{item.editedAt}</span>
+                      <span>{formatDateTime(item.editedAt)}</span>
                     </div>
                   </div>
                 </div>
