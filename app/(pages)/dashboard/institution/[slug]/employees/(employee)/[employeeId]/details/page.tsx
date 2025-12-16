@@ -28,6 +28,7 @@ import OccasionCard from "@/app/components/OccasionCard";
 import { Holiday, Employee } from "@/app/types/Employee";
 import { EmployeeCard } from "@/app/components/employeeCard"; 
 import { AnnualLeaveProvider } from "@/app/context/AnnualLeaveContext";
+import AttendanceAdjustmentsTab from "@/app/components/AttendanceAdjustmentsTab";
 
 type Leave = {
   id: string;
@@ -623,6 +624,7 @@ const employee: Employee = {
                 <TabsTrigger value="absent">Absences</TabsTrigger> */}
                 <TabsTrigger value="hourlyLeaves">Hourly Leaves</TabsTrigger>
                 <TabsTrigger value="dayRecords">Day Records</TabsTrigger>
+                <TabsTrigger value="adjustments">Adjustments Log</TabsTrigger>
               </TabsList>
               </div>
               <TabsContent value="attendance" className="space-y-4 min-h-0">
@@ -706,6 +708,11 @@ const employee: Employee = {
               <TabsContent value="dayRecords" className="space-y-4 min-h-0">
                 <NonAttendanceTab employeeId={employeeId} selectedMonth={selectedMonth} slug={slug!} holidays={data.holidays}  />
               </TabsContent>
+              <TabsContent value="adjustments">
+                {/* هنا جدول أو قائمة تعديلات */}
+                <AttendanceAdjustmentsTab employeeId={employeeId} selectedMonth={selectedMonth} />
+              </TabsContent>
+
             </Tabs>
             </section>
     </>
