@@ -19,7 +19,13 @@ const getRowBackground = (type) => {
 
 const exportMonthlyReportPDF = async (data, adjustments) => {
   if (typeof window === "undefined") return;
-
+  const adjustmentsArray = Array.isArray(adjustments) ? adjustments : (adjustments?.items || []);
+  const adjustmentsByDate = adjustmentsArray.reduce((acc, a) => {
+    const key = a.logDate; // "YYYY-MM-DD"
+    if (!acc[key]) acc[key] = [];
+    acc[key].push(a);
+    return acc;
+  }, {});
   // import ديناميكي عشان ما يخرب الـ SSR
   const pdfMakeModule = await import("@digicole/pdfmake-rtl/build/pdfmake");
   const pdfFontsModule = await import("@digicole/pdfmake-rtl/build/vfs_fonts");
@@ -132,8 +138,9 @@ const exportMonthlyReportPDF = async (data, adjustments) => {
       { text: "Check-In", bold: true, color: "#FFFFFF", fillColor: "#1E88E5" },
       { text: "Check-Out", bold: true, color: "#FFFFFF", fillColor: "#1E88E5" },
       { text: "Daily Hours", bold: true, color: "#FFFFFF", fillColor: "#1E88E5" },
-      { text: "Holiday Name", bold: true, color: "#FFFFFF", fillColor: "#1E88E5" },
       { text: "Edited?", bold: true, color: "#FFFFFF", fillColor: "#1E88E5" },
+      { text: "Holiday Name", bold: true, color: "#FFFFFF", fillColor: "#1E88E5" },
+      
     ],
   
     // الصفوف
@@ -150,7 +157,9 @@ const exportMonthlyReportPDF = async (data, adjustments) => {
       const typeColor = getRowBackground(entry.type);
       const stripeColor = index % 2 === 0 ? "#F9F9F9" : "#FFFFFF";
       // const rowBg = typeColor || stripeColor; 
-      const isEdited = !!adjustments[dateDisplay]?.length;
+
+      
+      const isEdited = !!adjustmentsByDate[dateDisplay]?.length;
       const editedOverlay = isEdited ? "#FFF8E6" : null;
       const rowBgFinal = typeColor || editedOverlay || stripeColor;
       return [
@@ -174,7 +183,7 @@ const exportMonthlyReportPDF = async (data, adjustments) => {
       { text: "Edited At", bold: true, color: "#FFFFFF", fillColor: "#1E88E5" },
       { text: "Note", bold: true, color: "#FFFFFF", fillColor: "#1E88E5" },
     ],
-    ...(adjustments || []).map((a, idx) => {
+    ...(adjustmentsArray || []).map((a, idx) => {
       const stripe = idx % 2 === 0 ? "#F9F9F9" : "#FFFFFF";
       return [
         { text: a.logDate, fillColor: stripe },
