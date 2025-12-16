@@ -265,7 +265,14 @@ const employee: Employee = {
         if (!response.ok) throw new Error("Failed to fetch report");
         const data = await response.json(); // Log number of days
         setData(prev => ({ ...prev, employeeName: data.summary.employeeName }));
-        const adjustmentsResponse = await fetch(`${BaseUrl}/checks/edit-logs?userId=${employeeId}&month=${dateToSend}`);
+        const adjustmentsResponse = await fetch( `${BaseUrl}/checks/edit-logs?userId=${employeeId}&month=${dateToSend}`,
+          {
+            method: "GET",
+            credentials: "include", 
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
         if (!adjustmentsResponse.ok) throw new Error("Failed to fetch adjustments");
         const adjustmentsData = await adjustmentsResponse.json();
         setAdjustments(adjustmentsData.items || []);
