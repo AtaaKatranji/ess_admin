@@ -99,6 +99,7 @@ const EmployeeDetails = () => {
     shift: null as ShiftType | null,
     
   });
+  const [adjustments, setAdjustments] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingPdf, setIsLoadingPdf] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -264,7 +265,11 @@ const employee: Employee = {
         if (!response.ok) throw new Error("Failed to fetch report");
         const data = await response.json(); // Log number of days
         setData(prev => ({ ...prev, employeeName: data.summary.employeeName }));
-        await exportMonthlyReportPDF(data);
+        const adjustmentsResponse = await fetch(`${BaseUrl}/checks/edit-logs?userId=${employeeId}&month=${dateToSend}`);
+        if (!adjustmentsResponse.ok) throw new Error("Failed to fetch adjustments");
+        const adjustmentsData = await adjustmentsResponse.json();
+        setAdjustments(adjustmentsData.items || []);
+        await exportMonthlyReportPDF(data, adjustments);
         toast.info("Monthly report exported as PDF!");
     } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);

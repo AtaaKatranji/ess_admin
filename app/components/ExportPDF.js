@@ -17,7 +17,7 @@ const getRowBackground = (type) => {
   }
 };
 
-const exportMonthlyReportPDF = async (data) => {
+const exportMonthlyReportPDF = async (data, adjustments) => {
   if (typeof window === "undefined") return;
 
   // import ديناميكي عشان ما يخرب الـ SSR
@@ -133,6 +133,7 @@ const exportMonthlyReportPDF = async (data) => {
       { text: "Check-Out", bold: true, color: "#FFFFFF", fillColor: "#1E88E5" },
       { text: "Daily Hours", bold: true, color: "#FFFFFF", fillColor: "#1E88E5" },
       { text: "Holiday Name", bold: true, color: "#FFFFFF", fillColor: "#1E88E5" },
+      { text: "Edited?", bold: true, color: "#FFFFFF", fillColor: "#1E88E5" },
     ],
   
     // الصفوف
@@ -148,16 +149,40 @@ const exportMonthlyReportPDF = async (data) => {
   
       const typeColor = getRowBackground(entry.type);
       const stripeColor = index % 2 === 0 ? "#F9F9F9" : "#FFFFFF";
-      const rowBg = typeColor || stripeColor; // لو فيه نوع ملوّن، استخدمو، غير هيك zebra
-  
+      // const rowBg = typeColor || stripeColor; 
+      const isEdited = !!adjustmentsByDate[dateDisplay]?.length;
+      const editedOverlay = isEdited ? "#FFF8E6" : null;
+      const rowBgFinal = typeColor || editedOverlay || stripeColor;
       return [
-        { text: dateDisplay, fillColor: rowBg },
-        { text: entry.dayOfWeek ?? "-", fillColor: rowBg },
-        { text: entry.type || "-", fillColor: rowBg },
-        { text: entry.checkIn || "-", fillColor: rowBg },
-        { text: entry.checkOut || "-", fillColor: rowBg },
-        { text: entry.dailyHours || "-", fillColor: rowBg },
-        { text: entry.holidayName || "", fillColor: rowBg },
+        { text: dateDisplay, fillColor: rowBgFinal },
+        { text: entry.dayOfWeek ?? "-", fillColor: rowBgFinal },
+        { text: entry.type || "-", fillColor: rowBgFinal },
+        { text: entry.checkIn || "-", fillColor: rowBgFinal },
+        { text: entry.checkOut || "-", fillColor: rowBgFinal },
+        { text: entry.dailyHours || "-", fillColor: rowBgFinal },
+        { text: isEdited ? "Yes" : "-", fillColor: rowBgFinal },
+        { text: entry.holidayName || "", fillColor: rowBgFinal },
+      ];
+    }),
+  ];
+  const adjustmentsTableBody = [
+    [
+      { text: "Date", bold: true, color: "#FFFFFF", fillColor: "#1E88E5" },
+      { text: "Before", bold: true, color: "#FFFFFF", fillColor: "#1E88E5" },
+      { text: "After", bold: true, color: "#FFFFFF", fillColor: "#1E88E5" },
+      { text: "Edited By", bold: true, color: "#FFFFFF", fillColor: "#1E88E5" },
+      { text: "Edited At", bold: true, color: "#FFFFFF", fillColor: "#1E88E5" },
+      { text: "Note", bold: true, color: "#FFFFFF", fillColor: "#1E88E5" },
+    ],
+    ...(adjustments || []).map((a, idx) => {
+      const stripe = idx % 2 === 0 ? "#F9F9F9" : "#FFFFFF";
+      return [
+        { text: a.logDate, fillColor: stripe },
+        { text: `${a.oldCheckIn || "-"} → ${a.oldCheckOut || "-"}`, fillColor: stripe },
+        { text: `${a.newCheckIn || "-"} → ${a.newCheckOut || "-"}`, fillColor: stripe },
+        { text: a.editedByName || "-", fillColor: stripe },
+        { text: a.editedAt ? String(a.editedAt).replace("T", " ").replace(".000Z", "") : "-", fillColor: stripe },
+        { text: a.note || "-", fillColor: stripe },
       ];
     }),
   ];
@@ -200,7 +225,7 @@ const exportMonthlyReportPDF = async (data) => {
       {
         table: {
           headerRows: 1,
-          widths: ["auto", "auto", "auto", "auto", "auto", "auto", "*"],
+          widths: ["auto", "auto", "auto", "auto", "auto", "auto", "auto", "*"],
           body: detailsTableBody,
         },
         layout: {
@@ -208,6 +233,25 @@ const exportMonthlyReportPDF = async (data) => {
           vLineWidth: function () { return 0.3; },
           hLineColor: function () { return "#CCCCCC"; },
           vLineColor: function () { return "#EEEEEE"; },
+        },
+        margin: [0, 0, 0, 25],
+      },
+      {
+        text: "Attendance Adjustments (Audit Log)",
+        style: "subheader",
+        margin: [0, 0, 0, 6],
+      },
+      {
+        table: {
+          headerRows: 1,
+          widths: ["auto", "auto", "auto", "auto", "auto", "*"],
+          body: adjustmentsTableBody,
+        },
+        layout: {
+          hLineWidth: () => 0.5,
+          vLineWidth: () => 0.3,
+          hLineColor: () => "#CCCCCC",
+          vLineColor: () => "#EEEEEE",
         },
         margin: [0, 0, 0, 25],
       },
