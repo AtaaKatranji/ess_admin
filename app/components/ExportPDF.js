@@ -150,7 +150,7 @@ const exportMonthlyReportPDF = async (data, adjustments) => {
       const typeColor = getRowBackground(entry.type);
       const stripeColor = index % 2 === 0 ? "#F9F9F9" : "#FFFFFF";
       // const rowBg = typeColor || stripeColor; 
-      const isEdited = !!adjustmentsByDate[dateDisplay]?.length;
+      const isEdited = !!adjustments[dateDisplay]?.length;
       const editedOverlay = isEdited ? "#FFF8E6" : null;
       const rowBgFinal = typeColor || editedOverlay || stripeColor;
       return [
