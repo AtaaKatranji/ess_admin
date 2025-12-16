@@ -76,7 +76,7 @@ export default function AttendanceAdjustmentsTab({
 
   // حالياً mock، لاحقاً استبدله بالبيانات القادمة من السيرفر
   const data = React.useMemo(() => {
-    const monthFiltered = MOCK_ADJUSTMENTS.filter((x) => x.logDate.startsWith(selectedMonth.toISOString().split('T')[0]));
+    const monthFiltered = MOCK_ADJUSTMENTS.filter((x) => x.logDate.startsWith(selectedMonth.toISOString().slice(0, 7)));
     if (!query.trim()) return monthFiltered;
 
     const q = query.toLowerCase();
@@ -89,7 +89,7 @@ export default function AttendanceAdjustmentsTab({
       );
     });
   }, [query, selectedMonth]);
-
+  
   return (
     <div className="space-y-4">
       {/* Header tools */}

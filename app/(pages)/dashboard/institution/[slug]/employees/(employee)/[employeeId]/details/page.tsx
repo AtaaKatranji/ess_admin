@@ -108,7 +108,7 @@ const EmployeeDetails = () => {
   const slug = Array.isArray(params.slug) ? params.slug[0] : params.slug;
   //const [institutionKey, setInstitutionKey] = useState<string>("");
   const employeeId = Array.isArray(params.employeeId) ? params.employeeId[0] : params.employeeId as string;
-
+  const isSuperAdmin = true; // TODO: change to false when the super admin feature is implemented
   const fetchAllData = useCallback(async (month: Date) => {
     setIsLoading(true);
     try {
@@ -624,9 +624,12 @@ const employee: Employee = {
                 <TabsTrigger value="absent">Absences</TabsTrigger> */}
                 <TabsTrigger value="hourlyLeaves">Hourly Leaves</TabsTrigger>
                 <TabsTrigger value="dayRecords">Day Records</TabsTrigger>
-                <TabsTrigger value="adjustments">Adjustments Log</TabsTrigger>
-              </TabsList>
+                {isSuperAdmin && (
+                  <TabsTrigger value="adjustments">Adjustments Log</TabsTrigger>
+                )}
+                </TabsList>
               </div>
+              
               <TabsContent value="attendance" className="space-y-4 min-h-0">
                 <AttendanceTab employeeId={employeeId} selectedMonth={selectedMonth} />
               </TabsContent>
