@@ -273,9 +273,11 @@ const employee: Employee = {
               "Content-Type": "application/json",
             },
           });
+        console.log("adjustmentsResponse:", adjustmentsResponse);
         if (!adjustmentsResponse.ok) throw new Error("Failed to fetch adjustments");
         const adjustmentsData = await adjustmentsResponse.json();
         setAdjustments(adjustmentsData.items || []);
+        console.log("adjustmentsData:", adjustmentsData);
         await exportMonthlyReportPDF(data, adjustments);
         toast.info("Monthly report exported as PDF!");
     } catch (error) {
