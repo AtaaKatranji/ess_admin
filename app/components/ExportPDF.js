@@ -42,6 +42,8 @@ const exportMonthlyReportPDF = async (data, adjustments) => {
     acc[key].push(a)
     return acc
   }, {})
+  const hasAdjustments = Array.isArray(adjustmentsArray) && adjustmentsArray.length > 0;
+
 
   const pdfMakeModule = await import("@digicole/pdfmake-rtl/build/pdfmake")
   const pdfFontsModule = await import("@digicole/pdfmake-rtl/build/vfs_fonts")
@@ -300,6 +302,40 @@ const exportMonthlyReportPDF = async (data, adjustments) => {
       ]
     }),
   ]
+  const adjustmentsSection = hasAdjustments
+  ? [
+      {
+        canvas: [
+          { type: "rect", x: 0, y: -2, w: 270, h: 24, r: 4, color: "#FFF3E0" },
+        ],
+      },
+      {
+        text: "⚙️ Attendance Adjustments (Audit Log)",
+        style: "subheader",
+        margin: [8, -25, 0, 0],
+        color: "#E65100",
+        fontSize: 13,
+        bold: true,
+      },
+      {
+        table: {
+          headerRows: 1,
+          widths: ["auto", "auto", "auto", "auto", "auto", "auto", "auto", "*"],
+          body: adjustmentsTableBody,
+        },
+        layout: {
+          hLineWidth: (i) => (i === 1 ? 1.5 : 0.5),
+          vLineWidth: () => 0,
+          hLineColor: (i) => (i === 1 ? "#F57C00" : "#E0E0E0"),
+          paddingLeft: () => 7,
+          paddingRight: () => 7,
+          paddingTop: () => 4,
+          paddingBottom: () => 4,
+        },
+        margin: [0, 12, 0, 32],
+      },
+    ]
+  : [];
 
   const docDefinition = {
     pageMargins: [20, 10, 10, 20],
@@ -385,46 +421,7 @@ const exportMonthlyReportPDF = async (data, adjustments) => {
         margin: [0, 12, 0, 28],
       },
 
-      {
-        canvas: [
-          {
-            type: "rect",
-            x: 0,
-            y: -2,
-            w: 270,
-            h: 24,
-            r: 4,
-            color: "#FFF3E0",
-          },
-        ],
-        margin: [0, 0, 0, 0],
-      },
-      {
-        text: "⚙️ Attendance Adjustments (Audit Log)",
-        style: "subheader",
-        margin: [8, -25, 0, 0],
-        color: "#E65100",
-        fontSize: 13,
-        bold: true,
-      },
-
-      {
-        table: {
-          headerRows: 1,
-          widths: ["auto", "auto", "auto", "auto", "auto", "auto", "auto", "*"],
-          body: adjustmentsTableBody,
-        },
-        layout: {
-          hLineWidth: (i) => (i === 1 ? 1.5 : 0.5),
-          vLineWidth: () => 0,
-          hLineColor: (i) => (i === 1 ? "#F57C00" : "#E0E0E0"),
-          paddingLeft: () => 7,
-          paddingRight: () => 7,
-          paddingTop: () => 4,
-          paddingBottom: () => 4,
-        },
-        margin: [0, 12, 0, 32],
-      },
+      ...adjustmentsSection,
 
       {
         canvas: [
