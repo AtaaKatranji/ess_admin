@@ -152,12 +152,12 @@ const exportMonthlyReportPDF = async (data, adjustments) => {
       //   fontSize: 11,
       //   margin: [0, 4, 0, 4],
       // },
-      [
+      
         { text: "Metric", bold: true, color: "#FFFFFF", fillColor: "#1565C0", fontSize: 11, margin: [0, 4, 0, 4] },
         { text: "Value",  bold: true, color: "#FFFFFF", fillColor: "#1565C0", fontSize: 11, margin: [0, 4, 0, 4] },
         { text: "Metric", bold: true, color: "#FFFFFF", fillColor: "#1565C0", fontSize: 11, margin: [0, 4, 0, 4] },
         { text: "Value",  bold: true, color: "#FFFFFF", fillColor: "#1565C0", fontSize: 11, margin: [0, 4, 0, 4] },
-      ],
+      
     ],
 
     ...summaryRows
