@@ -64,27 +64,23 @@ const exportMonthlyReportPDF = async (data, adjustments) => {
   }
 
 
+  const cairoFont = {
+    normal: "Cairo-Regular.ttf",
+    bold: "Cairo-Bold.ttf",
+    italics: "Cairo-Regular.ttf",
+    bolditalics: "Cairo-Bold.ttf",
+  }
+
   pdfMake.fonts = {
-    Cairo: {
-      normal: "Cairo-Regular.ttf",
-      bold: "Cairo-Bold.ttf",
-      italics: "Cairo-Regular.ttf",
-      bolditalics: "Cairo-Bold.ttf",
-    },
-    // fallback so any content using "Roboto" resolves to our Cairo files
-    Roboto: {
-      normal: "Cairo-Regular.ttf",
-      bold: "Cairo-Bold.ttf",
-      italics: "Cairo-Regular.ttf",
-      bolditalics: "Cairo-Bold.ttf",
-    },
-    // alias any other unexpected fonts to Cairo to avoid runtime errors
-    Nilima: {
-      normal: "Cairo-Regular.ttf",
-      bold: "Cairo-Bold.ttf",
-      italics: "Cairo-Regular.ttf",
-      bolditalics: "Cairo-Bold.ttf",
-    },
+    Cairo: cairoFont,
+    // alias common font names to Cairo to avoid “font … not defined”
+    Roboto: cairoFont,
+    Nilima: cairoFont,
+    Nillima: cairoFont,
+    Helvetica: cairoFont,
+    Arial: cairoFont,
+    Times: cairoFont,
+    Courier: cairoFont,
   }
 
   const { summary, details } = data
