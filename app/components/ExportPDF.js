@@ -54,11 +54,11 @@ const exportMonthlyReportPDF = async (data, adjustments) => {
   }
 
   pdfMake.fonts = {
-    Nillima: {
-      normal: "Nillima.ttf",
-      bold: "Nillima.ttf",
-      italics: "Nillima.ttf",
-      bolditalics: "Nillima.ttf",
+    Cairo: {
+      normal: "Cairo-Regular.ttf",
+      bold: "Cairo-Bold.ttf",
+      italics: "Cairo-Regular.ttf",
+      bolditalics: "Cairo-Bold.ttf",
     },
     Roboto: {
       normal: "Roboto-Regular.ttf",
@@ -274,9 +274,9 @@ const exportMonthlyReportPDF = async (data, adjustments) => {
             x: 0,
             y: 0,
             w: 515,
-            h: 58,
+            h: 38,
             r: 8,
-            color: "#0D47A1",
+            color: "#061F44FF",
           },
           {
             type: "rect",
@@ -285,7 +285,7 @@ const exportMonthlyReportPDF = async (data, adjustments) => {
             w: 515,
             h: 8,
             r: 2,
-            color: "#1565C0",
+            color: "#1565C0B6FF",
           },
         ],
         absolutePosition: { x: 40, y: 40 },
@@ -294,7 +294,7 @@ const exportMonthlyReportPDF = async (data, adjustments) => {
         text: `📋 ${summary.monthName} Attendance Report`,
         style: "header",
         alignment: "center",
-        margin: [0, 16, 0, 4],
+        margin: [0, 8, 0, 4],
         color: "#FFFFFF",
         fontSize: 17,
         bold: true,
@@ -315,7 +315,7 @@ const exportMonthlyReportPDF = async (data, adjustments) => {
             x: 0,
             y: -2,
             w: 200,
-            h: 24,
+            h: 16,
             r: 4,
             color: "#E3F2FD",
           },
@@ -586,7 +586,7 @@ const exportMonthlyReportPDF = async (data, adjustments) => {
       },
     },
     defaultStyle: {
-      font: "Nillima",
+      font: "Cairo",
     },
   }
 
