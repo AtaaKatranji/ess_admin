@@ -282,60 +282,73 @@ const exportMonthlyReportPDF = async (data, adjustments) => {
   const docDefinition = {
     pageMargins: [40, 60, 40, 60],
     content: [
+      // {
+      //   canvas: [
+      //     {
+      //       type: "rect",
+      //       x: 0,
+      //       y: 0,
+      //       w: 515,
+      //       h: 38,
+      //       r: 8,
+      //       color: "#061F44FF",
+      //     },
+      //     {
+      //       type: "rect",
+      //       x: 0,
+      //       y: 50,
+      //       w: 515,
+      //       h: 8,
+      //       r: 2,
+      //       color: "#1565C0B6FF",
+      //     },
+      //   ],
+      //   absolutePosition: { x: 40, y: 40 },
+      // },
+      // {
+      //   text: `📋 ${summary.monthName} Attendance Report`,
+      //   style: "header",
+      //   alignment: "center",
+      //   margin: [0, 8, 0, 4],
+      //   color: "#FFFFFF",
+      //   fontSize: 17,
+      //   bold: true,
+      // },
+      // {
+      //   text: [
+      //     { text: "Employee: ", color: "#B3E5FC", fontSize: 10 },
+      //     { text: summary.employeeName, bold: true, color: "#FFFFFF", fontSize: 12 },
+      //   ],
+      //   alignment: "center",
+      //   margin: [0, 0, 0, 28],
+      // },
+
+      // {
+      //   canvas: [
+      //     {
+      //       type: "rect",
+      //       x: 0,
+      //       y: -2,
+      //       w: 200,
+      //       h: 16,
+      //       r: 4,
+      //       color: "#E3F2FD",
+      //     },
+      //   ],
+      //   absolutePosition: { x: 40, y: 133 },
+      // },
       {
-        canvas: [
-          {
-            type: "rect",
-            x: 0,
-            y: 0,
-            w: 515,
-            h: 38,
-            r: 8,
-            color: "#061F44FF",
-          },
-          {
-            type: "rect",
-            x: 0,
-            y: 50,
-            w: 515,
-            h: 8,
-            r: 2,
-            color: "#1565C0B6FF",
-          },
-        ],
-        absolutePosition: { x: 40, y: 40 },
-      },
-      {
-        text: `📋 ${summary.monthName} Attendance Report`,
+        text: `${summary.monthName} Attendance Report`,
         style: "header",
         alignment: "center",
-        margin: [0, 8, 0, 4],
-        color: "#FFFFFF",
-        fontSize: 17,
-        bold: true,
+        margin: [0, 0, 0, 10],
       },
       {
         text: [
-          { text: "Employee: ", color: "#B3E5FC", fontSize: 10 },
-          { text: summary.employeeName, bold: true, color: "#FFFFFF", fontSize: 12 },
+          { text: "Employee: ", bold: false },
+          { text: summary.employeeName, bold: true },
         ],
-        alignment: "center",
-        margin: [0, 0, 0, 28],
-      },
-
-      {
-        canvas: [
-          {
-            type: "rect",
-            x: 0,
-            y: -2,
-            w: 200,
-            h: 16,
-            r: 4,
-            color: "#E3F2FD",
-          },
-        ],
-        absolutePosition: { x: 40, y: 133 },
+        margin: [0, 0, 0, 15],
       },
       {
         text: "📊 Performance Summary",
