@@ -111,19 +111,35 @@ const exportMonthlyReportPDF = async (data, adjustments) => {
   const bonusHours = Number(summary.extraAdjustmentHours || 0)
   const baseTotal = Number(summary.totalHoursAttendance || 0)
   const grandTotalWithBonus = (baseTotal + bonusHours).toFixed(2)
+
+  const totalHoursRow = [
+    { text: `⏰ Total Hours`, fillColor: "#FFFFFF" }, // col 1
+    { text: "", fillColor: "#FFFFFF", border: [false, false, false, false] }, // col 2
+    { text: "", fillColor: "#FFFFFF", border: [false, false, false, false] }, // col 3
+    { text: String(summary.totalHours), fillColor: "#FFFFFF", alignment: "right" }, // col 4
+  ];
+  const bonusHoursRow =
+  Number(summary.extraAdjustmentHours) > 0
+    ? [
+        { text: `🎁 Bonus Hours (Manager Reward)`, fillColor: "#FFF8DC", italics: true },
+        { text: "", fillColor: "#FFF8DC", border: [false, false, false, false] },
+        { text: "", fillColor: "#FFF8DC", border: [false, false, false, false] },
+        { text: `+${summary.extraAdjustmentHours}`, fillColor: "#FFF8DC", alignment: "right", bold: true, color: "#F57C00" },
+      ]
+    : null;
+  
   const groupedSummaryPairs = [
-    
     [
       { label: "Late Hours", value: summary.lateHours, icon: "⏱️" },
-    { label: "Early Leave Hours", value: summary.earlyLeaveHours, icon: "🚪" },
+      { label: "Early Leave Hours", value: summary.earlyLeaveHours, icon: "🚪" },
     ],
     [
       { label: "Early Arrival Hours", value: summary.earlyArrivalHours, icon: "🌅" },
-    { label: "Extra Attendance Hours", value: summary.extraAttendanceHours, icon: "⭐" },
+      { label: "Extra Attendance Hours", value: summary.extraAttendanceHours, icon: "⭐" },
     ],
     [
       { label: "Total Days Attendanced", value: summary.totalDays, icon: "📅" },
-    { label: "Total Days Absents", value: summary.totalAbsents, icon: "❌" },
+      { label: "Total Days Absents", value: summary.totalAbsents, icon: "❌" },
     ],
     [
       { label: "Total Days Holidays", value: summary.totalHolidays, icon: "🎉" },
@@ -134,65 +150,54 @@ const exportMonthlyReportPDF = async (data, adjustments) => {
       { label: "Paid Leave Hours", value: `+${summary.totalPaidLeaveHours}`, icon: "✅" },
     ],
   ];
+  
   const summaryTableBody = [
+    // Header (4 خلايا)
     [
-      // {
-      //   text: "Metric",
-      //   bold: true,
-      //   color: "#FFFFFF",
-      //   fillColor: "#1565C0", // أزرق غامق احترافي
-      //   fontSize: 11,
-      //   margin: [0, 4, 0, 4],
-      // },
-      // {
-      //   text: "Value",
-      //   bold: true,
-      //   color: "#FFFFFF",
-      //   fillColor: "#1565C0",
-      //   fontSize: 11,
-      //   margin: [0, 4, 0, 4],
-      // },
-      
-        { text: "Metric", bold: true, color: "#FFFFFF", fillColor: "#1565C0", fontSize: 11, margin: [0, 4, 0, 4] },
-        { text: "Value",  bold: true, color: "#FFFFFF", fillColor: "#1565C0", fontSize: 11, margin: [0, 4, 0, 4] },
-        { text: "Metric", bold: true, color: "#FFFFFF", fillColor: "#1565C0", fontSize: 11, margin: [0, 4, 0, 4] },
-        { text: "Value",  bold: true, color: "#FFFFFF", fillColor: "#1565C0", fontSize: 11, margin: [0, 4, 0, 4] },
-      
+      { text: "Metric", bold: true, color: "#FFF", fillColor: "#1565C0" },
+      { text: "Value",  bold: true, color: "#FFF", fillColor: "#1565C0", alignment: "right" },
+      { text: "Metric", bold: true, color: "#FFF", fillColor: "#1565C0" },
+      { text: "Value",  bold: true, color: "#FFF", fillColor: "#1565C0", alignment: "right" },
     ],
-
-    ...summaryRows
-    .filter(r => !["Total Days Holidays","Total Hours Holidays","Paid Leaves","Paid Leave Hours","Total Days Absents","Total Days Attendanced","Early Arrival Hours","Early Leave Hours","Late Hours","Extra Attendance Hours"].includes(r.label))
-    .map((row, index) => {
-      const isEven = index % 2 === 0
-      const baseFillColor = isEven ? "#FAFAFA" : "#FFFFFF"
-      const fillColor = row.isBonus ? "#FFF8DC" : baseFillColor
-
-      return [
-        { text: `${row.icon || ""} ${row.label}`, fillColor, fontSize: 10, margin: [2, 3, 2, 3], color: "#424242" },
-        { text: String(row.value), fillColor, fontSize: 10, margin: [2, 3, 2, 3], alignment: "right", color: row.isBonus ? "#F57C00" : "#212121", bold: !!row.isBonus },
-        { text: "", fillColor, border: [false, false, false, false] },
-        { text: "", fillColor, border: [false, false, false, false] },
-      ];
-    }),
-
+  
+    // Total Hours (صف مفرد: العمود 1 و2 فقط)
+    totalHoursRow,
+  
+    // باقي الأزواج
     ...groupedSummaryPairs.map((pair, idx) => {
       const stripe = idx % 2 === 0 ? "#FFFFFF" : "#FAFAFA";
       const [a, b] = pair;
   
       return [
-        { text: `${a.icon} ${a.label}`, fillColor: stripe, fontSize: 10, margin: [2, 3, 2, 3], color: "#424242" },
-        { text: String(a.value), fillColor: stripe, fontSize: 10, margin: [2, 3, 2, 3], alignment: "right", color: "#212121" },
-        { text: `${b.icon} ${b.label}`, fillColor: stripe, fontSize: 10, margin: [2, 3, 2, 3], color: "#424242" },
-        { text: String(b.value), fillColor: stripe, fontSize: 10, margin: [2, 3, 2, 3], alignment: "right", color: "#212121" },
+        { text: `${a.icon} ${a.label}`, fillColor: stripe },
+        { text: String(a.value), fillColor: stripe, alignment: "right" },
+        { text: `${b.icon} ${b.label}`, fillColor: stripe },
+        { text: String(b.value), fillColor: stripe, alignment: "right" },
       ];
     }),
   
-    // Grand total لازم يصير بعرض 4 أعمدة (colSpan)
+    // Bonus Hours (قبل Grand Total مباشرة) — صف مفرد
+    ...(bonusHoursRow ? [bonusHoursRow] : []),
+    
+  
+    // Grand total
     [
-      { text: "📊 Grand Total Hours (Including Paid Leaves & Holidays & Bonus)", colSpan: 3, bold: true, fillColor: "#E3F2FD", fontSize: 10.5, margin: [2, 5, 2, 5], color: "#0D47A1" },
+      {
+        text: "📊 Grand Total Hours (Including Paid Leaves & Holidays & Bonus)",
+        colSpan: 3,
+        bold: true,
+        fillColor: "#E3F2FD",
+        color: "#0D47A1",
+      },
       {},
       {},
-      { text: grandTotalWithBonus, bold: true, fillColor: "#E3F2FD", fontSize: 11, margin: [2, 5, 2, 5], alignment: "right", color: "#0D47A1" },
+      {
+        text: grandTotalWithBonus,
+        bold: true,
+        fillColor: "#E3F2FD",
+        alignment: "right",
+        color: "#0D47A1",
+      },
     ],
   ];
 
