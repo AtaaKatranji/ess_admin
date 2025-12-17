@@ -71,6 +71,13 @@ const exportMonthlyReportPDF = async (data, adjustments) => {
       italics: "Cairo-Regular.ttf",
       bolditalics: "Cairo-Bold.ttf",
     },
+    // fallback so any content using "Roboto" resolves to our Cairo files
+    Roboto: {
+      normal: "Cairo-Regular.ttf",
+      bold: "Cairo-Bold.ttf",
+      italics: "Cairo-Regular.ttf",
+      bolditalics: "Cairo-Bold.ttf",
+    },
   }
 
   const { summary, details } = data
