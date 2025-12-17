@@ -1,11 +1,5 @@
 // components/export-monthly-report-pdf.tsx
 import { vfsCairo } from "../../src/pdfmake/vfs_cairo";
-pdfMake.vfs = pdfFonts.pdfMake.vfs
-pdfMake.vfs = {
-  ...(pdfFonts.pdfMake?.vfs || {}),
-  ...vfsCairo,
-};
-
 const getRowBackground = (type) => {
   switch (type) {
     case "Offical Holiday":
@@ -58,6 +52,12 @@ const exportMonthlyReportPDF = async (data, adjustments) => {
   if (pdfFonts.pdfMake && pdfFonts.pdfMake.vfs) {
     pdfMake.vfs = pdfFonts.pdfMake.vfs
   }
+
+  // merge bundled fonts with our custom Cairo VFS
+  pdfMake.vfs = {
+    ...(pdfMake.vfs || {}),
+    ...vfsCairo,
+  };
 
   pdfMake.fonts = {
     Cairo: {
