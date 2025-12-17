@@ -71,12 +71,6 @@ const exportMonthlyReportPDF = async (data, adjustments) => {
       italics: "Cairo-Regular.ttf",
       bolditalics: "Cairo-Bold.ttf",
     },
-    Roboto: {
-      normal: "Roboto-Regular.ttf",
-      bold: "Roboto-Regular.ttf",
-      italics: "Roboto-Italic.ttf",
-      bolditalics: "Roboto-MediumItalic.ttf",
-    },
   }
 
   const { summary, details } = data
