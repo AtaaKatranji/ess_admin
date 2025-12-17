@@ -53,11 +53,16 @@ const exportMonthlyReportPDF = async (data, adjustments) => {
     pdfMake.vfs = pdfFonts.pdfMake.vfs
   }
 
-  // merge bundled fonts with our custom Cairo VFS
-  pdfMake.vfs = {
-    ...(pdfMake.vfs || {}),
-    ...vfsCairo,
-  };
+  // ensure custom Cairo fonts are registered in the internal VFS
+  if (typeof pdfMake.addVirtualFileSystem === "function") {
+    pdfMake.addVirtualFileSystem(vfsCairo)
+  } else {
+    pdfMake.vfs = {
+      ...(pdfMake.vfs || {}),
+      ...vfsCairo,
+    }
+  }
+
 
   pdfMake.fonts = {
     Cairo: {
