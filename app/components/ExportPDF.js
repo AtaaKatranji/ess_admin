@@ -115,18 +115,18 @@ const exportMonthlyReportPDF = async (data, adjustments) => {
   const grandTotalWithBonus = (baseTotal + bonusHours).toFixed(2)
 
   const totalHoursRow = [
-    { text: `⏰ Total Hours`, fillColor: "#FFFFFF", fontSize: 9 }, // col 1
+    { text: `⏰ Total Hours`, fillColor: "#FFFFFF", fontSize: 10 }, // col 1
     { text: "", fillColor: "#FFFFFF", border: [false, false, false, false] }, // col 2
     { text: "", fillColor: "#FFFFFF", border: [false, false, false, false] }, // col 3
-    { text: String(summary.totalHours), fillColor: "#FFFFFF", fontSize: 10 , alignment: "right" }, // col 4
+    { text: String(summary.totalHours), fillColor: "#FFFFFF", fontSize: 11 , alignment: "right" }, // col 4
   ];
   const bonusHoursRow =
   Number(summary.extraAdjustmentHours) > 0
     ? [
-        { text: `🎁 Bonus Hours (Manager Reward)`, fillColor: "#FFF8DC", },
+        { text: `🎁 Bonus Hours (Manager Reward)`, fillColor: "#FFF8DC",fontSize: 10 },
         { text: "", fillColor: "#FFF8DC", border: [false, false, false, false] },
         { text: "", fillColor: "#FFF8DC", border: [false, false, false, false] },
-        { text: `+${summary.extraAdjustmentHours}`, fillColor: "#FFF8DC", alignment: "right", bold: true, color: "#F57C00" },
+        { text: `+${summary.extraAdjustmentHours}`, fillColor: "#FFF8DC",fontSize: 11, alignment: "right", bold: true, color: "#F57C00" },
       ]
     : null;
   
@@ -171,10 +171,10 @@ const exportMonthlyReportPDF = async (data, adjustments) => {
       const [a, b] = pair;
   
       return [
-        { text: `${a.icon} ${a.label}`, fillColor: stripe, fontSize: 9  },
-        { text: String(a.value), fillColor: stripe, fontSize: 9 , alignment: "right" },
-        { text: `${b.icon} ${b.label}`, fillColor: stripe ,fontSize: 9  },
-        { text: String(b.value), fillColor: stripe,fontSize: 9 , alignment: "right" },
+        { text: `${a.icon} ${a.label}`, fillColor: stripe, fontSize: 10  },
+        { text: String(a.value), fillColor: stripe, fontSize: 10 , alignment: "right" },
+        { text: `${b.icon} ${b.label}`, fillColor: stripe ,fontSize: 10  },
+        { text: String(b.value), fillColor: stripe,fontSize: 10 , alignment: "right" },
       ];
     }),
   
