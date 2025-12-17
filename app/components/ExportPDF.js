@@ -21,7 +21,7 @@ const editedMarker = (isEdited) => {
   if (!isEdited) return { text: "-", alignment: "center", color: "#9E9E9E" }
 
   return {
-    text: "⚠",
+    text: "!!",
     color: "#F57C00", // برتقالي أكثر وضوح
     bold: true,
     fontSize: 11,
@@ -208,21 +208,21 @@ const exportMonthlyReportPDF = async (data, adjustments) => {
       const rowBgFinal = typeColor || editedOverlay || stripeColor
 
       return [
-        { text: dateDisplay, fillColor: rowBgFinal, fontSize: 9, margin: [1, 2, 1, 2], color: "#424242" },
-        { text: entry.dayOfWeek ?? "-", fillColor: rowBgFinal, fontSize: 9, margin: [1, 2, 1, 2], color: "#424242" },
-        { text: entry.type || "-", fillColor: rowBgFinal, fontSize: 9, margin: [1, 2, 1, 2], color: "#424242" },
-        { text: entry.checkIn || "-", fillColor: rowBgFinal, fontSize: 9, margin: [1, 2, 1, 2], color: "#424242" },
-        { text: entry.checkOut || "-", fillColor: rowBgFinal, fontSize: 9, margin: [1, 2, 1, 2], color: "#424242" },
+        { text: dateDisplay, fillColor: rowBgFinal, fontSize: 9, margin: [1, 1, 1, 1], color: "#424242" },
+        { text: entry.dayOfWeek ?? "-", fillColor: rowBgFinal, fontSize: 9, margin: [1, 1, 1, 1], color: "#424242" },
+        { text: entry.type || "-", fillColor: rowBgFinal, fontSize: 9, margin: [1, 1, 1, 1], color: "#424242" },
+        { text: entry.checkIn || "-", fillColor: rowBgFinal, fontSize: 10, margin: [1, 1, 1, 1], color: "#424242" },
+        { text: entry.checkOut || "-", fillColor: rowBgFinal, fontSize: 10, margin: [1, 1, 1, 1], color: "#424242" },
         {
           text: entry.dailyHours || "-",
           fillColor: rowBgFinal,
-          fontSize: 9,
-          margin: [1, 2, 1, 2],
+          fontSize: 10,
+          margin: [1, 1, 1, 1],
           color: "#212121",
           bold: !!entry.dailyHours,
         },
-        { ...editedMarker(isEdited), fillColor: rowBgFinal, margin: [1, 2, 1, 2] },
-        { text: entry.holidayName || "", fillColor: rowBgFinal, fontSize: 8, margin: [1, 2, 1, 2], color: "#616161" },
+        { ...editedMarker(isEdited), fillColor: rowBgFinal, margin: [1, 1, 1, 1] },
+        { text: entry.holidayName || "", fillColor: rowBgFinal, fontSize: 8, margin: [1, 1, 1, 1], color: "#616161" },
       ]
     }),
   ]
@@ -244,7 +244,7 @@ const exportMonthlyReportPDF = async (data, adjustments) => {
       { text: "Old Out", bold: true, color: "#FFFFFF", fillColor: "#1565C0", fontSize: 9, margin: [1, 3, 1, 3] },
       { text: "New In", bold: true, color: "#FFFFFF", fillColor: "#1565C0", fontSize: 9, margin: [1, 3, 1, 3] },
       { text: "New Out", bold: true, color: "#FFFFFF", fillColor: "#1565C0", fontSize: 9, margin: [1, 3, 1, 3] },
-      { text: "Edited By", bold: true, color: "#FFFFFF", fillColor: "#1565C0", fontSize: 9, margin: [1, 3, 1, 3] },
+      { text: "By", bold: true, color: "#FFFFFF", fillColor: "#1565C0", fontSize: 9, margin: [1, 3, 1, 3] },
       { text: "Edited At", bold: true, color: "#FFFFFF", fillColor: "#1565C0", fontSize: 9, margin: [1, 3, 1, 3] },
       { text: "Note", bold: true, color: "#FFFFFF", fillColor: "#1565C0", fontSize: 9, margin: [1, 3, 1, 3] },
     ],
@@ -282,61 +282,7 @@ const exportMonthlyReportPDF = async (data, adjustments) => {
   const docDefinition = {
     pageMargins: [40, 60, 40, 60],
     content: [
-      // {
-      //   canvas: [
-      //     {
-      //       type: "rect",
-      //       x: 0,
-      //       y: 0,
-      //       w: 515,
-      //       h: 38,
-      //       r: 8,
-      //       color: "#061F44FF",
-      //     },
-      //     {
-      //       type: "rect",
-      //       x: 0,
-      //       y: 50,
-      //       w: 515,
-      //       h: 8,
-      //       r: 2,
-      //       color: "#1565C0B6FF",
-      //     },
-      //   ],
-      //   absolutePosition: { x: 40, y: 40 },
-      // },
-      // {
-      //   text: `📋 ${summary.monthName} Attendance Report`,
-      //   style: "header",
-      //   alignment: "center",
-      //   margin: [0, 8, 0, 4],
-      //   color: "#FFFFFF",
-      //   fontSize: 17,
-      //   bold: true,
-      // },
-      // {
-      //   text: [
-      //     { text: "Employee: ", color: "#B3E5FC", fontSize: 10 },
-      //     { text: summary.employeeName, bold: true, color: "#FFFFFF", fontSize: 12 },
-      //   ],
-      //   alignment: "center",
-      //   margin: [0, 0, 0, 28],
-      // },
-
-      // {
-      //   canvas: [
-      //     {
-      //       type: "rect",
-      //       x: 0,
-      //       y: -2,
-      //       w: 200,
-      //       h: 16,
-      //       r: 4,
-      //       color: "#E3F2FD",
-      //     },
-      //   ],
-      //   absolutePosition: { x: 40, y: 133 },
-      // },
+      
       {
         text: `${summary.monthName} Attendance Report`,
         style: "header",
@@ -348,12 +294,12 @@ const exportMonthlyReportPDF = async (data, adjustments) => {
           { text: "Employee: ", bold: false },
           { text: summary.employeeName, bold: true },
         ],
-        margin: [0, 0, 0, 15],
+        margin: [0, 0, 0, 10],
       },
       {
         text: "📊 Performance Summary",
         style: "subheader",
-        margin: [8, 0, 0, 0],
+        margin: [0, 0, 0, 0],
         color: "#0D47A1",
         fontSize: 13,
         bold: true,
@@ -370,8 +316,8 @@ const exportMonthlyReportPDF = async (data, adjustments) => {
           hLineColor: () => "#BDBDBD",
           paddingLeft: () => 10,
           paddingRight: () => 10,
-          paddingTop: () => 5,
-          paddingBottom: () => 5,
+          paddingTop: () => 0,
+          paddingBottom: () => 0,
         },
         margin: [0, 12, 0, 28],
       },
@@ -393,7 +339,7 @@ const exportMonthlyReportPDF = async (data, adjustments) => {
       {
         text: "📅 Daily Attendance Details",
         style: "subheader",
-        margin: [8, -20, 0, 0],
+        margin: [8, 0, 0, 0],
         color: "#0D47A1",
         fontSize: 13,
         bold: true,
@@ -411,8 +357,8 @@ const exportMonthlyReportPDF = async (data, adjustments) => {
           hLineColor: (i) => (i === 1 ? "#1565C0" : "#E0E0E0"),
           paddingLeft: () => 7,
           paddingRight: () => 7,
-          paddingTop: () => 4,
-          paddingBottom: () => 4,
+          paddingTop: () => 2,
+          paddingBottom: () => 2,
         },
         margin: [0, 12, 0, 28],
       },
@@ -434,7 +380,7 @@ const exportMonthlyReportPDF = async (data, adjustments) => {
       {
         text: "⚙️ Attendance Adjustments (Audit Log)",
         style: "subheader",
-        margin: [8, -20, 0, 0],
+        margin: [8, 0, 0, 0],
         color: "#E65100",
         fontSize: 13,
         bold: true,
