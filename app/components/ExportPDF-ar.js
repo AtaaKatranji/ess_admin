@@ -138,6 +138,26 @@ const exportMonthlyReportPDF_AR = async (data, adjustments) => {
       { label: "ساعات الإجازات المدفوعة", value: `+${summary.totalPaidLeaveHours}`, icon: "✅" },
     ],
   ]
+// بدل صف Grand total الحالي (الذي فيه colSpan)
+const grandTotalRow = [
+  {
+    text: "📊 Grand Total Hours (Including Paid Leaves & Holidays & Bonus)",
+    fillColor: "#E3F2FD",
+    color: "#0D47A1",
+    bold: true,
+    fontSize: 10,
+  },
+  { text: "", fillColor: "#E3F2FD" },
+  { text: "", fillColor: "#E3F2FD" },
+  {
+    text: grandTotalWithBonus,
+    fillColor: "#E3F2FD",
+    color: "#0D47A1",
+    bold: true,
+    alignment: "right",
+    fontSize: 11,
+  },
+]
 
   const summaryTableBody = [
     // Header
@@ -168,24 +188,7 @@ const exportMonthlyReportPDF_AR = async (data, adjustments) => {
     ...(bonusHoursRow ? [bonusHoursRow] : []),
 
     // Grand total
-    [
-      {
-        text: "📊 الإجمالي النهائي للساعات (يشمل العطل + الإجازات + المكافأة)",
-        colSpan: 3,
-        bold: true,
-        fillColor: "#E3F2FD",
-        color: "#0D47A1",
-      },
-      {},
-      {},
-      {
-        text: grandTotalWithBonus,
-        bold: true,
-        fillColor: "#E3F2FD",
-        alignment: "right",
-        color: "#0D47A1",
-      },
-    ],
+    grandTotalRow,
   ]
 
   const detailsTableBody = [
