@@ -78,6 +78,13 @@ const exportMonthlyReportPDF = async (data, adjustments) => {
       italics: "Cairo-Regular.ttf",
       bolditalics: "Cairo-Bold.ttf",
     },
+    // alias any other unexpected fonts to Cairo to avoid runtime errors
+    Nilima: {
+      normal: "Cairo-Regular.ttf",
+      bold: "Cairo-Bold.ttf",
+      italics: "Cairo-Regular.ttf",
+      bolditalics: "Cairo-Bold.ttf",
+    },
   }
 
   const { summary, details } = data
