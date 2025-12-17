@@ -99,7 +99,7 @@ const EmployeeDetails = () => {
     shift: null as ShiftType | null,
     
   });
-  const [adjustments, setAdjustments] = useState([]);
+  
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingPdf, setIsLoadingPdf] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -273,12 +273,10 @@ const employee: Employee = {
               "Content-Type": "application/json",
             },
           });
-        console.log("adjustmentsResponse:", adjustmentsResponse);
+        
         if (!adjustmentsResponse.ok) throw new Error("Failed to fetch adjustments");
         const adjustmentsData = await adjustmentsResponse.json();
-        setAdjustments(adjustmentsData.items || []);
-        console.log("adjustmentsData:", adjustmentsData);
-        await exportMonthlyReportPDF(data, adjustments);
+        await exportMonthlyReportPDF(data, adjustmentsData);
         toast.info("Monthly report exported as PDF!");
     } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
