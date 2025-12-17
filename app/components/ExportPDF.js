@@ -111,7 +111,29 @@ const exportMonthlyReportPDF = async (data, adjustments) => {
   const bonusHours = Number(summary.extraAdjustmentHours || 0)
   const baseTotal = Number(summary.totalHoursAttendance || 0)
   const grandTotalWithBonus = (baseTotal + bonusHours).toFixed(2)
-
+  const groupedSummaryPairs = [
+    
+    [
+      { label: "Late Hours", value: summary.lateHours, icon: "⏱️" },
+    { label: "Early Leave Hours", value: summary.earlyLeaveHours, icon: "🚪" },
+    ],
+    [
+      { label: "Early Arrival Hours", value: summary.earlyArrivalHours, icon: "🌅" },
+    { label: "Extra Attendance Hours", value: summary.extraAttendanceHours, icon: "⭐" },
+    ],
+    [
+      { label: "Total Days Attendanced", value: summary.totalDays, icon: "📅" },
+    { label: "Total Days Absents", value: summary.totalAbsents, icon: "❌" },
+    ],
+    [
+      { label: "Total Days Holidays", value: summary.totalHolidays, icon: "🎉" },
+      { label: "Total Hours Holidays", value: `+${summary.totalHolidayHours}`, icon: "🎊" },
+    ],
+    [
+      { label: "Paid Leaves", value: summary.totalLeaves, icon: "🏖️" },
+      { label: "Paid Leave Hours", value: `+${summary.totalPaidLeaveHours}`, icon: "✅" },
+    ],
+  ];
   const summaryTableBody = [
     [
       {
@@ -130,54 +152,49 @@ const exportMonthlyReportPDF = async (data, adjustments) => {
         fontSize: 11,
         margin: [0, 4, 0, 4],
       },
+      [
+        { text: "Metric", bold: true, color: "#FFFFFF", fillColor: "#1565C0", fontSize: 11, margin: [0, 4, 0, 4] },
+        { text: "Value",  bold: true, color: "#FFFFFF", fillColor: "#1565C0", fontSize: 11, margin: [0, 4, 0, 4] },
+        { text: "Metric", bold: true, color: "#FFFFFF", fillColor: "#1565C0", fontSize: 11, margin: [0, 4, 0, 4] },
+        { text: "Value",  bold: true, color: "#FFFFFF", fillColor: "#1565C0", fontSize: 11, margin: [0, 4, 0, 4] },
+      ],
     ],
 
-    ...summaryRows.map((row, index) => {
+    ...summaryRows
+    .filter(r => !["Total Days Holidays","Total Hours Holidays","Paid Leaves","Paid Leave Hours","Total Days Absents","Total Days Attendanced","Early Arrival Hours","Early Leave Hours","Late Hours","Extra Attendance Hours"].includes(r.label))
+    .map((row, index) => {
       const isEven = index % 2 === 0
       const baseFillColor = isEven ? "#FAFAFA" : "#FFFFFF"
       const fillColor = row.isBonus ? "#FFF8DC" : baseFillColor
 
       return [
-        {
-          text: `${row.icon || ""} ${row.label}`, // إضافة الأيقونات
-          italics: !!row.isBonus,
-          fillColor,
-          fontSize: 10,
-          margin: [2, 3, 2, 3],
-          color: "#424242",
-        },
-        {
-          text: String(row.value),
-          bold: !!row.isBonus,
-          fillColor,
-          fontSize: 10,
-          margin: [2, 3, 2, 3],
-          alignment: "right",
-          color: row.isBonus ? "#F57C00" : "#212121",
-        },
-      ]
+        { text: `${row.icon || ""} ${row.label}`, fillColor, fontSize: 10, margin: [2, 3, 2, 3], color: "#424242" },
+        { text: String(row.value), fillColor, fontSize: 10, margin: [2, 3, 2, 3], alignment: "right", color: row.isBonus ? "#F57C00" : "#212121", bold: !!row.isBonus },
+        { text: "", fillColor, border: [false, false, false, false] },
+        { text: "", fillColor, border: [false, false, false, false] },
+      ];
     }),
 
+    ...groupedSummaryPairs.map((pair, idx) => {
+      const stripe = idx % 2 === 0 ? "#FFFFFF" : "#FAFAFA";
+      const [a, b] = pair;
+  
+      return [
+        { text: `${a.icon} ${a.label}`, fillColor: stripe, fontSize: 10, margin: [2, 3, 2, 3], color: "#424242" },
+        { text: String(a.value), fillColor: stripe, fontSize: 10, margin: [2, 3, 2, 3], alignment: "right", color: "#212121" },
+        { text: `${b.icon} ${b.label}`, fillColor: stripe, fontSize: 10, margin: [2, 3, 2, 3], color: "#424242" },
+        { text: String(b.value), fillColor: stripe, fontSize: 10, margin: [2, 3, 2, 3], alignment: "right", color: "#212121" },
+      ];
+    }),
+  
+    // Grand total لازم يصير بعرض 4 أعمدة (colSpan)
     [
-      {
-        text: "📊 Grand Total Hours (Including Paid Leaves & Holidays & Bonus)",
-        bold: true,
-        fillColor: "#E3F2FD",
-        fontSize: 10.5,
-        margin: [2, 5, 2, 5],
-        color: "#0D47A1",
-      },
-      {
-        text: grandTotalWithBonus,
-        bold: true,
-        fillColor: "#E3F2FD",
-        fontSize: 11,
-        margin: [2, 5, 2, 5],
-        alignment: "right",
-        color: "#0D47A1",
-      },
+      { text: "📊 Grand Total Hours (Including Paid Leaves & Holidays & Bonus)", colSpan: 3, bold: true, fillColor: "#E3F2FD", fontSize: 10.5, margin: [2, 5, 2, 5], color: "#0D47A1" },
+      {},
+      {},
+      { text: grandTotalWithBonus, bold: true, fillColor: "#E3F2FD", fontSize: 11, margin: [2, 5, 2, 5], alignment: "right", color: "#0D47A1" },
     ],
-  ]
+  ];
 
   const detailsTableBody = [
     [
@@ -280,7 +297,7 @@ const exportMonthlyReportPDF = async (data, adjustments) => {
   ]
 
   const docDefinition = {
-    pageMargins: [40, 60, 40, 60],
+    pageMargins: [10, 10, 10, 10],
     content: [
       
       {
@@ -339,7 +356,7 @@ const exportMonthlyReportPDF = async (data, adjustments) => {
       {
         text: "📅 Daily Attendance Details",
         style: "subheader",
-        margin: [8, 0, 0, 0],
+        margin: [8, -25, 0, 0],
         color: "#0D47A1",
         fontSize: 13,
         bold: true,
@@ -380,7 +397,7 @@ const exportMonthlyReportPDF = async (data, adjustments) => {
       {
         text: "⚙️ Attendance Adjustments (Audit Log)",
         style: "subheader",
-        margin: [8, 0, 0, 0],
+        margin: [8, -25, 0, 0],
         color: "#E65100",
         fontSize: 13,
         bold: true,
