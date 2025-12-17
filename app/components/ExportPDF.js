@@ -26,6 +26,11 @@ const exportMonthlyReportPDF = async (data, adjustments) => {
     acc[key].push(a);
     return acc;
   }, {});
+  
+  console.log("[PDF] adjustments param:", adjustments);
+  console.log("[PDF] adjustmentsArray length:", adjustmentsArray.length);
+  console.log("[PDF] first adjustment:", adjustmentsArray[0]);
+
   // import ديناميكي عشان ما يخرب الـ SSR
   const pdfMakeModule = await import("@digicole/pdfmake-rtl/build/pdfmake");
   const pdfFontsModule = await import("@digicole/pdfmake-rtl/build/vfs_fonts");
