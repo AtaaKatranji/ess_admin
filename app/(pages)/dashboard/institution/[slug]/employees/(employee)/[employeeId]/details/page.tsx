@@ -5,9 +5,15 @@ import { useParams } from "next/navigation";
 import { format } from "date-fns";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { CalendarIcon, ClockIcon, Star, Rabbit, Turtle, Loader2, Download, LucideArchiveRestore } from "lucide-react";
+import { CalendarIcon, ClockIcon, Star, Rabbit, Turtle, Loader2, Download, LucideArchiveRestore, ChevronDown } from "lucide-react";
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip } from "recharts";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu" ;
 import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -16,6 +22,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { fetchTimeShifts } from "@/app/api/shifts/shifts";
 import exportMonthlyReportPDF from "@/app/components/ExportPDF";
+import exportMonthlyReportPDF_AR from "@/app/components/ExportPDF-ar";
 // import AbsentTab from "@/app/components/AbsentTab";
 import AttendanceTab from "@/app/components/AttendanceTab";
 import AddExtraHoursModal from "@/app/components/AddExtraHoursModal";
@@ -247,7 +254,8 @@ const employee: Employee = {
       
     }
   }, [employeeId]);
-  const exportMonthlyReport = useCallback(async () => {
+  type ReportLang = "en" | "ar"
+  const exportMonthlyReport = useCallback(async (lang: ReportLang) => {
     setIsLoadingPdf(true);
     try {
         if (!selectedMonth || isNaN(new Date(selectedMonth).getTime())) {
@@ -276,6 +284,11 @@ const employee: Employee = {
         
         if (!adjustmentsResponse.ok) throw new Error("Failed to fetch adjustments");
         const adjustmentsData = await adjustmentsResponse.json();
+        if (lang === "ar") {
+          await exportMonthlyReportPDF_AR(data, adjustmentsData)
+        } else {
+          await exportMonthlyReportPDF(data, adjustmentsData)
+        }
         await exportMonthlyReportPDF(data, adjustmentsData);
         toast.info("Monthly report exported as PDF!");
     } catch (error) {
@@ -431,17 +444,28 @@ const employee: Employee = {
               />
             </PopoverContent>
           </Popover>
-          <Button
-            onClick={exportMonthlyReport}
-            className="bg-cyan-900 text-white"
-          >
-            {isLoadingPdf ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              <Download className="mr-2 h-4 w-4" />
-            )}
-            {isLoadingPdf ? "Exporting..." : "Export Report"}
-          </Button>
+          <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button className="bg-cyan-900 text-white" disabled={isLoadingPdf}>
+          {isLoadingPdf ? (
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          ) : (
+            <Download className="mr-2 h-4 w-4" />
+          )}
+          {isLoadingPdf ? "Exporting..." : "Export Report"}
+          <ChevronDown className="ml-2 h-4 w-4 opacity-80" />
+        </Button>
+      </DropdownMenuTrigger>
+
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem disabled={isLoadingPdf} onClick={() => exportMonthlyReport("en")}>
+          English (EN)
+        </DropdownMenuItem>
+        <DropdownMenuItem disabled={isLoadingPdf} onClick={() => exportMonthlyReport("ar")}>
+          العربية (AR)
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
         </div>
       </div>
   {/* باقي محتوى التاب (الكروت والجداول...) بتحطو هون بس بشرط انه يظهر فقط لما في shift */}
