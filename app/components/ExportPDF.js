@@ -324,7 +324,7 @@ const exportMonthlyReportPDF = async (data, adjustments) => {
 
       {
         table: {
-          widths: ["*", "auto"],
+          widths: ["*", "auto", "*", "auto"],
           body: summaryTableBody,
         },
         layout: {
