@@ -16,20 +16,32 @@ const getRowBackground = (type) => {
       return undefined;
   }
 };
+const editedMarker = (isEdited) => {
+  if (!isEdited) return { text: "-", alignment: "center" };
+
+  return {
+    text: "⚠",
+    color: "#D97706", // amber
+    bold: true,
+    fontSize: 12,
+    alignment: "center",
+  };
+};
 
 const exportMonthlyReportPDF = async (data, adjustments) => {
   if (typeof window === "undefined") return;
-  const adjustmentsArray = Array.isArray(adjustments) ? adjustments : (adjustments?.items || []);
+ // const adjustmentsArray = Array.isArray(adjustments) ? adjustments : (adjustments?.items || []);
+  const adjustmentsArray = (Array.isArray(adjustments) ? adjustments : (adjustments?.items || []))
+  .slice()
+  .sort((a, b) => String(b.editedAt).localeCompare(String(a.editedAt)));
+
   const adjustmentsByDate = adjustmentsArray.reduce((acc, a) => {
     const key = a.logDate; // "YYYY-MM-DD"
     if (!acc[key]) acc[key] = [];
     acc[key].push(a);
     return acc;
   }, {});
-  
-  console.log("[PDF] adjustments param:", adjustments);
-  console.log("[PDF] adjustmentsArray length:", adjustmentsArray.length);
-  console.log("[PDF] first adjustment:", adjustmentsArray[0]);
+
 
   // import ديناميكي عشان ما يخرب الـ SSR
   const pdfMakeModule = await import("@digicole/pdfmake-rtl/build/pdfmake");
@@ -174,31 +186,53 @@ const exportMonthlyReportPDF = async (data, adjustments) => {
         { text: entry.checkIn || "-", fillColor: rowBgFinal },
         { text: entry.checkOut || "-", fillColor: rowBgFinal },
         { text: entry.dailyHours || "-", fillColor: rowBgFinal },
-        { text: isEdited ? "Yes" : "-", fillColor: rowBgFinal },
+        { ...editedMarker(isEdited), fillColor: rowBgFinal },
+
         { text: entry.holidayName || "", fillColor: rowBgFinal },
       ];
     }),
   ];
+  const timeCell = (t, changed) => ({
+    text: t || "-",
+    alignment: "center",
+    fillColor: changed ? "#FFF8E6" : undefined, // highlight changed cells
+  });
   const adjustmentsTableBody = [
     [
       { text: "Date", bold: true, color: "#FFFFFF", fillColor: "#1E88E5" },
-      { text: "Before", bold: true, color: "#FFFFFF", fillColor: "#1E88E5" },
-      { text: "After", bold: true, color: "#FFFFFF", fillColor: "#1E88E5" },
+      { text: "Old In", bold: true, color: "#FFFFFF", fillColor: "#1E88E5" },
+      { text: "Old Out", bold: true, color: "#FFFFFF", fillColor: "#1E88E5" },
+      { text: "New In", bold: true, color: "#FFFFFF", fillColor: "#1E88E5" },
+      { text: "New Out", bold: true, color: "#FFFFFF", fillColor: "#1E88E5" },
       { text: "Edited By", bold: true, color: "#FFFFFF", fillColor: "#1E88E5" },
       { text: "Edited At", bold: true, color: "#FFFFFF", fillColor: "#1E88E5" },
       { text: "Note", bold: true, color: "#FFFFFF", fillColor: "#1E88E5" },
     ],
+    
+  
     ...(adjustmentsArray || []).map((a, idx) => {
       const stripe = idx % 2 === 0 ? "#F9F9F9" : "#FFFFFF";
+    
+      const oldIn = a.oldCheckIn || null;
+      const oldOut = a.oldCheckOut || null;
+      const newIn = a.newCheckIn || null;
+      const newOut = a.newCheckOut || null;
+    
+      const changedIn = String(oldIn || "") !== String(newIn || "");
+      const changedOut = String(oldOut || "") !== String(newOut || "");
+    
       return [
         { text: a.logDate, fillColor: stripe },
-        { text: `${a.oldCheckIn || "-"} → ${a.oldCheckOut || "-"}`, fillColor: stripe },
-        { text: `${a.newCheckIn || "-"} → ${a.newCheckOut || "-"}`, fillColor: stripe },
+        { ...timeCell(oldIn, changedIn), fillColor: changedIn ? "#FFF8E6" : stripe },
+        { ...timeCell(oldOut, changedOut), fillColor: changedOut ? "#FFF8E6" : stripe },
+        { ...timeCell(newIn, changedIn), fillColor: changedIn ? "#FFF8E6" : stripe },
+        { ...timeCell(newOut, changedOut), fillColor: changedOut ? "#FFF8E6" : stripe },
         { text: a.editedByName || "-", fillColor: stripe },
         { text: a.editedAt ? String(a.editedAt).replace("T", " ").replace(".000Z", "") : "-", fillColor: stripe },
         { text: a.note || "-", fillColor: stripe },
       ];
     }),
+    
   ];
   
 
@@ -240,6 +274,7 @@ const exportMonthlyReportPDF = async (data, adjustments) => {
         table: {
           headerRows: 1,
           widths: ["auto", "auto", "auto", "auto", "auto", "auto", "auto", "*"],
+
           body: detailsTableBody,
         },
         layout: {
