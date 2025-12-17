@@ -113,15 +113,15 @@ const exportMonthlyReportPDF = async (data, adjustments) => {
   const grandTotalWithBonus = (baseTotal + bonusHours).toFixed(2)
 
   const totalHoursRow = [
-    { text: `⏰ Total Hours`, fillColor: "#FFFFFF" }, // col 1
+    { text: `⏰ Total Hours`, fillColor: "#FFFFFF", fontSize: 9 }, // col 1
     { text: "", fillColor: "#FFFFFF", border: [false, false, false, false] }, // col 2
     { text: "", fillColor: "#FFFFFF", border: [false, false, false, false] }, // col 3
-    { text: String(summary.totalHours), fillColor: "#FFFFFF", alignment: "right" }, // col 4
+    { text: String(summary.totalHours), fillColor: "#FFFFFF", fontSize: 10 , alignment: "right" }, // col 4
   ];
   const bonusHoursRow =
   Number(summary.extraAdjustmentHours) > 0
     ? [
-        { text: `🎁 Bonus Hours (Manager Reward)`, fillColor: "#FFF8DC", italics: true },
+        { text: `🎁 Bonus Hours (Manager Reward)`, fillColor: "#FFF8DC", },
         { text: "", fillColor: "#FFF8DC", border: [false, false, false, false] },
         { text: "", fillColor: "#FFF8DC", border: [false, false, false, false] },
         { text: `+${summary.extraAdjustmentHours}`, fillColor: "#FFF8DC", alignment: "right", bold: true, color: "#F57C00" },
@@ -169,10 +169,10 @@ const exportMonthlyReportPDF = async (data, adjustments) => {
       const [a, b] = pair;
   
       return [
-        { text: `${a.icon} ${a.label}`, fillColor: stripe },
-        { text: String(a.value), fillColor: stripe, alignment: "right" },
-        { text: `${b.icon} ${b.label}`, fillColor: stripe },
-        { text: String(b.value), fillColor: stripe, alignment: "right" },
+        { text: `${a.icon} ${a.label}`, fillColor: stripe, fontSize: 9  },
+        { text: String(a.value), fillColor: stripe, fontSize: 9 , alignment: "right" },
+        { text: `${b.icon} ${b.label}`, fillColor: stripe ,fontSize: 9  },
+        { text: String(b.value), fillColor: stripe,fontSize: 9 , alignment: "right" },
       ];
     }),
   
@@ -302,7 +302,7 @@ const exportMonthlyReportPDF = async (data, adjustments) => {
   ]
 
   const docDefinition = {
-    pageMargins: [10, 10, 10, 10],
+    pageMargins: [20, 10, 10, 20],
     content: [
       
       {
@@ -443,7 +443,7 @@ const exportMonthlyReportPDF = async (data, adjustments) => {
       {
         text: "✍️ Signatures",
         style: "subheader",
-        margin: [8, -20, 0, 0],
+        margin: [8, -24, 0, 0],
         color: "#424242",
         fontSize: 13,
         bold: true,
