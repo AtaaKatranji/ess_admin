@@ -1,4 +1,10 @@
 // components/export-monthly-report-pdf.tsx
+import { vfsCairo } from "../../src/pdfmake/vfs_cairo";
+pdfMake.vfs = pdfFonts.pdfMake.vfs
+pdfMake.vfs = {
+  ...(pdfFonts.pdfMake?.vfs || {}),
+  ...vfsCairo,
+};
 
 const getRowBackground = (type) => {
   switch (type) {
