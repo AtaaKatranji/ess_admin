@@ -273,7 +273,7 @@ const employee: Employee = {
         if (!response.ok) throw new Error("Failed to fetch report");
         const data = await response.json(); // Log number of days
         setData(prev => ({ ...prev, employeeName: data.summary.employeeName }));
-        const adjustmentsResponse = await fetch( `${BaseUrl}/checks/edit-logs?userId=${employeeId}&month=${dateToSend}`,
+        const adjustmentsResponse = await fetch( `${BaseUrl}/institutions/${slug}/checks/edit-logs?userId=${employeeId}&month=${dateToSend}`,
           {
             method: "GET",
             credentials: "include", 
@@ -749,7 +749,7 @@ const employee: Employee = {
               </TabsContent>
               <TabsContent value="adjustments">
                 {/* هنا جدول أو قائمة تعديلات */}
-                <AttendanceAdjustmentsTab employeeId={employeeId} selectedMonth={selectedMonth} />
+                <AttendanceAdjustmentsTab employeeId={employeeId} selectedMonth={selectedMonth} slug={slug!} />
               </TabsContent>
 
             </Tabs>

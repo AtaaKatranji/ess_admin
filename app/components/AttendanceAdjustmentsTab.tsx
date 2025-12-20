@@ -79,9 +79,11 @@ function formatDateTime(d: string) {
 export default function AttendanceAdjustmentsTab({
   employeeId,
   selectedMonth,
+  slug,
 }: {
   employeeId: number | string;
   selectedMonth: Date; // مثال: "2025-12"
+  slug: string;
 }) {
   const [query, setQuery] = React.useState("");
   const [data, setData] = React.useState<Adjustment[]>([]);
@@ -99,7 +101,7 @@ export default function AttendanceAdjustmentsTab({
         const monthKey = selectedMonth.toISOString().slice(0, 7); // YYYY-MM
   
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/checks/edit-logs?userId=${employeeId}&month=${monthKey}`,
+          `${process.env.NEXT_PUBLIC_API_URL}/institutions/${slug}/checks/edit-logs?userId=${employeeId}&month=${monthKey}`,
           {
             method: "GET",
             credentials: "include",
