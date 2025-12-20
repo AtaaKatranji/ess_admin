@@ -277,3 +277,84 @@ export const fetchShiftReport = async (shiftId: string, month: string, orgSlug: 
      throw error;
   }
 };
+export type AttendanceIssueUI = {
+  employeeId: number;
+  employeeName: string;
+  date: string;
+  issueType: "MISSING_CHECKOUT" | "SHORT_DAY";
+  checkIn: string | null;
+  checkOut: string | null;
+  workedHours: number | null;
+};
+type AttendanceIssuesByShiftResponse = {
+  message: string;
+  shiftId: number;
+  month: string;
+  totalUsers: number;
+  usersWithIssues: number;
+  totalIssues: number;
+  users: Array<{
+    userId: number;
+    name: string | null;
+    totalIssues: number;
+    issues: Array<{
+      date: string;                 // "YYYY-MM-DD"
+      type: "MISSING_CHECKOUT" | "SHORT_DAY";
+      checkIn: string | null;
+      checkOut: string | null;
+      workedHours: number | null;
+    }>;
+  }>;
+};
+
+export const fetchAttendanceIssues = async (
+  shiftId: string,
+  month: string
+): Promise<AttendanceIssueUI[]> => {
+  const response = await fetch(`${BaseUrl}/checks/attendance/issues-by-shift`, {
+    method: "POST",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ shiftId, month }),
+  });
+
+  if (!response.ok) {
+    let serverMsg = "";
+    try {
+      const body = await response.json();
+      serverMsg = body?.error || body?.message || "";
+    } catch {}
+
+    let message = serverMsg || "Failed to fetch attendance issues";
+    if (response.status === 403) message = "You do not have permission to view attendance issues.";
+    else if (response.status === 401) message = "Session has ended, please log in again.";
+
+    const err: HttpError = new Error(message);
+    err.status = response.status;
+    throw err;
+  }
+
+  const data: AttendanceIssuesByShiftResponse = await response.json();
+
+  // FLATTEN
+  const flatIssues: AttendanceIssueUI[] = (data.users || []).flatMap((u) =>
+    (u.issues || []).map((i) => ({
+      employeeId: u.userId,
+      employeeName: u.name || `Employee #${u.userId}`,
+      date: i.date,
+      issueType: i.type,
+      checkIn: i.checkIn ?? null,
+      checkOut: i.checkOut ?? null,
+      workedHours: i.workedHours ?? null,
+    }))
+  );
+
+  // (اختياري) ترتيب حسب التاريخ ثم الموظف
+  flatIssues.sort((a, b) => {
+    const d = a.date.localeCompare(b.date);
+    return d !== 0 ? d : a.employeeId - b.employeeId;
+  });
+
+  return flatIssues;
+};
+

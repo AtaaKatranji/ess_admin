@@ -5,14 +5,14 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
-import { Calendar, Clock, Users, FileDown, TrendingUp, ArrowLeft, FileText,  } from "lucide-react"
+import { Calendar, Clock, Users, FileDown, TrendingUp, ArrowLeft, FileText, AlertCircle, LogOut, LogIn,  } from "lucide-react"
 import exportShiftReportPDF from "@/app/components/ShiftReportPDF"
 import * as shiftAPI from '@/app/api/shifts/shifts'
 import { Shift, ShiftReportType, ShiftTimes } from '@/app/types/Shift'
 import { TableBody } from "@mui/material"
 import { Table, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Progress } from "@/components/ui/progress"
-import { fetchShifts } from '@/app/api/shifts/shifts'
+import { fetchShifts,fetchAttendanceIssues, AttendanceIssueUI } from '@/app/api/shifts/shifts'
 
 type ShiftReportProps = {
     open: boolean
@@ -33,13 +33,8 @@ type ShiftReportProps = {
     return months;
   };
 
-  // type AttendanceIssue = {
-  //   employeeId: string
-  //   employeeName: string
-  //   date: string
-  //   issueType: 'missed_checkin' | 'missed_checkout' | 'both'
-  //   notes?: string
-  // }
+ 
+
 
   const months = generateLastMonths();
 export default function ShiftReport({open, onOpenChange, shiftId, institutionKey}: ShiftReportProps) {
@@ -50,7 +45,9 @@ export default function ShiftReport({open, onOpenChange, shiftId, institutionKey
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null);
   const [shifts, setShifts] = useState<Shift[]>([]);
-  // const [attendanceIssues, setAttendanceIssues] = useState<AttendanceIssue[]>([])
+  const [attendanceIssues, setAttendanceIssues] = useState<AttendanceIssueUI[]>([])
+  const [issuesLoading, setIssuesLoading] = useState(false);
+  const [issuesError, setIssuesError] = useState<string | null>(null);
   
   useEffect(() => {
     if (!institutionKey) return;
@@ -71,8 +68,12 @@ export default function ShiftReport({open, onOpenChange, shiftId, institutionKey
   // 2. Fetch report when selectedMonth, selectedShift, or institutionKey changes
   useEffect(() => {
     if (!selectedShift || !selectedMonth || !institutionKey) return;
-    console.log("in shift report page 1",selectedMonth);
+  
     setLoading(true);
+    setIssuesLoading(true);
+    setIssuesError(null);
+  
+    // تقرير المناوبة
     shiftAPI.fetchShiftReport(selectedShift, selectedMonth, institutionKey)
       .then((data: ShiftReportType) => setShiftData(data))
       .catch((err) => {
@@ -81,9 +82,23 @@ export default function ShiftReport({open, onOpenChange, shiftId, institutionKey
         setError(err.message || "Failed to load data.");
       })
       .finally(() => setLoading(false));
-
-      console.log("in shift report page 2",shiftData);
+  
+    // مشاكل الحضور
+    fetchAttendanceIssues(selectedShift, selectedMonth)
+      .then((data: AttendanceIssueUI[]) => {
+        setAttendanceIssues(data);
+      })
+      .catch((err) => {
+        setAttendanceIssues([]);
+        console.error(err);
+        setIssuesError(err.message || "Failed to load attendance issues.");
+      })
+      .finally(() => setIssuesLoading(false));
+  
   }, [selectedShift, selectedMonth, institutionKey]);
+  
+  
+
   const handleExportPDF = () => {
     exportShiftReportPDF(shiftData)
   }
@@ -93,38 +108,33 @@ export default function ShiftReport({open, onOpenChange, shiftId, institutionKey
   //   if (rate >= 80) return "text-yellow-600"
   //   return "text-red-600"
   // }
-  // const getIssueIcon = (issueType: AttendanceIssue['issueType']) => {
-  //   switch (issueType) {
-  //     case 'missed_checkin':
-  //       return <LogIn className="w-4 h-4" />
-  //     case 'missed_checkout':
-  //       return <LogOut className="w-4 h-4" />
-  //     case 'both':
-  //       return <XCircle className="w-4 h-4" />
-  //   }
-  // }
+  const getIssueIcon = (issueType: AttendanceIssueUI["issueType"]) => {
+    switch (issueType) {
+      case "MISSING_CHECKOUT":
+        return <LogOut className="w-4 h-4" />
+      case "SHORT_DAY":
+        return <Clock className="w-4 h-4" />
+    }
+  }
 
-  // const getIssueLabel = (issueType: AttendanceIssue['issueType']) => {
-  //   switch (issueType) {
-  //     case 'missed_checkin':
-  //       return 'Missed Check-in'
-  //     case 'missed_checkout':
-  //       return 'Missed Check-out'
-  //     case 'both':
-  //       return 'Missed Both'
-  //   }
-  // }
+  const getIssueLabel = (issueType: AttendanceIssueUI["issueType"]) => {
+    switch (issueType) {
+      case "MISSING_CHECKOUT":
+        return "Missing Check-out"
+      case "SHORT_DAY":
+        return "Short Day (<3hrs)"
+    }
+  }
 
-  // const getIssueBadgeColor = (issueType: AttendanceIssue['issueType']) => {
-  //   switch (issueType) {
-  //     case 'missed_checkin':
-  //       return 'bg-orange-100 text-orange-800'
-  //     case 'missed_checkout':
-  //       return 'bg-yellow-100 text-yellow-800'
-  //     case 'both':
-  //       return 'bg-red-100 text-red-800'
-  //   }
-  // }
+  const getIssueBadgeColor = (issueType: AttendanceIssueUI["issueType"]) => {
+    switch (issueType) {
+      case "MISSING_CHECKOUT":
+        return "bg-orange-100 text-orange-800"
+      case "SHORT_DAY":
+        return "bg-yellow-100 text-yellow-800"
+    }
+  }
+
   const getProgressColor = (rate: number) => {
     if (rate >= 90) return "bg-green-600";
     if (rate >= 80) return "bg-yellow-500";
@@ -295,7 +305,12 @@ export default function ShiftReport({open, onOpenChange, shiftId, institutionKey
             </Card>
           ))}
         </div>
-        {/* {attendanceIssues.length > 0 && (
+        {issuesLoading && <p>Loading attendance issues...</p>}
+
+        {!issuesLoading && attendanceIssues.length === 0 && !issuesError && (
+          <p className="text-sm text-gray-600">No attendance issues found.</p>
+        )}
+        {attendanceIssues.length > 0 && (
             <Card className="border-orange-200 bg-orange-50/50">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-gray-800">
@@ -303,7 +318,7 @@ export default function ShiftReport({open, onOpenChange, shiftId, institutionKey
                   Attendance Issues
                 </CardTitle>
                 <CardDescription>
-                  Days where employees had problems with check-in or check-out requiring admin review
+                  Days with missing check-out or work duration less than 3 hours requiring admin review
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -321,10 +336,10 @@ export default function ShiftReport({open, onOpenChange, shiftId, institutionKey
                         <div className="flex items-center gap-2 min-w-[120px]">
                           <Calendar className="w-4 h-4 text-gray-500" />
                           <span className="text-sm text-gray-600">
-                            {new Date(issue.date).toLocaleDateString('en-US', { 
-                              month: 'short', 
-                              day: 'numeric',
-                              year: 'numeric'
+                            {new Date(issue.date).toLocaleDateString("en-US", {
+                              month: "short",
+                              day: "numeric",
+                              year: "numeric",
                             })}
                           </span>
                         </div>
@@ -332,14 +347,31 @@ export default function ShiftReport({open, onOpenChange, shiftId, institutionKey
                           {getIssueIcon(issue.issueType)}
                           {getIssueLabel(issue.issueType)}
                         </Badge>
+                        <div className="flex items-center gap-3 text-sm text-gray-600">
+                          {issue.checkIn && (
+                            <span className="flex items-center gap-1">
+                              <LogIn className="w-3 h-3" />
+                              {issue.checkIn}
+                            </span>
+                          )}
+                          {issue.checkOut && (
+                            <span className="flex items-center gap-1">
+                              <LogOut className="w-3 h-3" />
+                              {issue.checkOut}
+                            </span>
+                          )}
+                          {issue.workedHours !== null && (
+                            <span className="font-medium text-yellow-700">{issue.workedHours}h worked</span>
+                          )}
+                        </div>
                       </div>
-                      <Button variant="outline" size="sm" className="text-gray-700 hover:bg-gray-100">
+                      <Button variant="outline" size="sm" className="text-gray-700 hover:bg-gray-100 bg-transparent">
                         Review
                       </Button>
                     </div>
                   ))}
                 </div>
-                
+
                 {attendanceIssues.length > 10 && (
                   <div className="mt-4 text-center">
                     <Button variant="ghost" className="text-gray-600">
@@ -349,7 +381,7 @@ export default function ShiftReport({open, onOpenChange, shiftId, institutionKey
                 )}
               </CardContent>
             </Card>
-          )} */}
+          )}
         
           {/* Employee Details */}
           <Card>

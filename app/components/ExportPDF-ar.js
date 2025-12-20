@@ -427,7 +427,7 @@ const grandTotalRow = [
                   { type: "rect", x: 0, y: 0, w: 230, h: 75, r: 6, color: "#FFFFFF", lineWidth: 1.5, lineColor: "#BDBDBD" },
                 ],
               },
-              { text: "👤 توقيع المدير", margin: [12, -67, 0, 0], fontSize: 10, color: "#757575", bold: true },
+              { text: "👤 توقيع المدير", margin: [12, -67, 0, 12], fontSize: 10, color: "#757575", bold: true },
               {
                 canvas: [{ type: "line", x1: 12, y1: 38, x2: 218, y2: 38, lineWidth: 1, dash: { length: 4, space: 2 }, lineColor: "#BDBDBD" }],
               },
@@ -444,7 +444,7 @@ const grandTotalRow = [
                   { type: "rect", x: 0, y: 0, w: 230, h: 75, r: 6, color: "#FFFFFF", lineWidth: 1.5, lineColor: "#BDBDBD" },
                 ],
               },
-              { text: "✏️ توقيع الموظف", margin: [12, -67, 0, 0], fontSize: 10, color: "#757575", bold: true },
+              { text: "✏️ توقيع الموظف", margin: [12, -67, 0, 12], fontSize: 10, color: "#757575", bold: true },
               {
                 canvas: [{ type: "line", x1: 12, y1: 38, x2: 218, y2: 38, lineWidth: 1, dash: { length: 4, space: 2 }, lineColor: "#BDBDBD" }],
               },
