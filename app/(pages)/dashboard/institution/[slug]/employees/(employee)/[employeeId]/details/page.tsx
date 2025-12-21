@@ -61,6 +61,18 @@ type Comp = {
   tardies: number;
 };
 
+type Adjustment = {
+  id: number;
+  logDate: string;
+  oldCheckIn: string | null;
+  oldCheckOut: string | null;
+  newCheckIn: string | null;
+  newCheckOut: string | null;
+  editedByName: string;
+  editedAt: string;
+  note: string;
+};
+
 // type Holiday = {
 //   id: number;
 //   name: string;
@@ -284,6 +296,8 @@ const employee: Employee = {
         if (!response.ok) throw new Error("Failed to fetch report");
         const data = await response.json(); // Log number of days
         setData(prev => ({ ...prev, employeeName: data.summary.employeeName }));
+        let adjustmentsData: Adjustment[] = [];
+        if (can("edit_logs.report_read")) {
         const adjustmentsResponse = await fetch( `${BaseUrl}/institutions/${slug}/checks/edit-logs?userId=${employeeId}&month=${dateToSend}`,
           {
             method: "GET",
@@ -293,8 +307,13 @@ const employee: Employee = {
             },
           });
         
-        if (!adjustmentsResponse.ok) throw new Error("Failed to fetch adjustments");
-        const adjustmentsData = await adjustmentsResponse.json();
+          if (adjustmentsResponse.ok) {
+            adjustmentsData = await adjustmentsResponse.json();
+          } else if (adjustmentsResponse.status !== 403) {
+            // 403 طبيعي إذا ما عنده صلاحية (لكن نحن أصلاً شرطنا فوق)
+            throw new Error("Failed to fetch adjustments");
+          }
+        }
         if (lang === "ar") {
           await exportMonthlyReportPDF_AR(data, adjustmentsData)
         } else {
@@ -345,7 +364,8 @@ const employee: Employee = {
   
     if (slug) loadMeContext();
   }, [fetchAllData, selectedMonth, slug, BaseUrl]);
-
+  const canViewAdjustmentsUI = can("edit_logs.read");         // UI
+  //const canIncludeAdjustmentsInReport = can("edit_logs.report_read"); // PDF
   // const filteredLeaves = useMemo(() => {
   //   const lowerSearch = searchTerm.toLowerCase();
   //   return data.leaves.filter(leave =>
@@ -699,7 +719,7 @@ const employee: Employee = {
                 <TabsTrigger value="absent">Absences</TabsTrigger> */}
                 <TabsTrigger value="hourlyLeaves">Hourly Leaves</TabsTrigger>
                 <TabsTrigger value="dayRecords">Day Records</TabsTrigger>
-                {can("ATTENDANCE_EDIT_LOGS_VIEW") && (
+                {canViewAdjustmentsUI && (
                   <TabsTrigger value="adjustments">Adjustments Log</TabsTrigger>
                 )}
                 </TabsList>
@@ -786,11 +806,14 @@ const employee: Employee = {
               <TabsContent value="dayRecords" className="space-y-4 min-h-0">
                 <NonAttendanceTab employeeId={employeeId} selectedMonth={selectedMonth} slug={slug!} holidays={data.holidays}  />
               </TabsContent>
-              {can("ATTENDANCE_EDIT_LOGS_VIEW") && (
-              <TabsContent value="adjustments">
-                {/* هنا جدول أو قائمة تعديلات */}
-                <AttendanceAdjustmentsTab employeeId={employeeId} selectedMonth={selectedMonth} slug={slug!} />
-              </TabsContent>
+              {canViewAdjustmentsUI && (
+                <TabsContent value="adjustments">
+                  <AttendanceAdjustmentsTab
+                    employeeId={employeeId}
+                    selectedMonth={selectedMonth}
+                    slug={slug!}
+                  />
+                </TabsContent>
               )}
             </Tabs>
             </section>
