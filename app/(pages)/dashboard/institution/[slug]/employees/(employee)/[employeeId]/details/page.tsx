@@ -297,6 +297,7 @@ const employee: Employee = {
         const data = await response.json(); // Log number of days
         setData(prev => ({ ...prev, employeeName: data.summary.employeeName }));
         let adjustmentsData: Adjustment[] = [];
+        console.log("canViewAdjustmentsReport", can("edit_logs.report_read"));
         if (can("edit_logs.report_read")) {
         const adjustmentsResponse = await fetch( `${BaseUrl}/institutions/${slug}/checks/edit-logs?userId=${employeeId}&month=${dateToSend}`,
           {
