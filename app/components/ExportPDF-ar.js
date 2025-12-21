@@ -300,7 +300,7 @@ const grandTotalRow = [
         {
           text: "⚙️ سجل تعديلات الحضور والانصراف",
           style: "subheader",
-          margin: [8, -25, 0, 0],
+          margin: [0, -25, 8, 0],
           color: "#E65100",
           fontSize: 13,
           bold: true,
@@ -378,7 +378,7 @@ const grandTotalRow = [
       {
         text: "📅 تفاصيل الحضور اليومية",
         style: "subheader",
-        margin: [8, -25, 0, 0],
+        margin: [0, -25, 8, 0],
         color: "#0D47A1",
         fontSize: 13,
         bold: true,
@@ -411,7 +411,8 @@ const grandTotalRow = [
       {
         text: "✍️ التواقيع",
         style: "subheader",
-        margin: [8, -24,-18, 0],
+        alignment: "right",
+        margin: [0, 18,0, 8],
         color: "#424242",
         fontSize: 13,
         bold: true,
@@ -419,6 +420,7 @@ const grandTotalRow = [
 
       {
         columns: [
+          // يمين: توقيع الموظف (لـ RTL عادةً الموظف على اليمين)
           {
             width: "48%",
             stack: [
@@ -426,16 +428,36 @@ const grandTotalRow = [
                 canvas: [
                   { type: "rect", x: 1, y: 3, w: 230, h: 75, r: 6, color: "#E0E0E0" },
                   { type: "rect", x: 0, y: 0, w: 230, h: 75, r: 6, color: "#FFFFFF", lineWidth: 1.5, lineColor: "#BDBDBD" },
+                  { type: "line", x1: 18, y1: 38, x2: 218, y2: 38, lineWidth: 1, dash: { length: 4, space: 2 }, lineColor: "#BDBDBD" },
                 ],
               },
-              { text: "👤 توقيع المدير", margin: [12, -67, -18, 0], fontSize: 10, color: "#757575", bold: true },
+      
+              // العنوان داخل البوكس
               {
-                canvas: [{ type: "line", x1: 18, y1: 30, x2: 218, y2: 30, lineWidth: 1, dash: { length: 4, space: 2 }, lineColor: "#BDBDBD" }],
+                text: "✏️ توقيع الموظف",
+                fontSize: 10,
+                color: "#757575",
+                bold: true,
+                alignment: "right",
+                relativePosition: { x: 0, y: -68 },
+                margin: [0, 0, 12, 0],
               },
-              { text: "التاريخ: _____________", margin: [12, 8, 0, 0], fontSize: 8, color: "#9E9E9E" },
+      
+              // التاريخ داخل البوكس
+              {
+                text: "التاريخ: _____________",
+                fontSize: 8,
+                color: "#9E9E9E",
+                alignment: "right",
+                relativePosition: { x: 0, y: -18 },
+                margin: [0, 0, 12, 0],
+              },
             ],
           },
+      
           { width: "4%", text: "" },
+      
+          // يسار: توقيع المدير
           {
             width: "48%",
             stack: [
@@ -443,24 +465,35 @@ const grandTotalRow = [
                 canvas: [
                   { type: "rect", x: 1, y: 3, w: 230, h: 75, r: 6, color: "#E0E0E0" },
                   { type: "rect", x: 0, y: 0, w: 230, h: 75, r: 6, color: "#FFFFFF", lineWidth: 1.5, lineColor: "#BDBDBD" },
+                  { type: "line", x1: 18, y1: 38, x2: 218, y2: 38, lineWidth: 1, dash: { length: 4, space: 2 }, lineColor: "#BDBDBD" },
                 ],
               },
-              { text: "✏️ توقيع الموظف", margin: [12, -67, -18, 0], fontSize: 10, color: "#757575", bold: true },
+      
               {
-                canvas: [{ type: "line", x1: 18, y1: 30, x2: 218, y2: 30, lineWidth: 1, dash: { length: 4, space: 2 }, lineColor: "#BDBDBD" }],
+                text: "👤 توقيع المدير",
+                fontSize: 10,
+                color: "#757575",
+                bold: true,
+                alignment: "right",
+                relativePosition: { x: 0, y: -68 },
+                margin: [0, 0, 12, 0],
               },
-              { text: "التاريخ: _____________", margin: [12, 8, 0, 0], fontSize: 8, color: "#9E9E9E" },
+      
+              {
+                text: "التاريخ: _____________",
+                fontSize: 8,
+                color: "#9E9E9E",
+                alignment: "right",
+                relativePosition: { x: 0, y: -18 },
+                margin: [0, 0, 12, 0],
+              },
             ],
           },
         ],
-        margin: [0, 15, 0, 0],
+        margin: [0, 8, 0, 0],
       },
     ],
-    styles: {
-      header: { fontSize: 16, bold: true },
-      subheader: { fontSize: 13, bold: true },
-    },
-  }
+  }      
 
   const fileName = `${summary.monthName}_تقرير_الحضور_${String(summary.employeeName || "").trim()}.pdf`
   pdfMake.createPdf(docDefinition).download(fileName)
