@@ -132,6 +132,7 @@ const EmployeeDetails = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingPdf, setIsLoadingPdf] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoadingMe, setIsLoadingMe] = useState(true);
   // const [searchTerm, setSearchTerm] = useState("");
   const [selectedMonth, setSelectedMonth] = useState<Date>(new Date());
   const params = useParams();
@@ -278,6 +279,10 @@ const employee: Employee = {
     }
   },  [employeeId, slug, BaseUrl]);
   type ReportLang = "en" | "ar"
+  const can = (permission: string) =>
+    me?.activeInstitution?.permissions?.includes("*") ||
+    me?.activeInstitution?.permissions?.includes(permission) ||
+    false;
   const exportMonthlyReport = useCallback(async (lang: ReportLang) => {
     setIsLoadingPdf(true);
     try {
@@ -328,19 +333,14 @@ const employee: Employee = {
     } finally {
         setIsLoadingPdf(false);
     }
-}, [employeeId, selectedMonth]);
-  const can = useCallback(
-    (permission: string) =>
-      me?.activeInstitution?.permissions?.includes("*") ||
-      me?.activeInstitution?.permissions?.includes(permission) ||
-      false,
-    [me]
-  );
+}, [employeeId, selectedMonth, slug, BaseUrl, can, me]);
+  
   useEffect(() => {
     // fetchData();
     console.log("in effect",selectedMonth, format(selectedMonth, "yyyy"), format(selectedMonth, "MM"));
     fetchAllData(selectedMonth);
     const loadMeContext = async () => {
+      setIsLoadingMe(true);
       try {
         const res = await fetch(`${BaseUrl}/institutions/${slug}/me-context`, {
           credentials: "include",
@@ -360,6 +360,8 @@ const employee: Employee = {
       } catch (e) {
         console.error("Error loading me-context", e);
         setMe(null);
+      } finally {
+        setIsLoadingMe(false);
       }
     };
   
@@ -506,7 +508,7 @@ const employee: Employee = {
           </Popover>
           <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button className="bg-cyan-900 text-white" disabled={isLoadingPdf}>
+        <Button className="bg-cyan-900 text-white" disabled={isLoadingPdf || isLoadingMe || !me}>
           {isLoadingPdf ? (
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           ) : (
@@ -518,10 +520,10 @@ const employee: Employee = {
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="end">
-        <DropdownMenuItem disabled={isLoadingPdf} onClick={() => exportMonthlyReport("en")}>
+        <DropdownMenuItem disabled={isLoadingPdf || isLoadingMe || !me} onClick={() => exportMonthlyReport("en")}>
           English (EN)
         </DropdownMenuItem>
-        <DropdownMenuItem disabled={isLoadingPdf} onClick={() => exportMonthlyReport("ar")}>
+        <DropdownMenuItem disabled={isLoadingPdf || isLoadingMe || !me} onClick={() => exportMonthlyReport("ar")}>
           العربية (AR)
         </DropdownMenuItem>
       </DropdownMenuContent>
