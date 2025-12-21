@@ -412,7 +412,7 @@ const grandTotalRow = [
         text: "✍️ التواقيع",
         style: "subheader",
         alignment: "right",
-        margin: [0, -16, 0, 18],   // ✅ ارفع العنوان فوق شوي
+        margin: [0, -18, 0, 22],   // ✅ ارفع العنوان فوق شوي
         color: "#424242",
         fontSize: 13,
         bold: true,
@@ -428,7 +428,7 @@ const grandTotalRow = [
                 canvas: [
                   { type: "rect", x: 1, y: 3, w: 230, h: 75, r: 6, color: "#E0E0E0" },
                   { type: "rect", x: 0, y: 0, w: 230, h: 75, r: 6, color: "#FFFFFF", lineWidth: 1.5, lineColor: "#BDBDBD" },
-                  { type: "line", x1: 18, y1: 38, x2: 218, y2: 38, lineWidth: 1, dash: { length: 4, space: 2 }, lineColor: "#BDBDBD" },
+                  { type: "line", x1: 18, y1: 40, x2: 218, y2: 40, lineWidth: 1, dash: { length: 4, space: 2 }, lineColor: "#BDBDBD" },
                 ],
               },
       
@@ -440,7 +440,7 @@ const grandTotalRow = [
                 bold: true,
                 alignment: "right",
                 relativePosition: { x: 0, y: -66 },
-                margin: [0, 0, 18, 0],
+                margin: [0, 0, 22, 0],
               },
       
               {
@@ -448,8 +448,8 @@ const grandTotalRow = [
                 fontSize: 8,
                 color: "#9E9E9E",
                 alignment: "right",
-                relativePosition: { x: 0, y: -16 },
-                margin: [0, 0, 16, 0],
+                relativePosition: { x: 0, y: -18 },
+                margin: [0, 0, 22, 0],
               },
             ],
           },
@@ -464,7 +464,7 @@ const grandTotalRow = [
                 canvas: [
                   { type: "rect", x: 1, y: 3, w: 230, h: 75, r: 6, color: "#E0E0E0" },
                   { type: "rect", x: 0, y: 0, w: 230, h: 75, r: 6, color: "#FFFFFF", lineWidth: 1.5, lineColor: "#BDBDBD" },
-                  { type: "line", x1: 18, y1: 38, x2: 218, y2: 38, lineWidth: 1, dash: { length: 4, space: 2 }, lineColor: "#BDBDBD" },
+                  { type: "line", x1: 18, y1: 40, x2: 218, y2: 40, lineWidth: 1, dash: { length: 4, space: 2 }, lineColor: "#BDBDBD" },
                 ],
               },
 
@@ -475,7 +475,7 @@ const grandTotalRow = [
                 bold: true,
                 alignment: "right",
                 relativePosition: { x: 0, y: -66 },
-                margin: [0, 0, 16, 0],
+                margin: [0, 0, 22, 0],
               },
       
               // التاريخ داخل البوكس
@@ -484,8 +484,8 @@ const grandTotalRow = [
                 fontSize: 8,
                 color: "#9E9E9E",
                 alignment: "right",
-                relativePosition: { x: 0, y: -16 },
-                margin: [0, 0, 18, 0],
+                relativePosition: { x: 0, y: -18 },
+                margin: [0, 0, 22, 0],
               },
       
               
