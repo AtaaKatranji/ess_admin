@@ -405,7 +405,7 @@ const grandTotalRow = [
       ...adjustmentsSection,
 
       {
-        canvas: [{ type: "rect", x: 0, y: -2, w: 130, h: 24, r: 4, color: "#F5F5F5" }],
+        canvas: [{ type: "rect", x: 0, y: -5, w: 130, h: 24, r: 4, color: "#F5F5F5" }],
         margin: [0, 0, 0, 0],
       },
       {
