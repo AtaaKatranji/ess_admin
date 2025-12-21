@@ -94,9 +94,9 @@ const exportMonthlyReportPDF_AR = async (data, adjustments) => {
   // لاحظ: طلبت سابقاً نقل القيمة للعمود الثاني؛ لذلك وضعتها في col 2
   const totalHoursRow = [
     { text: `⏰ إجمالي الساعات`, fillColor: "#FFFFFF", fontSize: 10 },
+    { text: "", fillColor: "#FFFFFF", border: [false, false, false, false] },
+    { text: "", fillColor: "#FFFFFF", border: [false, false, false, false] },
     { text: String(summary.totalHours), fillColor: "#FFFFFF", fontSize: 11, alignment: "right" },
-    { text: "", fillColor: "#FFFFFF", border: [false, false, false, false] },
-    { text: "", fillColor: "#FFFFFF", border: [false, false, false, false] },
   ]
 
   const bonusHoursRow =

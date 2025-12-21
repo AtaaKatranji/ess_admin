@@ -114,6 +114,27 @@ const exportMonthlyReportPDF = async (data, adjustments) => {
   const baseTotal = Number(summary.totalHoursAttendance || 0)
   const grandTotalWithBonus = (baseTotal + bonusHours).toFixed(2)
 
+  const grandTotalRow = [
+    {
+      text: "📊 Grand Total Hours (Including Paid Leaves & Holidays & Bonus)",
+      fillColor: "#E3F2FD",
+      color: "#0D47A1",
+      bold: true,
+      fontSize: 10,
+    },
+    { text: "", fillColor: "#E3F2FD" },
+    { text: "", fillColor: "#E3F2FD" },
+    {
+      text: String(grandTotalWithBonus ?? ""),
+      fillColor: "#E3F2FD",
+      color: "#0D47A1",
+      bold: true,
+      alignment: "right",
+      fontSize: 11,
+    },
+  ];
+  
+
   const totalHoursRow = [
     { text: `⏰ Total Hours`, fillColor: "#FFFFFF", fontSize: 10 }, // col 1
     { text: "", fillColor: "#FFFFFF", border: [false, false, false, false] }, // col 2
@@ -183,24 +204,7 @@ const exportMonthlyReportPDF = async (data, adjustments) => {
     
   
     // Grand total
-    [
-      {
-        text: "📊 Grand Total Hours (Including Paid Leaves & Holidays & Bonus)",
-        colSpan: 3,
-        bold: true,
-        fillColor: "#E3F2FD",
-        color: "#0D47A1",
-      },
-      {},
-      {},
-      {
-        text: grandTotalWithBonus,
-        bold: true,
-        fillColor: "#E3F2FD",
-        alignment: "right",
-        color: "#0D47A1",
-      },
-    ],
+    grandTotalRow,
   ];
 
   const detailsTableBody = [
