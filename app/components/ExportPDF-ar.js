@@ -412,7 +412,7 @@ const grandTotalRow = [
         text: "✍️ التواقيع",
         style: "subheader",
         alignment: "right",
-        margin: [0, -14, 0, 10],   // ✅ ارفع العنوان فوق شوي
+        margin: [0, -16, 0, 18],   // ✅ ارفع العنوان فوق شوي
         color: "#424242",
         fontSize: 13,
         bold: true,
@@ -434,22 +434,21 @@ const grandTotalRow = [
       
               // العنوان داخل البوكس
               {
-                text: "✏️ توقيع الموظف",
+                text: "👤 توقيع المدير",
                 fontSize: 10,
                 color: "#757575",
                 bold: true,
                 alignment: "right",
                 relativePosition: { x: 0, y: -66 },
-                margin: [0, 0, 16, 0],
+                margin: [0, 0, 18, 0],
               },
       
-              // التاريخ داخل البوكس
               {
                 text: "التاريخ: _____________",
                 fontSize: 8,
                 color: "#9E9E9E",
                 alignment: "right",
-                relativePosition: { x: 0, y: -14 },
+                relativePosition: { x: 0, y: -16 },
                 margin: [0, 0, 16, 0],
               },
             ],
@@ -468,9 +467,9 @@ const grandTotalRow = [
                   { type: "line", x1: 18, y1: 38, x2: 218, y2: 38, lineWidth: 1, dash: { length: 4, space: 2 }, lineColor: "#BDBDBD" },
                 ],
               },
-      
+
               {
-                text: "👤 توقيع المدير",
+                text: "✏️ توقيع الموظف",
                 fontSize: 10,
                 color: "#757575",
                 bold: true,
@@ -479,14 +478,17 @@ const grandTotalRow = [
                 margin: [0, 0, 16, 0],
               },
       
+              // التاريخ داخل البوكس
               {
                 text: "التاريخ: _____________",
                 fontSize: 8,
                 color: "#9E9E9E",
                 alignment: "right",
-                relativePosition: { x: 0, y: -14 },
-                margin: [0, 0, 16, 0],
+                relativePosition: { x: 0, y: -16 },
+                margin: [0, 0, 18, 0],
               },
+      
+              
             ],
           },
         ],
