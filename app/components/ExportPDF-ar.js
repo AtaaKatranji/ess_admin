@@ -193,14 +193,14 @@ const grandTotalRow = [
 
   const detailsTableBody = [
     [
-      { text: "التاريخ", bold: true, color: "#FFFFFF", fillColor: "#1565C0", fontSize: 9, margin: [1, 3, 1, 3] },
-      { text: "اليوم", bold: true, color: "#FFFFFF", fillColor: "#1565C0", fontSize: 9, margin: [1, 3, 1, 3] },
-      { text: "النوع", bold: true, color: "#FFFFFF", fillColor: "#1565C0", fontSize: 9, margin: [1, 3, 1, 3] },
-      { text: "الدخول", bold: true, color: "#FFFFFF", fillColor: "#1565C0", fontSize: 9, margin: [1, 3, 1, 3] },
-      { text: "الخروج", bold: true, color: "#FFFFFF", fillColor: "#1565C0", fontSize: 9, margin: [1, 3, 1, 3] },
-      { text: "ساعات اليوم", bold: true, color: "#FFFFFF", fillColor: "#1565C0", fontSize: 9, margin: [1, 3, 1, 3] },
-      { text: "تم التعديل؟", bold: true, color: "#FFFFFF", fillColor: "#1565C0", fontSize: 9, margin: [1, 3, 1, 3] },
       { text: "اسم العطلة", bold: true, color: "#FFFFFF", fillColor: "#1565C0", fontSize: 9, margin: [1, 3, 1, 3] },
+      { text: "تم التعديل؟", bold: true, color: "#FFFFFF", fillColor: "#1565C0", fontSize: 9, margin: [1, 3, 1, 3] },
+      { text: "ساعات اليوم", bold: true, color: "#FFFFFF", fillColor: "#1565C0", fontSize: 9, margin: [1, 3, 1, 3] },
+      { text: "الخروج", bold: true, color: "#FFFFFF", fillColor: "#1565C0", fontSize: 9, margin: [1, 3, 1, 3] },
+      { text: "الدخول", bold: true, color: "#FFFFFF", fillColor: "#1565C0", fontSize: 9, margin: [1, 3, 1, 3] },
+      { text: "النوع", bold: true, color: "#FFFFFF", fillColor: "#1565C0", fontSize: 9, margin: [1, 3, 1, 3] },
+      { text: "اليوم", bold: true, color: "#FFFFFF", fillColor: "#1565C0", fontSize: 9, margin: [1, 3, 1, 3] },
+      { text: "التاريخ", bold: true, color: "#FFFFFF", fillColor: "#1565C0", fontSize: 9, margin: [1, 3, 1, 3] },
     ],
 
     ...details.map((entry, index) => {
@@ -220,11 +220,8 @@ const grandTotalRow = [
       const rowBgFinal = typeColor || editedOverlay || stripeColor
 
       return [
-        { text: dateDisplay, fillColor: rowBgFinal, fontSize: 9, margin: [1, 1, 1, 1], color: "#424242" },
-        { text: entry.dayOfWeek ?? "-", fillColor: rowBgFinal, fontSize: 9, margin: [1, 1, 1, 1], color: "#424242" },
-        { text: entry.type || "-", fillColor: rowBgFinal, fontSize: 9, margin: [1, 1, 1, 1], color: "#424242" },
-        { text: entry.checkIn || "-", fillColor: rowBgFinal, fontSize: 10, margin: [1, 1, 1, 1], color: "#424242" },
-        { text: entry.checkOut || "-", fillColor: rowBgFinal, fontSize: 10, margin: [1, 1, 1, 1], color: "#424242" },
+        { text: entry.holidayName || "", fillColor: rowBgFinal, fontSize: 8, margin: [1, 1, 1, 1], color: "#616161" },
+        { ...(editedMarker(isEdited)), fillColor: rowBgFinal, margin: [1, 1, 1, 1] },
         {
           text: entry.dailyHours || "-",
           fillColor: rowBgFinal,
@@ -233,8 +230,11 @@ const grandTotalRow = [
           color: "#212121",
           bold: !!entry.dailyHours,
         },
-        { ...(editedMarker(isEdited)), fillColor: rowBgFinal, margin: [1, 1, 1, 1] },
-        { text: entry.holidayName || "", fillColor: rowBgFinal, fontSize: 8, margin: [1, 1, 1, 1], color: "#616161" },
+        { text: entry.checkOut || "-", fillColor: rowBgFinal, fontSize: 10, margin: [1, 1, 1, 1], color: "#424242" },
+        { text: entry.checkIn || "-", fillColor: rowBgFinal, fontSize: 10, margin: [1, 1, 1, 1], color: "#424242" },
+        { text: entry.type || "-", fillColor: rowBgFinal, fontSize: 9, margin: [1, 1, 1, 1], color: "#424242" },
+        { text: entry.dayOfWeek ?? "-", fillColor: rowBgFinal, fontSize: 9, margin: [1, 1, 1, 1], color: "#424242" },
+        { text: dateDisplay, fillColor: rowBgFinal, fontSize: 9, margin: [1, 1, 1, 1], color: "#424242" },
       ]
     }),
   ]
@@ -331,6 +331,7 @@ const grandTotalRow = [
     defaultStyle: {
       font: "Cairo",
       alignment: "right",
+      rtl: true,
     },
     content: [
       {
@@ -386,7 +387,7 @@ const grandTotalRow = [
       {
         table: {
           headerRows: 1,
-          widths: ["auto", "auto", "auto", "auto", "auto", "auto", "auto", "*"],
+          widths: ["*", "auto", "auto", "auto", "auto", "auto", "auto", "auto"],
           body: detailsTableBody,
         },
         layout: {
@@ -410,7 +411,7 @@ const grandTotalRow = [
       {
         text: "✍️ التواقيع",
         style: "subheader",
-        margin: [8, -24, 0, 0],
+        margin: [8, -24,-18, 0],
         color: "#424242",
         fontSize: 13,
         bold: true,
@@ -427,9 +428,9 @@ const grandTotalRow = [
                   { type: "rect", x: 0, y: 0, w: 230, h: 75, r: 6, color: "#FFFFFF", lineWidth: 1.5, lineColor: "#BDBDBD" },
                 ],
               },
-              { text: "👤 توقيع المدير", margin: [12, -67, 0, 12], fontSize: 10, color: "#757575", bold: true },
+              { text: "👤 توقيع المدير", margin: [12, -67, -18, 0], fontSize: 10, color: "#757575", bold: true },
               {
-                canvas: [{ type: "line", x1: 12, y1: 38, x2: 218, y2: 38, lineWidth: 1, dash: { length: 4, space: 2 }, lineColor: "#BDBDBD" }],
+                canvas: [{ type: "line", x1: 18, y1: 30, x2: 218, y2: 30, lineWidth: 1, dash: { length: 4, space: 2 }, lineColor: "#BDBDBD" }],
               },
               { text: "التاريخ: _____________", margin: [12, 8, 0, 0], fontSize: 8, color: "#9E9E9E" },
             ],
@@ -444,9 +445,9 @@ const grandTotalRow = [
                   { type: "rect", x: 0, y: 0, w: 230, h: 75, r: 6, color: "#FFFFFF", lineWidth: 1.5, lineColor: "#BDBDBD" },
                 ],
               },
-              { text: "✏️ توقيع الموظف", margin: [12, -67, 0, 12], fontSize: 10, color: "#757575", bold: true },
+              { text: "✏️ توقيع الموظف", margin: [12, -67, -18, 0], fontSize: 10, color: "#757575", bold: true },
               {
-                canvas: [{ type: "line", x1: 12, y1: 38, x2: 218, y2: 38, lineWidth: 1, dash: { length: 4, space: 2 }, lineColor: "#BDBDBD" }],
+                canvas: [{ type: "line", x1: 18, y1: 30, x2: 218, y2: 30, lineWidth: 1, dash: { length: 4, space: 2 }, lineColor: "#BDBDBD" }],
               },
               { text: "التاريخ: _____________", margin: [12, 8, 0, 0], fontSize: 8, color: "#9E9E9E" },
             ],
