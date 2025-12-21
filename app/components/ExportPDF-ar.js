@@ -412,7 +412,7 @@ const grandTotalRow = [
         text: "✍️ التواقيع",
         style: "subheader",
         alignment: "right",
-        margin: [0, 18,0, 8],
+        margin: [0, -14, 0, 10],   // ✅ ارفع العنوان فوق شوي
         color: "#424242",
         fontSize: 13,
         bold: true,
@@ -439,8 +439,8 @@ const grandTotalRow = [
                 color: "#757575",
                 bold: true,
                 alignment: "right",
-                relativePosition: { x: 0, y: -68 },
-                margin: [0, 0, 12, 0],
+                relativePosition: { x: 0, y: -66 },
+                margin: [0, 0, 16, 0],
               },
       
               // التاريخ داخل البوكس
@@ -449,8 +449,8 @@ const grandTotalRow = [
                 fontSize: 8,
                 color: "#9E9E9E",
                 alignment: "right",
-                relativePosition: { x: 0, y: -18 },
-                margin: [0, 0, 12, 0],
+                relativePosition: { x: 0, y: -14 },
+                margin: [0, 0, 16, 0],
               },
             ],
           },
@@ -475,8 +475,8 @@ const grandTotalRow = [
                 color: "#757575",
                 bold: true,
                 alignment: "right",
-                relativePosition: { x: 0, y: -68 },
-                margin: [0, 0, 12, 0],
+                relativePosition: { x: 0, y: -66 },
+                margin: [0, 0, 16, 0],
               },
       
               {
@@ -484,13 +484,13 @@ const grandTotalRow = [
                 fontSize: 8,
                 color: "#9E9E9E",
                 alignment: "right",
-                relativePosition: { x: 0, y: -18 },
-                margin: [0, 0, 12, 0],
+                relativePosition: { x: 0, y: -14 },
+                margin: [0, 0, 16, 0],
               },
             ],
           },
         ],
-        margin: [0, 8, 0, 0],
+        margin: [0, 6, 0, 0],
       },
     ],
   }      
