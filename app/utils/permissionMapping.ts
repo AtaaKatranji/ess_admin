@@ -44,6 +44,7 @@ export function mapCategory(resource: string): string {
 
     // 🔹 Insights & Communication
     case "report":             return "Reports & Analytics";
+    case "edit_logs":          return "Reports & Analytics";
     case "notification":       return "Notifications Management";
 
     // 🔹 Default

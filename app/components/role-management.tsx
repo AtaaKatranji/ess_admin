@@ -34,15 +34,18 @@ const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
 const PERMISSION_CATEGORIES = [
   "Institution Management",
   "User Management",
-  "Shift Management",
   "Role Management",
   "System Administration",
-  "Reports & Analytics",
+  "Shift Management",
+  "Break & Hours Management",
   "Break Management",
+  "Bonus Hours Management",
   "Leave Management",
-  "Resignation Management",
   "Holiday Management",
-]
+  "Reports & Analytics",
+  "Notifications Management",
+  "Other", // ✅ أضفها
+];
 
 
 

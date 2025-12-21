@@ -77,7 +77,17 @@ type ShiftType = {
   days: string[];    // ['Monday', ...]
   overrides?: Record<string, { start: string; end: string }>; // Advanced
 };
-
+type MeContext = {
+  id: number;
+  name: string;
+  globalRole: "superAdmin" | "regular";
+  activeInstitution: {
+    id: number;
+    slug: string;
+    role: { id: number; name: string } | null;
+    permissions: string[];
+  };
+};
 interface MonthlyAttendanceResponse {
   employeeId: string;
   monthlyAttendance: Record<string, { totalAttendance: number; absences: number; tardies: number }>;
@@ -106,7 +116,7 @@ const EmployeeDetails = () => {
     shift: null as ShiftType | null,
     
   });
-  
+  const [me, setMe] = useState<MeContext | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingPdf, setIsLoadingPdf] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -116,7 +126,8 @@ const EmployeeDetails = () => {
   const slug = Array.isArray(params.slug) ? params.slug[0] : params.slug;
   //const [institutionKey, setInstitutionKey] = useState<string>("");
   const employeeId = Array.isArray(params.employeeId) ? params.employeeId[0] : params.employeeId as string;
-  const isSuperAdmin = true; // TODO: change to false when the super admin feature is implemented
+  //const isSuperAdmin = me?.globalRole === "superAdmin";
+
   const fetchAllData = useCallback(async (month: Date) => {
     setIsLoading(true);
     try {
@@ -253,7 +264,7 @@ const employee: Employee = {
       setIsLoading(false);
       
     }
-  }, [employeeId]);
+  },  [employeeId, slug, BaseUrl]);
   type ReportLang = "en" | "ar"
   const exportMonthlyReport = useCallback(async (lang: ReportLang) => {
     setIsLoadingPdf(true);
@@ -289,7 +300,7 @@ const employee: Employee = {
         } else {
           await exportMonthlyReportPDF(data, adjustmentsData)
         }
-        await exportMonthlyReportPDF(data, adjustmentsData);
+        
         toast.info("Monthly report exported as PDF!");
     } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
@@ -298,14 +309,42 @@ const employee: Employee = {
         setIsLoadingPdf(false);
     }
 }, [employeeId, selectedMonth]);
-
+  const can = useCallback(
+    (permission: string) =>
+      me?.activeInstitution?.permissions?.includes("*") ||
+      me?.activeInstitution?.permissions?.includes(permission) ||
+      false,
+    [me]
+  );
   useEffect(() => {
     // fetchData();
     console.log("in effect",selectedMonth, format(selectedMonth, "yyyy"), format(selectedMonth, "MM"));
     fetchAllData(selectedMonth);
-
-
-  }, [fetchAllData, selectedMonth]);
+    const loadMeContext = async () => {
+      try {
+        const res = await fetch(`${BaseUrl}/institutions/${slug}/me-context`, {
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+        });
+  
+        if (!res.ok) {
+          // 403 يعني ما عنده صلاحية للمؤسسة (regular)
+          // 401 يعني غير مسجل دخول
+          console.error("Failed to load me-context", res.status);
+          setMe(null);
+          return;
+        }
+  
+        const data: MeContext = await res.json();
+        setMe(data);
+      } catch (e) {
+        console.error("Error loading me-context", e);
+        setMe(null);
+      }
+    };
+  
+    if (slug) loadMeContext();
+  }, [fetchAllData, selectedMonth, slug, BaseUrl]);
 
   // const filteredLeaves = useMemo(() => {
   //   const lowerSearch = searchTerm.toLowerCase();
@@ -660,7 +699,7 @@ const employee: Employee = {
                 <TabsTrigger value="absent">Absences</TabsTrigger> */}
                 <TabsTrigger value="hourlyLeaves">Hourly Leaves</TabsTrigger>
                 <TabsTrigger value="dayRecords">Day Records</TabsTrigger>
-                {isSuperAdmin && (
+                {can("ATTENDANCE_EDIT_LOGS_VIEW") && (
                   <TabsTrigger value="adjustments">Adjustments Log</TabsTrigger>
                 )}
                 </TabsList>
@@ -747,11 +786,12 @@ const employee: Employee = {
               <TabsContent value="dayRecords" className="space-y-4 min-h-0">
                 <NonAttendanceTab employeeId={employeeId} selectedMonth={selectedMonth} slug={slug!} holidays={data.holidays}  />
               </TabsContent>
+              {can("ATTENDANCE_EDIT_LOGS_VIEW") && (
               <TabsContent value="adjustments">
                 {/* هنا جدول أو قائمة تعديلات */}
                 <AttendanceAdjustmentsTab employeeId={employeeId} selectedMonth={selectedMonth} slug={slug!} />
               </TabsContent>
-
+              )}
             </Tabs>
             </section>
     </>
