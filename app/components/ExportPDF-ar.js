@@ -59,7 +59,7 @@ const formatHourlyLeaveValue = (totalMinutes) => {
   return `${decimalHours} (${totalMinutes} min)`
 }
 
-const exportMonthlyReportPDF_AR = async (data, adjustments,) => {
+const exportMonthlyReportPDF_AR = async (data, adjustments, breaksData) => {
   if (typeof window === "undefined") return
 
   const adjustmentsArray = (Array.isArray(adjustments) ? adjustments : adjustments?.items || [])

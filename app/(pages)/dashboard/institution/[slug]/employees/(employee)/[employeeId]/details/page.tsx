@@ -188,7 +188,7 @@ const EmployeeDetails = () => {
         console.log("No shift assigned for this employee");
         // اعرض رسالة بالـ UI أو اعطي default values
       } else {
-        console.log("shiftsResRaw:", shiftsResRaw);
+        
         shifts = Array.isArray(shiftsResRaw) ? shiftsResRaw[0] : shiftsResRaw; 
         // const startTime = shiftsResRaw?.startTime ? shiftsResRaw.startTime.split(":") : [];
         // const endTime   = shiftsResRaw?.endTime   ? shiftsResRaw.endTime.split(":")   : [];
@@ -253,7 +253,7 @@ if (shifts && (shifts.startTime || shifts.endTime)) {
         absences: stats.absences,
         tardies: stats.tardies,
       }));
-      console.log("Shift Name:", shifts?.name || empRes?.shift?.name);
+      
       const shiftName = shifts?.name || empRes?.shift?.name || "Unassigned";
 
 // 🔹 شكّل نسخة جديدة من الموظف مع shiftName مضافة
@@ -293,7 +293,7 @@ const employee: Employee = {
           overrides: shifts.overrides || {}
         } : null
       });
-      console.log("data in effect see if it works",data.shift);
+      
     } catch (error) {
       console.error("Error fetching data:", error);
       toast.error(`Failed to load data: ${error}`);
@@ -359,17 +359,15 @@ const employee: Employee = {
           }
         )
         const breaksJson: EmployeeBreaksApi = await breaksResponse.json()
-        console.log("breaksJson: ", breaksJson)
+
 
         // 4) الآن breaksData فيها { custom, regular }
         breaksData = breaksJson.data
 
-        console.log("breaksData: ", breaksData)
-        console.log("custom breaks: ", breaksData.custom.breaks)
-        console.log("regular breaks: ", breaksData.regular.breaks)
+
 
         if (lang === "ar") {
-          await exportMonthlyReportPDF_AR(data, adjustmentsData)
+          await exportMonthlyReportPDF_AR(data, adjustmentsData, breaksData)
         } else {
           await exportMonthlyReportPDF(data, adjustmentsData, breaksData)
         }
@@ -385,7 +383,7 @@ const employee: Employee = {
   
   useEffect(() => {
     // fetchData();
-    console.log("in effect",selectedMonth, format(selectedMonth, "yyyy"), format(selectedMonth, "MM"));
+    
     fetchAllData(selectedMonth);
     const loadMeContext = async () => {
       setIsLoadingMe(true);
