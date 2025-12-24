@@ -361,7 +361,7 @@ const employee: Employee = {
             throw new Error("Failed to fetch adjustments");
           }
         }
-        console.log("breaksData: ", breaksData[0].breaks , breaksData[0].totalDuration);
+        console.log("breaksData: ", breaksData);
         if (lang === "ar") {
           await exportMonthlyReportPDF_AR(data, adjustmentsData)
         } else {
