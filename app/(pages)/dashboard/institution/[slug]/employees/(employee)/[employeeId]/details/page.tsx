@@ -124,6 +124,12 @@ type Break = {
     name: string
   } | null
 }
+type employeeBreak = {
+  breaks : Break[],
+  totalDuration: number,
+}
+
+
 
 interface MonthlyAttendanceResponse {
   employeeId: string;
@@ -327,7 +333,7 @@ const employee: Employee = {
         const data = await response.json(); // Log number of days
         setData(prev => ({ ...prev, employeeName: data.summary.employeeName }));
         let adjustmentsData: Adjustment[] = [];
-        let breaksData: Break[] = [];
+        let breaksData: employeeBreak[] = [];
         console.log("canViewAdjustmentsReport", can("edit_logs.report_read"));
         const breaksResponse = await fetch(`${BaseUrl}/break/employee-breaks/AllEmployeeBreaksByUserId`, {
           method: "POST",
@@ -347,13 +353,15 @@ const employee: Employee = {
         
           if (adjustmentsResponse.ok && breaksResponse.ok) {
             adjustmentsData = await adjustmentsResponse.json();
-            breaksData = await breaksResponse.json();
+            const breaksJson = await breaksResponse.json();
+            breaksData = breaksJson.data.data.custom;
+            
           } else if (adjustmentsResponse.status !== 403) {
             // 403 طبيعي إذا ما عنده صلاحية (لكن نحن أصلاً شرطنا فوق)
             throw new Error("Failed to fetch adjustments");
           }
         }
-        console.log("breaksData: ", breaksData);
+        console.log("breaksData: ", breaksData[0].breaks , breaksData[0].totalDuration);
         if (lang === "ar") {
           await exportMonthlyReportPDF_AR(data, adjustmentsData)
         } else {
