@@ -146,7 +146,7 @@ const exportMonthlyReportPDF_AR = async (data, adjustments, breaksData) => {
     { text: "", fillColor: "#FFFFFF", border: [false, false, false, false] },
     { text: String(summary.totalHours), fillColor: "#FFFFFF", fontSize: 11, alignment: "right" },
   ]
-
+  const RLM = "\u200F"
   const bonusHoursRow =
     Number(summary.extraAdjustmentHours) > 0
       ? [
