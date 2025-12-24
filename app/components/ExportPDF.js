@@ -55,7 +55,7 @@ const formatHourlyLeaveValue = (totalMinutes) => {
 
   
 
-  return String(decimalHours)
+  return `${decimalHours} (${totalMinutes} min)`
 }
 
 const exportMonthlyReportPDF = async (data, adjustments, breaksData) => {
@@ -130,8 +130,7 @@ const exportMonthlyReportPDF = async (data, adjustments, breaksData) => {
     Number(customBreaksBlock.totalDuration || 0) +
     Number(regularBreaksBlock.totalDuration || 0)
   
-    const hourlyLeaveDecimalHours =
-    +(totalHourlyLeaveMinutes / 60).toFixed(2)
+
   const totalHourlyLeavesCount = allBreaks.length
   const summaryRows = [
     { label: "Total Hours", value: summary.totalHours, icon: "⏰" },
