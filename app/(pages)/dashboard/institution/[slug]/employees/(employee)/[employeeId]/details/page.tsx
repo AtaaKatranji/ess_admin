@@ -371,7 +371,7 @@ const employee: Employee = {
         if (lang === "ar") {
           await exportMonthlyReportPDF_AR(data, adjustmentsData)
         } else {
-          await exportMonthlyReportPDF(data, adjustmentsData)
+          await exportMonthlyReportPDF(data, adjustmentsData, breaksData)
         }
         
         toast.info("Monthly report exported as PDF!");

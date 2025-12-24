@@ -30,7 +30,7 @@ const editedMarker = (isEdited) => {
   }
 }
 
-const exportMonthlyReportPDF_AR = async (data, adjustments) => {
+const exportMonthlyReportPDF_AR = async (data, adjustments,) => {
   if (typeof window === "undefined") return
 
   const adjustmentsArray = (Array.isArray(adjustments) ? adjustments : adjustments?.items || [])

@@ -28,8 +28,30 @@ const editedMarker = (isEdited) => {
     alignment: "center",
   }
 }
+const formatDate = (value) => {
+  const d = new Date(value)
+  if (isNaN(d.getTime())) return "-"
+  const y = d.getUTCFullYear()
+  const m = String(d.getUTCMonth() + 1).padStart(2, "0")
+  const day = String(d.getUTCDate()).padStart(2, "0")
+  return `${y}-${m}-${day}`
+}
 
-const exportMonthlyReportPDF = async (data, adjustments) => {
+const formatTime = (value) => {
+  if (!value) return "-"
+  const t = String(value)
+  const parts = t.split("T")[1] || t
+  return parts.substring(0, 5) // hh:mm
+}
+
+const formatMinutesToHHMM = (minutes) => {
+  const total = Number(minutes || 0)
+  const h = Math.floor(total / 60)
+  const m = total % 60
+  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`
+}
+
+const exportMonthlyReportPDF = async (data, adjustments, breaksData) => {
   if (typeof window === "undefined") return
 
   const adjustmentsArray = (Array.isArray(adjustments) ? adjustments : adjustments?.items || [])
@@ -43,7 +65,6 @@ const exportMonthlyReportPDF = async (data, adjustments) => {
     return acc
   }, {})
   const hasAdjustments = Array.isArray(adjustmentsArray) && adjustmentsArray.length > 0;
-
 
   const pdfMakeModule = await import("@digicole/pdfmake-rtl/build/pdfmake")
   const pdfFontsModule = await import("@digicole/pdfmake-rtl/build/vfs_fonts")
@@ -86,7 +107,23 @@ const exportMonthlyReportPDF = async (data, adjustments) => {
   }
 
   const { summary, details } = data
+  const breaksRoot = breaksData?.data || breaksData || {}
 
+  const customBreaksBlock = breaksRoot.custom || { breaks: [], totalDuration: 0 }
+  const regularBreaksBlock = breaksRoot.regular || { breaks: [], totalDuration: 0 }
+
+  const customBreaks = Array.isArray(customBreaksBlock.breaks) ? customBreaksBlock.breaks : []
+  const regularBreaks = Array.isArray(regularBreaksBlock.breaks) ? regularBreaksBlock.breaks : []
+
+  const allBreaks = [...customBreaks, ...regularBreaks]
+    .filter((b) => b.status === "Approved") // نعرض فقط الموافق عليها
+    .sort((a, b) => String(a.startTime).localeCompare(String(b.startTime)))
+
+  const totalHourlyLeaveMinutes =
+    Number(customBreaksBlock.totalDuration || 0) +
+    Number(regularBreaksBlock.totalDuration || 0)
+
+  const totalHourlyLeavesCount = allBreaks.length
   const summaryRows = [
     { label: "Total Hours", value: summary.totalHours, icon: "⏰" },
     { label: "Late Hours", value: summary.lateHours, icon: "⏱️" },
@@ -172,6 +209,17 @@ const exportMonthlyReportPDF = async (data, adjustments) => {
       { label: "Paid Leaves", value: summary.totalLeaves, icon: "🏖️" },
       { label: "Paid Leave Hours", value: `+${summary.totalPaidLeaveHours}`, icon: "✅" },
     ],
+    [{
+      label: "Hourly Leaves Count",
+      value: totalHourlyLeavesCount,
+      icon: "⏳",
+    },
+    {
+      label: "Hourly Leave Duration (HH:MM)",
+      value: formatMinutesToHHMM(totalHourlyLeaveMinutes),
+      icon: "⌛",
+    },
+    ]
   ];
   
   const summaryTableBody = [
@@ -340,6 +388,85 @@ const exportMonthlyReportPDF = async (data, adjustments) => {
       },
     ]
   : [];
+  const hasHourlyBreaks = allBreaks.length > 0
+
+  const hourlyBreaksTableBody = [
+    [
+      { text: "Date", bold: true, color: "#FFFFFF", fillColor: "#1565C0", fontSize: 9, margin: [1, 3, 1, 3] },
+      { text: "From", bold: true, color: "#FFFFFF", fillColor: "#1565C0", fontSize: 9, margin: [1, 3, 1, 3] },
+      { text: "To", bold: true, color: "#FFFFFF", fillColor: "#1565C0", fontSize: 9, margin: [1, 3, 1, 3] },
+      { text: "Duration (HH:MM)", bold: true, color: "#FFFFFF", fillColor: "#1565C0", fontSize: 9, margin: [1, 3, 1, 3] },
+      { text: "Type", bold: true, color: "#FFFFFF", fillColor: "#1565C0", fontSize: 9, margin: [1, 3, 1, 3] },
+      { text: "Approved By", bold: true, color: "#FFFFFF", fillColor: "#1565C0", fontSize: 9, margin: [1, 3, 1, 3] },
+    ],
+  
+    ...allBreaks.map((b, idx) => {
+      const stripe = idx % 2 === 0 ? "#FAFAFA" : "#FFFFFF"
+  
+      const minutes =
+        b.durationTaken != null && b.durationTaken !== 0
+          ? b.durationTaken
+          : b.duration
+  
+      const durationText = formatMinutesToHHMM(minutes)
+  
+      const typeLabel = b.isCustomBreak
+        ? (b.customBreakName || "Custom Break")
+        : (b.breakType?.name || "Regular Break")
+  
+      const approvedByName =
+        b.approvedByUser?.name || b.approvedBy || "-" // لو لاحقاً ترجمت ID لاسم
+  
+      return [
+        { text: formatDate(b.startTime), fillColor: stripe, fontSize: 9, margin: [1, 2, 1, 2], color: "#424242" },
+        { text: formatTime(b.startTime), fillColor: stripe, fontSize: 9, margin: [1, 2, 1, 2], color: "#424242" },
+        { text: formatTime(b.endTime),   fillColor: stripe, fontSize: 9, margin: [1, 2, 1, 2], color: "#424242" },
+        { text: durationText,            fillColor: stripe, fontSize: 9, margin: [1, 2, 1, 2], color: "#212121", bold: true },
+        { text: typeLabel,               fillColor: stripe, fontSize: 8, margin: [1, 2, 1, 2], color: "#616161" },
+        { text: approvedByName,          fillColor: stripe, fontSize: 8, margin: [1, 2, 1, 2], color: "#616161" },
+      ]
+    }),
+  ]
+  const hourlyBreaksSection = hasHourlyBreaks
+  ? [
+      {
+        canvas: [
+          { type: "rect", x: 0, y: -2, w: 260, h: 24, r: 4, color: "#E8F5E9" },
+        ],
+      },
+      {
+        text: "⏳ Hourly Leaves / Breaks",
+        style: "subheader",
+        margin: [8, -25, 0, 0],
+        color: "#1B5E20",
+        fontSize: 13,
+        bold: true,
+      },
+      {
+        text: "This section shows all approved hourly permissions / breaks during the month.",
+        margin: [0, 4, 0, 4],
+        fontSize: 8,
+        color: "#757575",
+      },
+      {
+        table: {
+          headerRows: 1,
+          widths: ["auto", "auto", "auto", "auto", "*", "auto"],
+          body: hourlyBreaksTableBody,
+        },
+        layout: {
+          hLineWidth: (i) => (i === 1 ? 1.5 : 0.5),
+          vLineWidth: () => 0,
+          hLineColor: (i) => (i === 1 ? "#2E7D32" : "#E0E0E0"),
+          paddingLeft: () => 7,
+          paddingRight: () => 7,
+          paddingTop: () => 4,
+          paddingBottom: () => 4,
+        },
+        margin: [0, 8, 0, 28],
+      },
+    ]
+  : []
 
   const docDefinition = {
     pageMargins: [20, 10, 10, 20],
@@ -426,7 +553,7 @@ const exportMonthlyReportPDF = async (data, adjustments) => {
       },
 
       ...adjustmentsSection,
-
+      ...hourlyBreaksSection,
       {
         canvas: [
           {
