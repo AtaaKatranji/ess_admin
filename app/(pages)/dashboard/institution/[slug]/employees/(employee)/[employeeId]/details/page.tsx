@@ -96,39 +96,32 @@ type Break = {
   id: number
   userId: number
   breakTypeId: number | null
-
   startTime: string
   endTime: string | null
-
-  duration: number            // بالدقائق (المخططة)
-  durationTaken: number | null // الفعلية (لاحقاً)
-
+  duration: number
+  durationTaken: number | null
   isCustomBreak: boolean
   customBreakName: string | null
-
   status: "Pending" | "Approved" | "Rejected" | ""
-
   addedByAdmin: boolean
   approvedBy: number | null
-
   createdAt: string
   updatedAt: string
+  user?: { id: number; name: string }
+  breakType?: { id: number; name: string } | null
+}
 
-  user?: {
-    id: number
-    name: string
+type EmployeeBreakBlock = {
+  breaks: Break[]
+  totalDuration: number
+}
+
+type EmployeeBreaksApi = {
+  data: {
+    custom: EmployeeBreakBlock
+    regular: EmployeeBreakBlock
   }
-
-  breakType?: {
-    id: number
-    name: string
-  } | null
 }
-type employeeBreak = {
-  breaks : Break[],
-  totalDuration: number,
-}
-
 
 
 interface MonthlyAttendanceResponse {
@@ -333,14 +326,8 @@ const employee: Employee = {
         const data = await response.json(); // Log number of days
         setData(prev => ({ ...prev, employeeName: data.summary.employeeName }));
         let adjustmentsData: Adjustment[] = [];
-        let breaksData: employeeBreak[] = [];
-        console.log("canViewAdjustmentsReport", can("edit_logs.report_read"));
-        const breaksResponse = await fetch(`${BaseUrl}/break/employee-breaks/AllEmployeeBreaksByUserId`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ userId: employeeId, month: dateToSend }),
-        }).then((res) => res.json());
-        console.log("breaksResponse: ", breaksResponse);
+        let breaksData: EmployeeBreaksApi["data"] | null = null
+        
         if (can("edit_logs.report_read")) {
         const adjustmentsResponse = await fetch( `${BaseUrl}/institutions/${slug}/checks/edit-logs?userId=${employeeId}&month=${dateToSend}`,
           {
@@ -351,18 +338,36 @@ const employee: Employee = {
             },
           });
           
-        console.log("breaksData: ", breaksData);
-          if (adjustmentsResponse.ok && breaksResponse.ok) {
+         
+          
+          
+          if (adjustmentsResponse.ok) {
             adjustmentsData = await adjustmentsResponse.json();
-            const breaksJson = await breaksResponse.json();
-            breaksData = breaksJson.data.data.custom;
+          
             
           } else if (adjustmentsResponse.status !== 403) {
             // 403 طبيعي إذا ما عنده صلاحية (لكن نحن أصلاً شرطنا فوق)
             throw new Error("Failed to fetch adjustments");
           }
         }
-        console.log("breaksData: ", breaksData);
+        const breaksResponse = await fetch(
+          `${BaseUrl}/break/employee-breaks/AllEmployeeBreaksByUserId`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ userId: employeeId, month: dateToSend }),
+          }
+        )
+        const breaksJson: EmployeeBreaksApi = await breaksResponse.json()
+        console.log("breaksJson: ", breaksJson)
+
+        // 4) الآن breaksData فيها { custom, regular }
+        breaksData = breaksJson.data
+
+        console.log("breaksData: ", breaksData)
+        console.log("custom breaks: ", breaksData.custom.breaks)
+        console.log("regular breaks: ", breaksData.regular.breaks)
+
         if (lang === "ar") {
           await exportMonthlyReportPDF_AR(data, adjustmentsData)
         } else {
