@@ -340,6 +340,7 @@ const employee: Employee = {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ userId: employeeId, month: dateToSend }),
         }).then((res) => res.json());
+        console.log("breaksResponse: ", breaksResponse);
         if (can("edit_logs.report_read")) {
         const adjustmentsResponse = await fetch( `${BaseUrl}/institutions/${slug}/checks/edit-logs?userId=${employeeId}&month=${dateToSend}`,
           {
@@ -350,7 +351,7 @@ const employee: Employee = {
             },
           });
           
-        
+        console.log("breaksData: ", breaksData);
           if (adjustmentsResponse.ok && breaksResponse.ok) {
             adjustmentsData = await adjustmentsResponse.json();
             const breaksJson = await breaksResponse.json();
