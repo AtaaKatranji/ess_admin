@@ -201,7 +201,7 @@ const exportMonthlyReportPDF_AR = async (data, adjustments, breaksData) => {
 // بدل صف Grand total الحالي (الذي فيه colSpan)
 const grandTotalRow = [
   {
-    text: " إجمالي ساعات العمل (بما في ذلك الإجازات المدفوعة الأجر والعطلات الرسمية والمكافآت)",
+    text: " إجمالي ساعات العمل )بما في ذلك الإجازات المدفوعة الأجر والعطلات الرسمية والمكافآت(",
     fillColor: "#E3F2FD",
     color: "#0D47A1",
     bold: true,
