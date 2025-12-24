@@ -150,7 +150,7 @@ const exportMonthlyReportPDF_AR = async (data, adjustments, breaksData) => {
   const bonusHoursRow =
     Number(summary.extraAdjustmentHours) > 0
       ? [
-          { text: `🎁 ساعات مكافأة (قرار إداري)`, fillColor: "#FFF8DC", fontSize: 10 },
+          { text:  `🎁 ساعات مكافأة (${RLM}قرار إداري${RLM})`, fillColor: "#FFF8DC", fontSize: 10 },
           {
             text: `+${summary.extraAdjustmentHours}`,
             fillColor: "#FFF8DC",
@@ -192,7 +192,7 @@ const exportMonthlyReportPDF_AR = async (data, adjustments, breaksData) => {
         icon: "⏳",
       },
       {
-        label: "إجمالي الإجازات الساعية )بالساعات(",
+        label: "إجمالي الإجازات الساعية - بالساعات",  
         value: formatHourlyLeaveValue(totalHourlyLeaveMinutes),
         icon: "⌛",
       },
@@ -201,7 +201,7 @@ const exportMonthlyReportPDF_AR = async (data, adjustments, breaksData) => {
 // بدل صف Grand total الحالي (الذي فيه colSpan)
 const grandTotalRow = [
   {
-    text: " إجمالي ساعات العمل )بما في ذلك الإجازات المدفوعة الأجر والعطلات الرسمية والمكافآت(",
+    text: " إجمالي ساعات العمل - بما في ذلك الإجازات المدفوعة الأجر والعطلات الرسمية والمكافآت",
     fillColor: "#E3F2FD",
     color: "#0D47A1",
     bold: true,
