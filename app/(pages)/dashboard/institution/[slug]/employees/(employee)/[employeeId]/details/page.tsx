@@ -73,14 +73,6 @@ type Adjustment = {
   note: string;
 };
 
-// type Holiday = {
-//   id: number;
-//   name: string;
-//   startDate: string;
-//   endDate: string;
-//   description?: string;
-//   institutionId: number;
-// };
 type ShiftType = {
   name: string;
   mode: 'standard' | 'advanced';
@@ -100,6 +92,39 @@ type MeContext = {
     permissions: string[];
   };
 };
+type Break = {
+  id: number
+  userId: number
+  breakTypeId: number | null
+
+  startTime: string
+  endTime: string | null
+
+  duration: number            // بالدقائق (المخططة)
+  durationTaken: number | null // الفعلية (لاحقاً)
+
+  isCustomBreak: boolean
+  customBreakName: string | null
+
+  status: "Pending" | "Approved" | "Rejected" | ""
+
+  addedByAdmin: boolean
+  approvedBy: number | null
+
+  createdAt: string
+  updatedAt: string
+
+  user?: {
+    id: number
+    name: string
+  }
+
+  breakType?: {
+    id: number
+    name: string
+  } | null
+}
+
 interface MonthlyAttendanceResponse {
   employeeId: string;
   monthlyAttendance: Record<string, { totalAttendance: number; absences: number; tardies: number }>;
@@ -302,7 +327,13 @@ const employee: Employee = {
         const data = await response.json(); // Log number of days
         setData(prev => ({ ...prev, employeeName: data.summary.employeeName }));
         let adjustmentsData: Adjustment[] = [];
+        let breaksData: Break[] = [];
         console.log("canViewAdjustmentsReport", can("edit_logs.report_read"));
+        const breaksResponse = await fetch(`${BaseUrl}/break/employee-breaks/AllEmployeeBreaksByUserId`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId: employeeId, month: dateToSend }),
+        }).then((res) => res.json());
         if (can("edit_logs.report_read")) {
         const adjustmentsResponse = await fetch( `${BaseUrl}/institutions/${slug}/checks/edit-logs?userId=${employeeId}&month=${dateToSend}`,
           {
@@ -312,14 +343,17 @@ const employee: Employee = {
               "Content-Type": "application/json",
             },
           });
+          
         
-          if (adjustmentsResponse.ok) {
+          if (adjustmentsResponse.ok && breaksResponse.ok) {
             adjustmentsData = await adjustmentsResponse.json();
+            breaksData = await breaksResponse.json();
           } else if (adjustmentsResponse.status !== 403) {
             // 403 طبيعي إذا ما عنده صلاحية (لكن نحن أصلاً شرطنا فوق)
             throw new Error("Failed to fetch adjustments");
           }
         }
+        console.log("breaksData: ", breaksData);
         if (lang === "ar") {
           await exportMonthlyReportPDF_AR(data, adjustmentsData)
         } else {
@@ -368,14 +402,6 @@ const employee: Employee = {
     if (slug) loadMeContext();
   }, [fetchAllData, selectedMonth, slug, BaseUrl]);
   const canViewAdjustmentsUI = can("edit_logs.read");         // UI
-  //const canIncludeAdjustmentsInReport = can("edit_logs.report_read"); // PDF
-  // const filteredLeaves = useMemo(() => {
-  //   const lowerSearch = searchTerm.toLowerCase();
-  //   return data.leaves.filter(leave =>
-  //     format(new Date(leave.startDate), "MMMM d, yyyy").toLowerCase().includes(lowerSearch) ||
-  //     leave.reason.toLowerCase().includes(lowerSearch)
-  //   );
-  // }, [data.leaves, searchTerm]);
   // Function to format the month display
   const getMonthDisplay = (date: Date) => {
     const now = new Date();
@@ -387,6 +413,7 @@ const employee: Employee = {
       ? "This month" 
       : date.toLocaleString('default', { month: 'long' });
   };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center">
@@ -394,6 +421,7 @@ const employee: Employee = {
       </div>
     );
   }
+
 // هون شرط إذا ما في shift
 
   return (
@@ -411,68 +439,7 @@ const employee: Employee = {
         {/* Attendance Tab */}
         {data.employee?.status === "active" && (
         <TabsContent value="attendance">
-  {/* <div className="flex justify-between items-center mb-4">
-    {data.employee?.status === "terminated" ? (
-      <div className="flex justify-center items-center w-full">
-        <p className="text-muted-foreground">
-          This employee has been terminated. No attendance records available.
-        </p>
-      </div>
-    ) : !data.shift ? (
-      <div className="flex justify-center items-center w-full">
-        <p className="text-muted-foreground">
-          This employee has resigned or is not assigned to any shift. No active shift available.
-        </p>
-      </div>
-    ) : (
-      <>
-        <h1 className="hidden md:block lg:hidden xl:block text-xl md:text-2xl font-bold">
-          {data.employee.name || "Employee"}'s Attendance Dashboard
-        </h1>
-        <div className="flex items-center space-x-2">
-          <Button
-            className="bg-cyan-900 text-white"
-            onClick={() => setIsModalOpen(true)}
-          >
-            Add Extra Hours
-          </Button>
-          <AddExtraHoursModal
-            isOpen={isModalOpen}
-            onClose={() => setIsModalOpen(false)}
-            employeeId={employeeId}
-            monthIndex={selectedMonth}
-          />
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button variant="outline">
-                {format(selectedMonth, "MMMM yyyy")}
-                <CalendarIcon className="ml-2 h-4 w-4" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0 font-bold" align="end">
-              <Calendar
-                mode="single"
-                selected={selectedMonth}
-                onSelect={(date) => date && setSelectedMonth(date)}
-                initialFocus
-              />
-            </PopoverContent>
-          </Popover>
-          <Button
-            onClick={exportMonthlyReport}
-            className="bg-cyan-900 text-white"
-          >
-            {isLoadingPdf ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              <Download className="mr-2 h-4 w-4" />
-            )}
-            {isLoadingPdf ? "Exporting..." : "Export Report"}
-          </Button>
-        </div>
-      </>
-    )}
-  </div> */}
+
  <div className="flex justify-between items-center mb-4">
         <h1 className="hidden md:block lg:hidden xl:block text-xl md:text-2xl font-bold">
           {data.employee.name || "Employee"}'s Attendance Dashboard
@@ -648,9 +615,7 @@ const employee: Employee = {
                 <CardHeader className="pb-2">
                   <CardTitle className="text-base">Monthly Summary</CardTitle>
                 </CardHeader>
-
                 <CardContent>
-
                   {/* موبايل: بطاقات بدل جدول */}
                   <div className="sm:hidden space-y-3">
                     {data.monthlySummary.map((row) => (
@@ -675,7 +640,6 @@ const employee: Employee = {
                       </div>
                     ))}
                   </div>
-
                   {/* تابلِت/ديسكتوب: جدول بلا سكرول */}
                   <div className="hidden sm:block">
                     <table className="w-full table-fixed border-separate border-spacing-0 text-sm">
@@ -731,78 +695,6 @@ const employee: Employee = {
               <TabsContent value="attendance" className="space-y-4 min-h-0">
                 <AttendanceTab employeeId={employeeId} selectedMonth={selectedMonth} />
               </TabsContent>
-              {/*
-              <TabsContent value="leave" className="space-y-4 min-h-0">
-                <div className="flex justify-between items-center">
-                  <h2 className="text-xl font-semibold">Leave Requests</h2>
-                  <div className="relative">
-                    <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      placeholder="Search records"
-                      className="pl-8"
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                    />
-                  </div>
-                </div>
-                <Card>
-                  <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-4">
-                      {/* Paid */} {/*
-                      <section>
-                        <h3 className="text-lg font-bold mb-2">Paid Leaves</h3>
-                        {filteredLeaves.filter(r => r.type === "Paid").length ? (
-                          filteredLeaves.filter(r => r.type === "Paid").map((record) => (
-                            <div
-                              key={record.id}
-                              className="flex justify-between items-center py-2 border-b last:border-b-0 hover:bg-accent cursor-pointer"
-                            >
-                              <div>
-                                <p className="font-medium">{format(new Date(record.startDate), "MMMM d, yyyy")}</p>
-                                <p className="text-sm text-muted-foreground">
-                                  Start: {format(new Date(record.startDate), "yyyy MM dd")}, End: {format(new Date(record.endDate), "yyyy MM dd")}
-                                </p>
-                                <p>For: {record.reason}</p>
-                              </div>
-                              <p>No. of days: {record.durationInDays}</p>
-                            </div>
-                          ))
-                        ) : (
-                          <p className="text-sm text-muted-foreground">No paid leave records available.</p>
-                        )}
-                      </section>
-
-                      {/* Unpaid */}{/*
-                      <section>
-                        <h3 className="text-lg font-medium mb-2">Unpaid Leaves</h3>
-                        {filteredLeaves.filter(r => r.type === "Unpaid").length ? (
-                          filteredLeaves.filter(r => r.type === "Unpaid").map((record) => (
-                            <div
-                              key={record.id}
-                              className="flex justify-between items-center py-2 border-b last:border-b-0 hover:bg-accent cursor-pointer"
-                            >
-                              <div>
-                                <p className="font-medium">{format(new Date(record.startDate), "MMMM d, yyyy")}</p>
-                                <p className="text-sm text-muted-foreground">
-                                  Start: {format(new Date(record.startDate), "yyyy MM dd")}, End: {format(new Date(record.endDate), "yyyy MM dd")}
-                                </p>
-                                <p>For: {record.reason}</p>
-                              </div>
-                              <p>No. of days: {record.durationInDays}</p>
-                            </div>
-                          ))
-                        ) : (
-                          <p className="text-sm text-muted-foreground">No unpaid leave records available.</p>
-                        )}
-                      </section>
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-              */}
-              {/* <TabsContent value="absent" className="space-y-4 min-h-0">
-                <AbsentTab employeeId={employeeId} selectedMonth={selectedMonth} />
-              </TabsContent> */}
               <TabsContent value="hourlyLeaves" className="space-y-4 min-h-0">
                 <HourlyLeavesTab employeeId={employeeId} selectedMonth={selectedMonth} />
               </TabsContent>
