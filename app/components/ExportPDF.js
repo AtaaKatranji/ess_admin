@@ -50,6 +50,13 @@ const formatMinutesToHHMM = (minutes) => {
   const m = total % 60
   return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`
 }
+const formatHourlyLeaveValue = (totalMinutes) => {
+  const decimalHours = +(totalMinutes / 60).toFixed(2)
+
+  
+
+  return String(decimalHours)
+}
 
 const exportMonthlyReportPDF = async (data, adjustments, breaksData) => {
   if (typeof window === "undefined") return
@@ -122,7 +129,9 @@ const exportMonthlyReportPDF = async (data, adjustments, breaksData) => {
   const totalHourlyLeaveMinutes =
     Number(customBreaksBlock.totalDuration || 0) +
     Number(regularBreaksBlock.totalDuration || 0)
-
+  
+    const hourlyLeaveDecimalHours =
+    +(totalHourlyLeaveMinutes / 60).toFixed(2)
   const totalHourlyLeavesCount = allBreaks.length
   const summaryRows = [
     { label: "Total Hours", value: summary.totalHours, icon: "⏰" },
@@ -215,8 +224,8 @@ const exportMonthlyReportPDF = async (data, adjustments, breaksData) => {
       icon: "⏳",
     },
     {
-      label: "Hourly Leave Duration (HH:MM)",
-      value: formatMinutesToHHMM(totalHourlyLeaveMinutes),
+      label: "Hourly Leave Duration (Hours)",
+      value: formatHourlyLeaveValue(totalHourlyLeaveMinutes),
       icon: "⌛",
     },
     ]
