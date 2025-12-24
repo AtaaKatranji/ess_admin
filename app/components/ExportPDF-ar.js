@@ -29,6 +29,35 @@ const editedMarker = (isEdited) => {
     alignment: "center",
   }
 }
+const formatDate = (value) => {
+  const d = new Date(value)
+  if (isNaN(d.getTime())) return "-"
+  const y = d.getUTCFullYear()
+  const m = String(d.getUTCMonth() + 1).padStart(2, "0")
+  const day = String(d.getUTCDate()).padStart(2, "0")
+  return `${y}-${m}-${day}`
+}
+
+const formatTime = (value) => {
+  if (!value) return "-"
+  const t = String(value)
+  const parts = t.split("T")[1] || t
+  return parts.substring(0, 5) // hh:mm
+}
+
+const formatMinutesToHHMM = (minutes) => {
+  const total = Number(minutes || 0)
+  const h = Math.floor(total / 60)
+  const m = total % 60
+  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`
+}
+const formatHourlyLeaveValue = (totalMinutes) => {
+  const decimalHours = +(totalMinutes / 60).toFixed(2)
+
+  
+
+  return `${decimalHours} (${totalMinutes} min)`
+}
 
 const exportMonthlyReportPDF_AR = async (data, adjustments,) => {
   if (typeof window === "undefined") return
@@ -85,6 +114,25 @@ const exportMonthlyReportPDF_AR = async (data, adjustments,) => {
   }
 
   const { summary, details } = data
+  const breaksRoot = breaksData?.data || breaksData || {}
+
+  const customBreaksBlock = breaksRoot.custom || { breaks: [], totalDuration: 0 }
+  // const regularBreaksBlock = breaksRoot.regular || { breaks: [], totalDuration: 0 }
+
+  const customBreaks = Array.isArray(customBreaksBlock.breaks) ? customBreaksBlock.breaks : []
+  // const regularBreaks = Array.isArray(regularBreaksBlock.breaks) ? regularBreaksBlock.breaks : []
+
+  const allBreaks = [...customBreaks]
+    .filter((b) => b.status === "Approved") // نعرض فقط الموافق عليها
+    .sort((a, b) => String(a.startTime).localeCompare(String(b.startTime)))
+
+  const totalHourlyLeaveMinutes =
+    Number(customBreaksBlock.totalDuration || 0)
+    // + Number(regularBreaksBlock.totalDuration || 0)
+  
+
+  const totalHourlyLeavesCount = allBreaks.length
+
 
   const bonusHours = Number(summary.extraAdjustmentHours || 0)
   const baseTotal = Number(summary.totalHoursAttendance || 0)
@@ -137,6 +185,18 @@ const exportMonthlyReportPDF_AR = async (data, adjustments,) => {
       { label: "الإجازات المدفوعة", value: summary.totalLeaves, icon: "🏖️" },
       { label: "ساعات الإجازات المدفوعة", value: `+${summary.totalPaidLeaveHours}`, icon: "✅" },
     ],
+    [
+      {
+        label: "عدد الإجازات الساعية",
+        value: totalHourlyLeavesCount,
+        icon: "⏳",
+      },
+      {
+        label: "إجمالي الإجازات الساعية (بالساعات)",
+        value: formatHourlyLeaveValue(totalHourlyLeaveMinutes),
+        icon: "⌛",
+      },
+    ]
   ]
 // بدل صف Grand total الحالي (الذي فيه colSpan)
 const grandTotalRow = [
@@ -324,6 +384,86 @@ const grandTotalRow = [
         },
       ]
     : []
+    const hasHourlyBreaks = allBreaks.length > 0
+
+    const hourlyBreaksTableBody = [
+      [
+        { text: "التاريخ", bold: true, color: "#FFFFFF", fillColor: "#1565C0", fontSize: 9, margin: [1, 3, 1, 3] },
+        { text: "من",      bold: true, color: "#FFFFFF", fillColor: "#1565C0", fontSize: 9, margin: [1, 3, 1, 3] },
+        { text: "إلى",     bold: true, color: "#FFFFFF", fillColor: "#1565C0", fontSize: 9, margin: [1, 3, 1, 3] },
+        { text: "المدة (ساعة:دقيقة)", bold: true, color: "#FFFFFF", fillColor: "#1565C0", fontSize: 9, margin: [1, 3, 1, 3] },
+        { text: "النوع",   bold: true, color: "#FFFFFF", fillColor: "#1565C0", fontSize: 9, margin: [1, 3, 1, 3] },
+        { text: "المعتمد من", bold: true, color: "#FFFFFF", fillColor: "#1565C0", fontSize: 9, margin: [1, 3, 1, 3] },
+      ],
+    
+      ...allBreaks.map((b, idx) => {
+        const stripe = idx % 2 === 0 ? "#FAFAFA" : "#FFFFFF"
+    
+        const minutes =
+          b.durationTaken != null && b.durationTaken !== 0
+            ? b.durationTaken
+            : b.duration
+    
+        const durationText = formatMinutesToHHMM(minutes)
+    
+        const typeLabel = b.isCustomBreak
+          ? (b.customBreakName || "استراحة مخصّصة")
+          : (b.breakType?.name || "استراحة عادية")
+    
+        const approvedByName =
+          b.approvedByUser?.name || b.approvedBy || "-"
+    
+        return [
+          { text: formatDate(b.startTime), fillColor: stripe, fontSize: 9, margin: [1, 2, 1, 2], color: "#424242" },
+          { text: formatTime(b.startTime), fillColor: stripe, fontSize: 9, margin: [1, 2, 1, 2], color: "#424242" },
+          { text: formatTime(b.endTime),   fillColor: stripe, fontSize: 9, margin: [1, 2, 1, 2], color: "#424242" },
+          { text: durationText,            fillColor: stripe, fontSize: 9, margin: [1, 2, 1, 2], color: "#212121", bold: true },
+          { text: typeLabel,               fillColor: stripe, fontSize: 8, margin: [1, 2, 1, 2], color: "#616161" },
+          { text: approvedByName,          fillColor: stripe, fontSize: 8, margin: [1, 2, 1, 2], color: "#616161" },
+        ]
+      }),
+    ]
+    
+    const hourlyBreaksSection = hasHourlyBreaks
+      ? [
+          {
+            canvas: [
+              { type: "rect", x: 0, y: -2, w: 260, h: 24, r: 4, color: "#E8F5E9" },
+            ],
+          },
+          {
+            text: "⏳ الإجازات / الأذونات الساعية",
+            style: "subheader",
+            margin: [8, -25, 0, 0],
+            color: "#1B5E20",
+            fontSize: 13,
+            bold: true,
+          },
+          {
+            text: "يعرض هذا القسم جميع الإجازات/الأذونات الساعية المعتمدة خلال الشهر.",
+            margin: [0, 4, 0, 4],
+            fontSize: 8,
+            color: "#757575",
+          },
+          {
+            table: {
+              headerRows: 1,
+              widths: ["auto", "auto", "auto", "auto", "*", "auto"],
+              body: hourlyBreaksTableBody,
+            },
+            layout: {
+              hLineWidth: (i) => (i === 1 ? 1.5 : 0.5),
+              vLineWidth: () => 0,
+              hLineColor: (i) => (i === 1 ? "#2E7D32" : "#E0E0E0"),
+              paddingLeft: () => 7,
+              paddingRight: () => 7,
+              paddingTop: () => 4,
+              paddingBottom: () => 4,
+            },
+            margin: [0, 8, 0, 28],
+          },
+        ]
+      : []
 
   const docDefinition = {
     pageMargins: [20, 10, 10, 20],
@@ -403,7 +543,7 @@ const grandTotalRow = [
       },
 
       ...adjustmentsSection,
-
+      ...hourlyBreaksSection,
       {
         canvas: [{ type: "rect", x: 0, y: -5, w: 130, h: 24, r: 4, color: "#F5F5F5" }],
         margin: [0, 0, 0, 0],

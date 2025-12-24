@@ -117,18 +117,18 @@ const exportMonthlyReportPDF = async (data, adjustments, breaksData) => {
   const breaksRoot = breaksData?.data || breaksData || {}
 
   const customBreaksBlock = breaksRoot.custom || { breaks: [], totalDuration: 0 }
-  const regularBreaksBlock = breaksRoot.regular || { breaks: [], totalDuration: 0 }
+  // const regularBreaksBlock = breaksRoot.regular || { breaks: [], totalDuration: 0 }
 
   const customBreaks = Array.isArray(customBreaksBlock.breaks) ? customBreaksBlock.breaks : []
-  const regularBreaks = Array.isArray(regularBreaksBlock.breaks) ? regularBreaksBlock.breaks : []
+  // const regularBreaks = Array.isArray(regularBreaksBlock.breaks) ? regularBreaksBlock.breaks : []
 
-  const allBreaks = [...customBreaks, ...regularBreaks]
+  const allBreaks = [...customBreaks]
     .filter((b) => b.status === "Approved") // نعرض فقط الموافق عليها
     .sort((a, b) => String(a.startTime).localeCompare(String(b.startTime)))
 
   const totalHourlyLeaveMinutes =
-    Number(customBreaksBlock.totalDuration || 0) +
-    Number(regularBreaksBlock.totalDuration || 0)
+    Number(customBreaksBlock.totalDuration || 0)
+    // + Number(regularBreaksBlock.totalDuration || 0)
   
 
   const totalHourlyLeavesCount = allBreaks.length
