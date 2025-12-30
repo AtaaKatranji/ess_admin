@@ -26,8 +26,8 @@ type AddExtraHoursModalProps = {
 type ExtraHours = {
   _id: string,
   addedHours: number,
-  addedAt: Date, // Default to today
-  month: number, // Default to current month (1-based index)
+  updatedAt: Date, // Default to today
+  yearMonth: number, // Default to current month (1-based index)
   reason: string,
 }
 
@@ -58,7 +58,7 @@ const AddExtraHoursModal = ({ isOpen, onClose, employeeId, monthIndex }: AddExtr
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ ...data, userId: employeeId, yearMonth:data.addedAt }),
+        body: JSON.stringify({ ...data, userId: employeeId, yearMonth:data.yearMonth }),
       });
   
       if (!response.ok) {
@@ -140,7 +140,7 @@ const AddExtraHoursModal = ({ isOpen, onClose, employeeId, monthIndex }: AddExtr
         </div>
 
         <div className="col-span-2 grid grid-cols-2 gap-4">
-            <FormField name="addedAt" render={({ field }) => (
+            <FormField name="updatedAt" render={({ field }) => (
                 <FormItem>
                     <FormLabel>Added At</FormLabel>
                     <FormControl>
@@ -159,7 +159,7 @@ const AddExtraHoursModal = ({ isOpen, onClose, employeeId, monthIndex }: AddExtr
                 </FormItem>
             )} />
 
-            <FormField name="month" render={({ field }) => (
+            <FormField name="yearMonth" render={({ field }) => (
               <FormItem>
                   <FormLabel>Month</FormLabel>
                   <FormControl>
@@ -244,10 +244,10 @@ const AddExtraHoursModal = ({ isOpen, onClose, employeeId, monthIndex }: AddExtr
           <ul className="list-disc pl-5 space-y-2">
           {adjustments.map((adjustment) => (
             <li key={adjustment._id}>
-              <strong>For Month: </strong> {adjustment.month}
+              <strong>For Month: </strong> {adjustment.yearMonth}
               <strong> Hours: </strong> {adjustment.addedHours} <br />
               <strong>Reason:</strong> {adjustment.reason} <br />
-              <span>added at: {new Date(adjustment.addedAt).toLocaleDateString()}</span>
+              <span>added at: {new Date(adjustment.updatedAt).toLocaleDateString()}</span>
             </li>
           ))}
         </ul>
