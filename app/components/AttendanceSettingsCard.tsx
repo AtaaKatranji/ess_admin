@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -47,6 +47,10 @@ export default function AttendanceSettingsCard({ initialValues, onSave }: Props)
     resolver: zodResolver(AttendanceSchema),
     defaultValues: initialValues,
   });
+
+  useEffect(() => {
+    form.reset(initialValues);
+  }, [initialValues, form]);
   const submit = async (values: AttendanceValues) => {
     try {
       setIsSaving(true);

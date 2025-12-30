@@ -611,6 +611,7 @@ const SettingsPage: React.FC = () => {
     </div>
 {/* Check In Window After Minutes */}
 <div>
+
 <AttendanceSettingsCard
       institutionId={institutionInfo.id}
       initialValues={attendanceInitial}
