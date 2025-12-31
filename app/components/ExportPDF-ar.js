@@ -56,7 +56,7 @@ const formatHourlyLeaveValue = (totalMinutes) => {
 
   
 
-  return `${decimalHours} (${totalMinutes} min)`
+  return `${decimalHours}(${totalMinutes} min)`
 }
 
 const exportMonthlyReportPDF_AR = async (data, adjustments, breaksData) => {
@@ -189,25 +189,25 @@ const exportMonthlyReportPDF_AR = async (data, adjustments, breaksData) => {
       {
         label: "عدد الإجازات الساعية",
         value: totalHourlyLeavesCount,
-        icon: "⏳",
+        
       },
       {
         label: "إجمالي الإجازات الساعية",  
         value: formatHourlyLeaveValue(totalHourlyLeaveMinutes),
-        icon: "⌛",
+        
       },
     ]
   ]
 // بدل صف Grand total الحالي (الذي فيه colSpan)
 const grandTotalRow = [
   {
-    text: " إجمالي ساعات العمل\n بما في ذلك الإجازات المدفوعة الأجر والعطلات الرسمية والمكافآت",   
+    text: " إجمالي ساعات العمل بما في ذلك الإجازات المدفوعة الأجر ",   
     fillColor: "#E3F2FD",
     color: "#0D47A1",
     bold: true,
     fontSize: 8,
   },
-  { text: "", fillColor: "#E3F2FD" },
+  { text: "والعطلات الرسمية والمكافآت", fillColor: "#E3F2FD" },
   { text: "", fillColor: "#E3F2FD" },
   {
     text: grandTotalWithBonus,
