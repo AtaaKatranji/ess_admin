@@ -207,7 +207,10 @@ const grandTotalRow = [
     bold: true,
     fontSize: 8,
   },
-  { text: "والعطلات الرسمية والمكافآت", fillColor: "#E3F2FD" },
+  { text: "والعطلات الرسمية والمكافآت", fillColor: "#E3F2FD",
+    color: "#0D47A1",
+    bold: true,
+    fontSize: 8, },
   { text: "", fillColor: "#E3F2FD" },
   {
     text: grandTotalWithBonus,
