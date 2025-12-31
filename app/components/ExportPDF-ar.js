@@ -209,8 +209,8 @@ const grandTotalRow = [
     bold: true,
     fontSize: 10,
   },
-  { text: "", fillColor: "#E3F2FD" },
-  { text: "", fillColor: "#E3F2FD" },
+  {}, // placeholder 1 (لا تحط colSpan هنا)
+  {}, // placeholder 2
   {
     text: grandTotalWithBonus,
     fillColor: "#E3F2FD",
