@@ -202,7 +202,6 @@ const exportMonthlyReportPDF_AR = async (data, adjustments, breaksData) => {
 const grandTotalRow = [
   {
     text: " إجمالي ساعات العمل\n بما في ذلك الإجازات المدفوعة الأجر والعطلات الرسمية والمكافآت",
-    colSpan: 2,
     alignment: "right",
     fillColor: "#E3F2FD",
     color: "#0D47A1",
