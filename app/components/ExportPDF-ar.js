@@ -192,7 +192,7 @@ const exportMonthlyReportPDF_AR = async (data, adjustments, breaksData) => {
         icon: "⏳",
       },
       {
-        label: "إجمالي الإجازات الساعية  \n   (بالساعات)",  
+        label: "إجمالي الإجازات الساعية",  
         value: formatHourlyLeaveValue(totalHourlyLeaveMinutes),
         icon: "⌛",
       },
@@ -201,15 +201,14 @@ const exportMonthlyReportPDF_AR = async (data, adjustments, breaksData) => {
 // بدل صف Grand total الحالي (الذي فيه colSpan)
 const grandTotalRow = [
   {
-    text: " إجمالي ساعات العمل\n بما في ذلك الإجازات المدفوعة الأجر والعطلات الرسمية والمكافآت",
-    alignment: "right",
+    text: " إجمالي ساعات العمل\n بما في ذلك الإجازات المدفوعة الأجر والعطلات الرسمية والمكافآت",   
     fillColor: "#E3F2FD",
     color: "#0D47A1",
     bold: true,
-    fontSize: 10,
+    fontSize: 8,
   },
-  {}, // placeholder 1 (لا تحط colSpan هنا)
-  {}, // placeholder 2
+  { text: "", fillColor: "#E3F2FD" },
+  { text: "", fillColor: "#E3F2FD" },
   {
     text: grandTotalWithBonus,
     fillColor: "#E3F2FD",
