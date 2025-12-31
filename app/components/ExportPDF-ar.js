@@ -202,6 +202,8 @@ const exportMonthlyReportPDF_AR = async (data, adjustments, breaksData) => {
 const grandTotalRow = [
   {
     text: " إجمالي ساعات العمل\n بما في ذلك الإجازات المدفوعة الأجر والعطلات الرسمية والمكافآت",
+    colSpan: 3,
+    alignment: "right",
     fillColor: "#E3F2FD",
     color: "#0D47A1",
     bold: true,
@@ -280,21 +282,21 @@ const grandTotalRow = [
       const rowBgFinal = typeColor || editedOverlay || stripeColor
 
       return [
-        { text: entry.holidayName || "", fillColor: rowBgFinal, fontSize: 8, margin: [1, 1, 1, 1], color: "#616161" },
-        { ...(editedMarker(isEdited)), fillColor: rowBgFinal, margin: [1, 1, 1, 1] },
+        { text: entry.holidayName || "", fillColor: rowBgFinal, fontSize: 8, margin: [1, 0, 1, 0] , color: "#616161" },
+        { ...(editedMarker(isEdited)), fillColor: rowBgFinal, margin: [1, 0, 1, 0] },
         {
           text: entry.dailyHours || "-",
           fillColor: rowBgFinal,
           fontSize: 10,
-          margin: [1, 1, 1, 1],
+          margin: [1, 0, 1, 0],
           color: "#212121",
           bold: !!entry.dailyHours,
         },
-        { text: entry.checkOut || "-", fillColor: rowBgFinal, fontSize: 10, margin: [1, 1, 1, 1], color: "#424242" },
-        { text: entry.checkIn || "-", fillColor: rowBgFinal, fontSize: 10, margin: [1, 1, 1, 1], color: "#424242" },
-        { text: entry.type || "-", fillColor: rowBgFinal, fontSize: 9, margin: [1, 1, 1, 1], color: "#424242" },
-        { text: entry.dayOfWeek ?? "-", fillColor: rowBgFinal, fontSize: 9, margin: [1, 1, 1, 1], color: "#424242" },
-        { text: dateDisplay, fillColor: rowBgFinal, fontSize: 9, margin: [1, 1, 1, 1], color: "#424242" },
+        { text: entry.checkOut || "-", fillColor: rowBgFinal, fontSize: 10, margin: [1, 0, 1, 0] , color: "#424242" },
+        { text: entry.checkIn || "-", fillColor: rowBgFinal, fontSize: 10, margin: [1, 0, 1, 0] , color: "#424242" },
+        { text: entry.type || "-", fillColor: rowBgFinal, fontSize: 9, margin: [1, 0, 1, 0] , color: "#424242" },
+        { text: entry.dayOfWeek ?? "-", fillColor: rowBgFinal, fontSize: 9, margin: [1, 0, 1, 0] , color: "#424242" },
+        { text: dateDisplay, fillColor: rowBgFinal, fontSize: 9, margin: [1, 0, 1, 0] , color: "#424242" },
       ]
     }),
   ]
@@ -333,20 +335,20 @@ const grandTotalRow = [
       const changedOut = String(oldOut || "") !== String(newOut || "")
 
       return [
-        { text: a.logDate, fillColor: stripe, fontSize: 9, margin: [1, 2, 1, 2], color: "#424242" },
+        { text: a.logDate, fillColor: stripe, fontSize: 9, margin: [1, 1, 1, 1], color: "#424242" },
         { ...(timeCell(oldIn, changedIn) ), fillColor: changedIn ? "#FFE8E8" : stripe },
         { ...(timeCell(oldOut, changedOut) ), fillColor: changedOut ? "#FFE8E8" : stripe },
         { ...(timeCell(newIn, changedIn) ), fillColor: changedIn ? "#E8F5E9" : stripe },
         { ...(timeCell(newOut, changedOut) ), fillColor: changedOut ? "#E8F5E9" : stripe },
-        { text: a.editedByName || "-", fillColor: stripe, fontSize: 9, margin: [1, 2, 1, 2], color: "#424242" },
+        { text: a.editedByName || "-", fillColor: stripe, fontSize: 9, margin: [1, 1, 1, 1], color: "#424242" },
         {
           text: a.editedAt ? String(a.editedAt).replace("T", " ").replace(".000Z", "") : "-",
           fillColor: stripe,
           fontSize: 8,
-          margin: [1, 2, 1, 2],
+          margin: [1, 1, 1, 1],
           color: "#616161",
         },
-        { text: a.note || "-", fillColor: stripe, fontSize: 8, margin: [1, 2, 1, 2], color: "#616161", italics: true },
+        { text: a.note || "-", fillColor: stripe, fontSize: 8, margin: [1, 1, 1, 1], color: "#616161", italics: true },
       ]
     }),
   ]
@@ -377,8 +379,8 @@ const grandTotalRow = [
             hLineColor: (i) => (i === 1 ? "#F57C00" : "#E0E0E0"),
             paddingLeft: () => 7,
             paddingRight: () => 7,
-            paddingTop: () => 4,
-            paddingBottom: () => 4,
+            paddingTop: () => 2,
+            paddingBottom: () => 2,
           },
           margin: [0, 12, 0, 32],
         },
@@ -503,8 +505,8 @@ const grandTotalRow = [
           hLineWidth: (i, node) => (i === 0 || i === node.table.body.length ? 0 : 0.5),
           vLineWidth: () => 0,
           hLineColor: () => "#BDBDBD",
-          paddingLeft: () => 10,
-          paddingRight: () => 10,
+          paddingLeft: () => 7,
+          paddingRight: () => 7,
           paddingTop: () => 0,
           paddingBottom: () => 0,
         },
@@ -536,8 +538,8 @@ const grandTotalRow = [
           hLineColor: (i) => (i === 1 ? "#1565C0" : "#E0E0E0"),
           paddingLeft: () => 7,
           paddingRight: () => 7,
-          paddingTop: () => 2,
-          paddingBottom: () => 2,
+          paddingTop: () => 1,
+          paddingBottom: () => 1,
         },
         margin: [0, 12, 0, 28],
       },
