@@ -581,6 +581,15 @@ const grandTotalRow = [
               },
       
               // العنوان داخل البوكس
+              
+              {
+                text: "التاريخ: _____________",
+                fontSize: 8,
+                color: "#9E9E9E",
+                alignment: "right",
+                relativePosition: { x: 0, y: -22 },
+                margin: [0, 0, 0, 0],
+              },
               {
                 text: "👤 توقيع المدير",
                 fontSize: 10,
@@ -591,14 +600,7 @@ const grandTotalRow = [
                 margin: [0, 0, 0, 0],
               },
       
-              {
-                text: "التاريخ: _____________",
-                fontSize: 8,
-                color: "#9E9E9E",
-                alignment: "right",
-                relativePosition: { x: 0, y: -22 },
-                margin: [0, 0, 0, 0],
-              },
+              
             ],
           },
       
@@ -615,18 +617,8 @@ const grandTotalRow = [
                   { type: "line", x1: 18, y1: 40, x2: 218, y2: 40, lineWidth: 1, dash: { length: 4, space: 2 }, lineColor: "#BDBDBD" },
                 ],
               },
-
-              {
-                text: "✏️ توقيع الموظف",
-                fontSize: 10,
-                color: "#757575",
-                bold: true,
-                alignment: "right",
-                relativePosition: { x: 0, y: -66 },
-                margin: [0, 0, 0, 0],
-              },
-      
               // التاريخ داخل البوكس
+              
               {
                 text: "التاريخ: _____________",
                 fontSize: 8,
@@ -635,6 +627,17 @@ const grandTotalRow = [
                 relativePosition: { x: 0, y: -22 },
                 margin: [0, 0, 0, 0],
               },
+              {
+                text: { text: summary.employeeName, bold: true },
+                fontSize: 10,
+                color: "#757575",
+                bold: true,
+                alignment: "right",
+                relativePosition: { x: 0, y: -66 },
+                margin: [0, 0, 0, 0],
+              },
+      
+              
       
               
             ],
