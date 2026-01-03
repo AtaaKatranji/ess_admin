@@ -201,18 +201,23 @@ const exportMonthlyReportPDF_AR = async (data, adjustments, breaksData) => {
 // بدل صف Grand total الحالي (الذي فيه colSpan)
 const grandTotalRow = [
   {
-    text: " إجمالي ساعات العمل بما في ذلك الإجازات المدفوعة الأجر ",   
+    text: " إجمالي ساعات العمل بما في ذلك الإجازات  ",   
     fillColor: "#E3F2FD",
     color: "#0D47A1",
     bold: true,
     fontSize: 8,
   },
+  { text: "المدفوعة الأجر", fillColor: "#E3F2FD",
+    color: "#0D47A1",
+    bold: true,
+    fontSize: 8,
+  },
+
   { text: "والعطلات الرسمية والمكافآت", fillColor: "#E3F2FD",
     color: "#0D47A1",
     bold: true,
     fontSize: 8, },
-  { text: "", fillColor: "#E3F2FD" },
-  {
+    {
     text: grandTotalWithBonus,
     fillColor: "#E3F2FD",
     color: "#0D47A1",
@@ -256,14 +261,14 @@ const grandTotalRow = [
 
   const detailsTableBody = [
     [
-      { text: "اسم العطلة", bold: true, color: "#FFFFFF", fillColor: "#1565C0", fontSize: 9, margin: [1, 3, 1, 3] },
-      { text: "تم التعديل؟", bold: true, color: "#FFFFFF", fillColor: "#1565C0", fontSize: 9, margin: [1, 3, 1, 3] },
-      { text: "ساعات اليوم", bold: true, color: "#FFFFFF", fillColor: "#1565C0", fontSize: 9, margin: [1, 3, 1, 3] },
-      { text: "الخروج", bold: true, color: "#FFFFFF", fillColor: "#1565C0", fontSize: 9, margin: [1, 3, 1, 3] },
-      { text: "الدخول", bold: true, color: "#FFFFFF", fillColor: "#1565C0", fontSize: 9, margin: [1, 3, 1, 3] },
-      { text: "النوع", bold: true, color: "#FFFFFF", fillColor: "#1565C0", fontSize: 9, margin: [1, 3, 1, 3] },
-      { text: "اليوم", bold: true, color: "#FFFFFF", fillColor: "#1565C0", fontSize: 9, margin: [1, 3, 1, 3] },
-      { text: "التاريخ", bold: true, color: "#FFFFFF", fillColor: "#1565C0", fontSize: 9, margin: [1, 3, 1, 3] },
+      { text: "اسم العطلة", bold: true, color: "#FFFFFF", fillColor: "#1565C0", fontSize: 9, margin: [1, 1, 1, 1] },
+      { text: "تم التعديل؟", bold: true, color: "#FFFFFF", fillColor: "#1565C0", fontSize: 9, margin:[1, 1, 1, 1] },
+      { text: "ساعات اليوم", bold: true, color: "#FFFFFF", fillColor: "#1565C0", fontSize: 9, margin: [1, 1, 1, 1] },
+      { text: "الخروج", bold: true, color: "#FFFFFF", fillColor: "#1565C0", fontSize: 9, margin: [1, 1, 1, 1] },
+      { text: "الدخول", bold: true, color: "#FFFFFF", fillColor: "#1565C0", fontSize: 9, margin: [1, 1, 1, 1] },
+      { text: "النوع", bold: true, color: "#FFFFFF", fillColor: "#1565C0", fontSize: 9, margin: [1, 1, 1, 1] },
+      { text: "اليوم", bold: true, color: "#FFFFFF", fillColor: "#1565C0", fontSize: 9, margin: [1, 1, 1, 1] },
+      { text: "التاريخ", bold: true, color: "#FFFFFF", fillColor: "#1565C0", fontSize: 9, margin: [1, 1, 1, 1] },
     ],
 
     ...details.map((entry, index) => {
