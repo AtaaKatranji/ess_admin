@@ -35,7 +35,7 @@
     ".next/types/**/*.ts",
     "app/ui/Addinstitution.tsx",
     "app/lib/firebase/listenForMessages.js"
-, "app/components/ExportPDF.js"  ],
+, "app/components/ExportPDF.js", "app/components/ShiftReportPDFar.js"  ],
   "exclude": [
     "node_modules"
   ]

@@ -6,13 +6,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { Calendar, Clock, Users, FileDown, TrendingUp, ArrowLeft, FileText, AlertCircle, LogOut, LogIn,  } from "lucide-react"
-import exportShiftReportPDF from "@/app/components/ShiftReportPDF"
+//import exportShiftReportPDF from "@/app/components/ShiftReportPDF"
 import * as shiftAPI from '@/app/api/shifts/shifts'
 import { Shift, ShiftReportType, ShiftTimes } from '@/app/types/Shift'
 import { TableBody } from "@mui/material"
 import { Table, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Progress } from "@/components/ui/progress"
 import { fetchShifts,fetchAttendanceIssues, AttendanceIssueUI } from '@/app/api/shifts/shifts'
+import exportShiftMonthlyReportPDF_AR from "./ShiftReportPDFar"
 
 type ShiftReportProps = {
     open: boolean
@@ -100,7 +101,8 @@ export default function ShiftReport({open, onOpenChange, shiftId, institutionKey
   
 
   const handleExportPDF = () => {
-    exportShiftReportPDF(shiftData)
+    // exportShiftReportPDF(shiftData)
+    exportShiftMonthlyReportPDF_AR(shiftData)
   }
 
   // const getAttendanceRateColor = (rate: number) => {
