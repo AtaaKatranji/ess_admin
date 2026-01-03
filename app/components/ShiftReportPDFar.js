@@ -149,18 +149,19 @@ const exportShiftMonthlyReportPDF_AR = async (data, options = {}) => {
   // ===== Summary table =====
   const summaryTableBody = [
     [
-      { text: "المؤشر", style: "th" },
-      { text: "القيمة", style: "th", alignment: "left" },
+      { text: "المؤشر" , style: "th",fontSize: 10, margin: [1,1,1,1] },
+      { text: "القيمة", style: "th", alignment: "left", fontSize: 10,margin: [1,1,1,1]},
     ],
     ...(data.summaryMetrics || []).map((m, idx) => {
       const stripe = idx % 2 === 0 ? "#FFFFFF" : "#FAFAFA"
       return [
-        { text: String(m.label ?? "-"), fillColor: stripe, fontSize: 10 },
+        { text: String(m.label ?? "-"), fillColor: stripe, fontSize: 10,margin: [1,1,1,1] },
         {
           text: String(m.value ?? "-"),
           fillColor: stripe,
           fontSize: 10,
           alignment: "left",
+          margin: [1,1,1,1],
         },
       ]
     }),
@@ -215,7 +216,7 @@ const exportShiftMonthlyReportPDF_AR = async (data, options = {}) => {
 
   const employeeTableBody = [employeeHead, ...employeeBody]
 
-  const pageMargins = [20, 18, 20, 24]
+  const pageMargins = [20, 10, 10, 20];
 
   const docDefinition = {
     pageMargins,
@@ -247,7 +248,7 @@ const exportShiftMonthlyReportPDF_AR = async (data, options = {}) => {
       subheader: {
         fontSize: 11,
         bold: true,
-        margin: [0, 10, 0, 6],
+        margin: [0, 5, 0, 6],
         color: "#0D47A1",
       },
       label: { fontSize: 10, color: "#424242" },
@@ -256,7 +257,7 @@ const exportShiftMonthlyReportPDF_AR = async (data, options = {}) => {
         color: "#FFFFFF",
         fillColor: "#1565C0",
         fontSize: 10,
-        margin: [2, 4, 2, 4],
+        margin: [2, 2, 2, 2],
       },
       small: { fontSize: 9, color: "#616161" },
       hint: { fontSize: 8, color: "#757575" },
@@ -290,7 +291,7 @@ const exportShiftMonthlyReportPDF_AR = async (data, options = {}) => {
             : { width: 60, text: "" },
           {
             width: "*",
-            text: `${data.monthName} - تقرير المناوبة الشهرية`,
+            text: `${data.monthName} - تقرير الشهر `,
             style: "header",
           },
           { width: 60, text: "" },
@@ -337,8 +338,8 @@ const exportShiftMonthlyReportPDF_AR = async (data, options = {}) => {
           hLineColor: () => "#E0E0E0",
           paddingLeft: () => 7,
           paddingRight: () => 7,
-          paddingTop: () => 4,
-          paddingBottom: () => 4,
+          paddingTop: () => 1,
+          paddingBottom: () => 1,
         },
       },
 
@@ -358,8 +359,8 @@ const exportShiftMonthlyReportPDF_AR = async (data, options = {}) => {
           hLineColor: (i) => (i === 1 ? "#1565C0" : "#E0E0E0"),
           paddingLeft: () => 7,
           paddingRight: () => 7,
-          paddingTop: () => 4,
-          paddingBottom: () => 4,
+          paddingTop: () => 1,
+          paddingBottom: () => 1,
         },
         margin: [0, 0, 0, 10],
       },
