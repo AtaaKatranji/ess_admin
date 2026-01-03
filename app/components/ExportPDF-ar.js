@@ -632,7 +632,7 @@ const grandTotalRow = [
                 fontSize: 10,
                 color: "#757575",
                 bold: true,
-                alignment: "right",
+                alignment: "left",
                 relativePosition: { x: 0, y: -66 },
                 margin: [0, 0, 0, 0],
               },
