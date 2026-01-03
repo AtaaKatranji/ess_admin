@@ -146,23 +146,35 @@ const exportShiftMonthlyReportPDF_AR = async (data, options = {}) => {
   const scheduleText = formatShiftTimesAR(data.shiftTimes)
   const watermarkText = options.watermarkText || "سري"
 
-  // ===== Summary table =====
+  const metrics = Array.isArray(data.summaryMetrics) ? data.summaryMetrics : []
+
+  // حوّلها لأزواج: [ [m0,m1], [m2,m3], ... ]
+  const metricPairs = []
+  for (let i = 0; i < metrics.length; i += 2) {
+    metricPairs.push([metrics[i], metrics[i + 1]])
+  }
+  
   const summaryTableBody = [
+    // Header
     [
-      { text: "المؤشر" , style: "th",fontSize: 10, margin: [1,1,1,1] },
-      { text: "القيمة", style: "th", alignment: "left", fontSize: 10,margin: [1,1,1,1]},
+      { text: "المؤشر", style: "th" },
+      { text: "القيمة", style: "th", alignment: "left" },
+      { text: "المؤشر", style: "th" },
+      { text: "القيمة", style: "th", alignment: "left" },
     ],
-    ...(data.summaryMetrics || []).map((m, idx) => {
+  
+    // Rows
+    ...metricPairs.map((pair, idx) => {
       const stripe = idx % 2 === 0 ? "#FFFFFF" : "#FAFAFA"
+      const a = pair[0] || {}
+      const b = pair[1] || {}
+  
       return [
-        { text: String(m.label ?? "-"), fillColor: stripe, fontSize: 10,margin: [1,1,1,1] },
-        {
-          text: String(m.value ?? "-"),
-          fillColor: stripe,
-          fontSize: 10,
-          alignment: "left",
-          margin: [1,1,1,1],
-        },
+        { text: String(a.label ?? "-"), fillColor: stripe, fontSize: 10 },
+        { text: String(a.value ?? "-"), fillColor: stripe, fontSize: 10, alignment: "left" },
+  
+        { text: String(b.label ?? "-"), fillColor: stripe, fontSize: 10 },
+        { text: String(b.value ?? "-"), fillColor: stripe, fontSize: 10, alignment: "left" },
       ]
     }),
   ]
@@ -324,24 +336,24 @@ const exportShiftMonthlyReportPDF_AR = async (data, options = {}) => {
         margin: [0, 0, 0, 8],
       },
 
-      // Summary
-      { text: "ملخص المؤشرات", style: "subheader" },
-      {
-        table: {
-          headerRows: 1,
-          widths: ["*", "auto"],
-          body: summaryTableBody,
-        },
-        layout: {
-          hLineWidth: (i) => (i === 0 ? 0 : 0.5),
-          vLineWidth: () => 0,
-          hLineColor: () => "#E0E0E0",
-          paddingLeft: () => 7,
-          paddingRight: () => 7,
-          paddingTop: () => 1,
-          paddingBottom: () => 1,
-        },
-      },
+    // Summary (4 columns)
+{ text: "ملخص المؤشرات", style: "subheader" },
+{
+  table: {
+    headerRows: 1,
+    widths: ["*", "auto", "*", "auto"],
+    body: summaryTableBody,
+  },
+  layout: {
+    hLineWidth: (i) => (i === 0 ? 0 : 0.5),
+    vLineWidth: () => 0,
+    hLineColor: () => "#E0E0E0",
+    paddingLeft: () => 7,
+    paddingRight: () => 7,
+    paddingTop: () => 1,
+    paddingBottom: () => 1,
+  },
+},
 
       // Employees
       { text: "قائمة الموظفين", style: "subheader" },
