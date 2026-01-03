@@ -136,6 +136,7 @@ const exportShiftMonthlyReportPDF_AR = async (data, options = {}) => {
     Arial: cairoFont,
     Times: cairoFont,
     Courier: cairoFont,
+    Nillima: cairoFont,
   }
 
   const includeHolidayColumn = (data.employees || []).some(
