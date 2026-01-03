@@ -230,10 +230,10 @@ const grandTotalRow = [
   const summaryTableBody = [
     // Header
     [
-      { text: "المؤشر", bold: true, color: "#FFF", fillColor: "#1565C0" },
-      { text: "القيمة", bold: true, color: "#FFF", fillColor: "#1565C0", alignment: "right" },
-      { text: "المؤشر", bold: true, color: "#FFF", fillColor: "#1565C0" },
-      { text: "القيمة", bold: true, color: "#FFF", fillColor: "#1565C0", alignment: "right" },
+      { text: "المؤشر", bold: true, color: "#FFF", fillColor: "#1565C0",fontSize: 10  },
+      { text: "القيمة", bold: true, color: "#FFF", fillColor: "#1565C0", alignment: "right",fontSize: 10 },
+      { text: "المؤشر", bold: true, color: "#FFF", fillColor: "#1565C0",fontSize: 10 },
+      { text: "القيمة", bold: true, color: "#FFF", fillColor: "#1565C0", alignment: "right",fontSize: 10 },
     ],
 
     // Total Hours
@@ -486,11 +486,11 @@ const grandTotalRow = [
         text: `${summary.monthName} - تقرير الحضور والانصراف`,
         style: "header",
         alignment: "center",
-        margin: [0, 0, 0, 10],
+        margin: [0, 0, 0, 5],
       },
       {
         text: [{ text: "الموظف: " }, { text: summary.employeeName, bold: true }],
-        margin: [0, 0, 0, 10],
+        margin: [0, 0, 0, 5],
       },
 
       {
@@ -498,7 +498,7 @@ const grandTotalRow = [
         style: "subheader",
         margin: [0, 0, 0, 0],
         color: "#0D47A1",
-        fontSize: 13,
+        fontSize: 11,
         bold: true,
       },
 
@@ -516,7 +516,7 @@ const grandTotalRow = [
           paddingTop: () => 0,
           paddingBottom: () => 0,
         },
-        margin: [0, 12, 0, 28],
+        margin: [0, 6, 0, 14],
       },
 
       {
@@ -547,7 +547,7 @@ const grandTotalRow = [
           paddingTop: () => 1,
           paddingBottom: () => 1,
         },
-        margin: [0, 12, 0, 28],
+        margin: [0, 6, 0, 14],
       },
 
       ...adjustmentsSection,
@@ -562,7 +562,7 @@ const grandTotalRow = [
         alignment: "right",
         margin: [0, -22, 0, 0],   // ✅ ارفع العنوان فوق شوي
         color: "#424242",
-        fontSize: 13,
+        fontSize: 11,
         bold: true,
       },
 
