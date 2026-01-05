@@ -2,12 +2,12 @@
 type Source = "server" | "default";
 
 const SETTINGS_KEYS = {
-    graceLateMin: "attendance.graceLateMin",
-    absentAfterMin: "attendance.absentAfterMin",
-    earlyLeaveGraceMin: "attendance.earlyLeaveGraceMin",
-    checkInWindowBeforeMin: "attendance.checkInWindowBeforeMin",
-    checkInWindowAfterMin: "attendance.checkInWindowAfterMin",
-  } as const;
+  graceLateMin: "graceLateMin",
+  absentAfterMin: "absentAfterMin",
+  earlyLeaveGraceMin: "earlyLeaveGraceMin",
+  checkInWindowBeforeMin: "checkInWindowBeforeMin",
+  checkInWindowAfterMin: "checkInWindowAfterMin",
+} as const;
   
   type SettingsMap = Record<string, string>;
   
