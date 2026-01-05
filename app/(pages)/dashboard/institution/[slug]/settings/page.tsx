@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { Edit, Save, Trash2, PlusCircle, RefreshCw, Loader2 } from 'lucide-react';
 import { checkNameExists, deleteInstitutionInfo, fetchInstitution, generateInstitutionKey, updateAttendanceSettings, updatedInstitutionInfo } from '@/app/api/institutions/institutions';
 import { useParams, useRouter } from 'next/navigation';
@@ -37,7 +37,9 @@ const SettingsPage: React.FC = () => {
   
   
   const [isEditingAttendance, setIsEditingAttendance] = useState(false)
-  const attendanceInitial = buildAttendanceInitialValues(institutionInfo?.settings ?? {});
+  const attendanceInitial = useMemo(() => {
+    return buildAttendanceInitialValues(institutionInfo?.settings ?? {});
+  }, [institutionInfo?.settings]);
   useEffect(() => {
     let mounted = true;
   

@@ -55,6 +55,7 @@ export default function AttendanceSettingsCard({ initialValues, onSave }: Props)
     try {
       setIsSaving(true);
       await onSave(values);
+      form.reset(values);
       setIsEditing(false);
     } finally {
       setIsSaving(false);
@@ -105,7 +106,7 @@ export default function AttendanceSettingsCard({ initialValues, onSave }: Props)
         form.setValue(name, fixed, { shouldValidate: true, shouldDirty: true });
       }
     };
-  
+    const value = form.watch(name);
     return (
       <div className="space-y-1">
         {showLabel && (
@@ -135,7 +136,7 @@ export default function AttendanceSettingsCard({ initialValues, onSave }: Props)
           </div>
         ) : (
           <p className="inline-flex items-center rounded-lg bg-gray-100 px-3 py-1 text-sm text-gray-800">
-            {String(form.getValues(name))}
+            {String(value)}
             <span className="ml-1 text-xs text-gray-600">{unit}</span>
           </p>
         )}
