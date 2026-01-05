@@ -1,4 +1,6 @@
 // Keys in your InstitutionSettings table (adjust if yours differ)
+type Source = "server" | "default";
+
 const SETTINGS_KEYS = {
     graceLateMin: "attendance.graceLateMin",
     absentAfterMin: "attendance.absentAfterMin",
@@ -17,20 +19,38 @@ const SETTINGS_KEYS = {
     checkInWindowAfterMin: 60,
   } as const;
   
-  function toNumberOrDefault(raw: unknown, def: number) {
-    if (raw === "" || raw === null || raw === undefined) return def;
-    const n = Number(raw);
-    return Number.isFinite(n) ? n : def;
+  function toNumberWithSource(raw: unknown, def: number): { value: number; source: Source; raw: unknown } {
+    const usedDefault = raw === "" || raw === null || raw === undefined || !Number.isFinite(Number(raw));
+    return {
+      value: usedDefault ? def : Number(raw),
+      source: usedDefault ? "default" : "server",
+      raw,
+    };
   }
   
   // Transform Record<string,string> -> AttendanceValues
-  export function buildAttendanceInitialValues(settings: SettingsMap) {
+  export function buildAttendanceInitialValuesWithMeta(settings: SettingsMap) {
+    const graceLate = toNumberWithSource(settings[SETTINGS_KEYS.graceLateMin], DEFAULTS.graceLateMin);
+    const absentAfter = toNumberWithSource(settings[SETTINGS_KEYS.absentAfterMin], DEFAULTS.absentAfterMin);
+    const earlyLeave = toNumberWithSource(settings[SETTINGS_KEYS.earlyLeaveGraceMin], DEFAULTS.earlyLeaveGraceMin);
+    const before = toNumberWithSource(settings[SETTINGS_KEYS.checkInWindowBeforeMin], DEFAULTS.checkInWindowBeforeMin);
+    const after = toNumberWithSource(settings[SETTINGS_KEYS.checkInWindowAfterMin], DEFAULTS.checkInWindowAfterMin);
+  
     return {
-      graceLateMin: toNumberOrDefault(settings[SETTINGS_KEYS.graceLateMin], DEFAULTS.graceLateMin),
-      absentAfterMin: toNumberOrDefault(settings[SETTINGS_KEYS.absentAfterMin], DEFAULTS.absentAfterMin),
-      earlyLeaveGraceMin: toNumberOrDefault(settings[SETTINGS_KEYS.earlyLeaveGraceMin], DEFAULTS.earlyLeaveGraceMin),
-      checkInWindowBeforeMin: toNumberOrDefault(settings[SETTINGS_KEYS.checkInWindowBeforeMin], DEFAULTS.checkInWindowBeforeMin),
-      checkInWindowAfterMin: toNumberOrDefault(settings[SETTINGS_KEYS.checkInWindowAfterMin], DEFAULTS.checkInWindowAfterMin),
+      values: {
+        graceLateMin: graceLate.value,
+        absentAfterMin: absentAfter.value,
+        earlyLeaveGraceMin: earlyLeave.value,
+        checkInWindowBeforeMin: before.value,
+        checkInWindowAfterMin: after.value,
+      },
+      meta: {
+        graceLateMin: graceLate,
+        absentAfterMin: absentAfter,
+        earlyLeaveGraceMin: earlyLeave,
+        checkInWindowBeforeMin: before,
+        checkInWindowAfterMin: after,
+      },
     };
   }
   

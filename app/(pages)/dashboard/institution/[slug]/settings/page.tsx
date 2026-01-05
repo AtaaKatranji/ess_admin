@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState, useRef, useMemo } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Edit, Save, Trash2, PlusCircle, RefreshCw, Loader2 } from 'lucide-react';
 import { checkNameExists, deleteInstitutionInfo, fetchInstitution, generateInstitutionKey, updateAttendanceSettings, updatedInstitutionInfo } from '@/app/api/institutions/institutions';
 import { useParams, useRouter } from 'next/navigation';
@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { InstitutionInfo, normalizeMacAddress, normalizeMacList, WifiEntry } from '@/app/types/Institution';
 import { ApiFailure, ApiSuccess } from '@/app/lib/api';
 import AttendanceSettingsCard from '@/app/components/AttendanceSettingsCard';
-import { buildAttendanceInitialValues } from '@/app/utils/attendance';
+import { buildAttendanceInitialValuesWithMeta } from '@/app/utils/attendance';
 
 
 const SettingsPage: React.FC = () => {
@@ -37,9 +37,10 @@ const SettingsPage: React.FC = () => {
   
   
   const [isEditingAttendance, setIsEditingAttendance] = useState(false)
-  const attendanceInitial = useMemo(() => {
-    return buildAttendanceInitialValues(institutionInfo?.settings ?? {});
-  }, [institutionInfo?.settings]);
+  const built = buildAttendanceInitialValuesWithMeta(institutionInfo?.settings ?? {});
+  console.log("Attendance settings meta:", built.meta);
+  
+  const attendanceInitial = built.values;
   useEffect(() => {
     let mounted = true;
   
