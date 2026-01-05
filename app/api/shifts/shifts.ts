@@ -170,7 +170,7 @@ export const updateShift = async (newShift: Shift, ourSlug: string) => {
         });
         await Promise.all(breakPromises);
       }
-      const shiftResponse = await fetch(`${BaseUrl}instiutions/${ourSlug}/shifts/${newShift.id}`, {
+      const shiftResponse = await fetch(`${BaseUrl}/instiutions/${ourSlug}/shifts/${newShift.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         credentials: "include",
