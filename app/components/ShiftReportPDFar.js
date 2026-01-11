@@ -87,9 +87,9 @@ function formatShiftTimesAR(shiftTimes) {
 }
 
 function safeHours(v) {
-  const n = Number(v)
-  if (!Number.isFinite(n)) return "-"
-  return n.toFixed(2)
+  const n = typeof v === "string" ? Number(v) : Number(v);
+  if (!Number.isFinite(n)) return "-";
+  return n.toFixed(2);
 }
 
 function todayISO() {
@@ -146,12 +146,34 @@ const exportShiftMonthlyReportPDF_AR = async (data, options = {}) => {
   const scheduleText = formatShiftTimesAR(data.shiftTimes)
   const watermarkText = options.watermarkText || "سري"
 
-  const metrics = Array.isArray(data.summaryMetrics) ? data.summaryMetrics : []
+  const METRIC_AR = {
+    "Total Days Scheduled": "عدد أيام الدوام",
+    "Total Employees Assigned": "عدد الموظفين",
+    "Total Hours Scheduled": "إجمالي الساعات المجدولة",
+    "Total Hours Worked": "إجمالي ساعات العمل",
+    "Holiday Names": "أسماء العطل الرسمية",
+    "Total Holiday Days": "عدد أيام العطل الرسمية",
+    "Total Holiday Hours (Shift Calendar)": "ساعات العطل (حسب التقويم)",
+    "Total Holiday Hours (All Employees)": "ساعات العطل (كل الموظفين)",
+    "Total Paid Leave Hours (All Employees)": "ساعات الإجازات المدفوعة (كل الموظفين)",
+    "Total Admin Reward Hours (All Employees)": "ساعات المكافأة الإدارية (كل الموظفين)",
+    "Total Hours Including Paid Leave + Holidays + Admin Rewards (All Employees)":
+      "إجمالي الساعات شامل الإجازات والعطل والمكافآت",
+    "Average Daily Attendance": "متوسط الحضور اليومي",
+    "Average Attendance Rate": "نسبة الحضور",
+  };
+  
+  const metrics = Array.isArray(data.summaryMetrics) ? data.summaryMetrics : [];
+  const metricsAR = metrics.map(m => ({
+    ...m,
+    label: METRIC_AR[m.label] || m.label
+  }));
+  
 
   // حوّلها لأزواج: [ [m0,m1], [m2,m3], ... ]
-  const metricPairs = []
-  for (let i = 0; i < metrics.length; i += 2) {
-    metricPairs.push([metrics[i], metrics[i + 1]])
+  const metricPairs = [];
+  for (let i = 0; i < metricsAR.length; i += 2) {
+    metricPairs.push([metricsAR[i], metricsAR[i + 1]]);
   }
   
   const summaryTableBody = [
@@ -184,15 +206,25 @@ const exportShiftMonthlyReportPDF_AR = async (data, options = {}) => {
     { text: "الموظف", style: "th" },
     { text: "أيام الحضور", style: "th" },
     { text: "أيام الغياب", style: "th" },
-    ...(includeHolidayColumn ? [{ text: "العطل", style: "th" }] : []),
+    ...(includeHolidayColumn ? [{ text: "أيام العطل", style: "th" }] : []),
+  
+    // NEW columns
+    { text: "ساعات العطل", style: "th" },
+    { text: "ساعات الإجازات", style: "th" },
+    { text: "مكافأة إدارية", style: "th" },
+  
     { text: "إجمالي الساعات", style: "th" },
+    { text: "الإجمالي شامل", style: "th" },
+  
     { text: "التوقيع", style: "th" },
-  ]
+  ];
 
   const employeeBody = (data.employees || []).map((e, idx) => {
-    const stripe = idx % 2 === 0 ? "#FFFFFF" : "#FAFAFA"
+    const stripe = idx % 2 === 0 ? "#FFFFFF" : "#FAFAFA";
+  
     return [
       { text: e.name || "-", fillColor: stripe, fontSize: 10 },
+  
       {
         text: String(e.daysAttended ?? "-"),
         fillColor: stripe,
@@ -205,6 +237,7 @@ const exportShiftMonthlyReportPDF_AR = async (data, options = {}) => {
         fontSize: 10,
         alignment: "center",
       },
+  
       ...(includeHolidayColumn
         ? [
             {
@@ -215,6 +248,28 @@ const exportShiftMonthlyReportPDF_AR = async (data, options = {}) => {
             },
           ]
         : []),
+  
+      // NEW
+      {
+        text: safeHours(e.holidayHours),
+        fillColor: stripe,
+        fontSize: 10,
+        alignment: "center",
+      },
+      {
+        text: safeHours(e.paidLeaveHours),
+        fillColor: stripe,
+        fontSize: 10,
+        alignment: "center",
+      },
+      {
+        text: safeHours(e.adminRewardHours),
+        fillColor: stripe,
+        fontSize: 10,
+        alignment: "center",
+      },
+  
+      // Existing
       {
         text: safeHours(e.totalHours),
         fillColor: stripe,
@@ -222,9 +277,19 @@ const exportShiftMonthlyReportPDF_AR = async (data, options = {}) => {
         alignment: "center",
         bold: true,
       },
+  
+      // NEW total including
+      {
+        text: safeHours(e.totalHoursIncludingPaidLeaveHolidayAdmin),
+        fillColor: stripe,
+        fontSize: 10,
+        alignment: "center",
+        bold: true,
+      },
+  
       { text: "", fillColor: stripe },
-    ]
-  })
+    ];
+  });
 
   const employeeTableBody = [employeeHead, ...employeeBody]
 
@@ -361,8 +426,9 @@ const exportShiftMonthlyReportPDF_AR = async (data, options = {}) => {
         table: {
           headerRows: 1,
           widths: includeHolidayColumn
-            ? ["*", "auto", "auto", "auto", "auto", "auto"]
-            : ["*", "auto", "auto", "auto", "auto"],
+          ? ["*", "auto", "auto", "auto", "auto", "auto", "auto", "auto", "auto", "auto"]
+          : ["*", "auto", "auto", "auto", "auto", "auto", "auto", "auto", "auto"],
+
           body: employeeTableBody,
         },
         layout: {

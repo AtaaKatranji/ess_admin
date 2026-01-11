@@ -42,7 +42,8 @@ export default function ShiftReport({open, onOpenChange, shiftId, institutionKey
   console.log("months",months, open);
   const [selectedMonth, setSelectedMonth] = useState(months[0].value)
   const [selectedShift, setSelectedShift] = useState(shiftId)
-  const [shiftData, setShiftData] = useState<ShiftReportType | null>(null)
+  const [
+    shiftData, setShiftData] = useState<ShiftReportType | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null);
   const [shifts, setShifts] = useState<Shift[]>([]);
