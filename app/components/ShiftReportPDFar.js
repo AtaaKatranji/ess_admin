@@ -142,7 +142,15 @@ const exportShiftMonthlyReportPDF_AR = async (data, options = {}) => {
   const includeHolidayColumn = (data.employees || []).some(
     (e) => Number(e.holidays || 0) > 0
   )
+  const emps = Array.isArray(data.employees) ? data.employees : [];
 
+  const showHolidayHours = emps.some(e => Number(e.holidayHours || 0) > 0);
+  const showPaidLeaveHours = emps.some(e => Number(e.paidLeaveHours || 0) > 0);
+  const showAdminRewardHours = emps.some(e => Number(e.adminRewardHours || 0) > 0);
+  
+  // "الإجمالي شامل" منطقي يظهر فقط إذا في شي إضافي (عطل ساعات/إجازات/مكافأة)
+  const showTotalIncluding = showHolidayHours || showPaidLeaveHours || showAdminRewardHours;
+  
   const scheduleText = formatShiftTimesAR(data.shiftTimes)
   const watermarkText = options.watermarkText || "سري"
 
@@ -208,68 +216,43 @@ const exportShiftMonthlyReportPDF_AR = async (data, options = {}) => {
     { text: "أيام الغياب", style: "th" },
     ...(includeHolidayColumn ? [{ text: "أيام العطل", style: "th" }] : []),
   
-    // NEW columns
-    { text: "ساعات العطل", style: "th" },
-    { text: "ساعات الإجازات", style: "th" },
-    { text: "مكافأة إدارية", style: "th" },
+    ...(showHolidayHours ? [{ text: "ساعات العطل", style: "th" }] : []),
+    ...(showPaidLeaveHours ? [{ text: "ساعات الإجازات", style: "th" }] : []),
+    ...(showAdminRewardHours ? [{ text: "مكافأة إدارية", style: "th" }] : []),
   
     { text: "إجمالي الساعات", style: "th" },
-    { text: "الإجمالي شامل", style: "th" },
+  
+    ...(showTotalIncluding ? [{ text: "الإجمالي شامل", style: "th" }] : []),
   
     { text: "التوقيع", style: "th" },
   ];
+  
 
-  const employeeBody = (data.employees || []).map((e, idx) => {
+  const employeeBody = emps.map((e, idx) => {
     const stripe = idx % 2 === 0 ? "#FFFFFF" : "#FAFAFA";
   
     return [
       { text: e.name || "-", fillColor: stripe, fontSize: 10 },
   
-      {
-        text: String(e.daysAttended ?? "-"),
-        fillColor: stripe,
-        fontSize: 10,
-        alignment: "center",
-      },
-      {
-        text: String(e.daysAbsent ?? "-"),
-        fillColor: stripe,
-        fontSize: 10,
-        alignment: "center",
-      },
+      { text: String(e.daysAttended ?? "-"), fillColor: stripe, fontSize: 10, alignment: "center" },
+      { text: String(e.daysAbsent ?? "-"), fillColor: stripe, fontSize: 10, alignment: "center" },
   
       ...(includeHolidayColumn
-        ? [
-            {
-              text: String(e.holidays ?? 0),
-              fillColor: stripe,
-              fontSize: 10,
-              alignment: "center",
-            },
-          ]
+        ? [{ text: String(e.holidays ?? 0), fillColor: stripe, fontSize: 10, alignment: "center" }]
         : []),
   
-      // NEW
-      {
-        text: safeHours(e.holidayHours),
-        fillColor: stripe,
-        fontSize: 10,
-        alignment: "center",
-      },
-      {
-        text: safeHours(e.paidLeaveHours),
-        fillColor: stripe,
-        fontSize: 10,
-        alignment: "center",
-      },
-      {
-        text: safeHours(e.adminRewardHours),
-        fillColor: stripe,
-        fontSize: 10,
-        alignment: "center",
-      },
+      ...(showHolidayHours
+        ? [{ text: safeHours(e.holidayHours), fillColor: stripe, fontSize: 10, alignment: "center" }]
+        : []),
   
-      // Existing
+      ...(showPaidLeaveHours
+        ? [{ text: safeHours(e.paidLeaveHours), fillColor: stripe, fontSize: 10, alignment: "center" }]
+        : []),
+  
+      ...(showAdminRewardHours
+        ? [{ text: safeHours(e.adminRewardHours), fillColor: stripe, fontSize: 10, alignment: "center" }]
+        : []),
+  
       {
         text: safeHours(e.totalHours),
         fillColor: stripe,
@@ -278,19 +261,22 @@ const exportShiftMonthlyReportPDF_AR = async (data, options = {}) => {
         bold: true,
       },
   
-      // NEW total including
-      {
-        text: safeHours(e.totalHoursIncludingPaidLeaveHolidayAdmin),
-        fillColor: stripe,
-        fontSize: 10,
-        alignment: "center",
-        bold: true,
-      },
+      ...(showTotalIncluding
+        ? [{
+            text: safeHours(e.totalHoursIncludingPaidLeaveHolidayAdmin),
+            fillColor: stripe,
+            fontSize: 10,
+            alignment: "center",
+            bold: true,
+          }]
+        : []),
   
       { text: "", fillColor: stripe },
     ];
   });
-
+  const employeeColCount = employeeHead.length;
+  const employeeWidths = ["*"]; // الموظف
+  for (let i = 1; i < employeeColCount; i++) employeeWidths.push("auto");
   const employeeTableBody = [employeeHead, ...employeeBody]
 
   const pageMargins = [20, 10, 10, 20];
@@ -425,9 +411,7 @@ const exportShiftMonthlyReportPDF_AR = async (data, options = {}) => {
       {
         table: {
           headerRows: 1,
-          widths: includeHolidayColumn
-          ? ["*", "auto", "auto", "auto", "auto", "auto", "auto", "auto", "auto", "auto"]
-          : ["*", "auto", "auto", "auto", "auto", "auto", "auto", "auto", "auto"],
+          widths:employeeWidths,
 
           body: employeeTableBody,
         },
