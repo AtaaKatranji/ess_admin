@@ -139,9 +139,9 @@ const exportShiftMonthlyReportPDF_AR = async (data, options = {}) => {
     Nillima: cairoFont,
   }
 
-  const includeHolidayColumn = (data.employees || []).some(
-    (e) => Number(e.holidays || 0) > 0
-  )
+  // const includeHolidayColumn = (data.employees || []).some(
+  //   (e) => Number(e.holidays || 0) > 0
+  // )
   const emps = Array.isArray(data.employees) ? data.employees : [];
 
   const showHolidayHours = emps.some(e => Number(e.holidayHours || 0) > 0);
@@ -214,9 +214,7 @@ const exportShiftMonthlyReportPDF_AR = async (data, options = {}) => {
     { text: "الموظف", style: "th" },
     { text: "أيام الحضور", style: "th" },
     { text: "أيام الغياب", style: "th" },
-    ...(includeHolidayColumn ? [{ text: "أيام العطل", style: "th" }] : []),
-  
-    ...(showHolidayHours ? [{ text: "ساعات العطل", style: "th" }] : []),
+
     ...(showPaidLeaveHours ? [{ text: "ساعات الإجازات", style: "th" }] : []),
     ...(showAdminRewardHours ? [{ text: "مكافأة إدارية", style: "th" }] : []),
   
@@ -237,13 +235,6 @@ const exportShiftMonthlyReportPDF_AR = async (data, options = {}) => {
       { text: String(e.daysAttended ?? "-"), fillColor: stripe, fontSize: 10, alignment: "center" },
       { text: String(e.daysAbsent ?? "-"), fillColor: stripe, fontSize: 10, alignment: "center" },
   
-      ...(includeHolidayColumn
-        ? [{ text: String(e.holidays ?? 0), fillColor: stripe, fontSize: 10, alignment: "center" }]
-        : []),
-  
-      ...(showHolidayHours
-        ? [{ text: safeHours(e.holidayHours), fillColor: stripe, fontSize: 10, alignment: "center" }]
-        : []),
   
       ...(showPaidLeaveHours
         ? [{ text: safeHours(e.paidLeaveHours), fillColor: stripe, fontSize: 10, alignment: "center" }]
@@ -279,7 +270,7 @@ const exportShiftMonthlyReportPDF_AR = async (data, options = {}) => {
   for (let i = 1; i < employeeColCount; i++) employeeWidths.push("auto");
   const employeeTableBody = [employeeHead, ...employeeBody]
 
-  const pageMargins = [20, 10, 10, 20];
+  const pageMargins = [10, 8, 10, 10];
 
   const docDefinition = {
     pageMargins,
@@ -303,10 +294,10 @@ const exportShiftMonthlyReportPDF_AR = async (data, options = {}) => {
 
     styles: {
       header: {
-        fontSize: 15,
+        fontSize: 14,
         bold: true,
         alignment: "center",
-        margin: [0, 0, 0, 10],
+        margin: [0, 0, 0, 4],
       },
       subheader: {
         fontSize: 11,
@@ -342,50 +333,76 @@ const exportShiftMonthlyReportPDF_AR = async (data, options = {}) => {
 
     content: [
       // Header
+      // ===== Compact Header =====
       {
         columns: [
           data.logoBase64
-            ? {
-                width: 60,
-                image: data.logoBase64,
-                fit: [50, 50],
-                alignment: "left",
-              }
-            : { width: 60, text: "" },
+            ? { width: 48, image: data.logoBase64, fit: [40, 40], alignment: "left" }
+            : { width: 48, text: "" },
+
           {
             width: "*",
-            text: `${data.monthName} - تقرير الشهر `,
+            text: `تقرير الشهر - ${data.monthName}`,
             style: "header",
+            margin: [0, 2, 0, 0],
           },
-          { width: 60, text: "" },
+
+          { width: 48, text: "" },
         ],
+        margin: [0, 0, 0, 4],
       },
 
-      // Shift info
+      // ===== Compact Shift Card =====
       {
-        columns: [
-          {
-            width: "*",
-            stack: [
-              { text: `المناوبة: ${data.shiftName || "-"}`, style: "label" },
-              { text: `النوع: ${data.shiftType || "-"}`, style: "label", margin: [0, 3, 0, 0] },
-              { text: `الجدول:`, style: "label", margin: [0, 6, 0, 0] },
+        table: {
+          widths: ["auto", "*", "auto", "*"],
+          body: [
+            [
+              { text: "المناوبة:", style: "small", bold: true },
+              { text: String(data.shiftName || "-"), style: "small" },
+              { text: "النوع:", style: "small", bold: true },
+              { text: String(data.shiftType || "-"), style: "small" },
+            ],
+            [
+              { text: "الجدول:", style: "small", bold: true },
               {
                 text: scheduleText || "-",
                 style: "small",
-                margin: [0, 3, 0, 0],
-                lineHeight: 1.2,
+                colSpan: 3,
+                lineHeight: 1.1,
+              },
+              {},
+              {},
+            ],
+            [
+              {
+                text: "ملاحظة:",
+                style: "hint",
+                bold: true,
               },
               {
-                text: "ملاحظة: تم تجميع الأيام التي لها نفس وقت الدوام.",
+                text: "تم تجميع الأيام التي لها نفس وقت الدوام.",
                 style: "hint",
-                margin: [0, 4, 0, 0],
+                colSpan: 3,
               },
+              {},
+              {},
             ],
-          },
-        ],
-        margin: [0, 0, 0, 8],
+          ],
+        },
+        layout: {
+          hLineWidth: () => 0.5,
+          vLineWidth: () => 0,
+          hLineColor: () => "#E0E0E0",
+          paddingLeft: () => 6,
+          paddingRight: () => 6,
+          paddingTop: () => 2,
+          paddingBottom: () => 2,
+        },
+        margin: [0, 0, 0, 6],
       },
+
+
 
     // Summary (4 columns)
 { text: "ملخص المؤشرات", style: "subheader" },
