@@ -355,38 +355,23 @@ const exportShiftMonthlyReportPDF_AR = async (data, options = {}) => {
       // ===== Compact Shift Card =====
       {
         table: {
-          widths: ["auto", "*", "auto", "*"],
+          widths: ["auto", "*"],
           body: [
             [
               { text: "المناوبة:", style: "small", bold: true },
               { text: String(data.shiftName || "-"), style: "small" },
+            ],
+            [
               { text: "النوع:", style: "small", bold: true },
               { text: String(data.shiftType || "-"), style: "small" },
             ],
             [
               { text: "الجدول:", style: "small", bold: true },
-              {
-                text: scheduleText || "-",
-                style: "small",
-                colSpan: 3,
-                lineHeight: 1.1,
-              },
-              {},
-              {},
+              { text: scheduleText || "-", style: "small", lineHeight: 1.1 },
             ],
             [
-              {
-                text: "ملاحظة:",
-                style: "hint",
-                bold: true,
-              },
-              {
-                text: "تم تجميع الأيام التي لها نفس وقت الدوام.",
-                style: "hint",
-                colSpan: 3,
-              },
-              {},
-              {},
+              { text: "ملاحظة:", style: "hint", bold: true },
+              { text: "تم تجميع الأيام التي لها نفس وقت الدوام.", style: "hint" },
             ],
           ],
         },
