@@ -689,7 +689,7 @@ const employee: Employee = {
 
 
             </div>
-            <section className="mx-auto max-w-6xl px-4 sm:px-6 min-w-0 min-h-0 overflow-x-hidden">
+            <section className="mx-auto max-w-6xl px-4 sm:px-6 min-w-0">
             <Tabs defaultValue="attendance" className="space-y-6">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <TabsList>

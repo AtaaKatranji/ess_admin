@@ -292,7 +292,7 @@ const AttendanceTab = ({ employeeId, selectedMonth, ourSlug }: { employeeId: str
   if (isLoading) return <p>Loading...</p>;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 w-full">
     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
       <h2 className="text-xl sm:text-2xl font-semibold text-primary">Attendance Records</h2>
 
@@ -314,7 +314,7 @@ const AttendanceTab = ({ employeeId, selectedMonth, ourSlug }: { employeeId: str
         </div>
       </div>
     </div>
-    <Card className="shadow-sm">
+    <Card className="shadow-sm" style={{ overflow: 'visible' }}>
   {history.length === 0 ? (
     <div className="p-8 text-sm text-muted-foreground">
       No attendance recorded.
