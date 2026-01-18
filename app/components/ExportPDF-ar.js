@@ -189,12 +189,13 @@ const exportMonthlyReportPDF_AR = async (data, adjustments, breaksData) => {
       {
         label: "عدد الإجازات الساعية",
         value: totalHourlyLeavesCount,
+        icon: "⏳",
         
       },
       {
         label: "إجمالي الإجازات الساعية",  
         value: formatHourlyLeaveValue(totalHourlyLeaveMinutes),
-        
+        icon: "🧾",
       },
     ]
   ]
