@@ -689,7 +689,7 @@ const employee: Employee = {
 
 
             </div>
-            <section className="mx-auto max-w-6xl px-4 sm:px-6 min-w-0">
+            <section className="mx-auto max-w-6xl min-w-0">
             <Tabs defaultValue="attendance" className="space-y-6">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <TabsList>
@@ -704,13 +704,13 @@ const employee: Employee = {
                 </TabsList>
               </div>
               
-              <TabsContent value="attendance" className="space-y-4 min-h-0">
+              <TabsContent value="attendance" className="space-y-4">
                 <AttendanceTab employeeId={employeeId} selectedMonth={selectedMonth} ourSlug={slug!} />
               </TabsContent>
-              <TabsContent value="hourlyLeaves" className="space-y-4 min-h-0">
+              <TabsContent value="hourlyLeaves" className="space-y-4">
                 <HourlyLeavesTab employeeId={employeeId} selectedMonth={selectedMonth} />
               </TabsContent>
-              <TabsContent value="dayRecords" className="space-y-4 min-h-0">
+              <TabsContent value="dayRecords" className="space-y-4">
                 <NonAttendanceTab employeeId={employeeId} selectedMonth={selectedMonth} slug={slug!} holidays={data.holidays}  />
               </TabsContent>
               {canViewAdjustmentsUI && (

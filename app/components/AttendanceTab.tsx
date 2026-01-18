@@ -314,7 +314,7 @@ const AttendanceTab = ({ employeeId, selectedMonth, ourSlug }: { employeeId: str
         </div>
       </div>
     </div>
-    <Card className="shadow-sm" style={{ overflow: 'visible' }}>
+    <Card className="shadow-sm">
   {history.length === 0 ? (
     <div className="p-8 text-sm text-muted-foreground">
       No attendance recorded.
