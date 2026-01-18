@@ -689,8 +689,8 @@ const employee: Employee = {
 
 
             </div>
-            <section className="mx-auto max-w-6xl min-w-0">
-            <Tabs defaultValue="attendance" className="space-y-6">
+            <section className="mx-auto max-w-6xl min-w-0 overflow-x-hidden">
+            <Tabs defaultValue="attendance" className="space-y-6 w-full">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <TabsList>
                 <TabsTrigger value="attendance" >Attendance Records</TabsTrigger>

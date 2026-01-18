@@ -292,7 +292,7 @@ const AttendanceTab = ({ employeeId, selectedMonth, ourSlug }: { employeeId: str
   if (isLoading) return <p>Loading...</p>;
 
   return (
-    <div className="space-y-4 w-full">
+    <div className="space-y-4">
     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
       <h2 className="text-xl sm:text-2xl font-semibold text-primary">Attendance Records</h2>
 
