@@ -162,7 +162,7 @@ const AttendanceTab = ({ employeeId, selectedMonth, ourSlug }: { employeeId: str
     try {
       let response;
       if (isEditing) {
-        response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/checks/update`, {
+        response = await fetch(`${baseUrl}/checks/update`, {
           method: "PUT",
           credentials: "include",
           headers: { "Content-Type": "application/json" },
@@ -170,7 +170,7 @@ const AttendanceTab = ({ employeeId, selectedMonth, ourSlug }: { employeeId: str
         });
       } else {
         const existingRecordsResponse = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/checks/checks?date=${data.checkDate}&employeeId=${employeeId}`,
+          `${baseUrl}/checks/checks?date=${data.checkDate}&employeeId=${employeeId}`,
           { method: "GET", headers: { "Content-Type": "application/json" } }
         );
         if (!existingRecordsResponse.ok) throw new Error("Failed to check existing records");
@@ -181,7 +181,7 @@ const AttendanceTab = ({ employeeId, selectedMonth, ourSlug }: { employeeId: str
         }
         const timeZone = "Asia/Damascus";
         const requestData = { ...data, timeZone, userId:employeeId };
-        response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/checks/add`, {
+        response = await fetch(`${baseUrl}/checks/add`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(requestData),
@@ -292,7 +292,7 @@ const AttendanceTab = ({ employeeId, selectedMonth, ourSlug }: { employeeId: str
   if (isLoading) return <p>Loading...</p>;
 
   return (
-    <section className="min-w-0 min-h-0 overflow-x-hidden space-y-4">
+    <section className="min-w-0 space-y-4">
     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
       <h2 className="text-xl sm:text-2xl font-semibold text-primary">Attendance Records</h2>
 
