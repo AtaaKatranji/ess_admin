@@ -292,7 +292,7 @@ const AttendanceTab = ({ employeeId, selectedMonth, ourSlug }: { employeeId: str
   if (isLoading) return <p>Loading...</p>;
 
   return (
-    <section className="min-w-0 space-y-4">
+    <div className="space-y-4">
     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
       <h2 className="text-xl sm:text-2xl font-semibold text-primary">Attendance Records</h2>
 
@@ -685,7 +685,7 @@ const AttendanceTab = ({ employeeId, selectedMonth, ourSlug }: { employeeId: str
         </DialogContent>
       </Dialog>
 
-    </section>
+    </div>
   );
 };
 
