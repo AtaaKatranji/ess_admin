@@ -705,7 +705,7 @@ const employee: Employee = {
               </div>
               
               <TabsContent value="attendance" className="space-y-4 min-h-0">
-                <AttendanceTab employeeId={employeeId} selectedMonth={selectedMonth} />
+                <AttendanceTab employeeId={employeeId} selectedMonth={selectedMonth} ourSlug={slug!} />
               </TabsContent>
               <TabsContent value="hourlyLeaves" className="space-y-4 min-h-0">
                 <HourlyLeavesTab employeeId={employeeId} selectedMonth={selectedMonth} />

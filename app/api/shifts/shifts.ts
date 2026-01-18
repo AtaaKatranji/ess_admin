@@ -200,20 +200,6 @@ export const updateShift = async (newShift: Shift, ourSlug: string) => {
       
     }
   }
-  // const fetchBreaksForShift = async (shiftId : string) => {
-  //   try {
-  //     const response = await fetch(`${BaseURL}/break/break-types/shift/${shiftId}`);
-    
-  //     if (!response.ok) {
-  //       throw new Error('Failed to fetch breaks');
-  //     }
-  //     const data = await response.json();
-  //     return data;
-  //   } catch (error) {
-  //     console.error('Error fetching breaks:', error);
-  //     return [];
-  //   }
-  // };
    // Function to delete a break from the backend
 export  const deleteBreak = async (breakId: string) => {
     try {
