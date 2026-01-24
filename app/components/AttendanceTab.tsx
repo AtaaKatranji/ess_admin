@@ -48,7 +48,14 @@ type History = {
   hasLateNote?: boolean;
   hasEarlyLeaveNote?: boolean;
 };
-type AttendanceNoteType = "LATE" | "EARLY_LEAVE" | "OTHER";
+type AttendanceNoteType =
+  | "LATE"
+  | "EARLY_LEAVE"
+  | "OTHER"
+  | "NO_TASKS"          // لا يوجد مهام
+  | "TASKS_DONE"        // انتهاء المهام
+  | "ADMIN_PERMISSION"  // إذن إداري
+  | "DEDUCTION";        // حسم
 
 type AttendanceNote = {
   id: number;
@@ -436,36 +443,75 @@ const AttendanceTab = ({ employeeId, selectedMonth, ourSlug }: { employeeId: str
               className="rounded-lg border bg-background p-3 text-sm space-y-1"
             >
               <div className="flex items-center justify-between gap-2">
-                <span
-                  className={cn(
-                    "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium border",
-                    note.type === "LATE" &&
-                      "bg-yellow-100 text-yellow-800 border-yellow-200",
-                    note.type === "EARLY_LEAVE" &&
-                      "bg-red-100 text-red-800 border-red-200",
-                    note.type === "OTHER" &&
-                      "bg-slate-100 text-slate-800 border-slate-200"
-                  )}
-                >
-                  {note.type === "LATE" && (
-                    <>
-                      <Clock className="h-3 w-3" />
-                      <span>Late</span>
-                    </>
-                  )}
-                  {note.type === "EARLY_LEAVE" && (
-                    <>
-                      <LogOut className="h-3 w-3" />
-                      <span>Early leave</span>
-                    </>
-                  )}
-                  {note.type === "OTHER" && (
-                    <>
-                      <Info className="h-3 w-3" />
-                      <span>Other</span>
-                    </>
-                  )}
-                </span>
+              <span
+  className={cn(
+    "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium border",
+    note.type === "LATE" &&
+      "bg-yellow-100 text-yellow-800 border-yellow-200",
+    note.type === "EARLY_LEAVE" &&
+      "bg-red-100 text-red-800 border-red-200",
+    note.type === "OTHER" &&
+      "bg-slate-100 text-slate-800 border-slate-200",
+    note.type === "NO_TASKS" &&
+      "bg-slate-100 text-slate-800 border-slate-200",
+    note.type === "TASKS_DONE" &&
+      "bg-green-100 text-green-800 border-green-200",
+    note.type === "ADMIN_PERMISSION" &&
+      "bg-blue-100 text-blue-800 border-blue-200",
+    note.type === "DEDUCTION" &&
+      "bg-orange-100 text-orange-800 border-orange-200"
+  )}
+>
+  {note.type === "LATE" && (
+    <>
+      <Clock className="h-3 w-3" />
+      <span>Late</span>
+    </>
+  )}
+
+  {note.type === "EARLY_LEAVE" && (
+    <>
+      <LogOut className="h-3 w-3" />
+      <span>Early leave</span>
+    </>
+  )}
+
+  {note.type === "OTHER" && (
+    <>
+      <Info className="h-3 w-3" />
+      <span>Other</span>
+    </>
+  )}
+
+  {note.type === "NO_TASKS" && (
+    <>
+      <Info className="h-3 w-3" />
+      <span>لا يوجد مهام</span>
+    </>
+  )}
+
+  {note.type === "TASKS_DONE" && (
+    <>
+      <Info className="h-3 w-3" />
+      <span>انتهاء المهام</span>
+    </>
+  )}
+
+  {note.type === "ADMIN_PERMISSION" && (
+    <>
+      <Info className="h-3 w-3" />
+      <span>إذن إداري</span>
+    </>
+  )}
+
+  {note.type === "DEDUCTION" && (
+    <>
+      <Info className="h-3 w-3" />
+      <span>حسم</span>
+    </>
+  )}
+</span>
+
 
                 <span className="text-[11px] text-muted-foreground">
                   {format(new Date(note.createdAt), "yyyy-MM-dd HH:mm")}
@@ -508,6 +554,12 @@ const AttendanceTab = ({ employeeId, selectedMonth, ourSlug }: { employeeId: str
                 <SelectItem value="LATE">Late</SelectItem>
                 <SelectItem value="EARLY_LEAVE">Early leave</SelectItem>
                 <SelectItem value="OTHER">Other</SelectItem>
+
+                {/* الأنواع الجديدة */}
+                <SelectItem value="NO_TASKS">لا يوجد مهام</SelectItem>
+                <SelectItem value="TASKS_DONE">انتهاء المهام</SelectItem>
+                <SelectItem value="ADMIN_PERMISSION">إذن إداري</SelectItem>
+                <SelectItem value="DEDUCTION">حسم</SelectItem>
               </SelectContent>
             </Select>
           </div>
