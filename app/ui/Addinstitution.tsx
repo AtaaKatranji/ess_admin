@@ -67,7 +67,7 @@ const AddInstitutionDialog: React.FC<AddInstitutionDialogProps> = ({ onSuccess }
     
     try {
    
-    const institutionData = {  name, address, keyNumber, macAddresses };
+    const institutionData = {  name, address, macAddresses };
     console.log("in handle submit",institutionData)
     const response = await fetch(`${BaseUrl}/ins/institutions`, {
         method: 'POST',

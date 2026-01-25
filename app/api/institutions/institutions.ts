@@ -203,7 +203,7 @@ export async function checkNameExists(
   name: string,
   adminId: number
 ): Promise<ApiSuccess<{ exists: boolean }> | ApiFailure> {
-  const url = `${BaseUrl}/ins/institutions/check-name?name=${encodeURIComponent(name)}&adminId=${adminId}`;
+  const url = `${BaseUrl}/ins/check-name?name=${encodeURIComponent(name)}&adminId=${adminId}`;
   const res = await fetch(url, { credentials: 'include' });
 
   const isJson = res.headers.get('content-type')?.includes('application/json');
