@@ -23,7 +23,7 @@ interface AddInstitutionDialogProps {
 const AddInstitutionDialog: React.FC<AddInstitutionDialogProps> = ({ onSuccess }) => {
   const [name, setName] = useState('');
   const [address, setAddress] = useState('');
-  const [keyNumber, setKeyNumber] = useState('');
+  //const [keyNumber, setKeyNumber] = useState('');
   const [macAddresses, setMacAddresses] = useState<MacAddressEntry[]>([]);
   const [wifiName, setWifiName] = useState('');
   const [macAddress, setMacAddress] = useState('');
@@ -42,7 +42,7 @@ const AddInstitutionDialog: React.FC<AddInstitutionDialogProps> = ({ onSuccess }
   const onSuccessA = () => {
     setName('');
     setAddress('');
-    setKeyNumber('');
+    // setKeyNumber('');
     setMacAddresses([]);
     setIsNameTaken(null);
   };
