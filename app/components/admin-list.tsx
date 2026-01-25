@@ -126,6 +126,7 @@ const { roles, isLoading: rolesLoading, isError: rolesError } = useRoles();
       //const response = await fetch(`${baseUrl}/api/institutions/${institutionId}/admins/${adminId}`, {
       const response = await fetch( `${baseUrl}/rbac/admin-institutions/${institutionId}/admins/${adminId}`, {
         method: "DELETE",
+        credentials: "include",
       })
 
       if (!response.ok) {
