@@ -140,7 +140,11 @@ export default function AddAdminDialog({
     }
     const data = await res.json();
     // Return first match
-    return data?.data?.admin ?? data?.data?.admins?.[0];
+    const admin =
+    data?.data?.admin      // لو مستقبلاً عدّلت الـ API
+    ?? data?.data;         // الشكل الحالي
+
+  return admin;
   }
 
   async function apiLinkAdminToInstitution(adminId: number, roleName: string) {
