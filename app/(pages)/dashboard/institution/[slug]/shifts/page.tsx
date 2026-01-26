@@ -67,7 +67,6 @@ export default function ShiftsPage() {
   const [isBreaksExpanded, setIsBreaksExpanded] = useState(true)
   const [showReports, setShowReports] = useState(false)
 
-
   useEffect(() => {
     if (!slug) return;
     const fetchData = async () => {
@@ -92,13 +91,13 @@ export default function ShiftsPage() {
       const data = await shiftAPI.fetchShifts(slug)
       console.log('Raw shift data:', data)
       // Sanitize data to ensure days is an array and map id
-      const sanitizedShifts = data.map((shift : Shift) => ({
-        ...shift,
-        id: shift.id, // Handle both cases if backend mixes id/id
-        days: Array.isArray(shift.days) ? shift.days : JSON.parse(shift.days || '[]'),
-        employees: shift.employees || [] // Ensure employees is always an array
-      }))
-      setShifts(sanitizedShifts)
+      // const sanitizedShifts = data.map((shift : Shift) => ({
+      //   ...shift,
+      //   id: shift.id, // Handle both cases if backend mixes id/id
+      //   days: Array.isArray(shift.days) ? shift.days : JSON.parse(shift.days || '[]'),
+      //   employees: shift.employees || [] // Ensure employees is always an array
+      // }))
+      setShifts(data)
     } catch (error) {
       console.error('Error fetching shifts:', error)
     }

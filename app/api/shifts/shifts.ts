@@ -23,8 +23,17 @@ export const fetchShifts = async (orgSlug: string) => {
     }
 
     const data = await response.json();
-    console.log("data in fetch api",data);
-    return data;
+    return data.map((shift: Shift) => ({
+      ...shift,
+      days: Array.isArray(shift.days)
+        ? shift.days
+        : JSON.parse(shift.days || '[]'),
+      overrides:
+        typeof shift.overrides === 'string'
+          ? JSON.parse(shift.overrides)
+          : shift.overrides,
+      employees: shift.employees || [],
+    }));
   } catch (error) {
     console.error('Error fetching shifts:', error);
     throw error;
