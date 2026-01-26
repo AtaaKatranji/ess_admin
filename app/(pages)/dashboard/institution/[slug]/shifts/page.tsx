@@ -183,7 +183,7 @@ export default function ShiftsPage() {
     const data = await response.json()
     console.log(data);
     if (!institutionKey) return; 
-    const dataShiftSync = await shiftAPI.fetchShifts(institutionKey);
+    const dataShiftSync = await shiftAPI.fetchShifts(slug);
     setShifts(dataShiftSync);
 
   }
