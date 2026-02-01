@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import {  TooltipProvider,  } from "@/components/ui/tooltip";
+import { TooltipProvider, } from "@/components/ui/tooltip";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import InstitutionCard from "@/app/components/InstitutionCard"
 import { fetchInstitutionsByAdmin } from "@/app/api/institutions/institutions"
@@ -16,12 +16,14 @@ import { useRouter } from "next/navigation"
 import { Circles } from "react-loader-spinner"
 import { motion } from "framer-motion"
 import { parseCookies, setCookie } from "nookies"
-import  AdminList  from "@/app/components/admin-list"
+import AdminList from "@/app/components/admin-list"
 import AddAdminDialog from "./AddAdminDialog"
 import React from "react"
 import Providers from "../providers"
 import { RoleManagement } from "./role-management"
 import UserMenu from "./userMenu"
+import LanguageToggle from "./LanguageToggle"
+import { useI18n } from "@/app/context/I18nContext"
 
 
 
@@ -34,18 +36,19 @@ type InstitutionData = {
   macAddresses?: { wifiName: string; mac: string }[]
   image?: string
   slug: string
-  role: string      
-  roleId: string      
+  role: string
+  roleId: string
 }
 interface User {
   id: string;
   name: string;
-  globalRole: "superAdmin" | "regular"; 
+  globalRole: "superAdmin" | "regular";
 }
 export function AdminDashboard() {
   const navigate = useRouter()
   const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
-  
+  const { t, dir } = useI18n();
+
   const [loading, setLoading] = useState(true)
   const [view, setView] = useState<"list" | "grid">("list")
   const [institutions, setInstitutions] = useState<InstitutionData[]>([]);
@@ -53,7 +56,7 @@ export function AdminDashboard() {
   // const [adminId, setAdminId] = useState<string | null>(null)
   // const [userRole, setUserRole] = useState<UserRole>("manger") // Added user role state
   const [selectedInstitution, setSelectedInstitution] = useState<number | null>(null)
-  
+
 
 
 
@@ -61,14 +64,14 @@ export function AdminDashboard() {
   const [ownerSet, setOwnerSet] = useState<Set<number>>(new Set());
   const [manageOpen, setManageOpen] = useState(false);
   const [selectedInstitutionForManage, setSelectedInstitutionForManage] = useState<number | null>(null);
-  
+
 
   const adminListRef = React.useRef<{ reload?: () => void }>(null)
   const cardClickGuardRef = React.useRef(false);
 
   useEffect(() => {
     const run = async () => {
-      const res = await fetch(`${BaseUrl}/api/v1/admins/me`, { credentials: 'include',  });
+      const res = await fetch(`${BaseUrl}/api/v1/admins/me`, { credentials: 'include', });
       if (!res.ok) {
         // مش مسجّل → رجّعه على صفحة اللوجين
         navigate.replace('/login');
@@ -102,17 +105,17 @@ export function AdminDashboard() {
     }
 
     try {
-      const data :InstitutionData[] = await fetchInstitutionsByAdmin()
+      const data: InstitutionData[] = await fetchInstitutionsByAdmin()
       setAdminInstitutions(data || []);
       setInstitutions(data || []);
       // Auto-select first institution for admin users
       const ownedIds = data
         .filter((x) => x?.role?.toLowerCase() === "owner")
         .map((x) => x.id);
-        console.log("ownedIds",ownedIds)
+      console.log("ownedIds", ownedIds)
       const owned = new Set<number>(ownedIds);
       setOwnerSet(owned);
-      console.log("owned",owned)
+      console.log("owned", owned)
 
       // Auto-open if the user owns exactly one institution
       if (ownedIds.length === 1) {
@@ -267,98 +270,98 @@ export function AdminDashboard() {
   }
 
   return (
-    <div className="container mx-auto px-3 sm:px-6 py-4 space-y-6 ">
-       {/* SVG background code */}
-       <div className="pointer-events-none fixed inset-0 -z-10">
-          <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
-            <defs>
-              {/* Soft diagonal gradient */}
-              <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stopColor="#eef3f8" />
-                <stop offset="100%" stopColor="#dbe6f3" />
-              </linearGradient>
+    <div className="container mx-auto px-3 sm:px-6 py-4 space-y-6" dir={dir}>
+      {/* SVG background code */}
+      <div className="pointer-events-none fixed inset-0 -z-10">
+        <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+          <defs>
+            {/* Soft diagonal gradient */}
+            <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stopColor="#eef3f8" />
+              <stop offset="100%" stopColor="#dbe6f3" />
+            </linearGradient>
 
-              {/* Very subtle grid */}
-              <pattern id="grid" width="64" height="64" patternUnits="userSpaceOnUse">
-                <path d="M64 0H0V64" fill="none" stroke="#1e3a8a" strokeOpacity="0.04" strokeWidth="1" />
-              </pattern>
+            {/* Very subtle grid */}
+            <pattern id="grid" width="64" height="64" patternUnits="userSpaceOnUse">
+              <path d="M64 0H0V64" fill="none" stroke="#1e3a8a" strokeOpacity="0.04" strokeWidth="1" />
+            </pattern>
 
-              {/* Gentle wave gradient */}
-              <linearGradient id="wave" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.08" />
-                <stop offset="100%" stopColor="#3b82f6" stopOpacity="0" />
-              </linearGradient>
+            {/* Gentle wave gradient */}
+            <linearGradient id="wave" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.08" />
+              <stop offset="100%" stopColor="#3b82f6" stopOpacity="0" />
+            </linearGradient>
 
-              {/* Glow blobs */}
-              <radialGradient id="blobBlue" cx="50%" cy="50%" r="50%">
-                <stop offset="0%" stopColor="#60a5fa" stopOpacity="0.25" />
-                <stop offset="100%" stopColor="#60a5fa" stopOpacity="0" />
-              </radialGradient>
-              <radialGradient id="blobTeal" cx="50%" cy="50%" r="50%">
-                <stop offset="0%" stopColor="#22c55e" stopOpacity="0.18" />
-                <stop offset="100%" stopColor="#22c55e" stopOpacity="0" />
-              </radialGradient>
-            </defs>
+            {/* Glow blobs */}
+            <radialGradient id="blobBlue" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor="#60a5fa" stopOpacity="0.25" />
+              <stop offset="100%" stopColor="#60a5fa" stopOpacity="0" />
+            </radialGradient>
+            <radialGradient id="blobTeal" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor="#22c55e" stopOpacity="0.18" />
+              <stop offset="100%" stopColor="#22c55e" stopOpacity="0" />
+            </radialGradient>
+          </defs>
 
-            {/* Base gradient */}
-            <rect x="0" y="0" width="100%" height="100%" fill="url(#bg)" />
+          {/* Base gradient */}
+          <rect x="0" y="0" width="100%" height="100%" fill="url(#bg)" />
 
-            {/* Subtle grid overlay */}
-            <rect x="0" y="0" width="100%" height="100%" fill="url(#grid)" />
+          {/* Subtle grid overlay */}
+          <rect x="0" y="0" width="100%" height="100%" fill="url(#grid)" />
 
-            {/* Soft blobs (top-right / bottom-left) */}
-            <circle cx="82%" cy="18%" r="280" fill="url(#blobBlue)" />
-            <circle cx="12%" cy="78%" r="220" fill="url(#blobTeal)" />
+          {/* Soft blobs (top-right / bottom-left) */}
+          <circle cx="82%" cy="18%" r="280" fill="url(#blobBlue)" />
+          <circle cx="12%" cy="78%" r="220" fill="url(#blobTeal)" />
 
-            {/* Abstract waves (bottom) */}
-            <path d="M0,70% C20%,66% 32%,76% 50%,72% C68%,68% 80%,76% 100%,72% L100%,100% L0,100% Z" fill="url(#wave)" />
-            <path d="M0,78% C18%,74% 36%,86% 52%,82% C70%,78% 86%,88% 100%,82% L100%,100% L0,100% Z" fill="url(#wave)" />
+          {/* Abstract waves (bottom) */}
+          <path d="M0,70% C20%,66% 32%,76% 50%,72% C68%,68% 80%,76% 100%,72% L100%,100% L0,100% Z" fill="url(#wave)" />
+          <path d="M0,78% C18%,74% 36%,86% 52%,82% C70%,78% 86%,88% 100%,82% L100%,100% L0,100% Z" fill="url(#wave)" />
 
-            {/* Faint, relevant icons */}
-            <g opacity="0.06" fill="none" stroke="#0f172a" strokeWidth="2">
-              {/* Calendar (top-left) */}
-              <rect x="7%" y="12%" rx="10" ry="10" width="140" height="110" />
-              <line x1="7%" y1="18%" x2="16.5%" y2="18%" />
-              <line x1="9%" y1="12%" x2="9%" y2="18%" />
-              <line x1="14%" y1="12%" x2="14%" y2="18%" />
-              <rect x="8.5%" y="21%" width="18" height="14" rx="3" />
-              <rect x="11.5%" y="21%" width="18" height="14" rx="3" />
-              <rect x="14.5%" y="21%" width="18" height="14" rx="3" />
-              <rect x="8.5%" y="24%" width="18" height="14" rx="3" />
-              <rect x="11.5%" y="24%" width="18" height="14" rx="3" />
+          {/* Faint, relevant icons */}
+          <g opacity="0.06" fill="none" stroke="#0f172a" strokeWidth="2">
+            {/* Calendar (top-left) */}
+            <rect x="7%" y="12%" rx="10" ry="10" width="140" height="110" />
+            <line x1="7%" y1="18%" x2="16.5%" y2="18%" />
+            <line x1="9%" y1="12%" x2="9%" y2="18%" />
+            <line x1="14%" y1="12%" x2="14%" y2="18%" />
+            <rect x="8.5%" y="21%" width="18" height="14" rx="3" />
+            <rect x="11.5%" y="21%" width="18" height="14" rx="3" />
+            <rect x="14.5%" y="21%" width="18" height="14" rx="3" />
+            <rect x="8.5%" y="24%" width="18" height="14" rx="3" />
+            <rect x="11.5%" y="24%" width="18" height="14" rx="3" />
 
-              {/* Clock (right side) */}
-              <circle cx="88%" cy="36%" r="70" />
-              <line x1="88%" y1="36%" x2="88%" y2="26%" />
-              <line x1="88%" y1="36%" x2="94%" y2="36%" />
+            {/* Clock (right side) */}
+            <circle cx="88%" cy="36%" r="70" />
+            <line x1="88%" y1="36%" x2="88%" y2="26%" />
+            <line x1="88%" y1="36%" x2="94%" y2="36%" />
 
-              {/* Building (bottom-right) */}
-              <rect x="78%" y="68%" width="220" height="140" rx="8" />
-              <rect x="80%" y="72%" width="28" height="28" rx="4" />
-              <rect x="84%" y="72%" width="28" height="28" rx="4" />
-              <rect x="88%" y="72%" width="28" height="28" rx="4" />
-              <rect x="80%" y="78%" width="28" height="28" rx="4" />
-              <rect x="84%" y="78%" width="28" height="28" rx="4" />
-              <rect x="88%" y="78%" width="28" height="28" rx="4" />
-              <rect x="92%" y="78%" width="28" height="60" rx="4" />
-            </g>
-          </svg>
-        </div>
+            {/* Building (bottom-right) */}
+            <rect x="78%" y="68%" width="220" height="140" rx="8" />
+            <rect x="80%" y="72%" width="28" height="28" rx="4" />
+            <rect x="84%" y="72%" width="28" height="28" rx="4" />
+            <rect x="88%" y="72%" width="28" height="28" rx="4" />
+            <rect x="80%" y="78%" width="28" height="28" rx="4" />
+            <rect x="84%" y="78%" width="28" height="28" rx="4" />
+            <rect x="88%" y="78%" width="28" height="28" rx="4" />
+            <rect x="92%" y="78%" width="28" height="60" rx="4" />
+          </g>
+        </svg>
+      </div>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-gray-800 ">
             {isSuperAdmin
-              ? "Super Admin Dashboard"
+              ? t("dashboard.title.superAdmin")
               : isOwner
-              ? "Owner Dashboard"
-              : "Manager Dashboard"}
+                ? t("dashboard.title.owner")
+                : t("dashboard.title.manager")}
           </h1>
           <p className="text-muted-foreground">
             {isSuperAdmin
-              ? "Manage organizations and administrators across all institutions"
+              ? t("dashboard.subtitle.superAdmin")
               : isOwner
-              ? "Manage managers inside your institution"
-              : "View your assigned institutions"}
+                ? t("dashboard.subtitle.owner")
+                : t("dashboard.subtitle.manager")}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -368,31 +371,38 @@ export function AdminDashboard() {
           >
             <Shield className="h-4 w-4" />
             {isSuperAdmin
-              ? "Super Admin"
+              ? t("dashboard.badge.superAdmin")
               : isOwner
-              ? "Owner"
-              : "Manager"}
+                ? t("dashboard.badge.owner")
+                : t("dashboard.badge.manager")}
           </Badge>
+          <LanguageToggle />
           <UserMenu />
         </div>
-        
+
       </div>
-  
+
       {isSuperAdmin ? (
         // --- Super Admin Dashboard ---
         <Tabs defaultValue="organizations" className="space-y-4">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="organizations">Institutions</TabsTrigger>
-            <TabsTrigger value="managersRoles">Manage Mangers & Roles</TabsTrigger>
+            <TabsTrigger value="organizations">
+              {t("dashboard.tabs.super.organizations")}
+            </TabsTrigger>
+            <TabsTrigger value="managersRoles">
+              {t("dashboard.tabs.super.managersRoles")}
+            </TabsTrigger>
           </TabsList>
           {/* --- Tab: Organizations --- */}
           <TabsContent value="organizations">
             {institutions.length === 0 ? (
               <div className="min-h-[400px] grid place-items-center">
                 <div className="text-center space-y-4">
-                  <h2 className="text-2xl font-bold">Welcome to ESS</h2>
+                  <h2 className="text-2xl font-bold">
+                    {t("dashboard.empty.super.title")}
+                  </h2>
                   <p className="text-lg text-muted-foreground">
-                    No institutions available yet.
+                    {t("dashboard.empty.super.body")}
                   </p>
                   <AddInstitutionDialog
                     onSuccess={async () => {
@@ -408,7 +418,7 @@ export function AdminDashboard() {
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
                   <h2 className="text-2xl font-bold" style={{ color: "#002E3BFF" }}>
-                    Organizations
+                    {t("dashboard.organizations.heading")}
                   </h2>
                   <AddInstitutionDialog
                     onSuccess={async () => {
@@ -419,48 +429,48 @@ export function AdminDashboard() {
                     }}
                   />
                 </div>
-  
+
                 {/* Switch View (Grid/List) */}
                 <div className="flex flex-wrap gap-2 space-x-2">
                   <Button
                     variant={view === "grid" ? "default" : "outline"}
                     onClick={() => handleViewChange("grid")}
                   >
-                    <Grid className="mr-2 h-4 w-4" /> Grid View
+                    <Grid className="mr-2 h-4 w-4" /> {t("dashboard.view.grid")}
                   </Button>
                   <Button
                     variant={view === "list" ? "default" : "outline"}
                     onClick={() => handleViewChange("list")}
                   >
-                    <List className="mr-2 h-4 w-4" /> List View
+                    <List className="mr-2 h-4 w-4" /> {t("dashboard.view.list")}
                   </Button>
                 </div>
 
-                <TooltipProvider> 
-                <div
-                  className={
-                    view === "grid" ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" : "space-y-3"}
-                >
-                  
-                  {institutions.map((institution) => (
-                    <motion.div
-                      className="my-2"
-                      key={institution.id}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.5 }}
-                    >
-                      <div className="relative">
-                      <InstitutionCard
-                        name={institution.name}
-                        address={institution.address}
-                        onClick={() => handleCardClick(institution.slug)}
+                <TooltipProvider>
+                  <div
+                    className={
+                      view === "grid" ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" : "space-y-3"}
+                  >
+
+                    {institutions.map((institution) => (
+                      <motion.div
+                        className="my-2"
+                        key={institution.id}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5 }}
                       >
-                        <Building2 className="h-6 w-6 text-muted-foreground" />
-                      </InstitutionCard>
-                      
-                       {/* Owner chip (top-left) */}
-                      {/* {isOwnerOf(institution.id) && (
+                        <div className="relative">
+                          <InstitutionCard
+                            name={institution.name}
+                            address={institution.address}
+                            onClick={() => handleCardClick(institution.slug)}
+                          >
+                            <Building2 className="h-6 w-6 text-muted-foreground" />
+                          </InstitutionCard>
+
+                          {/* Owner chip (top-left) */}
+                          {/* {isOwnerOf(institution.id) && (
                         <Badge
                           variant="secondary"
                           className="absolute left-3 top-3 z-20 flex items-center gap-1 pointer-events-none"
@@ -501,11 +511,11 @@ export function AdminDashboard() {
                         
                       )} */}
 
-                      </div>
-                      
-                    </motion.div>
-                  ))}
-                </div>
+                        </div>
+
+                      </motion.div>
+                    ))}
+                  </div>
                 </TooltipProvider>
               </div>
             )}
@@ -513,62 +523,72 @@ export function AdminDashboard() {
           {/* --- Tab: Manage Managers --- */}
           <TabsContent value="managersRoles" >
             <Card className="py-6 mt-6">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Users className="h-5 w-5" />
-                    <span className="text-gray-800">Select Organization</span>
-                  </CardTitle>
-                  <CardDescription>
-                    Choose an organization to manage its administrators
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex flex-wrap gap-6">
-                    {institutions.map((institution) => (
-                      <Button
-                        key={institution.id}
-                        variant={
-                          selectedInstitution === institution.id ? "default" : "outline"
-                        }
-                        onClick={() => handleInstitutionSelect(institution.id)}
-                      >
-                        {institution.name}
-                      </Button>
-                    ))}
-                  </div>
-                </CardContent>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Users className="h-5 w-5" />
+                  <span className="text-gray-800">
+                    {t("dashboard.selectOrganization.title")}
+                  </span>
+                </CardTitle>
+                <CardDescription>
+                  {t("dashboard.selectOrganization.description")}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex flex-wrap gap-6">
+                  {institutions.map((institution) => (
+                    <Button
+                      key={institution.id}
+                      variant={
+                        selectedInstitution === institution.id ? "default" : "outline"
+                      }
+                      onClick={() => handleInstitutionSelect(institution.id)}
+                    >
+                      {institution.name}
+                    </Button>
+                  ))}
+                </div>
+              </CardContent>
             </Card>
-            <Tabs defaultValue="managersRoles" className="space-y-4">
+            <Tabs defaultValue="managersRoles" className="space-y-4" dir={dir}>
               <TabsList className="grid w-full grid-cols-2 mt-6">
-                <TabsTrigger value="managers">Manage Managers</TabsTrigger>
-                <TabsTrigger value="roles">Manage Roles</TabsTrigger>
+                <TabsTrigger value="managers">
+                  {t("dashboard.tabs.inner.managers")}
+                </TabsTrigger>
+                <TabsTrigger value="roles">
+                  {t("dashboard.tabs.inner.roles")}
+                </TabsTrigger>
               </TabsList>
-              
+
               <TabsContent value="managers" className="py-6">
-              {selectedInstitution && (
+                {selectedInstitution && (
                   <div className="space-y-6">
                     <div className="flex items-center justify-between">
-                    <div>
-                      <h2 className="text-2xl font-bold tracking-tight">Managers Management</h2>
-                      <p className="text-muted-foreground">Manage managers' roles across the institution</p>
+                      <div>
+                        <h2 className="text-2xl font-bold tracking-tight">
+                          {t("dashboard.managersManagement.title")}
+                        </h2>
+                        <p className="text-muted-foreground">
+                          {t("dashboard.managersManagement.description")}
+                        </p>
                       </div>
                       {/* زر فتح الدialog */}
                       <AddAdminDialog
                         institutionId={selectedInstitution}
                         isSuperAdmin={isSuperAdmin}
-                        canAssignOwner={false} 
+                        canAssignOwner={false}
                         onDone={() => adminListRef.current?.reload?.()}
                       />
-                  </div>
-                  <Providers>
-                    <AdminList institutionId={selectedInstitution!} />
-                  </Providers>
-                  
+                    </div>
+                    <Providers>
+                      <AdminList institutionId={selectedInstitution!} />
+                    </Providers>
+
                   </div>
                 )}
               </TabsContent>
               <TabsContent value="roles" className="py-6">
-                <RoleManagement  institutionId={selectedInstitution!}  /> 
+                <RoleManagement institutionId={selectedInstitution!} />
               </TabsContent>
             </Tabs>
           </TabsContent>
@@ -576,105 +596,111 @@ export function AdminDashboard() {
       ) : isOwner ? (
         // --- Owner Dashboard (إدارة مشرفين مؤسسته فقط) ---
         <Tabs defaultValue="organizations" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="organizations">Organizations</TabsTrigger>
-          <TabsTrigger value="roles">Role Management</TabsTrigger>
-        </TabsList>
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="organizations">
+              {t("dashboard.tabs.owner.organizations")}
+            </TabsTrigger>
+            <TabsTrigger value="roles">
+              {t("dashboard.tabs.owner.roles")}
+            </TabsTrigger>
+          </TabsList>
 
-        <TabsContent value="organizations">
-          <div className="space-y-4">
-            <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-bold" style={{ color: "#002E3BFF" }}>
-                Your Organizations
-              </h2>
-            </div>
+          <TabsContent value="organizations">
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <h2 className="text-2xl font-bold" style={{ color: "#002E3BFF" }}>
+                  {t("dashboard.organizations.your")}
+                </h2>
+              </div>
 
-            <div className="flex space-x-2">
-              <Button variant={view === "grid" ? "default" : "outline"} onClick={() => handleViewChange("grid")}>
-                <Grid className="mr-2 h-4 w-4" /> Grid View
-              </Button>
-              <Button variant={view === "list" ? "default" : "outline"} onClick={() => handleViewChange("list")}>
-                <List className="mr-2 h-4 w-4" /> List View
-              </Button>
-            </div>
+              <div className="flex space-x-2">
+                <Button variant={view === "grid" ? "default" : "outline"} onClick={() => handleViewChange("grid")}>
+                  <Grid className="mr-2 h-4 w-4" /> {t("dashboard.view.grid")}
+                </Button>
+                <Button variant={view === "list" ? "default" : "outline"} onClick={() => handleViewChange("list")}>
+                  <List className="mr-2 h-4 w-4" /> {t("dashboard.view.list")}
+                </Button>
+              </div>
 
-            <div className={view === "grid" ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" : "space-y-2"}>
-              {institutions.map((institution) => (
-                <motion.div
-                  className="my-2 relative"
-                  key={institution.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5 }}
-                >
-                  <div className="relative ">
-                    <InstitutionCard
-                      name={institution.name}
-                      address={institution.address}
-                      onClick={() => handleCardClick(institution.slug)} // فتح dashboard بالمؤسسة
-                    >
-                      <Building2 className="h-6 w-6 text-muted-foreground" />
-                    </InstitutionCard>
-
-                    {/* شارة مالك */}
-                    {isOwnerOf(institution.id) && (
-                      <Badge
-                        variant="secondary"
-                        className="absolute left-3 top-3 z-30 flex items-center gap-1 h-6 px-2 text-xs rounded-full bg-background/80 backdrop-blur border pointer-events-none shadow"
+              <div className={view === "grid" ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" : "space-y-2"}>
+                {institutions.map((institution) => (
+                  <motion.div
+                    className="my-2 relative"
+                    key={institution.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
+                  >
+                    <div className="relative ">
+                      <InstitutionCard
+                        name={institution.name}
+                        address={institution.address}
+                        onClick={() => handleCardClick(institution.slug)} // فتح dashboard بالمؤسسة
                       >
-                        <Crown className="h-3.5 w-3.5" />
-                        Owner
-                      </Badge>
-                      
-                    )}
+                        <Building2 className="h-6 w-6 text-muted-foreground" />
+                      </InstitutionCard>
 
-                    {/* زر إدارة المشرفين للمالك */}
-                    {isOwnerOf(institution.id) && (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="absolute right-2 top-2  z-20 pointer-events-auto"
-                        aria-label="Manage admins"
-                        onPointerDown={(e) => {
-                          e.preventDefault()
-                          e.stopPropagation()
-                        }}
-                        // لا تعمل preventDefault هون
-                        onPointerUp={(e) => {
-                          e.preventDefault() // امنع التصرف الافتراضي هون
-                          e.stopPropagation() // وامنـع الانتشار
-                          cardClickGuardRef.current = true
-                          setSelectedInstitutionForManage(institution.id)
-                          setManageOpen(true)
-                          console.log("institution.id by press button", institution.id)
-                        }}
-                        onKeyDown={(e) => {
-                          e.stopPropagation()
-                        }}
-                      >
-                        <Users className="h-4 w-4" />
-                      </Button>
-                    )}
-                  </div>
-                </motion.div>
-              ))}
+                      {/* شارة مالك */}
+                      {isOwnerOf(institution.id) && (
+                        <Badge
+                          variant="secondary"
+                          className="absolute left-3 top-3 z-30 flex items-center gap-1 h-6 px-2 text-xs rounded-full bg-background/80 backdrop-blur border pointer-events-none shadow"
+                        >
+                          <Crown className="h-3.5 w-3.5" />
+                          {t("dashboard.badge.owner")}
+                        </Badge>
+
+                      )}
+
+                      {/* زر إدارة المشرفين للمالك */}
+                      {isOwnerOf(institution.id) && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="absolute right-2 top-2  z-20 pointer-events-auto"
+                          aria-label="Manage admins"
+                          onPointerDown={(e) => {
+                            e.preventDefault()
+                            e.stopPropagation()
+                          }}
+                          // لا تعمل preventDefault هون
+                          onPointerUp={(e) => {
+                            e.preventDefault() // امنع التصرف الافتراضي هون
+                            e.stopPropagation() // وامنـع الانتشار
+                            cardClickGuardRef.current = true
+                            setSelectedInstitutionForManage(institution.id)
+                            setManageOpen(true)
+                            console.log("institution.id by press button", institution.id)
+                          }}
+                          onKeyDown={(e) => {
+                            e.stopPropagation()
+                          }}
+                        >
+                          <Users className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
             </div>
-          </div>
-        </TabsContent>
+          </TabsContent>
 
-        <TabsContent value="roles" className="py-6">
-          <RoleManagement />
-        </TabsContent>
-      </Tabs>
+          <TabsContent value="roles" className="py-6">
+            <RoleManagement />
+          </TabsContent>
+        </Tabs>
       ) : (
         // --- Manager Dashboard (عرض المؤسسات فقط) ---
-        <div>
+        <div dir={dir}>
           {institutions.length === 0 ? (
             <div className="min-h-[400px] grid place-items-center">
               <div className="text-center space-y-4">
-                <h2 className="text-2xl font-bold">Welcome to ESS</h2>
+                <h2 className="text-2xl font-bold">
+                  {t("dashboard.empty.manager.title")}
+                </h2>
                 <p className="text-lg text-muted-foreground">
-                  No institutions assigned to you yet.
+                  {t("dashboard.empty.manager.body")}
                 </p>
               </div>
             </div>
@@ -682,25 +708,25 @@ export function AdminDashboard() {
             <div className="space-y-4">
               <div className="flex justify-between items-center">
                 <h2 className="text-2xl font-bold" style={{ color: "#002E3BFF" }}>
-                  Your Organizations
+                  {t("dashboard.organizations.your")}
                 </h2>
               </div>
-  
+
               <div className="flex space-x-2">
                 <Button
                   variant={view === "grid" ? "default" : "outline"}
                   onClick={() => handleViewChange("grid")}
                 >
-                  <Grid className="mr-2 h-4 w-4" /> Grid View
+                  <Grid className="mr-2 h-4 w-4" /> {t("dashboard.view.grid")}
                 </Button>
                 <Button
                   variant={view === "list" ? "default" : "outline"}
                   onClick={() => handleViewChange("list")}
                 >
-                  <List className="mr-2 h-4 w-4" /> List View
+                  <List className="mr-2 h-4 w-4" /> {t("dashboard.view.list")}
                 </Button>
               </div>
-  
+
               <div
                 className={
                   view === "grid"
@@ -730,8 +756,8 @@ export function AdminDashboard() {
           )}
         </div>
       )}
-  {/* One global Sheet instance — opened via per-card icon, auto-open if exactly one owned */}
-  {selectedInstitutionForManage !== null && (
+      {/* One global Sheet instance — opened via per-card icon, auto-open if exactly one owned */}
+      {selectedInstitutionForManage !== null && (
         <Sheet open={manageOpen} onOpenChange={(open) => {
           setManageOpen(open);
           if (!open) {
@@ -743,9 +769,11 @@ export function AdminDashboard() {
             <SheetHeader>
               <SheetTitle className="flex items-center gap-2">
                 <Users className="h-5 w-5" />
-                Manage Admins
+                {t("dashboard.manageAdmins.title")}
               </SheetTitle>
-              <SheetDescription>Owners can add or remove admins and change their roles for this institution.</SheetDescription>
+              <SheetDescription>
+                {t("dashboard.manageAdmins.description")}
+              </SheetDescription>
             </SheetHeader>
 
             <div className="mt-4 flex items-center justify-between">
@@ -770,7 +798,7 @@ export function AdminDashboard() {
 
             <div className="mt-4">
               <Providers>
-                 <AdminList institutionId={selectedInstitutionForManage!} />
+                <AdminList institutionId={selectedInstitutionForManage!} />
               </Providers>
             </div>
           </SheetContent>
@@ -779,5 +807,5 @@ export function AdminDashboard() {
       <ToastContainer />
     </div>
   )
-  
+
 }

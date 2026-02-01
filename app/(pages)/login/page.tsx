@@ -9,11 +9,14 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useRouter } from 'next/navigation';
+import { useI18n } from "@/app/context/I18nContext";
+import LanguageToggle from "@/app/components/LanguageToggle";
 
 //import { setCookie } from 'nookies'; // Import nookies for cookie handling
 
 export default function AdminLogin() {
   const navigate = useRouter();
+  const { t } = useI18n();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [phoneNumber, setUsername] = useState('');
@@ -162,17 +165,25 @@ export default function AdminLogin() {
       >
         <Card className="w-full max-w-md px-4 shadow-md">
           <CardHeader>
-            <CardTitle className="text-2xl font-bold text-center">Admin Login</CardTitle>
-            <CardDescription className="text-center">Enter your credentials to access the admin panel</CardDescription>
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm text-muted-foreground" />
+              <LanguageToggle />
+            </div>
+            <CardTitle className="text-2xl font-bold text-center">
+              {t("login.title")}
+            </CardTitle>
+            <CardDescription className="text-center">
+              {t("login.subtitle")}
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="username">Phone Number</Label>
+                <Label htmlFor="username">{t("login.phoneLabel")}</Label>
                 <div className="relative">
                   <Input 
                     id="username" 
-                    placeholder="Enter your username" 
+                    placeholder={t("login.phonePlaceholder")} 
                     className="pl-10" 
                     onChange={(e) => setUsername(e.target.value)}
                   />
@@ -180,12 +191,12 @@ export default function AdminLogin() {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">{t("login.passwordLabel")}</Label>
                 <div className="relative">
                   <Input 
                     id="password" 
                     type={showPassword ? "text" : "password"} 
-                    placeholder="Enter your password" 
+                    placeholder={t("login.passwordPlaceholder")} 
                     className="pl-10 pr-10"
                     onChange={(e) => setPassword(e.target.value)}
                   />
@@ -209,22 +220,24 @@ export default function AdminLogin() {
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Logging in...
+                    {t("login.loading")}
                   </>
                 ) : (
-                  'Log In'
+                  t("login.button")
                 )}
               </Button>
             </form>
           </CardContent>
           <CardFooter className="flex justify-center">
-            <a href="#" className="text-sm text-blue-600 hover:underline">Forgot password?</a>
+            <a href="#" className="text-sm text-blue-600 hover:underline">
+              {t("login.forgot")}
+            </a>
           </CardFooter>
         </Card>
       </motion.div>
 
       <div className="absolute bottom-4 left-4 text-gray-800 text-sm">
-        © 2024 Enma Zero to one. All rights reserved.
+        {t("login.footer")}
       </div>
     </div>
   );

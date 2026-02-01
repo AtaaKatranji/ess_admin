@@ -1,13 +1,7 @@
 @import 'react-toastify/dist/ReactToastify.css';
-@import url('https://fonts.googleapis.com/css2?family=Cairo&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-body {
-  @apply font-cairo;
-  font-family: Arial, Helvetica, sans-serif;
-}
 
 @layer utilities {
   .text-balance {
@@ -100,6 +94,8 @@ body {
   }
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-geist-sans), system-ui, -apple-system, BlinkMacSystemFont,
+      "Segoe UI", sans-serif;
   }
 }
 
@@ -114,7 +110,8 @@ body {
   }
 }
 
-.arabic-text {
-  font-family: 'Cairo', sans-serif;
-  direction: ltr; /* نحافظ على الاتجاه الإنكليزي */
+/* عند اللغة العربية (dir=rtl) استخدم tajawal */
+html[dir="rtl"] body {
+  font-family: var(--font-arabic), system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
 }

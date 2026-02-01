@@ -12,12 +12,14 @@ import { InstitutionInfo, normalizeMacAddress, normalizeMacList, WifiEntry } fro
 import { ApiFailure, ApiSuccess } from '@/app/lib/api';
 import AttendanceSettingsCard from '@/app/components/AttendanceSettingsCard';
 import { buildAttendanceInitialValuesWithMeta } from '@/app/utils/attendance';
+import { useI18n } from '@/app/context/I18nContext';
 
 
 const SettingsPage: React.FC = () => {
   const params = useParams();
   const slug = Array.isArray(params?.slug) ? params.slug[0] : params?.slug;
   const router = useRouter();
+  const { t } = useI18n();
 
   const [institutionInfo, setInstitutionInfo] = useState<InstitutionInfo | null>(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -26,7 +28,7 @@ const SettingsPage: React.FC = () => {
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [newSSID, setNewSSID] = useState('');
   const [newMacAddress, setNewMacAddress] = useState('');
-  const [isDelete,setIsDelete]= useState(false);
+  const [isDelete, setIsDelete] = useState(false);
   const [errorName, setErrorName] = useState('');
   const [isNameTaken, setIsNameTaken] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(false);
@@ -34,51 +36,51 @@ const SettingsPage: React.FC = () => {
   const [inputName, setInputName] = useState('');
   const nameCheckTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const reqIdRef = useRef(0); // لمنع السباقات (race conditions)
-  
-  
+
+
   const [isEditingAttendance, setIsEditingAttendance] = useState(false)
   const built = buildAttendanceInitialValuesWithMeta(institutionInfo?.settings ?? {});
   console.log("Attendance settings meta:", built.meta);
-  
+
   const attendanceInitial = built.values;
   useEffect(() => {
     let mounted = true;
-  
+
     (async () => {
       if (!slug) {
         setIsLoading(false);
         return;
       }
-  
+
       try {
         setIsLoading(true);
-  
+
         const res = await fetchInstitution(String(slug));
         if (!mounted) return;
-  
+
         if (!res.ok) {
-          toast.error(res.data?.message ?? `Failed to load institution (HTTP ${res.status})`);
+          toast.error(res.data?.message ?? `${t("settings.toast.loadFailed")} (HTTP ${res.status})`);
           setInstitutionInfo(null);
           setInitialName("");
           return;
         }
-  
+
         setInstitutionInfo(res.data);
         setInitialName(res.data.name);
-        
+
       } catch {
         if (!mounted) return;
-        toast.error("Network error while loading institution.");
+        toast.error(t("settings.toast.loadError") || "Network error while loading institution.");
         setInstitutionInfo(null);
         setInitialName("");
       } finally {
         if (mounted) setIsLoading(false); // ← only now
       }
     })();
-  
+
     return () => { mounted = false; };
-  }, [slug]);
-  
+  }, [slug, t]);
+
   // Cleanup timeout on unmount
   useEffect(() => {
     return () => {
@@ -87,35 +89,35 @@ const SettingsPage: React.FC = () => {
       }
     };
   }, []);
-  
+
   const handleSaveInstitutionInfo = async () => {
     // Disable editing mode
     setIsEditing(false);
-    setLoading(true); 
-    
-    if(isNameTaken === true){
+    setLoading(true);
+
+    if (isNameTaken === true) {
       try {
-        toast.error("Please change name");
+        toast.error(t("settings.toast.nameRequired"));
       } catch (error) {
         console.error('Toast error:', error);
       }
       setLoading(false);
       return;
-    } 
-    
+    }
+
     try {
       if (!institutionInfo) {
-        toast.error("Missing institution info");
+        toast.error(t("settings.toast.missingInfo"));
         setLoading(false);
         return;
       }
-        
-      const data = await updatedInstitutionInfo(institutionInfo,institutionInfo.slug);
+
+      const data = await updatedInstitutionInfo(institutionInfo, institutionInfo.slug);
       if (data) {
         console.log('Update response data:', data);
         // Handle successful update
         try {
-          toast.success(`Institution updated successfully`);
+          toast.success(t("settings.toast.infoSuccess"));
         } catch (error) {
           console.error('Toast error:', error);
         }
@@ -123,57 +125,57 @@ const SettingsPage: React.FC = () => {
         const parsedMacAddresses = typeof data.macAddresses === 'string'
           ? JSON.parse(data.macAddresses)
           : Array.isArray(data.macAddresses)
-          ? data.macAddresses
-          : [];
+            ? data.macAddresses
+            : [];
         console.log('Parsed macAddresses:', parsedMacAddresses);
         // Update the state with the new institution data
         setInstitutionInfo({ ...data, macAddresses: parsedMacAddresses });
       } else {
         // Handle error response
         try {
-          toast.error(`Failed to update institution`);
+          toast.error(t("settings.toast.infoError"));
         } catch (error) {
           console.error('Toast error:', error);
         }
-        setErrorName('Failed to update institution'); // Show error to the user
+        setErrorName(t("settings.toast.infoError")); // Show error to the user
       }
     } catch (error) {
       console.error('Error updating institution:', (error as Error).message);
-      setErrorName('An error occurred while saving. Please try again.');
+      setErrorName(t("settings.toast.infoError"));
     } finally {
       setLoading(false); // Hide loading indicator
     }
   };
   const handleAddSSID = async () => {
     if (!institutionInfo) {
-      toast.error("Missing institution info");
+      toast.error(t("settings.toast.missingInfo"));
       return;
     }
-  
+
     if (!newSSID || !newMacAddress) {
-      toast.error("SSID and MAC are required");
+      toast.error(t("settings.toast.wifiRequired"));
       return;
     }
-  
+
     // نظّف وتحقق من الـ MAC
     const mac = normalizeMacAddress(newMacAddress);
     if (!mac) {
-      toast.error("Invalid MAC address. Use format like AA:BB:CC:DD:EE:FF");
+      toast.error(t("settings.toast.invalidMac"));
       return;
     }
-  
+
     const newEntry = { wifiName: newSSID.trim(), macAddress: mac };
-  
+
     // منع التكرار بحسب MAC (بعد Normalize)
     const currentList: WifiEntry[] = institutionInfo.macAddresses ?? [];
     if (currentList.some(x => x.macAddress === newEntry.macAddress)) {
-      toast.warning("This MAC already exists");
+      toast.warning(t("settings.toast.wifiExists"));
       return;
     }
-  
+
     // Snapshot قبل التحديث المتفائل
     const snapshot = institutionInfo;
-  
+
     // تحديث متفائل
     setInstitutionInfo(prev => {
       if (!prev) return prev;
@@ -182,7 +184,7 @@ const SettingsPage: React.FC = () => {
         macAddresses: [...(prev.macAddresses ?? []), newEntry],
       };
     });
-  
+
     try {
       // استدعاء API لتحديث المؤسسة
       const updated = await updatedInstitutionInfo(
@@ -192,18 +194,18 @@ const SettingsPage: React.FC = () => {
         },
         snapshot.slug
       );
-  
+
       if (!updated) {
         // فشل منطقي من السيرفر
-        toast.error("Failed to update institution.");
+        toast.error(t("settings.toast.infoError"));
         // Rollback
         setInstitutionInfo(snapshot);
         return;
       }
-  
+
       // نجاح: بعض السيرفرات ترجع macAddresses كنص—وحّد شكلها
-      const normalizedList = normalizeMacList((updated ).macAddresses);
-  
+      const normalizedList = normalizeMacList((updated).macAddresses);
+
       setInstitutionInfo(prev => {
         if (!prev) return prev;
         return {
@@ -212,13 +214,13 @@ const SettingsPage: React.FC = () => {
           macAddresses: normalizedList,
         };
       });
-  
-      toast.success("Institution updated successfully.");
+
+      toast.success(t("settings.toast.infoSuccess"));
       setNewSSID('');
       setNewMacAddress('');
     } catch (error) {
       console.error('Error updating institution:', (error as Error).message);
-      toast.error('An error occurred while saving. Please try again.');
+      toast.error(t("settings.toast.infoError"));
       // Rollback على أي استثناء
       setInstitutionInfo(snapshot);
     }
@@ -226,34 +228,34 @@ const SettingsPage: React.FC = () => {
   const handleDeleteSSID = async (id: string) => {
     // حماية من null
     if (!institutionInfo) {
-      toast.error("Missing institution info");
+      toast.error(t("settings.toast.missingInfo"));
       return;
     }
-  
+
     // طَبِّع قيمة الماك من الباراميتر (إنت عم تمرر macAddress)
     const targetMac = normalizeMacAddress(id);
     if (!targetMac) {
-      toast.error("Invalid MAC address");
+      toast.error(t("settings.toast.invalidMac"));
       return;
     }
-  
+
     const list: WifiEntry[] = institutionInfo.macAddresses ?? [];
-  
+
     // يجب يبقى واحد على الأقل بعد الحذف
     if (list.length <= 1) {
-      toast.error("You must have at least one Wi-Fi network before deleting.");
+      toast.error(t("settings.toast.wifiMin"));
       return;
     }
-  
+
     // تأكد إنو موجود أصلًا
     if (!list.some(x => x.macAddress === targetMac)) {
-      toast.warning("Network not found");
+      toast.warning(t("settings.toast.wifiNotFound") || "Network not found");
       return;
     }
-  
+
     // Snapshot لِـ rollback
     const snapshot = { ...institutionInfo, macAddresses: [...list] };
-  
+
     // تحديث متفائل
     setInstitutionInfo(prev => {
       if (!prev) return prev;
@@ -262,56 +264,56 @@ const SettingsPage: React.FC = () => {
         macAddresses: (prev.macAddresses ?? []).filter(x => x.macAddress !== targetMac),
       };
     });
-  
+
     try {
       // حضّر الداتا المُحدّثة للإرسال
       const payload = {
         ...snapshot,
         macAddresses: snapshot.macAddresses!.filter(x => x.macAddress !== targetMac),
       };
-  
+
       // نادِ API
       const updated = await updatedInstitutionInfo(payload, snapshot.slug);
-  
+
       if (!updated) {
         // فشل منطقي → Rollback
-        toast.error("Failed to update institution.");
+        toast.error(t("settings.toast.infoError"));
         setInstitutionInfo(snapshot);
         return;
       }
-  
+
       // بعض السيرفرات ترجع macAddresses كنص—وحّد الشكل
       const normalized = normalizeMacList((updated).macAddresses);
-  
+
       // ثبّت الحالة النهائية
       setInstitutionInfo(prev => {
         if (!prev) return prev;
         return { ...prev, ...updated, macAddresses: normalized };
       });
-  
-      toast.success("Wi-Fi removed.");
+
+      toast.success(t("settings.toast.wifiRemoved"));
     } catch (e) {
       console.error("Error updating institution:", (e as Error).message);
-      toast.error("An error occurred while saving. Please try again.");
+      toast.error(t("settings.toast.infoError"));
       // Rollback عند الاستثناء
       setInstitutionInfo(snapshot);
     }
   };
   const handleGenerateNewKey = async () => {
     if (!institutionInfo) {
-      toast.error("Missing institution info");
+      toast.error(t("settings.toast.missingInfo"));
       return;
     }
-  
+
     setIsGenLoading(true);
     const prevKey = institutionInfo.uniqueKey;
-  
+
     try {
       const newKey = await generateInstitutionKey(institutionInfo.id);
       setInstitutionInfo(prev => (prev ? { ...prev, uniqueKey: newKey } : prev));
-      toast.success("New key generated.");
+      toast.success(t("settings.toast.keyGenerated"));
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Network error");
+      toast.error(error instanceof Error ? error.message : t("common.networkError") || "Network error");
       // Rollback on error
       setInstitutionInfo(prev => (prev ? { ...prev, uniqueKey: prevKey } : prev));
     } finally {
@@ -320,11 +322,11 @@ const SettingsPage: React.FC = () => {
   };
   const handleDelete = async () => {
     if (!institutionInfo) {
-      toast.error('Missing institution info');
+      toast.error(t("settings.toast.missingInfo"));
       return;
     }
     if (!institutionInfo.adminId) {
-      toast.error('Cannot delete: Admin ID is missing.');
+      toast.error(t("settings.toast.adminIdMissing") || 'Cannot delete: Admin ID is missing.');
       return;
     }
 
@@ -334,11 +336,11 @@ const SettingsPage: React.FC = () => {
       const res = await deleteInstitutionInfo(institutionInfo.slug);
 
       if (!res.ok) {
-        toast.error(res.data?.message ?? `Failed (HTTP ${res.status})`);
+        toast.error(res.data?.message ?? `${t("settings.toast.deleteFailed")} (HTTP ${res.status})`);
         return;
       }
 
-      toast.success(res.data?.message || 'Institution deleted successfully');
+      toast.success(res.data?.message || t("settings.toast.deleteSuccess"));
 
       // لو حابب تنتظر 1.2s لعرض التوست
       // await new Promise(r => setTimeout(r, 1200));
@@ -346,7 +348,7 @@ const SettingsPage: React.FC = () => {
       router.push(`/dashboard?adminId=${institutionInfo.adminId}`);
     } catch (error) {
       console.error('Error during deletion:', error);
-      toast.error(error instanceof Error ? error.message : 'Failed to delete institution.');
+      toast.error(error instanceof Error ? error.message : t("settings.toast.deleteError") || 'Failed to delete institution.');
     } finally {
       setDeleteLoading(false);
     }
@@ -397,7 +399,7 @@ const SettingsPage: React.FC = () => {
           const r = res as ApiSuccess<{ exists: boolean }> | ApiFailure;
           if (!r.ok) {
             setIsNameTaken(null);
-            setErrorName(r.data?.message ?? `Failed (HTTP ${r.status})`);
+            setErrorName(r.data?.message ?? `${t("settings.toast.checkNameFailed")} (HTTP ${r.status})`);
           } else {
             setIsNameTaken(r.data.exists);
             setErrorName('');
@@ -405,11 +407,11 @@ const SettingsPage: React.FC = () => {
         } else {
           // fallback
           setIsNameTaken(null);
-          setErrorName('Unexpected response');
+          setErrorName(t("settings.toast.unexpectedResponse") || 'Unexpected response');
         }
       } catch {
         setIsNameTaken(null);
-        setErrorName('Error checking name availability');
+        setErrorName(t("settings.toast.checkNameError") || 'Error checking name availability');
       } finally {
         // تجاهل إطفاء اللودينغ لو تم تجاوزه بطلب أحدث
         if (myReqId === reqIdRef.current) setLoading(false);
@@ -418,16 +420,16 @@ const SettingsPage: React.FC = () => {
   };
   const confirmDeletion = async () => {
     if (!institutionInfo) {
-      toast.error('No institution loaded.');
+      toast.error(t("settings.toast.noInstitutionLoaded") || 'No institution loaded.');
       return;
     }
     const expected = (institutionInfo.name ?? '').trim();
     const provided = (inputName ?? '').trim();
     if (provided !== expected) {
-      toast.error('Name does not match. Please type the exact institution name to confirm.');
+      toast.error(t("settings.toast.nameMismatch") || 'Name does not match. Please type the exact institution name to confirm.');
       return;
     }
-    await handleDelete(); 
+    await handleDelete();
   };
   const handleSaveAttendanceSettings = async () => {
     try {
@@ -454,195 +456,195 @@ const SettingsPage: React.FC = () => {
   // }
 
   if (isLoading) {
-    return <div className="flex items-center justify-center">Loading…</div>;
+    return <div className="flex items-center justify-center">{t("common.loading") || "Loading…"}</div>;
   }
-  
+
   if (!institutionInfo) {
-    return <div className="p-4 text-sm text-red-600">Failed to load institution.</div>;
+    return <div className="p-4 text-sm text-red-600">{t("settings.toast.loadFailed") || "Failed to load institution."}</div>;
   }
   return (
     <div className="container w-full max-w-screen mx-auto ">
-      <h1 className="p-4 text-2xl font-bold  text-gray-800 ">Settings</h1>
+      <h1 className="p-4 text-2xl font-bold  text-gray-800 ">{t("settings.title")}</h1>
 
       {/* Institution Info */}
       <div className="m-6 p-6 bg-white rounded-xl shadow-md space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-gray-800">Institution Information</h2>
-        <button
-          onClick={() => setIsEditing((prev) => !prev)}
-          className="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition"
-        >
-          <Edit className="w-4 h-4 mr-2" />
-          {isEditing ? 'Cancel' : 'Edit'}
-        </button>
-      </div>
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-bold text-gray-800">{t("settings.section.info")}</h2>
+          <button
+            onClick={() => setIsEditing((prev) => !prev)}
+            className="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition"
+          >
+            <Edit className="w-4 h-4 mr-2" />
+            {isEditing ? t("common.cancel") : t("common.edit")}
+          </button>
+        </div>
 
-      {/* Name */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Institution Name</label>
-        {isEditing ? (
-          <div className="space-y-2">
+        {/* Name */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">{t("settings.info.name")}</label>
+          {isEditing ? (
+            <div className="space-y-2">
+              <input
+                type="text"
+                value={institutionInfo.name}
+                onBlur={handleCheckName}
+                onChange={(e) =>
+                  setInstitutionInfo({ ...institutionInfo, name: e.target.value })
+                }
+                className="w-full px-4 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+              />
+              {loading && <span className="text-sm text-gray-500">{t("settings.info.checking")}</span>}
+              {errorName && <p className="text-red-500 text-sm">{errorName}</p>}
+              {isNameTaken === true && (
+                <span className="text-sm text-red-600">{t("settings.info.nameTaken")}</span>
+              )}
+              {isNameTaken === false && (
+                <span className="text-sm text-green-600">✔ {t("settings.info.nameAvailable")}</span>
+              )}
+            </div>
+          ) : (
+            <p className="bg-gray-100 px-4 py-2 rounded-md text-sm text-gray-800">{institutionInfo.name}</p>
+          )}
+        </div>
+
+        {/* Address */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">{t("settings.info.address")}</label>
+          {isEditing ? (
             <input
               type="text"
-              value={institutionInfo.name}
-              onBlur={handleCheckName}
+              value={institutionInfo.address}
               onChange={(e) =>
-                setInstitutionInfo({ ...institutionInfo, name: e.target.value })
+                setInstitutionInfo({ ...institutionInfo, address: e.target.value })
               }
               className="w-full px-4 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
             />
-            {loading && <span className="text-sm text-gray-500">Checking...</span>}
-            {errorName && <p className="text-red-500 text-sm">{errorName}</p>}
-            {isNameTaken === true && (
-              <span className="text-sm text-red-600">Name already taken</span>
-            )}
-            {isNameTaken === false && (
-              <span className="text-sm text-green-600">✔ Name is available</span>
-            )}
-          </div>
-        ) : (
-          <p className="bg-gray-100 px-4 py-2 rounded-md text-sm text-gray-800">{institutionInfo.name}</p>
-        )}
-      </div>
-
-      {/* Address */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
-        {isEditing ? (
-          <input
-            type="text"
-            value={institutionInfo.address}
-            onChange={(e) =>
-              setInstitutionInfo({ ...institutionInfo, address: e.target.value })
-            }
-            className="w-full px-4 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-          />
-        ) : (
-          <p className="bg-gray-100 px-4 py-2 rounded-md text-sm text-gray-800">{institutionInfo.address}</p>
-        )}
-      </div>
-
-      {/* Unique Key */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Unique Key</label>
-        <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4">
-          <p className="flex-1 font-mono bg-gray-100 px-4 py-2 rounded-md text-sm text-gray-800">{institutionInfo.uniqueKey}</p>
-          {isEditing && (
-            <button
-              onClick={handleGenerateNewKey} disabled={isGenLoading}
-              className="mt-3 sm:mt-0 flex items-center px-4 py-2 bg-gray-700 text-white text-sm rounded-md hover:bg-gray-800"
-            >
-              {isGenLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <RefreshCw className="w-4 h-4 mr-2" />}
-              {isGenLoading ? "Generating..." : "Generate"}
-            </button>
+          ) : (
+            <p className="bg-gray-100 px-4 py-2 rounded-md text-sm text-gray-800">{institutionInfo.address}</p>
           )}
         </div>
+
+        {/* Unique Key */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">{t("settings.info.uniqueKey")}</label>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4">
+            <p className="flex-1 font-mono bg-gray-100 px-4 py-2 rounded-md text-sm text-gray-800">{institutionInfo.uniqueKey}</p>
+            {isEditing && (
+              <button
+                onClick={handleGenerateNewKey} disabled={isGenLoading}
+                className="mt-3 sm:mt-0 flex items-center px-4 py-2 bg-gray-700 text-white text-sm rounded-md hover:bg-gray-800"
+              >
+                {isGenLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <RefreshCw className="w-4 h-4 mr-2" />}
+                {isGenLoading ? t("settings.info.generating") : t("settings.info.generate")}
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Save Button */}
+        {isEditing && (
+          <div className="pt-4">
+            <button
+              onClick={handleSaveInstitutionInfo}
+              className="w-full sm:w-auto px-6 py-3 bg-green-600 text-white text-sm font-medium rounded-md hover:bg-green-700"
+            >
+              <div className="flex items-center justify-center">
+                <Save className="w-4 h-4 mr-2" />
+                {t("settings.info.save")}
+              </div>
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* SSID List */}
+      <div className="m-6 p-6 bg-white rounded-xl shadow-md space-y-6">
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-bold text-gray-800">{t("settings.section.wifi")}</h2>
+        </div>
+
+        {/* Existing SSIDs */}
+        <ul className="space-y-4">
+          {(institutionInfo.macAddresses || []).map((ssidInfo) => (
+            <li
+              key={ssidInfo.macAddress}
+              className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 p-4 bg-gray-50 rounded-md border"
+            >
+              <div>
+                <p className="text-sm font-semibold text-gray-800">{t("settings.wifi.ssid")}: {ssidInfo.wifiName}</p>
+                <p className="text-sm text-gray-600">{t("settings.wifi.mac")}: {ssidInfo.macAddress}</p>
+              </div>
+              <button
+                onClick={() => handleDeleteSSID(ssidInfo.macAddress)}
+                className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition"
+              >
+                <Trash2 className="w-4 h-4 mr-2" />
+                {t("common.delete")}
+              </button>
+            </li>
+          ))}
+        </ul>
+
+        {/* Add New SSID */}
+        <div className="p-5 bg-gray-50 rounded-md border space-y-4">
+          <h3 className="text-lg font-semibold text-gray-800">{t("settings.wifi.addNew")}</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <input
+              type="text"
+              placeholder={t("settings.wifi.ssidPlaceholder")}
+              value={newSSID}
+              onChange={(e) => setNewSSID(e.target.value)}
+              className="w-full px-4 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+            />
+            <input
+              type="text"
+              placeholder={t("settings.wifi.macPlaceholder")}
+              value={newMacAddress}
+              onChange={(e) => setNewMacAddress(e.target.value)}
+              className="w-full px-4 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+          <button
+            onClick={handleAddSSID}
+            className="inline-flex items-center px-5 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition"
+          >
+            <PlusCircle className="w-4 h-4 mr-2" />
+            {t("settings.wifi.addButton")}
+          </button>
+        </div>
+      </div>
+      {/* Check In Window After Minutes */}
+      <div>
+
+        <AttendanceSettingsCard
+          institutionId={institutionInfo.id}
+          initialValues={attendanceInitial}
+          onSave={async (values) => {
+            const res = await updateAttendanceSettings(institutionInfo.slug, values);
+            if (!res.ok) throw new Error(t("settings.toast.saveFailed") || "Failed to save");
+          }}
+        />
       </div>
 
       {/* Save Button */}
-      {isEditing && (
+      {isEditingAttendance && (
         <div className="pt-4">
           <button
-            onClick={handleSaveInstitutionInfo}
+            onClick={handleSaveAttendanceSettings}
             className="w-full sm:w-auto px-6 py-3 bg-green-600 text-white text-sm font-medium rounded-md hover:bg-green-700"
           >
             <div className="flex items-center justify-center">
               <Save className="w-4 h-4 mr-2" />
-              Save Changes
+              {t("settings.info.save") || "Save Attendance Settings"}
             </div>
           </button>
         </div>
       )}
-    </div>
-
-    {/* SSID List */}
-    <div className="m-6 p-6 bg-white rounded-xl shadow-md space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-gray-800">WiFi Networks</h2>
-      </div>
-
-      {/* Existing SSIDs */}
-      <ul className="space-y-4">
-        {(institutionInfo.macAddresses || []).map((ssidInfo) => (
-          <li
-            key={ssidInfo.macAddress}
-            className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 p-4 bg-gray-50 rounded-md border"
-          >
-            <div>
-              <p className="text-sm font-semibold text-gray-800">SSID: {ssidInfo.wifiName}</p>
-              <p className="text-sm text-gray-600">MAC: {ssidInfo.macAddress}</p>
-            </div>
-            <button
-              onClick={() => handleDeleteSSID(ssidInfo.macAddress)}
-              className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition"
-            >
-              <Trash2 className="w-4 h-4 mr-2" />
-              Delete
-            </button>
-          </li>
-        ))}
-      </ul>
-
-      {/* Add New SSID */}
-      <div className="p-5 bg-gray-50 rounded-md border space-y-4">
-        <h3 className="text-lg font-semibold text-gray-800">Add New WiFi</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <input
-            type="text"
-            placeholder="SSID Name"
-            value={newSSID}
-            onChange={(e) => setNewSSID(e.target.value)}
-            className="w-full px-4 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-          />
-          <input
-            type="text"
-            placeholder="MAC Address"
-            value={newMacAddress}
-            onChange={(e) => setNewMacAddress(e.target.value)}
-            className="w-full px-4 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-          />
-        </div>
-        <button
-          onClick={handleAddSSID}
-          className="inline-flex items-center px-5 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition"
-        >
-          <PlusCircle className="w-4 h-4 mr-2" />
-          Add Network
-        </button>
-      </div>
-    </div>
-{/* Check In Window After Minutes */}
-<div>
-
-<AttendanceSettingsCard
-      institutionId={institutionInfo.id}
-      initialValues={attendanceInitial}
-      onSave={async (values) => {
-        const res = await updateAttendanceSettings(institutionInfo.slug, values);
-        if (!res.ok) throw new Error("Failed to save");
-      }}
-    />
-</div>
-
-{/* Save Button */}
-{isEditingAttendance && (
-  <div className="pt-4">
-    <button
-      onClick={handleSaveAttendanceSettings}
-      className="w-full sm:w-auto px-6 py-3 bg-green-600 text-white text-sm font-medium rounded-md hover:bg-green-700"
-    >
-      <div className="flex items-center justify-center">
-        <Save className="w-4 h-4 mr-2" />
-        Save Attendance Settings
-      </div>
-    </button>
-  </div>
-)}
 
       {/* Delete Institution Section */}
       <div className="m-6 p-6 bg-white rounded-xl shadow-md space-y-4">
-        <h2 className="text-2xl font-bold text-gray-800">Delete This Institution</h2>
+        <h2 className="text-2xl font-bold text-gray-800">{t("settings.section.delete")}</h2>
 
         <div className="flex items-center justify-between p-4 bg-red-50 border border-red-200 rounded-md">
           <h4 className="text-lg font-semibold text-red-800">{institutionInfo.name}</h4>
@@ -655,22 +657,22 @@ const SettingsPage: React.FC = () => {
                 className="px-4 py-2 text-sm font-semibold"
                 onClick={() => setIsDelete(true)}
               >
-                Delete
+                {t("settings.delete.button")}
               </Button>
             </DialogTrigger>
 
             {isDelete && (
               <DialogContent className="max-w-md p-6">
                 <DialogHeader>
-                  <DialogTitle className="text-xl font-bold text-red-600">Confirm Deletion</DialogTitle>
+                  <DialogTitle className="text-xl font-bold text-red-600">{t("settings.delete.confirmTitle")}</DialogTitle>
                   <DialogDescription className="text-sm text-gray-600 mt-2">
-                    This action cannot be undone. To confirm, type the institution name below:
+                    {t("settings.delete.confirmDesc")}
                   </DialogDescription>
                 </DialogHeader>
 
                 <Input
                   className="mt-4"
-                  placeholder="Enter institution name to confirm"
+                  placeholder={t("settings.delete.inputPlaceholder")}
                   value={inputName}
                   onChange={(e) => setInputName(e.target.value)}
                 />
@@ -683,14 +685,14 @@ const SettingsPage: React.FC = () => {
                     className="px-4 py-2"
                   >
                     {deleteLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Trash2 className="w-4 h-4 mr-2" />}
-                    {deleteLoading ? 'Deleting...' : 'Delete'}
+                    {deleteLoading ? t("settings.delete.deleting") : t("settings.delete.button")}
                   </Button>
                   <Button
                     variant="outline"
                     onClick={() => setIsDelete(false)}
                     className="px-4 py-2"
                   >
-                    Cancel
+                    {t("common.cancel")}
                   </Button>
                 </DialogFooter>
               </DialogContent>

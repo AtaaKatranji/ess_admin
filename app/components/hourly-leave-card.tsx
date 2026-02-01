@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { useI18n } from "@/app/context/I18nContext"
 
 // Type definitions
 type HourlyLeave = {
@@ -36,13 +37,14 @@ const formattedTime = (timeString: string) => {
       minute: "2-digit",
       hour12: true,
     })
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
     return timeString // Return as is if parsing fails
   }
 }
 
 export function HourlyLeaveCard({ leave, onApprove, onReject }: HourlyLeaveCardProps) {
+  const { t } = useI18n()
   const [isExpanded, setIsExpanded] = useState(false)
   console.log(leave);
   return (
@@ -52,11 +54,11 @@ export function HourlyLeaveCard({ leave, onApprove, onReject }: HourlyLeaveCardP
           <div className="font-semibold text-lg">{leave.employeeDetails.name}</div>
           <Badge
             variant={
-                          leave.breakDetails.status === "Approved" ? "secondary" :
-            leave.breakDetails.status === "Rejected" ? "destructive" : "outline"
+              leave.breakDetails.status === "Approved" ? "secondary" :
+                leave.breakDetails.status === "Rejected" ? "destructive" : "outline"
             }
           >
-            {leave.breakDetails.status}
+            {t(`requests.status.${leave.breakDetails.status.toLowerCase()}`)}
           </Badge>
         </div>
 
@@ -64,14 +66,14 @@ export function HourlyLeaveCard({ leave, onApprove, onReject }: HourlyLeaveCardP
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-            
-                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setIsExpanded(!isExpanded)}>
-                    {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                  </Button>
-              
+
+                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setIsExpanded(!isExpanded)}>
+                  {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                </Button>
+
               </TooltipTrigger>
               <TooltipContent>
-                <p>{isExpanded ? "Show less" : "Show more"}</p>
+                <p>{isExpanded ? t("common.previous") : t("common.next")}</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
@@ -82,21 +84,21 @@ export function HourlyLeaveCard({ leave, onApprove, onReject }: HourlyLeaveCardP
         <div className="flex items-center gap-2">
           <Clock className="h-4 w-4 text-muted-foreground" />
           <span className="text-sm">
-            <span className="font-medium">Start:</span> {formattedTime(leave.breakDetails.startTime)}
+            <span className="font-medium">{t("attendance.checkIn")}:</span> {formattedTime(leave.breakDetails.startTime)}
           </span>
         </div>
 
         <div className="flex items-center gap-2">
           <Clock className="h-4 w-4 text-muted-foreground" />
           <span className="text-sm">
-            <span className="font-medium">End:</span> {formattedTime(leave.breakDetails.endTime)}
+            <span className="font-medium">{t("attendance.checkOut")}:</span> {formattedTime(leave.breakDetails.endTime)}
           </span>
         </div>
 
         <div className="flex items-center gap-2 col-span-2">
           <Clock className="h-4 w-4 text-muted-foreground" />
           <span className="text-sm">
-            <span className="font-medium">Duration:</span> {leave.breakDetails.duration}
+            <span className="font-medium">{t("shiftForm.breaks.duration")}:</span> {leave.breakDetails.duration}
           </span>
         </div>
       </CardContent>
@@ -109,10 +111,10 @@ export function HourlyLeaveCard({ leave, onApprove, onReject }: HourlyLeaveCardP
             className="text-destructive border-destructive hover:bg-destructive/10"
             onClick={() => onReject(leave.breakDetails.id)}
           >
-            <X className="mr-1 h-4 w-4" /> Reject
+            <X className="mr-1 h-4 w-4" /> {t("requests.status.rejected")}
           </Button>
           <Button variant="default" size="sm" onClick={() => onApprove(leave.breakDetails.id)}>
-            <Check className="mr-1 h-4 w-4" /> Approve
+            <Check className="mr-1 h-4 w-4" /> {t("requests.status.approved")}
           </Button>
         </CardFooter>
       )}

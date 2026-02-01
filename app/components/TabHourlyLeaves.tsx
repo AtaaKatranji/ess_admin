@@ -24,6 +24,7 @@ import {
   //FormMessage,
 } from "@/components/ui/form";
 import { useInstitution } from '../context/InstitutionContext';
+import { useI18n } from '../context/I18nContext';
 
 
 type BreakRecord = {
@@ -43,6 +44,7 @@ type BreakRecord = {
 
 const HourlyLeavesTab = ({ employeeId, selectedMonth }: { employeeId: string; selectedMonth: Date }) => {
   const { slug } = useInstitution();
+  const { t, lang } = useI18n();
   const [breaks, setBreaks] = useState<BreakRecord[]>([]);
   const [customBreaks, setCustomBreaks] = useState<BreakRecord[]>([]);
   const [regularBreaks, setRegularBreaks] = useState<BreakRecord[]>([]);
@@ -71,15 +73,15 @@ const HourlyLeavesTab = ({ employeeId, selectedMonth }: { employeeId: string; se
       });
 
       if (!response.ok) {
-        throw new Error("Failed to fetch breaks");
+        throw new Error(t("hourlyLeaves.toast.fetchError"));
       }
 
       const data = await response.json();
       setBreaks(data.data);
-      console.log("data", data.data , breaks);
+      console.log("data", data.data, breaks);
       // Separate custom and regular breaks
 
-      
+
       setCustomBreaks(data.data.custom.breaks);
       setCustomBreaksTotalHours(data.data.custom.totalDuration)
       setRegularBreaks(data.data.regular.breaks);
@@ -88,7 +90,7 @@ const HourlyLeavesTab = ({ employeeId, selectedMonth }: { employeeId: string; se
       setFilteredRegularBreaks(data.data.regular.breaks);
     } catch (error) {
       console.error("Error fetching breaks:", error);
-      toast.error("Failed to fetch breaks. Please try again.");
+      toast.error(t("hourlyLeaves.toast.fetchError"));
     }
   };
 
@@ -100,14 +102,18 @@ const HourlyLeavesTab = ({ employeeId, selectedMonth }: { employeeId: string; se
   useEffect(() => {
     const filterRecords = (records: BreakRecord[]) => records.filter((record) => {
       const searchLower = searchTerm.toLowerCase();
-      const date = format(new Date(record.startTime), "MMMM d, yyyy").toLowerCase();
+      const date = new Date(record.startTime).toLocaleDateString(lang === 'ar' ? 'ar-EG' : 'en-US', {
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric'
+      }).toLowerCase();
       const customName = record.customBreakName?.toLowerCase() || "";
       return date.includes(searchLower) || customName.includes(searchLower);
     });
 
     setFilteredCustomBreaks(filterRecords(customBreaks));
     setFilteredRegularBreaks(filterRecords(regularBreaks));
-  }, [searchTerm, customBreaks, regularBreaks]);
+  }, [searchTerm, customBreaks, regularBreaks, lang]);
 
   const openEditDialog = (record: BreakRecord) => {
     setIsEditing(true);
@@ -131,27 +137,27 @@ const HourlyLeavesTab = ({ employeeId, selectedMonth }: { employeeId: string; se
   const onSubmit = async (data: BreakRecord) => {
     try {
       // 1️⃣ حدد الرابط وطريقة الإرسال (نفس السابق)
-      const url = isEditing 
+      const url = isEditing
         ? `${process.env.NEXT_PUBLIC_API_URL}/breaks/employee-breaks/admin/update`
         : `${process.env.NEXT_PUBLIC_API_URL}/institutions/${slug}/break/employee-breaks/admin/add`;
       const method = isEditing ? "PUT" : "POST";
-  
+
       // 2️⃣ جهّز التاريخ الكامل بصيغة ISO
       const dateStr = selectedDate ? format(selectedDate, "yyyy-MM-dd") : null;
       const startDateTime = dateStr && startTime ? `${dateStr}T${startTime}:00` : null;
       const endDateTime = dateStr && endTime ? `${dateStr}T${endTime}:00` : null;
-  
+
       // 3️⃣ تحقق من الحقول قبل الإرسال
       if (!dateStr || !startDateTime || !endDateTime) {
-        toast.warning("Please select date and both start & end times.");
+        toast.warning(t("hourlyLeaves.toast.validationError"));
         return;
       }
-  
+
       if (error) {
         toast.error(error);
         return;
       }
-  
+
       // 4️⃣ جهّز البيانات لإرسالها للسيرفر
       const requestData = {
         employeeId,
@@ -160,9 +166,9 @@ const HourlyLeavesTab = ({ employeeId, selectedMonth }: { employeeId: string; se
         duration,
         isCustomBreak: true,
         customBreakName: data.customBreakName,
-        
+
       };
-  
+
       // 5️⃣ أرسل الطلب
       const response = await fetch(url, {
         method,
@@ -173,22 +179,22 @@ const HourlyLeavesTab = ({ employeeId, selectedMonth }: { employeeId: string; se
         credentials: "include",
         body: JSON.stringify(requestData),
       });
-  
+
       if (!response.ok) {
-        throw new Error("Failed to save break record");
+        throw new Error(t("hourlyLeaves.toast.saveError"));
       }
-  
+
       // 6️⃣ بعد النجاح
       await fetchMonthlyBreaks(selectedMonth);
-      toast.success(isEditing ? "Updated successfully ✅" : "Added successfully ✅");
+      toast.success(isEditing ? t("hourlyLeaves.toast.updateSuccess") : t("hourlyLeaves.toast.addSuccess"));
       setIsDialogOpen(false);
-  
+
     } catch (error) {
       console.error("Error saving break:", error);
-      toast.error("Failed to save break record. Please try again ❌");
+      toast.error(t("hourlyLeaves.toast.saveError"));
     }
   };
-  
+
   const [openCalendar, setOpenCalendar] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
   const [startTime, setStartTime] = useState("");
@@ -204,9 +210,9 @@ const HourlyLeavesTab = ({ employeeId, selectedMonth }: { employeeId: string; se
       const end = new Date();
       start.setHours(sh, sm, 0, 0);
       end.setHours(eh, em, 0, 0);
-  
+
       if (end < start) {
-        setError("⚠️ End time cannot be before start time.");
+        setError(t("hourlyLeaves.error.endTime"));
         setDuration(null);
       } else {
         const diffMinutes = Math.round((end.getTime() - start.getTime()) / (1000 * 60));
@@ -214,42 +220,48 @@ const HourlyLeavesTab = ({ employeeId, selectedMonth }: { employeeId: string; se
         setError("");
       }
     }
-  }, [startTime, endTime]);
+  }, [startTime, endTime, t]);
 
-  if (isLoading) return <p>Loading...</p>;
+  if (isLoading) return <p>{t("common.loading")}</p>;
 
-  const renderBreakList = (title: string, breaks: BreakRecord[]) => (
+  const renderBreakList = (title: string, records: BreakRecord[]) => (
     <div className="space-y-2">
-      <h3 className="text-lg font-semibold">{title}</h3>
+      <h3 className="text-lg font-semibold">{t(`hourlyLeaves.${title.toLowerCase().replace(/ /g, "")}`) || title}</h3>
       <Card>
         {/* <ScrollArea className="h-[300px]"> */}
-          <div className="p-4">
-            {breaks.length === 0 ? (
-              <p>No records found.</p>
-            ) : (
-              breaks.map((record) => (
-                <div
-                  key={record.id}
-                  className="flex justify-between items-center py-2 border-b last:border-b-0 cursor-pointer hover:bg-accent"
-                  onClick={() => openEditDialog(record)}
-                >
-                  <div>
-                    <p className="font-medium">
-                      {format(new Date(record.startTime), "MMMM d, yyyy HH:mm")} 
-                      {record.isCustomBreak && ` - ${record.customBreakName}` || ` - ${record.breakTypeId}`}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      Duration: {record.isCustomBreak && `${record.duration} minutes` || `${record.breakTypeId}`}
-                      {record.isCustomBreak && ` | Status: ${record.status}` || ``}
-                    </p>
-                  </div>
-                  {record.isCustomBreak && (
-                    <Button variant="ghost" size="sm">Edit</Button>
-                  )}
+        <div className="p-4">
+          {records.length === 0 ? (
+            <p>{t("hourlyLeaves.noRecords")}</p>
+          ) : (
+            records.map((record) => (
+              <div
+                key={record.id}
+                className="flex justify-between items-center py-2 border-b last:border-b-0 cursor-pointer hover:bg-accent"
+                onClick={() => openEditDialog(record)}
+              >
+                <div>
+                  <p className="font-medium">
+                    {new Date(record.startTime).toLocaleDateString(lang === 'ar' ? 'ar-EG' : 'en-US', {
+                      month: 'long',
+                      day: 'numeric',
+                      year: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}
+                    {record.isCustomBreak && ` - ${record.customBreakName}` || ` - ${record.breakTypeId}`}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {t("hourlyLeaves.duration")} {record.isCustomBreak && `${record.duration} ${t("common.minutes")}` || `${record.breakTypeId}`}
+                    {record.isCustomBreak && ` | ${t("hourlyLeaves.status")} ${record.status}` || ``}
+                  </p>
                 </div>
-              ))
-            )}
-          </div>
+                {record.isCustomBreak && (
+                  <Button variant="ghost" size="sm">{t("common.edit")}</Button>
+                )}
+              </div>
+            ))
+          )}
+        </div>
         {/* </ScrollArea> */}
       </Card>
     </div>
@@ -260,8 +272,8 @@ const HourlyLeavesTab = ({ employeeId, selectedMonth }: { employeeId: string; se
   return (
     <div className="flex-col space-y-4">
       <div className="flex justify-between items-center">
-        <h2 className="text-xl font-semibold">Hourly Leaves</h2>
-       
+        <h2 className="text-xl font-semibold">{t("hourlyLeaves.title")}</h2>
+
 
         <div className="flex space-x-2">
 
@@ -271,7 +283,7 @@ const HourlyLeavesTab = ({ employeeId, selectedMonth }: { employeeId: string; se
           <div className="relative">
             <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Search breaks"
+              placeholder={t("hourlyLeaves.searchPlaceholder")}
               className="pl-8"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -279,46 +291,46 @@ const HourlyLeavesTab = ({ employeeId, selectedMonth }: { employeeId: string; se
           </div>
         </div>
       </div>
- <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
- <Card>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+        <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Hourly Breaks Taken</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("hourlyLeaves.totalTaken")}</CardTitle>
             <TimerIcon className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{customBreaksTotalHours! + regularBreaksTotalHours!}</div>
-            <p className="text-xs text-muted-foreground">minutes</p>
+            <p className="text-xs text-muted-foreground">{t("common.minutes")}</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Custom</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("hourlyLeaves.totalCustom")}</CardTitle>
             <TimerIcon className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{customBreaksTotalHours} </div>
-            <p className="text-xs text-muted-foreground">minutes</p>
+            <p className="text-xs text-muted-foreground">{t("common.minutes")}</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Regular</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("hourlyLeaves.totalRegular")}</CardTitle>
             <TimerIcon className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{regularBreaksTotalHours} </div>
-            <p className="text-xs text-muted-foreground">minutes</p>
+            <p className="text-xs text-muted-foreground">{t("common.minutes")}</p>
           </CardContent>
         </Card>
-        
-          </div>
+
+      </div>
       {renderBreakList("Custom Breaks", filteredCustomBreaks)}
       {renderBreakList("Regular Breaks", filteredRegularBreaks)}
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>{isEditing ? 'Edit Hourly Leave' : 'Add New Hourly Leave'}</DialogTitle>
+            <DialogTitle>{isEditing ? t("hourlyLeaves.dialog.editTitle") : t("hourlyLeaves.dialog.addTitle")}</DialogTitle>
           </DialogHeader>
 
           {/* 🕒 نموذج الإجازة الساعية */}
@@ -329,7 +341,7 @@ const HourlyLeavesTab = ({ employeeId, selectedMonth }: { employeeId: string; se
             >
               {/* ✅ اختيار اليوم */}
               <div className="flex flex-col space-y-2">
-                <label className="text-sm font-medium">Date</label>
+                <label className="text-sm font-medium">{t("hourlyLeaves.field.date")}</label>
 
                 {!openCalendar ? (
                   <Button
@@ -338,7 +350,7 @@ const HourlyLeavesTab = ({ employeeId, selectedMonth }: { employeeId: string; se
                     className="justify-start text-left font-normal"
                   >
                     <CalendarIcon className="mr-2 h-4 w-4 text-gray-500" />
-                    {selectedDate ? format(selectedDate, "PPP") : "Select a day"}
+                    {selectedDate ? format(selectedDate, "PPP") : t("hourlyLeaves.field.selectDay")}
                   </Button>
                 ) : (
                   <div className="border rounded-md p-3 bg-white shadow-inner">
@@ -357,7 +369,7 @@ const HourlyLeavesTab = ({ employeeId, selectedMonth }: { employeeId: string; se
                         size="sm"
                         onClick={() => setOpenCalendar(false)}
                       >
-                        Done
+                        {t("common.save")}
                       </Button>
                     </div>
                   </div>
@@ -366,7 +378,7 @@ const HourlyLeavesTab = ({ employeeId, selectedMonth }: { employeeId: string; se
 
               {/* ⏰ وقت البداية */}
               <div className="flex flex-col space-y-2">
-                <label className="text-sm font-medium">Start Time</label>
+                <label className="text-sm font-medium">{t("hourlyLeaves.field.startTime")}</label>
                 <Input
                   type="time"
                   value={startTime}
@@ -376,7 +388,7 @@ const HourlyLeavesTab = ({ employeeId, selectedMonth }: { employeeId: string; se
 
               {/* ⏰ وقت النهاية */}
               <div className="flex flex-col space-y-2">
-                <label className="text-sm font-medium">End Time</label>
+                <label className="text-sm font-medium">{t("hourlyLeaves.field.endTime")}</label>
                 <Input
                   type="time"
                   value={endTime}
@@ -390,9 +402,9 @@ const HourlyLeavesTab = ({ employeeId, selectedMonth }: { employeeId: string; se
                 name="customBreakName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Reason / Break Name</FormLabel>
+                    <FormLabel>{t("hourlyLeaves.field.reason")}</FormLabel>
                     <FormControl>
-                      <Input {...field} value={field.value || ""} placeholder="Reason for hourly leave" />
+                      <Input {...field} value={field.value || ""} placeholder={t("hourlyLeaves.field.reasonPlaceholder")} />
                     </FormControl>
                   </FormItem>
                 )}
@@ -403,12 +415,12 @@ const HourlyLeavesTab = ({ employeeId, selectedMonth }: { employeeId: string; se
                 <p className="text-sm text-red-600 mt-2">{error}</p>
               ) : duration && (
                 <p className="text-sm text-muted-foreground mt-2">
-                  Total duration: {duration} minutes
+                  {t("hourlyLeaves.totalDuration").replace("{duration}", String(duration))}
                 </p>
               )}
 
               <DialogFooter>
-                <Button type="submit" className="w-full">Save</Button>
+                <Button type="submit" className="w-full">{t("common.save")}</Button>
               </DialogFooter>
             </form>
           </Form>

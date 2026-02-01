@@ -1,6 +1,6 @@
-'use client'
+"use client"
 
-import {   useEffect, useState } from 'react'
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation";
 
 import { format } from "date-fns";
@@ -21,9 +21,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ChevronDown, Download, Search, CalendarIcon,CalendarClock, RefreshCw, ArrowUpDown, CalendarDays  } from 'lucide-react'
 import { fetchShifts } from '@/app/api/shifts/shifts'
 import { fetchCheckInOutData } from '@/app/api/employees/employeeId'
-import { useInstitution } from '@/app/context/InstitutionContext';
-import { useSocket } from "@/app/context/SocketContext";
-import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+import { useInstitution } from "@/app/context/InstitutionContext"
+import { useSocket } from "@/app/context/SocketContext"
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover"
+import { useI18n } from "@/app/context/I18nContext"
 
 //const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
 // types/AttendanceRecord.ts
@@ -58,89 +59,91 @@ interface ApiResponse {
 }
 
 const OverviewPage = () => {
-  const { slug } = useInstitution(); 
+  const { slug } = useInstitution()
+  const { t } = useI18n()
   const [shifts, setShifts] = useState<Shift[]>([]);
   const [selectedShift, setSelectedShift] = useState<Shift | null>(); // Start as undefined
-  const [viewMode, setViewMode] = useState('daily');
-  const [attendanceData, setAttendanceData] = useState<ApiResponse>({ data: [], message: '' });
+  const [viewMode, setViewMode] = useState("daily");
+  const [attendanceData, setAttendanceData] = useState<ApiResponse>({ data: [], message: "" });
   const [loading, setLoading] = useState(true);
   const [loadingShifts, setLoadingShifts] = useState(false);
   // optional if you do permission gating
   //const [canCreateShift, setCanCreateShift] = useState(true); // wire from your caps endpoint if you have one
   
-  const router = useRouter();
-  const shiftsHref = slug ? `/dashboard/institution/${slug}/shifts` : "/";
-  const socket = useSocket();
+  const router = useRouter()
+  const shiftsHref = slug ? `/dashboard/institution/${slug}/shifts` : "/"
+  const socket = useSocket()
   useEffect(() => {
     const fetchAndSetShifts = async () => {
       try {
-        if (!slug) return; // If slug is undefined, do nothing
+        if (!slug) return // If slug is undefined, do nothing
         
-        const data = await fetchShifts(slug);
+        const data = await fetchShifts(slug)
 
-          setShifts(Array.isArray(data) ? data : []);
-          setSelectedShift((prev) => prev ?? (Array.isArray(data) && data[0] ? data[0] : null));
+        setShifts(Array.isArray(data) ? data : [])
+        setSelectedShift((prev) => prev ?? (Array.isArray(data) && data[0] ? data[0] : null))
         
       } catch (err) {
-        console.error("Error fetching shifts:", err);
+        console.error("Error fetching shifts:", err)
       } finally {
-        setLoadingShifts(false);
+        setLoadingShifts(false)
       }
-    };
-    fetchAndSetShifts();
-  }, [slug]);
+    }
+    fetchAndSetShifts()
+  }, [slug])
   
   useEffect(() => {
     const fetchData = async () => {
-      if (!selectedShift) return;
-      setLoading(true);
+      if (!selectedShift) return
+      setLoading(true)
       try {
-        const shiftId = selectedShift.id;
-        const data = await fetchCheckInOutData(shiftId);
-        setAttendanceData(data);
+        const shiftId = selectedShift.id
+        const data = await fetchCheckInOutData(shiftId)
+        setAttendanceData(data)
       } catch (error) {
-        console.error('Error fetching check-in/out data:', error);
-        setAttendanceData({ message: 'Error loading data', data: [] });
+        console.error("Error fetching check-in/out data:", error)
+        setAttendanceData({ message: "Error loading data", data: [] })
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
+    }
   
     // Fetch once on mount or when selectedShift changes
-    fetchData();
-  
-    if (!socket) return;
+    fetchData()
+
+    if (!socket) return
   
     // Named handler function
     const handleNotifyAdmin = () => {
-      fetchData();
-    };
+      fetchData()
+    }
   
     // Register the handler
-    socket.on("notify_admin", handleNotifyAdmin);
+    socket.on("notify_admin", handleNotifyAdmin)
   
     // Cleanup: remove only this handler
     return () => {
-      socket.off("notify_admin", handleNotifyAdmin);
-    };
-  
-  }, [selectedShift, socket]);
+      socket.off("notify_admin", handleNotifyAdmin)
+    }
+  }, [selectedShift, socket])
   
   useEffect(() => {
-    if (shifts.length > 0 && !selectedShift) setSelectedShift(shifts[0]);
-    if (shifts.length === 0) setSelectedShift(null);
-  }, [shifts]);
+    if (shifts.length > 0 && !selectedShift) setSelectedShift(shifts[0])
+    if (shifts.length === 0) setSelectedShift(null)
+  }, [shifts])
   function EmptyShiftsState({
     href,
     onRefresh,
     //canCreate,canCreate: boolean
-  }: { href: string; onRefresh: () => void;  }) {
+  }: { href: string; onRefresh: () => void }) {
     return (
       <Card className="flex flex-col items-center text-center py-16">
         <CalendarClock className="h-10 w-10 mb-3 text-gray-500" />
-        <h3 className="text-lg font-semibold mb-1">No shifts yet</h3>
+        <h3 className="text-lg font-semibold mb-1">
+          {t("overview.shifts.empty.title")}
+        </h3>
         <p className="text-sm text-muted-foreground max-w-md">
-          Create your first shift to start tracking attendance and time sheets.
+          {t("overview.shifts.empty.body")}
         </p>
         <div className="mt-5 flex gap-2">
           <Button
@@ -148,10 +151,10 @@ const OverviewPage = () => {
             //disabled={!canCreate}
             //title={canCreate ? undefined : "You don't have permission to create shifts"}
           >
-            Create a Shift
+            {t("overview.shifts.create")}
           </Button>
           <Button variant="outline" onClick={onRefresh}>
-            <RefreshCw className="h-4 w-4 mr-2" /> Refresh
+            <RefreshCw className="h-4 w-4 mr-2" /> {t("overview.shifts.refresh")}
           </Button>
         </div>
         {/* {!canCreate && (
@@ -165,12 +168,15 @@ const OverviewPage = () => {
   return (
     <div className="container mx-auto w-full max-w-screen-xl px-3 sm: py-10 sm:px-6 overflow-hidden">
       <div>
-        <h1 className="text-2xl font-bold mb-4  text-gray-800">Institution Dashboard - Overview</h1>
+        <h1 className="text-2xl font-bold mb-4  text-gray-800">
+          {t("overview.title")}
+        </h1>
         <div className="flex justify-between items-center mb-4">
         <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="outline">
-            {selectedShift?.name || 'Select a Shift'} <ChevronDown className="ml-2 h-4 w-4" />
+            {selectedShift?.name || t("overview.shift.select")}{" "}
+            <ChevronDown className="ml-2 h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
@@ -184,93 +190,129 @@ const OverviewPage = () => {
       </DropdownMenu>
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2">
-              <Switch id="view-mode" onCheckedChange={(checked) => setViewMode(checked ? 'weekly' : 'daily')} />
-              <Label htmlFor="view-mode">Weekly View</Label>
+              <Switch
+                id="view-mode"
+                onCheckedChange={(checked) =>
+                  setViewMode(checked ? "weekly" : "daily")
+                }
+              />
+              <Label htmlFor="view-mode">
+                {t("overview.view.weekly")}
+              </Label>
             </div>
             <Button variant="outline">
-              <Download className="mr-2 h-4 w-4" /> Export
+              <Download className="mr-2 h-4 w-4" /> {t("overview.export")}
             </Button>
           </div>
         </div>
       </div>
       {loadingShifts ? (
-      <Card className="p-10 text-center text-muted-foreground">Loading shifts…</Card>
-    ) : shifts.length === 0 ? (
-      <EmptyShiftsState
-        href={shiftsHref}         // e.g. /dashboard/institution/[slug]/shifts
-        onRefresh={() => {/* call your fetchShifts() here */}}
-        //canCreate={canCreateShift}
-      />
-    ) : (
-      // your existing grid when shifts exist
-      <div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="md:col-span-1">
-          <CardHeader><h2 className="text-xl font-semibold">Attendance Status</h2></CardHeader>
-          <CardContent>
-            <AttendanceStatus response={attendanceData} loading={loading} />
-          </CardContent>
+        <Card className="p-10 text-center text-muted-foreground">
+          {t("overview.shifts.loading")}
         </Card>
+      ) : shifts.length === 0 ? (
+        <EmptyShiftsState
+          href={shiftsHref} // e.g. /dashboard/institution/[slug]/shifts
+          onRefresh={() => {
+            /* optional: refetch shifts */
+          }}
+        />
+      ) : (
+        // your existing grid when shifts exist
+        <div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <Card className="md:col-span-1">
+              <CardHeader>
+                <h2 className="text-xl font-semibold">
+                  {t("overview.attendance.status")}
+                </h2>
+              </CardHeader>
+              <CardContent>
+                <AttendanceStatus response={attendanceData} loading={loading} />
+              </CardContent>
+            </Card>
 
-        <Card className="overflow-x-auto md:col-span-2">
-          <CardHeader>
-            <h2 className="text-xl font-semibold min-h-[24px]">Time Sheet</h2>
-            <div className="flex items-center space-x-2">
-              <Search className="h-4 w-4 text-gray-600" />
-              <Input placeholder="Search employees..." className="max-w-sm" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <Tabs defaultValue="daily" value={viewMode}>
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="daily">Daily View</TabsTrigger>
-                <TabsTrigger value="weekly">Weekly View</TabsTrigger>
-              </TabsList>
-              <TabsContent value="daily">
-                <DailyTimeSheet employees={attendanceData.data} />
-              </TabsContent>
-              <TabsContent value="weekly">
-                <WeeklyTimeSheet employees={attendanceData.data} />
-              </TabsContent>
-            </Tabs>
-          </CardContent>
-        </Card>
+            <Card className="overflow-x-auto md:col-span-2">
+              <CardHeader>
+                <h2 className="text-xl font-semibold min-h-[24px]">
+                  {t("overview.timesheet.title")}
+                </h2>
+                <div className="flex items-center space-x-2">
+                  <Search className="h-4 w-4 text-gray-600" />
+                  <Input
+                    placeholder={t("overview.timesheet.search")}
+                    className="max-w-sm"
+                  />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <Tabs defaultValue="daily" value={viewMode}>
+                  <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="daily">
+                      {t("overview.timesheet.daily")}
+                    </TabsTrigger>
+                    <TabsTrigger value="weekly">
+                      {t("overview.timesheet.weekly")}
+                    </TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="daily">
+                    <DailyTimeSheet employees={attendanceData.data} />
+                  </TabsContent>
+                  <TabsContent value="weekly">
+                    <WeeklyTimeSheet employees={attendanceData.data} />
+                  </TabsContent>
+                </Tabs>
+              </CardContent>
+            </Card>
+          </div>
+          {/* Previous Day Attendance Card */}
+          <div className="mt-6 grid md:grid-cols-3 gap-6">
+            <Card className="md:col-span-3">
+              <CardHeader>
+                <h2 className="text-xl font-semibold">
+                  {t("overview.prevDay.title")}
+                </h2>
+                <p className="text-sm text-muted-foreground">
+                  {t("overview.prevDay.subtitle")}
+                </p>
+              </CardHeader>
+              <CardContent>
+                <PreviousDayAttendance shift={selectedShift} slug={slug} />
+              </CardContent>
+            </Card>
+          </div>
         </div>
-        {/* Previous Day Attendance Card */}
-        <div className="mt-6 grid md:grid-cols-3 gap-6">
-  <Card className="md:col-span-3">
-            <CardHeader>
-              <h2 className="text-xl font-semibold">Previous Day Attendance</h2>
-              <p className="text-sm text-muted-foreground">
-                Overview of yesterday’s check-ins and check-outs
-              </p>
-            </CardHeader>
-            <CardContent>
-              <PreviousDayAttendance shift={selectedShift} slug={slug} />
-            </CardContent>
-          </Card>
-        </div>
-        </div>
-      
-    )}
-  </div>
-);
+      )}
+    </div>
+  );
 
 
-function AttendanceStatus({ response, loading }: { response: ApiResponse, loading: boolean }) {
-  const { data: employees, message } = response;
+function AttendanceStatus({
+  response,
+  loading,
+}: {
+  response: ApiResponse
+  loading: boolean
+}) {
+  const { t } = useI18n()
+  const { data: employees, message } = response
 
-  const loggedInEmployees = employees.filter(e => e.loggedIn && e.checkOut == "Not checked out");
-  const loggedOutEmployees = employees.filter(e => e.checkOut != "Not checked out"); // <- New list
-  const notLoggedInEmployees = employees.filter(e => !e.loggedIn && e.checkOut == "Not checked out"); // not logged in & not logged out
+  const loggedInEmployees = employees.filter(
+    (e) => e.loggedIn && e.checkOut == "Not checked out"
+  )
+  const loggedOutEmployees = employees.filter(
+    (e) => e.checkOut != "Not checked out"
+  ) // <- New list
+  const notLoggedInEmployees = employees.filter(
+    (e) => !e.loggedIn && e.checkOut == "Not checked out"
+  ) // not logged in & not logged out
 
   return (
     <div className="container mx-auto w-full ">
       {loading ? (
         <div className="flex items-center justify-center h-40">
           <div className="loader"></div>
-          <p>Loading...</p>
+          <p>{t("overview.status.loading")}</p>
         </div>
       ) : (
         <>
@@ -281,18 +323,31 @@ function AttendanceStatus({ response, loading }: { response: ApiResponse, loadin
             <>
               {/* Logged In */}
               <div>
-                <h3 className="font-semibold mb-2">Logged In</h3>
+                <h3 className="font-semibold mb-2">
+                  {t("overview.status.loggedIn")}
+                </h3>
                 <ul className="space-y-2">
-                  {loggedInEmployees.map(employee => (
-                    <li key={employee.id} className="flex items-center space-x-2">
+                  {loggedInEmployees.map((employee) => (
+                    <li
+                      key={employee.id}
+                      className="flex items-center space-x-2"
+                    >
                       <div
                         className={`w-8 h-8 rounded-full flex items-center justify-center relative ${
                           employee.onLeave
-                            ? 'bg-blue-500 text-white'
-                            : 'bg-gray-200 text-black'
+                            ? "bg-blue-500 text-white"
+                            : "bg-gray-200 text-black"
                         }`}
                       >
-                        <span className={/[\u0600-\u06FF]/.test(employee.name) ? "arabic-text text-xs font-semibold" : "text-xs font-semibold"}>{employee.name.charAt(0)}</span>
+                        <span
+                          className={
+                            /[\u0600-\u06FF]/.test(employee.name)
+                              ? "arabic-text text-xs font-semibold"
+                              : "text-xs font-semibold"
+                          }
+                        >
+                          {employee.name.charAt(0)}
+                        </span>
                         <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></span>
                       </div>
                       <span>{employee.name}</span>
@@ -303,18 +358,25 @@ function AttendanceStatus({ response, loading }: { response: ApiResponse, loadin
 
               {/* Logged Out */}
               <div>
-                <h3 className="font-semibold mb-2">Logged Out</h3>
+                <h3 className="font-semibold mb-2">
+                  {t("overview.status.loggedOut")}
+                </h3>
                 <ul className="space-y-2">
-                  {loggedOutEmployees.map(employee => (
-                    <li key={employee.id} className="flex items-center space-x-2">
+                  {loggedOutEmployees.map((employee) => (
+                    <li
+                      key={employee.id}
+                      className="flex items-center space-x-2"
+                    >
                       <div
                         className={`w-8 h-8 rounded-full flex items-center justify-center relative ${
                           employee.onLeave
-                            ? 'bg-blue-500 text-white'
-                            : 'bg-gray-200 text-black'
+                            ? "bg-blue-500 text-white"
+                            : "bg-gray-200 text-black"
                         }`}
                       >
-                        <span className="text-xs font-semibold">{employee.name.charAt(0)}</span>
+                        <span className="text-xs font-semibold">
+                          {employee.name.charAt(0)}
+                        </span>
                         <span className="absolute bottom-0 right-0 w-3 h-3 bg-red-500 rounded-full border-2 border-white"></span>
                       </div>
                       <span>{employee.name}</span>
@@ -325,18 +387,25 @@ function AttendanceStatus({ response, loading }: { response: ApiResponse, loadin
 
               {/* Not Logged In */}
               <div>
-                <h3 className="font-semibold mb-2">Not Logged In</h3>
+                <h3 className="font-semibold mb-2">
+                  {t("overview.status.notLoggedIn")}
+                </h3>
                 <ul className="space-y-2">
-                  {notLoggedInEmployees.map(employee => (
-                    <li key={employee.id} className="flex items-center space-x-2">
+                  {notLoggedInEmployees.map((employee) => (
+                    <li
+                      key={employee.id}
+                      className="flex items-center space-x-2"
+                    >
                       <div
                         className={`w-8 h-8 rounded-full flex items-center justify-center relative ${
                           employee.onLeave
-                            ? 'bg-blue-500 text-white'
-                            : 'bg-gray-200 text-black'
+                            ? "bg-blue-500 text-white"
+                            : "bg-gray-200 text-black"
                         }`}
                       >
-                        <span className="text-xs font-semibold">{employee.name.charAt(0)}</span>
+                        <span className="text-xs font-semibold">
+                          {employee.name.charAt(0)}
+                        </span>
                         <span className="absolute bottom-0 right-0 w-3 h-3 bg-gray-400 rounded-full border-2 border-white"></span>
                       </div>
                       <span>{employee.name}</span>
@@ -349,25 +418,33 @@ function AttendanceStatus({ response, loading }: { response: ApiResponse, loadin
         </>
       )}
     </div>
-  );
-}
+  )
 }
 
 function DailyTimeSheet({ employees }: { employees: Employee[] }) {
+  const { t } = useI18n()
   return (
     <div className="overflow-x-auto">
       <table className="w-full">
         <thead>
           <tr className="border-b">
-            <th className="text-left py-2">Employee</th>
-            <th className="text-left py-2">Check-in</th>
-            <th className="text-left py-2">Check-out</th>
-            <th className="text-left py-2">Total Hours</th>
+            <th className="text-left py-2">
+              {t("overview.table.employee")}
+            </th>
+            <th className="text-left py-2">
+              {t("overview.table.checkIn")}
+            </th>
+            <th className="text-left py-2">
+              {t("overview.table.checkOut")}
+            </th>
+            <th className="text-left py-2">
+              {t("overview.table.totalHours")}
+            </th>
           </tr>
         </thead>
         <tbody>
-        {employees.length > 0 ? (
-            employees.map(employee => (
+          {employees.length > 0 ? (
+            employees.map((employee) => (
               <tr key={employee.id} className="border-b">
                 <td className="py-2">{employee.name}</td>
                 <td className="py-2">{employee.checkIn}</td>
@@ -378,7 +455,7 @@ function DailyTimeSheet({ employees }: { employees: Employee[] }) {
           ) : (
             <tr>
               <td colSpan={4} className="py-4 text-center text-gray-500">
-                No employee data available
+                {t("overview.table.noEmployees")}
               </td>
             </tr>
           )}
@@ -388,28 +465,37 @@ function DailyTimeSheet({ employees }: { employees: Employee[] }) {
   );
 }
 function WeeklyTimeSheet({ employees }: { employees: Employee[] }) {
-  const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+  const { t } = useI18n()
+  const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
 
   return (
     <div className="overflow-x-auto">
       <table className="w-full">
         <thead>
           <tr className="border-b">
-            <th className="text-left py-2">Employee</th>
-            {days.map(day => (
-              <th key={day} className="text-left py-2">{day}</th>
+            <th className="text-left py-2">
+              {t("overview.table.employee")}
+            </th>
+            {days.map((day) => (
+              <th key={day} className="text-left py-2">
+                {day}
+              </th>
             ))}
           </tr>
         </thead>
         <tbody>
-        {employees.length > 0 ? (
-            employees.map(employee => (
+          {employees.length > 0 ? (
+            employees.map((employee) => (
               <tr key={employee.id} className="border-b">
                 <td className="py-2">{employee.name}</td>
-                {days.map(day => (
+                {days.map((day) => (
                   <td key={day} className="py-2">
-                    <div className="text-xs">{employee.checkIn} - {employee.checkOut}</div>
-                    <div className="font-semibold">{employee.totalHours}h</div>
+                    <div className="text-xs">
+                      {employee.checkIn} - {employee.checkOut}
+                    </div>
+                    <div className="font-semibold">
+                      {employee.totalHours}h
+                    </div>
                   </td>
                 ))}
               </tr>
@@ -417,7 +503,7 @@ function WeeklyTimeSheet({ employees }: { employees: Employee[] }) {
           ) : (
             <tr>
               <td colSpan={8} className="py-4 text-center text-gray-500">
-                No employee data available
+                {t("overview.table.noEmployees")}
               </td>
             </tr>
           )}
@@ -438,6 +524,7 @@ function PreviousDayAttendance({ shift, slug }: { shift: Shift | null | undefine
 
   const [sortConfig, setSortConfig] = useState<{ key: keyof Employee; direction: "asc" | "desc" } | null>(null);
   const router = useRouter();
+  const { t } = useI18n();
 
   const fetchPrevDayData = async (date: Date) => {
     if (!shift) return;
@@ -505,7 +592,7 @@ function PreviousDayAttendance({ shift, slug }: { shift: Shift | null | undefine
             onClick={() => fetchPrevDayData(selectedDate)}
             className="flex items-center gap-1"
           >
-            <RefreshCw className="h-4 w-4" /> Refresh
+            <RefreshCw className="h-4 w-4" /> {t("overview.prevDay.refresh")}
           </Button>
         </div>
       </div>
@@ -513,7 +600,9 @@ function PreviousDayAttendance({ shift, slug }: { shift: Shift | null | undefine
       {/* 🔹 الجدول */}
       <div className="overflow-x-auto bg-white rounded-xl shadow-sm">
         {loading ? (
-          <p className="text-center text-gray-500 py-4">Loading attendance data...</p>
+          <p className="text-center text-gray-500 py-4">
+            {t("overview.prevDay.loading")}
+          </p>
         ) : serverMessage ? (
           <div className="flex items-center justify-center py-4">
             <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 shadow-sm">
@@ -523,7 +612,8 @@ function PreviousDayAttendance({ shift, slug }: { shift: Shift | null | undefine
           </div>
         ) : sortedData.length === 0 ? (
           <p className="text-center text-gray-500 py-4">
-            No records found for {format(selectedDate, "yyyy-MM-dd")}.
+            {t("overview.prevDay.emptyForDate")}{" "}
+            {format(selectedDate, "yyyy-MM-dd")}
           </p>
         ) : (
           <table className="w-full text-sm border-collapse">
@@ -533,25 +623,29 @@ function PreviousDayAttendance({ shift, slug }: { shift: Shift | null | undefine
                   className="py-3 px-4 text-left cursor-pointer"
                   onClick={() => handleSort("name")}
                 >
-                  Employee <ArrowUpDown className="inline-block w-3 h-3 ml-1 text-gray-400" />
+                  {t("overview.table.employee")}{" "}
+                  <ArrowUpDown className="inline-block w-3 h-3 ml-1 text-gray-400" />
                 </th>
                 <th
                   className="py-3 px-4 text-left cursor-pointer"
                   onClick={() => handleSort("checkIn")}
                 >
-                  Check-in <ArrowUpDown className="inline-block w-3 h-3 ml-1 text-gray-400" />
+                  {t("overview.table.checkIn")}{" "}
+                  <ArrowUpDown className="inline-block w-3 h-3 ml-1 text-gray-400" />
                 </th>
                 <th
                   className="py-3 px-4 text-left cursor-pointer"
                   onClick={() => handleSort("checkOut")}
                 >
-                  Check-out <ArrowUpDown className="inline-block w-3 h-3 ml-1 text-gray-400" />
+                  {t("overview.table.checkOut")}{" "}
+                  <ArrowUpDown className="inline-block w-3 h-3 ml-1 text-gray-400" />
                 </th>
                 <th
                   className="py-3 px-4 text-left cursor-pointer"
                   onClick={() => handleSort("totalHours")}
                 >
-                  Total Hours <ArrowUpDown className="inline-block w-3 h-3 ml-1 text-gray-400" />
+                  {t("overview.table.totalHours")}{" "}
+                  <ArrowUpDown className="inline-block w-3 h-3 ml-1 text-gray-400" />
                 </th>
               </tr>
             </thead>
@@ -575,7 +669,7 @@ function PreviousDayAttendance({ shift, slug }: { shift: Shift | null | undefine
     </div>
   );
 }
-
+}
 
 
 export default OverviewPage;

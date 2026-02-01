@@ -16,6 +16,9 @@ import { PlusCircle, Trash2, Save, Clock, Settings, AlertCircle, Users, Coffee }
 import { Shift, ShiftPolicy } from "@/app/types/Shift";
 import * as shiftAPI from '@/app/api/shifts/shifts'
 import { toast } from "react-toastify"
+import { useI18n } from "@/app/context/I18nContext";
+
+
 const BaseURL = process.env.NEXT_PUBLIC_API_URL;
 // const BaseURL = process.env.NEXT_PUBLIC_API_URL;
 const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
@@ -27,9 +30,10 @@ type ShiftFormProps = {
   onOpenChange: (open: boolean) => void
   isEditing: boolean
   shift?: Shift | null
-  onSave : (shift: Shift) => void
+  onSave: (shift: Shift) => void
 }
-export default function ShiftForm({open, onOpenChange, isEditing, shift, onSave  }: ShiftFormProps){
+export default function ShiftForm({ open, onOpenChange, isEditing, shift, onSave }: ShiftFormProps) {
+  const { t, lang } = useI18n();
   const initialShift = {
     name: "",
     mode: "standard",
@@ -44,6 +48,10 @@ export default function ShiftForm({open, onOpenChange, isEditing, shift, onSave 
     breaks: [],
     institutionId: 0,
     isDirty: false,
+    policyEnabled: false,      // ✅ جديد
+    policyId: undefined  // ✅ جديد (اختياري حسب نوع Shift عندك)
+
+
   }
 
   const [newShift, setNewShift] = useState<Shift>(initialShift)
@@ -120,7 +128,7 @@ export default function ShiftForm({open, onOpenChange, isEditing, shift, onSave 
       };
     });
   };
-  
+
 
   const removeOverride = (day: string) => {
     setNewShift((prev: Shift) => {
@@ -132,18 +140,19 @@ export default function ShiftForm({open, onOpenChange, isEditing, shift, onSave 
       }
     })
   }
- 
+
   const handleSubmit = () => {
     onSave(newShift);
   };
   return (
-    <div className="container mx-auto p-4">
+    <div className={`container mx-auto p-4 ${lang === "ar" ? "font-[Tajawal]" : ""
+      }`}>
       {/* Dialog for Adding and Editing Shifts */}
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader >
             <DialogTitle className="text-xl font-semibold">
-              {isEditing ? "Edit Current Shift" : "Add New Shift"}
+              {isEditing ? t("shiftForm.title.edit") : t("shiftForm.title.add")}
             </DialogTitle>
           </DialogHeader>
 
@@ -157,39 +166,39 @@ export default function ShiftForm({open, onOpenChange, isEditing, shift, onSave 
             {/* Basic Information */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">Basic Information</CardTitle>
+                <CardTitle className="text-lg">{t("shiftForm.basic.title")}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <Label htmlFor="name">Shift Name</Label>
+                  <Label htmlFor="name">{t("shiftForm.basic.shiftName")}</Label>
                   <Input
                     id="name"
                     name="name"
                     value={newShift.name}
                     onChange={handleInputChange}
-                    placeholder="e.g., Morning Shift"
+                    placeholder={t("shiftForm.basic.shiftNamePlaceholder")}
                     required
                   />
                 </div>
 
                 {/* Mode Selection */}
                 <div>
-                  <Label className="text-base font-medium">Shift Mode</Label>
+                  <Label className="text-base font-medium">{t("shiftForm.basic.mode")}</Label>
                   <RadioGroup value={newShift.mode} onValueChange={handleModeChange} className="flex gap-6 mt-2">
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="standard" id="standard" />
                       <Label htmlFor="standard" className="flex items-center gap-2">
                         <Clock className="h-4 w-4" />
-                        Standard
-                        <span className="text-sm text-gray-500">(Same time for all days)</span>
+                        {t("shiftForm.basic.mode.standard")}
+                        <span className="text-sm text-gray-500">{t("shiftForm.basic.mode.standardHint")}</span>
                       </Label>
                     </div>
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="advanced" id="advanced" />
                       <Label htmlFor="advanced" className="flex items-center gap-2">
                         <Settings className="h-4 w-4" />
-                        Advanced
-                        <span className="text-sm text-gray-500">(Custom times per day)</span>
+                        {t("shiftForm.basic.mode.advanced")}
+                        <span className="text-sm text-gray-500">t("shiftForm.basic.mode.advancedHint")</span>
                       </Label>
                     </div>
                   </RadioGroup>
@@ -202,7 +211,7 @@ export default function ShiftForm({open, onOpenChange, isEditing, shift, onSave 
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
                   <Clock className="h-5 w-5" />
-                  Schedule Configuration
+                  {t("shiftForm.schedule.title")}
                   <Badge variant={newShift.mode === "advanced" ? "default" : "secondary"}>{newShift.mode}</Badge>
                 </CardTitle>
               </CardHeader>
@@ -211,7 +220,7 @@ export default function ShiftForm({open, onOpenChange, isEditing, shift, onSave 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="startTime">
-                      {newShift.mode === "advanced" ? "Default Start Time" : "Start Time"}
+                      {newShift.mode === "advanced" ? t("shiftForm.schedule.defaultStart") : t("shiftForm.schedule.start")}
                     </Label>
                     <Input
                       id="startTime"
@@ -223,7 +232,7 @@ export default function ShiftForm({open, onOpenChange, isEditing, shift, onSave 
                     />
                   </div>
                   <div>
-                    <Label htmlFor="endTime">{newShift.mode === "advanced" ? "Default End Time" : "End Time"}</Label>
+                    <Label htmlFor="endTime">{newShift.mode === "advanced" ? t("shiftForm.schedule.defaultEnd") : t("shiftForm.schedule.end")}</Label>
                     <Input
                       id="endTime"
                       name="endTime"
@@ -237,7 +246,7 @@ export default function ShiftForm({open, onOpenChange, isEditing, shift, onSave 
 
                 {/* Days Selection */}
                 <div>
-                  <Label className="text-sm font-medium text-gray-700">Working Days</Label>
+                  <Label className="text-sm font-medium text-gray-700">{t("shiftForm.schedule.workingDays")}</Label>
                   <div className="mt-2 flex flex-wrap gap-2">
                     {daysOfWeek.map((day: string) => (
                       <Button
@@ -247,7 +256,7 @@ export default function ShiftForm({open, onOpenChange, isEditing, shift, onSave 
                         onClick={() => handleDayToggle(day)}
                         size="sm"
                       >
-                        {day.slice(0, 3)}
+                        {t(`days.${day}`)}
                       </Button>
                     ))}
                   </div>
@@ -260,16 +269,15 @@ export default function ShiftForm({open, onOpenChange, isEditing, shift, onSave 
                     <div>
                       <div className="flex items-center gap-2 mb-3">
                         <Settings className="h-4 w-4" />
-                        <Label className="text-base font-medium">Day-specific Time Overrides</Label>
+                        <Label className="text-base font-medium">{t("shiftForm.schedule.overridesTitle")}</Label>
                       </div>
                       <div className="bg-blue-50 p-3 rounded-lg border border-blue-200 mb-4">
                         <div className="flex items-start gap-2">
                           <AlertCircle className="h-4 w-4 text-blue-600 mt-0.5" />
                           <div className="text-sm text-blue-800">
-                            <p className="font-medium">Advanced Mode</p>
+                            <p className="font-medium">{t("shiftForm.schedule.advancedMode")}</p>
                             <p>
-                              Set custom start and end times for specific days. Days without overrides will use the
-                              default times above.
+                              {t("shiftForm.schedule.advancedHelp")}
                             </p>
                           </div>
                         </div>
@@ -285,13 +293,13 @@ export default function ShiftForm({open, onOpenChange, isEditing, shift, onSave 
                                   <span className="font-medium">{day}</span>
                                   {hasOverride && (
                                     <Badge variant="outline" className="text-xs">
-                                      Custom Times
+                                      {t("shiftForm.schedule.customTimes")}
                                     </Badge>
                                   )}
                                 </div>
                                 {hasOverride ? (
                                   <Button type="button" variant="outline" size="sm" onClick={() => removeOverride(day)}>
-                                    Use Default
+                                    {t("shiftForm.schedule.useDefault")}
                                   </Button>
                                 ) : (
                                   <Button
@@ -300,7 +308,7 @@ export default function ShiftForm({open, onOpenChange, isEditing, shift, onSave 
                                     size="sm"
                                     onClick={() => handleOverrideChange(day, "start", newShift.startTime)}
                                   >
-                                    Set Custom Times
+                                    {t("shiftForm.schedule.setCustom")}
                                   </Button>
                                 )}
                               </div>
@@ -308,7 +316,7 @@ export default function ShiftForm({open, onOpenChange, isEditing, shift, onSave 
                               {hasOverride ? (
                                 <div className="grid grid-cols-2 gap-3">
                                   <div>
-                                    <Label className="text-sm">Start Time</Label>
+                                    <Label className="text-sm">{t("shiftForm.schedule.start")}</Label>
                                     <Input
                                       type="time"
                                       value={newShift.overrides![day]?.start || newShift.startTime}
@@ -316,7 +324,7 @@ export default function ShiftForm({open, onOpenChange, isEditing, shift, onSave 
                                     />
                                   </div>
                                   <div>
-                                    <Label className="text-sm">End Time</Label>
+                                    <Label className="text-sm">{t("shiftForm.schedule.end")}</Label>
                                     <Input
                                       type="time"
                                       value={newShift.overrides![day]?.end || newShift.endTime}
@@ -326,7 +334,7 @@ export default function ShiftForm({open, onOpenChange, isEditing, shift, onSave 
                                 </div>
                               ) : (
                                 <div className="text-sm text-gray-600 bg-gray-50 p-2 rounded">
-                                  Using default times: {newShift.startTime} - {newShift.endTime}
+                                  {t("shiftForm.schedule.usingDefault")} {newShift.startTime} - {newShift.endTime}
                                 </div>
                               )}
                             </div>
@@ -342,330 +350,348 @@ export default function ShiftForm({open, onOpenChange, isEditing, shift, onSave 
             {/* Multipliers and Limits */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">Multipliers & Limits</CardTitle>
+                <CardTitle className="text-lg">{t("shiftForm.policy.title")}</CardTitle>
               </CardHeader>
-              <CardContent>
-              <div className="flex gap-2 items-center">
-                    <Select
-                      value={newShift.policyId?.toString() ?? ""}
-                      onValueChange={(val) => setNewShift({ ...newShift, policyId: Number(val) })}
-                    >
-                      <SelectTrigger className="w-[200px]">
-                        <SelectValue placeholder="Select Policy" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {policies.map((p: ShiftPolicy) => (
-                          <SelectItem key={p.id} value={String(p.id)}>
-                            {p.name}
-                          </SelectItem>
-                        ))}
-                        <SelectItem value="new">+ Create new policy</SelectItem>
-                      </SelectContent>
-                    </Select>
+              <CardContent className="space-y-4">
+                {/* Yes/No toggle */}
+                <div>
+                  <Label className="text-sm font-medium text-gray-700">
+                    {t("shiftForm.policy.enableLabel")}
+                  </Label>
 
-                    {/* Edit button */}
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      disabled={!newShift.policyId}
-                      onClick={() => setEditPolicyId(newShift.policyId!)} // 👈 يفتح مودال التعديل
-                    >
-                      Edit Policy
-                    </Button>
-                  </div>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {/* Policy Selector */}
-                  
+                  <RadioGroup
+                    value={newShift.policyEnabled ? "yes" : "no"}
+                    onValueChange={(val) => {
+                      const enabled = val === "yes";
+                      setNewShift((prev) => ({
+                        ...prev,
+                        policyEnabled: enabled,
+                        policyId: enabled ? prev.policyId : undefined, // إذا No → امسح policyId
+                      }));
+                    }}
+                    className="flex gap-6 mt-2"
+                  >
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="yes" id="policy-yes" />
+                      <Label htmlFor="policy-yes">{t("common.yes")}</Label>
+                    </div>
 
-                  {/* Now get selected policy values */}
-                  {(() => {
-                    const selected = policies.find(p => p.id === newShift.policyId);
-                    return (
-                      <>
-                        <div>
-                          <Label htmlFor="lateMultiplier">Late Multiplier</Label>
-                          <Input
-                            id="lateMultiplier"
-                            type="number"
-                            step="0.1"
-                            value={selected?.lateMultiplier ?? ""}
-                            readOnly // 👈 ما يتغير من هون
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="lateLimit">Late Limit (min)</Label>
-                          <Input
-                            id="lateLimit"
-                            type="number"
-                            value={selected?.lateLimit ?? ""}
-                            readOnly
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="extraMultiplier">Extra Multiplier</Label>
-                          <Input
-                            id="extraMultiplier"
-                            type="number"
-                            step="0.1"
-                            value={selected?.extraMultiplier ?? ""}
-                            readOnly
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="extraLimit">Extra Threshold (min)</Label>
-                          <Input
-                            id="extraLimit"
-                            type="number"
-                            value={selected?.extraLimit ?? ""}
-                            readOnly
-                          />
-                        </div>
-                      </>
-                    )
-                  })()}
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="no" id="policy-no" />
+                      <Label htmlFor="policy-no">{t("common.no")}</Label>
+                    </div>
+                  </RadioGroup>
                 </div>
+
+                {/* محتوى policy يظهر فقط إذا Yes */}
+                {newShift.policyEnabled && (
+                  <>
+                    <div className="flex gap-2 items-center">
+                      <Select
+                        value={newShift.policyId?.toString() ?? ""}
+                        onValueChange={(val) => {
+                          if (val === "new") {
+                            // TODO: افتح مودال create policy
+                            return;
+                          }
+                          setNewShift({ ...newShift, policyId: Number(val) });
+                        }}
+                      >
+                        <SelectTrigger className="w-[200px]">
+                          <SelectValue placeholder={t("shiftForm.policy.selectPlaceholder")} />
+                        </SelectTrigger>
+
+                        <SelectContent>
+                          {policies.map((p: ShiftPolicy) => (
+                            <SelectItem key={p.id} value={String(p.id)}>
+                              {p.name}
+                            </SelectItem>
+                          ))}
+                          <SelectItem value="new">{t("shiftForm.policy.createNew")}</SelectItem>
+                        </SelectContent>
+                      </Select>
+
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        disabled={!newShift.policyId}
+                        onClick={() => setEditPolicyId(newShift.policyId!)}
+                      >
+                        {t("shiftForm.policy.edit")}
+                      </Button>
+                    </div>
+
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      {(() => {
+                        const selected = policies.find((p) => p.id === newShift.policyId);
+                        return (
+                          <>
+                            <div>
+                              <Label htmlFor="lateMultiplier">{t("shiftForm.policy.lateMultiplier")}</Label>
+                              <Input id="lateMultiplier" type="number" value={selected?.lateMultiplier ?? ""} readOnly />
+                            </div>
+
+                            <div>
+                              <Label htmlFor="lateLimit">{t("shiftForm.policy.lateLimit")}</Label>
+                              <Input id="lateLimit" type="number" value={selected?.lateLimit ?? ""} readOnly />
+                            </div>
+
+                            <div>
+                              <Label htmlFor="extraMultiplier">{t("shiftForm.policy.extraMultiplier")}</Label>
+                              <Input id="extraMultiplier" type="number" value={selected?.extraMultiplier ?? ""} readOnly />
+                            </div>
+
+                            <div>
+                              <Label htmlFor="extraLimit">{t("shiftForm.policy.extraLimit")}</Label>
+                              <Input id="extraLimit" type="number" value={selected?.extraLimit ?? ""} readOnly />
+                            </div>
+                          </>
+                        );
+                      })()}
+                    </div>
+                  </>
+                )}
               </CardContent>
             </Card>
 
             {/* Breaks Section */}
-            
-<div className="space-y-6">
-      <div className="border-l-4 border-blue-500 pl-4">
-        <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
-          <Coffee className="h-5 w-5 text-blue-500" />
-          Break Configuration
-        </h2>
-        <p className="text-sm text-gray-600 mt-1">
-          Define the types of breaks available during this shift. Each break type can be used multiple times per day
-          based on your settings.
-        </p>
-      </div>
 
-      <Card className="border-2 border-gray-200 shadow-sm">
-        <CardHeader className="bg-gray-50/50 border-b">
-          <CardTitle className="text-lg font-medium text-gray-800 flex items-center justify-between">
-            <span>Break Types</span>
-            <Badge variant="secondary" className="text-xs">
-              {newShift.breakTypes?.length || 0} configured
-            </Badge>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="p-6">
-          <div className="space-y-4">
-            {newShift.breakTypes?.map((breakItem, index) => (
-              <div
-                key={breakItem.id}
-                className="bg-white border-2 border-gray-100 rounded-xl p-4 hover:border-gray-200 transition-colors"
-              >
-                <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
-                  {/* Break Name */}
-                  <div className="md:col-span-4">
-                    <Label htmlFor={`break-name-${index}`} className="text-sm font-medium text-gray-700 mb-2 block">
-                      Break Name *
-                    </Label>
-                    <Input
-                      id={`break-name-${index}`}
-                      value={breakItem.name}
-                      onChange={(e) => {
-                        const updatedBreaks = [...newShift.breakTypes!]
-                        updatedBreaks[index] = {
-                          ...updatedBreaks[index],
-                          name: e.target.value,
-                          isDirty: true // Mark dirty!
-                        };
-                        setNewShift({ ...newShift, breakTypes: updatedBreaks });
-                      }}
-                      placeholder="e.g., Lunch Break, Coffee Break"
-                      className="h-10 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-                    />
-                  </div>
+            <div className="space-y-6">
+              <div className="border-l-4 border-blue-500 pl-4">
+                <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+                  <Coffee className="h-5 w-5 text-blue-500" />
+                  {t("shiftForm.breaks.title")}
+                </h2>
+                <p className="text-sm text-gray-600 mt-1">
+                  {t("shiftForm.breaks.desc")}
+                </p>
+              </div>
 
-                  {/* Duration */}
-                  <div className="md:col-span-2">
-                    <Label
-                      htmlFor={`break-duration-${index}`}
-                      className="text-sm font-medium text-gray-700 mb-2 block flex items-center gap-1"
-                    >
-                      <Clock className="h-3 w-3" />
-                      Duration *
-                    </Label>
-                    <div className="relative">
-                      <Input
-                        id={`break-duration-${index}`}
-                        type="number"
-                        value={breakItem.duration}
-                        onChange={(e) => {
-                          const updatedBreaks = [...newShift.breakTypes!]
-                          updatedBreaks[index] = {
-                            ...updatedBreaks[index],
-                            duration: Number.parseInt(e.target.value, 10),
-                            isDirty: true // Mark dirty!
-                          };
-                          setNewShift({ ...newShift, breakTypes: updatedBreaks })
+              <Card className="border-2 border-gray-200 shadow-sm">
+                <CardHeader className="bg-gray-50/50 border-b">
+                  <CardTitle className="text-lg font-medium text-gray-800 flex items-center justify-between">
+                    <span>{t("shiftForm.breaks.types")}</span>
+                    <Badge variant="secondary" className="text-xs">
+                      {newShift.breakTypes?.length || 0} {t("shiftForm.breaks.configured")}
+                    </Badge>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-6">
+                  <div className="space-y-4">
+                    {newShift.breakTypes?.map((breakItem, index) => (
+                      <div
+                        key={breakItem.id}
+                        className="bg-white border-2 border-gray-100 rounded-xl p-4 hover:border-gray-200 transition-colors"
+                      >
+                        <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
+                          {/* Break Name */}
+                          <div className="md:col-span-4">
+                            <Label htmlFor={`break-name-${index}`} className="text-sm font-medium text-gray-700 mb-2 block">
+                              {t("shiftForm.breaks.breakName")}
+                            </Label>
+                            <Input
+                              id={`break-name-${index}`}
+                              value={breakItem.name}
+                              onChange={(e) => {
+                                const updatedBreaks = [...newShift.breakTypes!]
+                                updatedBreaks[index] = {
+                                  ...updatedBreaks[index],
+                                  name: e.target.value,
+                                  isDirty: true // Mark dirty!
+                                };
+                                setNewShift({ ...newShift, breakTypes: updatedBreaks });
+                              }}
+                              placeholder={t("shiftForm.breaks.breakNamePlaceholder")}
+                              className="h-10 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                            />
+                          </div>
+
+                          {/* Duration */}
+                          <div className="md:col-span-2">
+                            <Label
+                              htmlFor={`break-duration-${index}`}
+                              className="text-sm font-medium text-gray-700 mb-2 block flex items-center gap-1"
+                            >
+                              <Clock className="h-3 w-3" />
+                              {t("shiftForm.breaks.duration")}
+                            </Label>
+                            <div className="relative">
+                              <Input
+                                id={`break-duration-${index}`}
+                                type="number"
+                                value={breakItem.duration}
+                                onChange={(e) => {
+                                  const updatedBreaks = [...newShift.breakTypes!]
+                                  updatedBreaks[index] = {
+                                    ...updatedBreaks[index],
+                                    duration: Number.parseInt(e.target.value, 10),
+                                    isDirty: true // Mark dirty!
+                                  };
+                                  setNewShift({ ...newShift, breakTypes: updatedBreaks })
+                                }}
+                                placeholder="30"
+                                min="1"
+                                className="h-10 border-gray-300 focus:border-blue-500 focus:ring-blue-500 pr-12"
+                              />
+                              <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-xs text-gray-500">
+                                min
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Max Usage */}
+                          <div className="md:col-span-2">
+                            <Label
+                              htmlFor={`break-usage-${index}`}
+                              className="text-sm font-medium text-gray-700 mb-2 block flex items-center gap-1"
+                            >
+                              <Users className="h-3 w-3" />
+                              {t("shiftForm.breaks.maxPerDay")}
+                            </Label>
+                            <Input
+                              id={`break-usage-${index}`}
+                              type="number"
+                              value={breakItem.maxUsagePerDay || 1}
+                              onChange={(e) => {
+                                const updatedBreaks = [...newShift.breakTypes!]
+                                updatedBreaks[index] = {
+                                  ...updatedBreaks[index],
+                                  maxUsagePerDay: Number.parseInt(e.target.value, 10) || 1,
+                                  isDirty: true // Mark dirty!
+                                }
+                                setNewShift({ ...newShift, breakTypes: updatedBreaks })
+                              }}
+                              placeholder="1"
+                              min="1"
+                              className="h-10 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                            />
+                          </div>
+
+                          {/* Icon */}
+                          <div className="md:col-span-3">
+                            <Label className="text-sm font-medium text-gray-700 mb-2 block">{t("shiftForm.breaks.icon")}</Label>
+                            <Select
+                              value={breakItem.icon}
+                              onValueChange={(value) => {
+                                const updatedBreaks = [...newShift.breakTypes!]
+                                updatedBreaks[index] = {
+                                  ...updatedBreaks[index],
+                                  icon: value,
+                                  isDirty: true // Mark dirty!
+                                };
+                                setNewShift({ ...newShift, breakTypes: updatedBreaks })
+                              }}
+                            >
+                              <SelectTrigger className="h-10 border-gray-300 focus:border-blue-500 focus:ring-blue-500">
+                                <SelectValue placeholder={t("shiftForm.breaks.chooseIcon")} />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="coffee">☕ Coffee</SelectItem>
+                                <SelectItem value="food">🍴 Food</SelectItem>
+                                <SelectItem value="tea">🍵 Tea</SelectItem>
+                                <SelectItem value="rest">🛋️ Rest</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+
+                          {/* Delete Button */}
+                          <div className="md:col-span-1 flex justify-end">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={async () => {
+
+                                const res = await shiftAPI.deleteBreak(breakItem.id!)
+                                if (res) {
+                                  toast.success(t("shiftForm.toast.breakDeleted"), {
+                                    autoClose: 1500, // duration in milliseconds
+                                  });
+                                }
+                                const updatedBreaks = newShift.breakTypes!.filter((_, i) => i !== index)
+                                setNewShift({ ...newShift, breakTypes: updatedBreaks })
+
+                              }}
+                              className="h-10 w-10 p-0 border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+
+                        {/* Helper text */}
+                        <div className="mt-3 text-xs text-gray-500 bg-gray-50 rounded-lg p-2">
+                          <strong>{t("shiftForm.breaks.tip")}</strong> {t("shiftForm.breaks.tipText")} {breakItem.maxUsagePerDay || 1} time
+                          {(breakItem.maxUsagePerDay || 1) > 1 ? "s" : ""} per day, each lasting {breakItem.duration || 0}{" "}
+                          minutes.
+                        </div>
+                      </div>
+                    ))}
+
+                    {/* Add Break Button */}
+                    <div className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-blue-400 hover:bg-blue-50/30 transition-colors">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => {
+                          setNewShift({
+                            ...newShift,
+                            breakTypes: [
+                              ...(newShift.breakTypes || []),
+                              {
+                                id: `temp-${Date.now()}`,
+                                name: "",
+                                duration: 0,
+                                icon: "coffee",
+                                maxUsagePerDay: 1,
+                                isDirty: true, // New, so dirty
+                              },
+                            ],
+                          })
                         }}
-                        placeholder="30"
-                        min="1"
-                        className="h-10 border-gray-300 focus:border-blue-500 focus:ring-blue-500 pr-12"
-                      />
-                      <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-xs text-gray-500">
-                        min
-                      </span>
+                        className="h-12 px-6 border-blue-300 text-blue-700 hover:bg-blue-50 hover:border-blue-400"
+                      >
+                        <PlusCircle className="mr-2 h-5 w-5" />
+                        {t("shiftForm.breaks.addAnother")}
+                      </Button>
+                      <p className="text-xs text-gray-500 mt-2">
+                        {t("shiftForm.breaks.addHelp")}
+                      </p>
                     </div>
                   </div>
 
-                  {/* Max Usage */}
-                  <div className="md:col-span-2">
-                    <Label
-                      htmlFor={`break-usage-${index}`}
-                      className="text-sm font-medium text-gray-700 mb-2 block flex items-center gap-1"
-                    >
-                      <Users className="h-3 w-3" />
-                      Max/Day *
-                    </Label>
-                    <Input
-                      id={`break-usage-${index}`}
-                      type="number"
-                      value={breakItem.maxUsagePerDay || 1}
-                      onChange={(e) => {
-                        const updatedBreaks = [...newShift.breakTypes!]
-                        updatedBreaks[index] = {
-                          ...updatedBreaks[index],
-                          maxUsagePerDay : Number.parseInt(e.target.value, 10) || 1,
-                          isDirty: true // Mark dirty!
-                        }
-                        setNewShift({ ...newShift, breakTypes: updatedBreaks })
-                      }}
-                      placeholder="1"
-                      min="1"
-                      className="h-10 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-                    />
-                  </div>
-
-                  {/* Icon */}
-                  <div className="md:col-span-3">
-                    <Label className="text-sm font-medium text-gray-700 mb-2 block">Icon</Label>
-                    <Select
-                      value={breakItem.icon}
-                      onValueChange={(value) => {
-                        const updatedBreaks = [...newShift.breakTypes!]
-                        updatedBreaks[index] = {
-                          ...updatedBreaks[index],
-                          icon: value,
-                          isDirty: true // Mark dirty!
-                        };
-                        setNewShift({ ...newShift, breakTypes: updatedBreaks })
-                      }}
-                    >
-                      <SelectTrigger className="h-10 border-gray-300 focus:border-blue-500 focus:ring-blue-500">
-                        <SelectValue placeholder="Choose icon" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="coffee">☕ Coffee</SelectItem>
-                        <SelectItem value="food">🍴 Food</SelectItem>
-                        <SelectItem value="tea">🍵 Tea</SelectItem>
-                        <SelectItem value="rest">🛋️ Rest</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {/* Delete Button */}
-                  <div className="md:col-span-1 flex justify-end">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={async () => {
-                        console.log("before deleteBreak", breakItem.id);
-                        const res = await shiftAPI.deleteBreak(breakItem.id!)
-                        if (res) {
-                          toast.success('Break deleted successfully', {
-                            autoClose: 1500, // duration in milliseconds
-                          });
-                        }
-                        const updatedBreaks = newShift.breakTypes!.filter((_, i) => i !== index)
-                        setNewShift({ ...newShift, breakTypes: updatedBreaks })
-                        
-                      }}
-                      className="h-10 w-10 p-0 border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-
-                {/* Helper text */}
-                <div className="mt-3 text-xs text-gray-500 bg-gray-50 rounded-lg p-2">
-                  <strong>Tip:</strong> This break can be taken up to {breakItem.maxUsagePerDay || 1} time
-                  {(breakItem.maxUsagePerDay || 1) > 1 ? "s" : ""} per day, each lasting {breakItem.duration || 0}{" "}
-                  minutes.
-                </div>
-              </div>
-            ))}
-
-            {/* Add Break Button */}
-            <div className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-blue-400 hover:bg-blue-50/30 transition-colors">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => {
-                  setNewShift({
-                    ...newShift,
-                    breakTypes: [
-                      ...(newShift.breakTypes || []),
-                      {
-                        id: `temp-${Date.now()}`,
-                        name: "",
-                        duration: 0,
-                        icon: "coffee",
-                        maxUsagePerDay: 1,
-                        isDirty: true, // New, so dirty
-                      },
-                    ],
-                  })
-                }}
-                className="h-12 px-6 border-blue-300 text-blue-700 hover:bg-blue-50 hover:border-blue-400"
-              >
-                <PlusCircle className="mr-2 h-5 w-5" />
-                Add Another Break Type
-              </Button>
-              <p className="text-xs text-gray-500 mt-2">
-                Add different types of breaks that employees can take during this shift
-              </p>
+                  {/* Summary */}
+                  {newShift.breakTypes && newShift.breakTypes.length > 0 && (
+                    <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                      <h4 className="text-sm font-medium text-blue-900 mb-2">{t("shiftForm.breaks.summary")}</h4>
+                      <div className="text-sm text-blue-800">
+                        <p>
+                          {t("shiftForm.breaks.totalTypes")} <strong>{newShift.breakTypes.length}</strong>
+                        </p>
+                        <p>
+                          {t("shiftForm.breaks.totalTime")}{" "}
+                          <strong>
+                            {newShift.breakTypes.reduce(
+                              (total: number, breakItem: { duration: number; maxUsagePerDay: number }) => total + breakItem.duration * (breakItem.maxUsagePerDay || 1),
+                              0,
+                            )}{" "}
+                            minutes
+                          </strong>
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
             </div>
-          </div>
-
-          {/* Summary */}
-          {newShift.breakTypes && newShift.breakTypes.length > 0 && (
-            <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-              <h4 className="text-sm font-medium text-blue-900 mb-2">Break Summary</h4>
-              <div className="text-sm text-blue-800">
-                <p>
-                  Total break types configured: <strong>{newShift.breakTypes.length}</strong>
-                </p>
-                <p>
-                  Total possible break time per day:{" "}
-                  <strong>
-                    {newShift.breakTypes.reduce(
-                      (total: number, breakItem: { duration: number; maxUsagePerDay: number }) => total + breakItem.duration * (breakItem.maxUsagePerDay || 1),
-                      0,
-                    )}{" "}
-                    minutes
-                  </strong>
-                </p>
-              </div>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-    </div>
             <DialogFooter>
               <Button type="button" variant="secondary" onClick={() => onOpenChange(false)}>
-                Cancel
+                {t("shiftForm.footer.cancel")}
               </Button>
               <Button type="submit">
                 <Save className="mr-2 h-4 w-4" />
-                {isEditing ? "Save Changes" : "Add Shift"}
+                {isEditing ? t("shiftForm.footer.saveChanges") : t("shiftForm.footer.addShift")}
               </Button>
             </DialogFooter>
           </form>
@@ -673,82 +699,82 @@ export default function ShiftForm({open, onOpenChange, isEditing, shift, onSave 
       </Dialog>
       {/* Edit Policy Modal */}
       <Dialog open={!!editPolicyId} onOpenChange={(val) => !val && setEditPolicyId(null)}>
-  <DialogContent>
-    <DialogHeader>
-      <DialogTitle>Edit Policy</DialogTitle>
-    </DialogHeader>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("shiftForm.policy.edit")}</DialogTitle>
+          </DialogHeader>
 
-    {(() => {
-      const policy = policies.find(p => p.id === editPolicyId);
-      if (!policy) return <p>Loading...</p>;
-      return (
-        <div className="space-y-4">
-          <div>
-            <Label>Late Multiplier</Label>
-            <Input
-              type="number"
-              step="0.1"
-              value={policy.lateMultiplier}
-              onChange={(e) => {
-                const updated = { ...policy, lateMultiplier: Number(e.target.value) };
-                setPolicies(policies.map(p => p.id === policy.id ? updated : p));
-              }}
-            />
-          </div>
-          <div>
-            <Label>Late Limit (min)</Label>
-            <Input
-              type="number"
-              value={policy.lateLimit}
-              onChange={(e) => {
-                const updated = { ...policy, lateLimit: Number(e.target.value) };
-                setPolicies(policies.map(p => p.id === policy.id ? updated : p));
-              }}
-            />
-          </div>
-          <div>
-            <Label>Extra Multiplier</Label>
-            <Input
-              type="number"
-              step="0.1"
-              value={policy.extraMultiplier}
-              onChange={(e) => {
-                const updated = { ...policy, extraMultiplier: Number(e.target.value) };
-                setPolicies(policies.map(p => p.id === policy.id ? updated : p));
-              }}
-            />
-          </div>
-          <div>
-            <Label>Extra Limit (min)</Label>
-            <Input
-              type="number"
-              value={policy.extraLimit}
-              onChange={(e) => {
-                const updated = { ...policy, extraLimit: Number(e.target.value) };
-                setPolicies(policies.map(p => p.id === policy.id ? updated : p));
-              }}
-            />
-          </div>
-        </div>
-      );
-    })()}
+          {(() => {
+            const policy = policies.find(p => p.id === editPolicyId);
+            if (!policy) return <p>Loading...</p>;
+            return (
+              <div className="space-y-4">
+                <div>
+                  <Label>{t("shiftForm.policy.lateMultiplier")}</Label>
+                  <Input
+                    type="number"
+                    step="0.1"
+                    value={policy.lateMultiplier}
+                    onChange={(e) => {
+                      const updated = { ...policy, lateMultiplier: Number(e.target.value) };
+                      setPolicies(policies.map(p => p.id === policy.id ? updated : p));
+                    }}
+                  />
+                </div>
+                <div>
+                  <Label>{t("shiftForm.policy.lateLimit")}</Label>
+                  <Input
+                    type="number"
+                    value={policy.lateLimit}
+                    onChange={(e) => {
+                      const updated = { ...policy, lateLimit: Number(e.target.value) };
+                      setPolicies(policies.map(p => p.id === policy.id ? updated : p));
+                    }}
+                  />
+                </div>
+                <div>
+                  <Label>{t("shiftForm.policy.extraMultiplier")}</Label>
+                  <Input
+                    type="number"
+                    step="0.1"
+                    value={policy.extraMultiplier}
+                    onChange={(e) => {
+                      const updated = { ...policy, extraMultiplier: Number(e.target.value) };
+                      setPolicies(policies.map(p => p.id === policy.id ? updated : p));
+                    }}
+                  />
+                </div>
+                <div>
+                  <Label>{t("shiftForm.policy.extraLimit")}</Label>
+                  <Input
+                    type="number"
+                    value={policy.extraLimit}
+                    onChange={(e) => {
+                      const updated = { ...policy, extraLimit: Number(e.target.value) };
+                      setPolicies(policies.map(p => p.id === policy.id ? updated : p));
+                    }}
+                  />
+                </div>
+              </div>
+            );
+          })()}
 
-    <DialogFooter>
-      <Button type="button" variant="secondary" onClick={() => setEditPolicyId(null)}>
-        Cancel
-      </Button>
-      <Button
-        type="button"
-        onClick={async () => {
-          // TODO: Save to API
-          toast.success("Policy updated successfully");
-          setEditPolicyId(null);
-        }}
-      >
-        Save Policy
-      </Button>
-    </DialogFooter>
-  </DialogContent>
+          <DialogFooter>
+            <Button type="button" variant="secondary" onClick={() => setEditPolicyId(null)}>
+              {t("shiftForm.footer.cancel")}
+            </Button>
+            <Button
+              type="button"
+              onClick={async () => {
+                // TODO: Save to API
+                toast.success(t("shiftForm.toast.policyUpdated"));
+                setEditPolicyId(null);
+              }}
+            >
+              Save Policy
+            </Button>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
 
     </div>

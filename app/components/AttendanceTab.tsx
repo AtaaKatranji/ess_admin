@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
 // import { ScrollArea } from "@/components/ui/scroll-area";
-import { CalendarIcon, Plus, Search,  Clock, LogOut, Info, } from 'lucide-react';
+import { CalendarIcon, Plus, Search, Clock, LogOut, Info, } from 'lucide-react';
 import { Input } from "@/components/ui/input";
 import { toast } from 'react-toastify';
 import { Button } from '@/components/ui/button';
@@ -37,6 +37,7 @@ import {
 import { fetchTimeShifts } from '../api/shifts/shifts';
 import React from 'react';
 import { cn } from '@/lib/utils';
+import { useI18n } from "@/app/context/I18nContext";
 
 type History = {
   id: string; // Updated to _id
@@ -71,6 +72,7 @@ const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", 
 const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 
 const AttendanceTab = ({ employeeId, selectedMonth, ourSlug }: { employeeId: string; selectedMonth: Date; ourSlug: string }) => {
+  const { t, lang, dir } = useI18n();
   const [history, setHistory] = useState<History[]>([]);
   const [filteredHistory, setFilteredHistory] = useState<History[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -125,7 +127,7 @@ const AttendanceTab = ({ employeeId, selectedMonth, ourSlug }: { employeeId: str
     setSelectedRecord(record);
     setNotesSheetOpen(true);
     setLoadingNotes(true);
-  
+
     try {
       const res = await fetch(
         `${baseUrl}/institutions/${ourSlug}/checks/attendance/${record.id}/notes`,
@@ -144,7 +146,7 @@ const AttendanceTab = ({ employeeId, selectedMonth, ourSlug }: { employeeId: str
       setLoadingNotes(false);
     }
   }
-  
+
 
   const fetchMonthlyHistory = async (date: Date) => {
     try {
@@ -161,7 +163,7 @@ const AttendanceTab = ({ employeeId, selectedMonth, ourSlug }: { employeeId: str
       setFilteredHistory(data.data);
     } catch (error) {
       console.error("Error fetching monthly history:", error);
-      toast.error("Failed to fetch monthly history. Please try again.");
+      toast.error(t("hourlyLeaves.toast.fetchError"));
     }
   };
 
@@ -183,11 +185,11 @@ const AttendanceTab = ({ employeeId, selectedMonth, ourSlug }: { employeeId: str
         if (!existingRecordsResponse.ok) throw new Error("Failed to check existing records");
         const existingRecords = await existingRecordsResponse.json();
         if (existingRecords.length > 0) {
-          toast.error("A record for this date already exists.");
+          toast.error(t("attendance.toast.recordExists"));
           return;
         }
         const timeZone = "Asia/Damascus";
-        const requestData = { ...data, timeZone, userId:employeeId };
+        const requestData = { ...data, timeZone, userId: employeeId };
         response = await fetch(`${baseUrl}/checks/add`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -198,16 +200,16 @@ const AttendanceTab = ({ employeeId, selectedMonth, ourSlug }: { employeeId: str
       if (!response.ok) throw new Error("Failed to save record");
 
       fetchMonthlyHistory(selectedMonth);
-      toast.success(isEditing ? "Updated successfully" : "Added successfully");
+      toast.success(isEditing ? t("hourlyLeaves.toast.updateSuccess") : t("hourlyLeaves.toast.addSuccess"));
       setIsDialogOpen(false);
     } catch (error) {
       console.error("Error saving record:", error);
-      toast.error("Failed to save record. Please try again.");
+      toast.error(t("hourlyLeaves.toast.saveError"));
     }
   };
   async function handleAddNoteSubmit() {
     if (!selectedRecord || !newNoteType || !newNoteText.trim()) return;
-  
+
     setSavingNote(true);
     try {
       const res = await fetch(
@@ -225,43 +227,43 @@ const AttendanceTab = ({ employeeId, selectedMonth, ourSlug }: { employeeId: str
         }
       );
       const json = await res.json();
-  
+
       if (json.status) {
         const created: AttendanceNote = json.data;
-  
+
         // 1) أضف الملاحظة للقائمة
         setNotes((prev) => [...prev, created]);
-  
+
         // 2) حدّث selectedRecord محليًا
         setSelectedRecord((prev) =>
           prev
             ? {
-                ...prev,
-                notesCount: (prev.notesCount ?? 0) + 1,
-                hasLateNote:
-                  prev.hasLateNote || created.type === "LATE",
-                hasEarlyLeaveNote:
-                  prev.hasEarlyLeaveNote || created.type === "EARLY_LEAVE",
-              }
+              ...prev,
+              notesCount: (prev.notesCount ?? 0) + 1,
+              hasLateNote:
+                prev.hasLateNote || created.type === "LATE",
+              hasEarlyLeaveNote:
+                prev.hasEarlyLeaveNote || created.type === "EARLY_LEAVE",
+            }
             : prev
         );
-  
+
         // 3) حدّث history الرئيسي (حتى ينعكس Badge في القائمة)
         setHistory((prev) =>
           prev.map((h) =>
             h.id === selectedRecord.id
               ? {
-                  ...h,
-                  notesCount: (h.notesCount ?? 0) + 1,
-                  hasLateNote:
-                    h.hasLateNote || created.type === "LATE",
-                  hasEarlyLeaveNote:
-                    h.hasEarlyLeaveNote || created.type === "EARLY_LEAVE",
-                }
+                ...h,
+                notesCount: (h.notesCount ?? 0) + 1,
+                hasLateNote:
+                  h.hasLateNote || created.type === "LATE",
+                hasEarlyLeaveNote:
+                  h.hasEarlyLeaveNote || created.type === "EARLY_LEAVE",
+              }
               : h
           )
         );
-  
+
         // 4) صفّي الفورم واغلق Dialog
         setNewNoteType("");
         setNewNoteText("");
@@ -275,7 +277,7 @@ const AttendanceTab = ({ employeeId, selectedMonth, ourSlug }: { employeeId: str
       setSavingNote(false);
     }
   }
-  
+
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
@@ -288,337 +290,370 @@ const AttendanceTab = ({ employeeId, selectedMonth, ourSlug }: { employeeId: str
   useEffect(() => {
     const filtered = history.filter((record) => {
       const searchLower = searchTerm.toLowerCase();
-      const date = format(new Date(record.checkDate), "MMMM d, yyyy").toLowerCase();
+      const date = new Date(record.checkDate).toLocaleDateString(lang === "ar" ? "ar-EG" : "en-US", {
+        month: "long",
+        day: "numeric",
+        year: "numeric"
+      }).toLowerCase();
       const checkIn = record.checkInTime.toLowerCase();
       const checkOut = record.checkOutTime?.toLowerCase() || "";
       return date.includes(searchLower) || checkIn.includes(searchLower) || checkOut.includes(searchLower);
     });
     setFilteredHistory(filtered);
-  }, [searchTerm, history]);
+  }, [searchTerm, history, lang]);
+
   const [isCalendarOpen, setIsCalendarOpen] = React.useState(false);
-  if (isLoading) return <p>Loading...</p>;
+  if (isLoading) return <p>{t("common.loading")}</p>;
 
   return (
-    <div className="space-y-4">
-    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-      <h2 className="text-xl sm:text-2xl font-semibold text-primary">Attendance Records</h2>
+    <div className="space-y-4 min-w-0" dir={dir}>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <h2 className="text-xl sm:text-2xl font-semibold text-primary">
+          {t("attendance.title")}
+        </h2>
 
-      <div className="flex w-full sm:w-auto items-center gap-2">
-        <Button size="sm" onClick={openAddDialog} className="gap-1">
-          <Plus className="h-4 w-4" />
-          <span className="hidden sm:inline">Add</span>
-          <span className="sr-only">Add Record</span>
-        </Button>
+        <div className="flex w-full sm:w-auto items-center gap-2">
+          <Button size="sm" onClick={openAddDialog} className="gap-1">
+            <Plus className="h-4 w-4" />
+            <span className="hidden sm:inline">{t("common.add")}</span>
+            <span className="sr-only">{t("common.add")}</span>
+          </Button>
 
-        <div className="relative flex-1 sm:flex-none">
-          <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search records"
-            className="pl-8 w-full sm:w-[260px]"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </div>
-      </div>
-    </div>
-    <Card className="shadow-sm">
-  {history.length === 0 ? (
-    <div className="p-8 text-sm text-muted-foreground">
-      No attendance recorded.
-    </div>
-  ) : (
-    <ul className="divide-y">
-      {filteredHistory
-        .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
-        .map((record) => (
-          <li
-            key={record.id}
-            className="flex items-center justify-between gap-4 p-4 hover:bg-accent/40"
-          >
-            {/* Left: Date + times */}
-            <div className="min-w-0">
-              <div className="flex items-center gap-2">
-                <p className="font-medium truncate">
-                  {format(new Date(record.checkDate), "MMMM d, yyyy : EEEE")}
-                </p>
-
-                {/* Badge: عدد الملاحظات */}
-                {(record.notesCount ?? 0) > 0 && (
-                  <span className="inline-flex items-center rounded-full border px-2 py-0.5 text-xs">
-                    Notes {record.notesCount}
-                  </span>
-                )}
-
-                {/* أيقونات الحالة حسب نوع الملاحظات */}
-                <div className="flex items-center gap-1">
-                  {record.hasLateNote && (
-                    <span
-                      className="inline-flex items-center rounded-full bg-yellow-100 text-yellow-800 px-1.5 py-0.5 text-[11px]"
-                      title="Has late note"
-                    >
-                      <Clock className="h-3 w-3 mr-0.5" />
-                      Late
-                    </span>
-                  )}
-
-                  {record.hasEarlyLeaveNote && (
-                    <span
-                      className="inline-flex items-center rounded-full bg-red-100 text-red-800 px-1.5 py-0.5 text-[11px]"
-                      title="Has early leave note"
-                    >
-                      <LogOut className="h-3 w-3 mr-0.5" />
-                      Early
-                    </span>
-                  )}
-                </div>
-              </div>
-
-              <p className="text-sm text-muted-foreground tabular-nums">
-                Check-in: {record.checkInTime ?? "—"}, Check-out:{" "}
-                {record.checkOutTime ?? "Not yet checked out"}
-              </p>
-            </div>
-
-            {/* Right: Actions */}
-            <div className="flex items-center gap-2">
-              {/* Notes → Sheet */}
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={() => openNotesSheet(record)}
-              >
-                Notes
-              </Button>
-
-              {/* Edit → Dialog */}
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => openEditDialog(record)}
-              >
-                Edit
-              </Button>
-            </div>
-          </li>
-        ))}
-    </ul>
-  )}
-</Card>
-<Sheet open={notesSheetOpen} onOpenChange={setNotesSheetOpen}>
-  <SheetContent side="right" className="w-full sm:w-[480px]">
-    <SheetHeader>
-      <SheetTitle>Attendance Notes</SheetTitle>
-      <SheetDescription>
-        {selectedRecord && (
-          <div className="mt-2 text-sm text-muted-foreground">
-            {format(new Date(selectedRecord.checkDate), "MMMM d, yyyy : EEEE")}
-            <br />
-            Check-in: {selectedRecord.checkInTime ?? "—"} | Check-out:{" "}
-            {selectedRecord.checkOutTime ?? "Not yet checked out"}
-          </div>
-        )}
-      </SheetDescription>
-    </SheetHeader>
-
-    <div className="mt-4 space-y-4">
-      {/* زر Add Note */}
-      <div className="flex justify-end">
-        <Button size="sm" onClick={() => setAddNoteOpen(true)}>
-          Add note
-        </Button>
-      </div>
-
-      {/* قائمة الملاحظات */}
-      {loadingNotes ? (
-        <div className="text-sm text-muted-foreground">Loading notes...</div>
-      ) : notes.length === 0 ? (
-        <div className="text-sm text-muted-foreground">
-          No notes for this day.
-        </div>
-      ) : (
-        <ul className="space-y-3 max-h-[420px] overflow-y-auto pr-1">
-          {notes.map((note) => (
-            <li
-              key={note.id}
-              className="rounded-lg border bg-background p-3 text-sm space-y-1"
-            >
-              <div className="flex items-center justify-between gap-2">
-              <span
-  className={cn(
-    "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium border",
-    note.type === "LATE" &&
-      "bg-yellow-100 text-yellow-800 border-yellow-200",
-    note.type === "EARLY_LEAVE" &&
-      "bg-red-100 text-red-800 border-red-200",
-    note.type === "OTHER" &&
-      "bg-slate-100 text-slate-800 border-slate-200",
-    note.type === "NO_TASKS" &&
-      "bg-slate-100 text-slate-800 border-slate-200",
-    note.type === "TASKS_DONE" &&
-      "bg-green-100 text-green-800 border-green-200",
-    note.type === "ADMIN_PERMISSION" &&
-      "bg-blue-100 text-blue-800 border-blue-200",
-    note.type === "DEDUCTION" &&
-      "bg-orange-100 text-orange-800 border-orange-200"
-  )}
->
-  {note.type === "LATE" && (
-    <>
-      <Clock className="h-3 w-3" />
-      <span>Late</span>
-    </>
-  )}
-
-  {note.type === "EARLY_LEAVE" && (
-    <>
-      <LogOut className="h-3 w-3" />
-      <span>Early leave</span>
-    </>
-  )}
-
-  {note.type === "OTHER" && (
-    <>
-      <Info className="h-3 w-3" />
-      <span>Other</span>
-    </>
-  )}
-
-  {note.type === "NO_TASKS" && (
-    <>
-      <Info className="h-3 w-3" />
-      <span>لا يوجد مهام</span>
-    </>
-  )}
-
-  {note.type === "TASKS_DONE" && (
-    <>
-      <Info className="h-3 w-3" />
-      <span>انتهاء المهام</span>
-    </>
-  )}
-
-  {note.type === "ADMIN_PERMISSION" && (
-    <>
-      <Info className="h-3 w-3" />
-      <span>إذن إداري</span>
-    </>
-  )}
-
-  {note.type === "DEDUCTION" && (
-    <>
-      <Info className="h-3 w-3" />
-      <span>حسم</span>
-    </>
-  )}
-</span>
-
-
-                <span className="text-[11px] text-muted-foreground">
-                  {format(new Date(note.createdAt), "yyyy-MM-dd HH:mm")}
-                </span>
-              </div>
-
-              <p className="whitespace-pre-line">{note.note}</p>
-
-              {note.admin && (
-                <p className="text-[11px] text-muted-foreground">
-                  by {note.admin.name}
-                </p>
-              )}
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-
-    {/* Dialog لإضافة ملاحظة جديدة */}
-    <Dialog open={addNoteOpen} onOpenChange={setAddNoteOpen}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Add note</DialogTitle>
-        </DialogHeader>
-
-        <div className="space-y-3">
-          <div className="space-y-1">
-            <label className="text-sm font-medium">Type</label>
-            <Select
-              value={newNoteType}
-              onValueChange={(val: AttendanceNoteType) =>
-                setNewNoteType(val)
-              }
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="LATE">Late</SelectItem>
-                <SelectItem value="EARLY_LEAVE">Early leave</SelectItem>
-                <SelectItem value="OTHER">Other</SelectItem>
-
-                {/* الأنواع الجديدة */}
-                <SelectItem value="NO_TASKS">لا يوجد مهام</SelectItem>
-                <SelectItem value="TASKS_DONE">انتهاء المهام</SelectItem>
-                <SelectItem value="ADMIN_PERMISSION">إذن إداري</SelectItem>
-                <SelectItem value="DEDUCTION">حسم</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-1">
-            <label className="text-sm font-medium">Note</label>
-            <Textarea
-              rows={4}
-              value={newNoteText}
-              onChange={(e) => setNewNoteText(e.target.value)}
-              placeholder="Reason / explanation..."
+          <div className="relative flex-1 sm:flex-none">
+            <Search className={cn("absolute top-2.5 h-4 w-4 text-muted-foreground", dir === "rtl" ? "right-2" : "left-2")} />
+            <Input
+              placeholder={t("attendance.searchPlaceholder")}
+              className={cn("w-full sm:w-[260px]", dir === "rtl" ? "pr-8" : "pl-8")}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
         </div>
+      </div>
+      <Card className="shadow-sm overflow-hidden">
+        {history.length === 0 ? (
+          <div className="p-8 text-sm text-muted-foreground">
+            {t("attendance.noRecords")}
+          </div>
+        ) : (
+          <ul className="divide-y">
+            {filteredHistory
+              .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+              .map((record) => (
+                <li
+                  key={record.id}
+                  className="flex items-center justify-between gap-4 p-4 hover:bg-accent/40"
+                >
+                  {/* Left: Date + times */}
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium truncate">
+                        {new Date(record.checkDate).toLocaleDateString(lang === "ar" ? "ar-EG" : "en-US", {
+                          month: "long",
+                          day: "numeric",
+                          year: "numeric",
+                          weekday: "long"
+                        })}
+                      </p>
 
-        <DialogFooter>
-          <Button
-            variant="outline"
-            onClick={() => {
-              setAddNoteOpen(false);
-            }}
-          >
-            Cancel
-          </Button>
-          <Button
-            onClick={handleAddNoteSubmit}
-            disabled={
-              savingNote || !newNoteType || !newNoteText.trim()
-            }
-          >
-            {savingNote ? "Saving..." : "Save"}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  </SheetContent>
-</Sheet>
+                      {/* Badge: عدد الملاحظات */}
+                      {(record.notesCount ?? 0) > 0 && (
+                        <span className="inline-flex items-center rounded-full border px-2 py-0.5 text-xs">
+                          {t("attendance.badge.notes")} {record.notesCount}
+                        </span>
+                      )}
+
+                      {/* أيقونات الحالة حسب نوع الملاحظات */}
+                      <div className="flex items-center gap-1">
+                        {record.hasLateNote && (
+                          <span
+                            className="inline-flex items-center rounded-full bg-yellow-100 text-yellow-800 px-1.5 py-0.5 text-[11px]"
+                          >
+                            <Clock className="h-3 w-3 mr-0.5" />
+                            {t("attendance.status.late")}
+                          </span>
+                        )}
+
+                        {record.hasEarlyLeaveNote && (
+                          <span
+                            className="inline-flex items-center rounded-full bg-red-100 text-red-800 px-1.5 py-0.5 text-[11px]"
+                          >
+                            <LogOut className="h-3 w-3 mr-0.5" />
+                            {t("attendance.status.early")}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    <p className="text-sm text-muted-foreground tabular-nums">
+                      {t("attendance.checkIn")}: {record.checkInTime ?? "—"},{" "}
+                      {t("attendance.checkOut")}:{" "}
+                      {record.checkOutTime ?? t("attendance.notCheckedOut")}
+                    </p>
+                  </div>
+
+                  {/* Right: Actions */}
+                  <div className="flex items-center gap-2">
+                    {/* Notes → Sheet */}
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => openNotesSheet(record)}
+                    >
+                      {t("common.notes")}
+                    </Button>
+
+                    {/* Edit → Dialog */}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => openEditDialog(record)}
+                    >
+                      {t("common.edit")}
+                    </Button>
+                  </div>
+                </li>
+              ))}
+          </ul>
+        )}
+      </Card>
+      <Sheet open={notesSheetOpen} onOpenChange={setNotesSheetOpen}>
+        <SheetContent side={dir === "rtl" ? "left" : "right"} className="w-full sm:w-[480px]" dir={dir}>
+          <SheetHeader>
+            <SheetTitle>{t("attendance.notes.sheetTitle")}</SheetTitle>
+            <SheetDescription>
+              {selectedRecord && (
+                <div className="mt-2 text-sm text-muted-foreground">
+                  {new Date(selectedRecord.checkDate).toLocaleDateString(lang === "ar" ? "ar-EG" : "en-US", {
+                    month: "long",
+                    day: "numeric",
+                    year: "numeric",
+                    weekday: "long"
+                  })}
+                  <br />
+                  {t("attendance.checkIn")}: {selectedRecord.checkInTime ?? "—"} |{" "}
+                  {t("attendance.checkOut")}:{" "}
+                  {selectedRecord.checkOutTime ?? t("attendance.notCheckedOut")}
+                </div>
+              )}
+            </SheetDescription>
+          </SheetHeader>
+
+          <div className="mt-4 space-y-4">
+            {/* زر Add Note */}
+            <div className="flex justify-end">
+              <Button size="sm" onClick={() => setAddNoteOpen(true)}>
+                {t("attendance.notes.addNote")}
+              </Button>
+            </div>
+
+            {/* قائمة الملاحظات */}
+            {loadingNotes ? (
+              <div className="text-sm text-muted-foreground">
+                {t("attendance.notes.loading")}
+              </div>
+            ) : notes.length === 0 ? (
+              <div className="text-sm text-muted-foreground">
+                {t("attendance.notes.noNotes")}
+              </div>
+            ) : (
+              <ul className="space-y-3 max-h-[420px] overflow-y-auto pr-1">
+                {notes.map((note) => (
+                  <li
+                    key={note.id}
+                    className="rounded-lg border bg-background p-3 text-sm space-y-1"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span
+                        className={cn(
+                          "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium border",
+                          note.type === "LATE" &&
+                          "bg-yellow-100 text-yellow-800 border-yellow-200",
+                          note.type === "EARLY_LEAVE" &&
+                          "bg-red-100 text-red-800 border-red-200",
+                          note.type === "OTHER" &&
+                          "bg-slate-100 text-slate-800 border-slate-200",
+                          note.type === "NO_TASKS" &&
+                          "bg-slate-100 text-slate-800 border-slate-200",
+                          note.type === "TASKS_DONE" &&
+                          "bg-green-100 text-green-800 border-green-200",
+                          note.type === "ADMIN_PERMISSION" &&
+                          "bg-blue-100 text-blue-800 border-blue-200",
+                          note.type === "DEDUCTION" &&
+                          "bg-orange-100 text-orange-800 border-orange-200"
+                        )}
+                      >
+                        {note.type === "LATE" && (
+                          <>
+                            <Clock className="h-3 w-3" />
+                            <span>{t("attendance.status.late")}</span>
+                          </>
+                        )}
+
+                        {note.type === "EARLY_LEAVE" && (
+                          <>
+                            <LogOut className="h-3 w-3" />
+                            <span>{t("attendance.status.early")}</span>
+                          </>
+                        )}
+
+                        {note.type === "OTHER" && (
+                          <>
+                            <Info className="h-3 w-3" />
+                            <span>{t("attendance.notes.note")}</span>
+                          </>
+                        )}
+
+                        {note.type === "NO_TASKS" && (
+                          <>
+                            <Info className="h-3 w-3" />
+                            <span>{t("attendance.notes.noTasks")}</span>
+                          </>
+                        )}
+
+                        {note.type === "TASKS_DONE" && (
+                          <>
+                            <Info className="h-3 w-3" />
+                            <span>{t("attendance.notes.tasksDone")}</span>
+                          </>
+                        )}
+
+                        {note.type === "ADMIN_PERMISSION" && (
+                          <>
+                            <Info className="h-3 w-3" />
+                            <span>{t("attendance.notes.adminPermission")}</span>
+                          </>
+                        )}
+
+                        {note.type === "DEDUCTION" && (
+                          <>
+                            <Info className="h-3 w-3" />
+                            <span>{t("attendance.notes.deduction")}</span>
+                          </>
+                        )}
+                      </span>
 
 
-      <div className="flex justify-between items-center">
+                      <span className="text-[11px] text-muted-foreground">
+                        {format(new Date(note.createdAt), "yyyy-MM-dd HH:mm")}
+                      </span>
+                    </div>
+
+                    <p className="whitespace-pre-line">{note.note}</p>
+
+                    {note.admin && (
+                      <p className="text-[11px] text-muted-foreground">
+                        {t("attendance.notes.by")} {note.admin.name}
+                      </p>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          {/* Dialog لإضافة ملاحظة جديدة */}
+          <Dialog open={addNoteOpen} onOpenChange={setAddNoteOpen}>
+            <DialogContent dir={dir}>
+              <DialogHeader>
+                <DialogTitle>{t("attendance.notes.addNote")}</DialogTitle>
+              </DialogHeader>
+
+              <div className="space-y-3">
+                <div className="space-y-1">
+                  <label className="text-sm font-medium">
+                    {t("attendance.notes.type")}
+                  </label>
+                  <Select
+                    value={newNoteType}
+                    onValueChange={(val: AttendanceNoteType) =>
+                      setNewNoteType(val)
+                    }
+                  >
+                    <SelectTrigger dir={dir}>
+                      <SelectValue placeholder={t("attendance.notes.type")} />
+                    </SelectTrigger>
+                    <SelectContent dir={dir}>
+                      <SelectItem value="LATE">{t("attendance.status.late")}</SelectItem>
+                      <SelectItem value="EARLY_LEAVE">
+                        {t("attendance.status.early")}
+                      </SelectItem>
+                      <SelectItem value="OTHER">{t("attendance.notes.note")}</SelectItem>
+
+                      {/* الأنواع الجديدة */}
+                      <SelectItem value="NO_TASKS">{t("attendance.notes.noTasks")}</SelectItem>
+                      <SelectItem value="TASKS_DONE">{t("attendance.notes.tasksDone")}</SelectItem>
+                      <SelectItem value="ADMIN_PERMISSION">{t("attendance.notes.adminPermission")}</SelectItem>
+                      <SelectItem value="DEDUCTION">{t("attendance.notes.deduction")}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-sm font-medium">
+                    {t("attendance.notes.note")}
+                  </label>
+                  <Textarea
+                    rows={4}
+                    value={newNoteText}
+                    onChange={(e) => setNewNoteText(e.target.value)}
+                    placeholder={t("attendance.notes.placeholder")}
+                    dir={dir}
+                  />
+                </div>
+              </div>
+
+              <DialogFooter>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setAddNoteOpen(false);
+                  }}
+                >
+                  {t("common.cancel")}
+                </Button>
+                <Button
+                  onClick={handleAddNoteSubmit}
+                  disabled={
+                    savingNote || !newNoteType || !newNoteText.trim()
+                  }
+                >
+                  {t("common.save")}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </SheetContent>
+      </Sheet>
+
+
+      <div className="flex justify-between items-center" dir={dir}>
         <Button
           onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
           disabled={currentPage === 1}
         >
-          Previous
+          {t("common.previous")}
         </Button>
-        <span>Page {currentPage} of {Math.ceil(filteredHistory.length / itemsPerPage)}</span>
+        <span className="text-sm">
+          {t("attendance.pagination.page")} {currentPage} {t("attendance.pagination.of")}{" "}
+          {Math.ceil(filteredHistory.length / itemsPerPage)}
+        </span>
         <Button
           onClick={() => setCurrentPage((prev) => Math.min(prev + 1, Math.ceil(filteredHistory.length / itemsPerPage)))}
           disabled={currentPage === Math.ceil(filteredHistory.length / itemsPerPage)}
         >
-          Next
+          {t("common.next")}
         </Button>
       </div>
-      
+
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-[425px] z-50"  ref={dialogRef}  >
+        <DialogContent className="sm:max-w-[425px] z-50" ref={dialogRef} dir={dir}>
           <DialogHeader>
-            <DialogTitle>{isEditing ? 'Edit Check-in Record' : 'Add New Check-in Record'}</DialogTitle>
+            <DialogTitle>
+              {isEditing
+                ? t("attendance.dialog.editTitle")
+                : t("attendance.dialog.addTitle")}
+            </DialogTitle>
           </DialogHeader>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -627,7 +662,7 @@ const AttendanceTab = ({ employeeId, selectedMonth, ourSlug }: { employeeId: str
                 name="checkDate"
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
-                    <FormLabel>Date</FormLabel>
+                    <FormLabel>{t("attendance.dialog.date")}</FormLabel>
                     <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen} modal={false} >
                       <PopoverTrigger asChild>
                         <FormControl>
@@ -635,10 +670,18 @@ const AttendanceTab = ({ employeeId, selectedMonth, ourSlug }: { employeeId: str
                             type="button"
                             variant="outline"
                             onClick={() => setIsCalendarOpen(v => !v)}
-                            className={`w-full pl-3 text-left font-normal ${!field.value && "text-muted-foreground"}`}
+                            className={cn("w-full text-start font-normal", !field.value && "text-muted-foreground")}
                           >
-                            {field.value ? format(new Date(field.value), "PPP") : <span>Pick a date</span>}
-                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                            {field.value ? (
+                              new Date(field.value).toLocaleDateString(lang === "ar" ? "ar-EG" : "en-US", {
+                                month: "long",
+                                day: "numeric",
+                                year: "numeric"
+                              })
+                            ) : (
+                              <span>{t("attendance.dialog.pickDate")}</span>
+                            )}
+                            <CalendarIcon className={cn("h-4 w-4 opacity-50", dir === "rtl" ? "mr-auto" : "ml-auto")} />
                           </Button>
                         </FormControl>
                       </PopoverTrigger>
@@ -650,7 +693,7 @@ const AttendanceTab = ({ employeeId, selectedMonth, ourSlug }: { employeeId: str
                             if (!date) return
                             const dayName = days[date.getDay()]
                             if (!shiftDays.includes(dayName)) {
-                              alert("The selected date is not part of the shift days.")
+                              alert(t("attendance.alert.invalidShiftDay"))
                               return
                             }
                             const localISOTime = new Date(date.getTime() - date.getTimezoneOffset() * 60000)
@@ -667,6 +710,7 @@ const AttendanceTab = ({ employeeId, selectedMonth, ourSlug }: { employeeId: str
                             date < new Date("1900-01-01")
                           }
                           initialFocus
+                          locale={lang === "ar" ? undefined : undefined} // date-fns locales could be added here if needed
                         />
                       </PopoverContent>
                     </Popover>
@@ -679,13 +723,15 @@ const AttendanceTab = ({ employeeId, selectedMonth, ourSlug }: { employeeId: str
                 name="checkInTime"
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
-                    <FormLabel>Check-in Time</FormLabel>
+                    <FormLabel>{t("attendance.dialog.checkInTime")}</FormLabel>
                     <FormControl>
                       <Input
                         type="time"
                         {...field}
                         value={field.value || ""}
                         onChange={(e) => field.onChange(e.target.value || null)}
+                        dir="ltr"
+                        className="text-start"
                       />
                     </FormControl>
                     <FormMessage />
@@ -697,13 +743,15 @@ const AttendanceTab = ({ employeeId, selectedMonth, ourSlug }: { employeeId: str
                 name="checkOutTime"
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
-                    <FormLabel>Check-out Time</FormLabel>
+                    <FormLabel>{t("attendance.dialog.checkOutTime")}</FormLabel>
                     <FormControl>
                       <Input
                         type="time"
                         {...field}
                         value={field.value || ""}
                         onChange={(e) => field.onChange(e.target.value || null)}
+                        dir="ltr"
+                        className="text-start"
                       />
                     </FormControl>
                     <FormMessage />
@@ -713,16 +761,20 @@ const AttendanceTab = ({ employeeId, selectedMonth, ourSlug }: { employeeId: str
               <FormField
                 control={form.control}
                 name="note"
-                rules={{ required: "Note is required" }}
+                rules={{ required: t("attendance.dialog.noteRequired") }}
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
-                    <FormLabel>Note  <span className="text-red-500">*</span></FormLabel>
+                    <FormLabel>
+                      {t("attendance.notes.note")}{" "}
+                      <span className="text-red-500">*</span>
+                    </FormLabel>
                     <FormControl>
                       <Textarea
-                        placeholder="Write a note"
+                        placeholder={t("attendance.notes.placeholder")}
                         {...field}
                         value={field.value ?? ""}
                         onChange={(e) => field.onChange(e.target.value)}
+                        dir={dir}
                       />
                     </FormControl>
                     <FormMessage />
@@ -730,7 +782,7 @@ const AttendanceTab = ({ employeeId, selectedMonth, ourSlug }: { employeeId: str
                 )}
               />
               <DialogFooter>
-                <Button type="submit">Save</Button>
+                <Button type="submit" className="w-full">{t("common.save")}</Button>
               </DialogFooter>
             </form>
           </Form>

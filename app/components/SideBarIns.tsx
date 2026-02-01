@@ -6,6 +6,9 @@ import { CalendarDays as CalendarDaysIcon, SquareArrowLeft as SquareArrowLeftIco
 import React, { useEffect } from "react";
 import { useParams, usePathname } from "next/navigation";
 import { useEmployee } from "../context/EmployeeContext";
+import { useI18n } from "@/app/context/I18nContext";
+import LanguageToggle from "./LanguageToggle";
+import { cn } from "@/lib/utils";
 
 interface SidebarProps {
   onExitInstitution: () => void;
@@ -30,6 +33,7 @@ const SidebarIns: React.FC<SidebarProps> = ({
   isSidebarOpen,
   toggleSidebar,
 }) => {
+  const { t } = useI18n();
   const { employeeId } = useEmployee();
   const params = useParams();
   const slug = Array.isArray(params.slug) ? params.slug[0] : (params.slug as string);
@@ -37,17 +41,26 @@ const SidebarIns: React.FC<SidebarProps> = ({
 
   const employeeSubMenu = employeeId
     ? [
-        { label: "Information", href: `/dashboard/institution/${slug}/employees/${employeeId}/details` },
-        { label: "Tasks", href: `/dashboard/institution/${slug}/employees/${employeeId}/tasks` },
-        { label: "Covenant", href: `/dashboard/institution/${slug}/employees/${employeeId}/covenant` },
-      ]
+      {
+        label: t("sidebar.employee.information"),
+        href: `/dashboard/institution/${slug}/employees/${employeeId}/details`,
+      },
+      {
+        label: t("sidebar.employee.tasks"),
+        href: `/dashboard/institution/${slug}/employees/${employeeId}/tasks`,
+      },
+      {
+        label: t("sidebar.employee.covenant"),
+        href: `/dashboard/institution/${slug}/employees/${employeeId}/covenant`,
+      },
+    ]
     : [];
 
   const isLg = useIsLgUp();
 
   function useMedia(mediaQuery: string) {
     const [matches, setMatches] = React.useState(false);
-  
+
     React.useEffect(() => {
       const mq = window.matchMedia(mediaQuery);
       const onChange = () => setMatches(mq.matches);
@@ -55,14 +68,14 @@ const SidebarIns: React.FC<SidebarProps> = ({
       mq.addEventListener("change", onChange);
       return () => mq.removeEventListener("change", onChange);
     }, [mediaQuery]);
-  
+
     return matches;
   }
-  
+
   const isMdUp = useMedia("(min-width: 768px)");
   const isLgUp = useMedia("(min-width: 1024px)");
   const isMobile = !isMdUp;
-  
+
   // labels/text should be visible on lg+ OR on mobile when drawer is open
   const showText = isLgUp || (isMobile && isSidebarOpen);
 
@@ -81,10 +94,9 @@ const SidebarIns: React.FC<SidebarProps> = ({
 
   const itemBase =
     "group flex items-center gap-2 py-2 px-4 rounded-lg transition-colors text-slate-200";
-    const itemLayout = "flex-row";
+  const itemLayout = "flex-row";
   const itemClasses = (href: string, exact = false) =>
-    `${itemBase} ${itemLayout} ${
-      isActive(href, exact) ? "bg-blue-600 text-white" : "hover:bg-blue-600/10"
+    `${itemBase} ${itemLayout} ${isActive(href, exact) ? "bg-blue-600 text-white" : "hover:bg-blue-600/10"
     } focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-800`;
 
   // Lock body scroll when open (already good)
@@ -105,15 +117,14 @@ const SidebarIns: React.FC<SidebarProps> = ({
       <div
         aria-hidden={!isSidebarOpen}
         onClick={toggleSidebar}
-        className={`fixed inset-0 z-30 bg-black/40 md:hidden transition-opacity ${
-          isSidebarOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
-        }`}
+        className={`fixed inset-0 z-30 bg-black/40 md:hidden transition-opacity ${isSidebarOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+          }`}
       />
 
       <aside
         role="navigation"
         aria-label="Institution sidebar"
-        aria-expanded={isSidebarOpen}
+        // aria-expanded={isSidebarOpen}
         className={`
           fixed left-0 z-40 bg-gray-800 text-white
           transition-transform duration-300 ease-in-out
@@ -126,7 +137,16 @@ const SidebarIns: React.FC<SidebarProps> = ({
         `}
       >
         <nav className="p-4 space-y-4 flex-1 overflow-y-auto overscroll-contain">
-          <h1 className="text-xl font-bold mb-6 hidden lg:block">Institution Dashboard</h1>
+          <div className="flex items-center justify-between mb-6">
+            <h1 className="text-xl font-bold hidden lg:block truncate">
+              {t("sidebar.title")}
+            </h1>
+            <div className={cn("flex", showText ? "justify-start" : "justify-center w-full")}>
+              <LanguageToggle variant="sidebar" />
+            </div>
+          </div>
+
+
 
           <Link
             href={`/dashboard/institution/${slug}/`}
@@ -134,7 +154,11 @@ const SidebarIns: React.FC<SidebarProps> = ({
             onClick={onNavItemClick}
           >
             <Home className={`h-5 w-5 shrink-0 ${showText ? "mr-2" : ""}`} />
-            {showText && <span className="truncate">Overview</span>}
+            {showText && (
+              <span className="truncate">
+                {t("sidebar.overview")}
+              </span>
+            )}
           </Link>
 
           <div>
@@ -144,7 +168,11 @@ const SidebarIns: React.FC<SidebarProps> = ({
               onClick={onNavItemClick}
             >
               <Users className={`h-5 w-5 shrink-0 ${showText ? "mr-2" : ""}`} />
-              {showText && <span className="truncate">Employees</span>}
+              {showText && (
+                <span className="truncate">
+                  {t("sidebar.employees")}
+                </span>
+              )}
             </Link>
 
             {/* Employee Submenu */}
@@ -154,13 +182,12 @@ const SidebarIns: React.FC<SidebarProps> = ({
                   <li key={subItem.href}>
                     <Link
                       href={subItem.href}
-                      className={`block py-1 px-2 text-sm rounded ${
-                        pathname === subItem.href ? "bg-blue-500 text-white" : "hover:bg-gray-700"
-                      }`}
+                      className={`block py-1 px-2 text-sm rounded ${pathname === subItem.href ? "bg-blue-500 text-white" : "hover:bg-gray-700"
+                        }`}
                       onClick={onNavItemClick}
                     >
-                       {showText && <span>{subItem.label}</span>}
-                       {!showText && <span className="sr-only">{subItem.label}</span>}
+                      {showText && <span>{subItem.label}</span>}
+                      {!showText && <span className="sr-only">{subItem.label}</span>}
                     </Link>
                   </li>
                 ))}
@@ -174,7 +201,11 @@ const SidebarIns: React.FC<SidebarProps> = ({
             onClick={onNavItemClick}
           >
             <Table className={`h-5 w-5 shrink-0 ${showText ? "mr-2" : ""}`} />
-            {showText && <span className="truncate">Shifts</span>}
+            {showText && (
+              <span className="truncate">
+                {t("sidebar.shifts")}
+              </span>
+            )}
           </Link>
 
           <Link
@@ -183,7 +214,11 @@ const SidebarIns: React.FC<SidebarProps> = ({
             onClick={onNavItemClick}
           >
             <FileText className={`h-5 w-5 shrink-0 ${showText ? "mr-2" : ""}`} />
-            {showText && <span className="truncate">Requests</span>}
+            {showText && (
+              <span className="truncate">
+                {t("sidebar.requests")}
+              </span>
+            )}
           </Link>
 
           <Link
@@ -192,7 +227,11 @@ const SidebarIns: React.FC<SidebarProps> = ({
             onClick={onNavItemClick}
           >
             <CalendarDaysIcon className={`h-5 w-5 shrink-0 ${showText ? "mr-2" : ""}`} />
-            {showText && <span className="truncate">Holidays</span>}
+            {showText && (
+              <span className="truncate">
+                {t("sidebar.holidays")}
+              </span>
+            )}
           </Link>
 
           <Link
@@ -201,7 +240,11 @@ const SidebarIns: React.FC<SidebarProps> = ({
             onClick={onNavItemClick}
           >
             <Bell className={`h-5 w-5 shrink-0 ${showText ? "mr-2" : ""}`} />
-            {showText && <span className="truncate">Notifications</span>}
+            {showText && (
+              <span className="truncate">
+                {t("sidebar.notifications")}
+              </span>
+            )}
           </Link>
 
           <Link
@@ -210,25 +253,33 @@ const SidebarIns: React.FC<SidebarProps> = ({
             onClick={onNavItemClick}
           >
             <Settings className={`h-5 w-5 shrink-0 ${showText ? "mr-2" : ""}`} />
-            {showText && <span className="truncate">Settings</span>}
+            {showText && (
+              <span className="truncate">
+                {t("sidebar.settings")}
+              </span>
+            )}
           </Link>
         </nav>
 
-        <div className="p-4 mt-auto">
+        <div className="p-4 mt-auto space-y-3">
+
           <button
             onClick={() => {
               onExitInstitution();
               if (!isLg) toggleSidebar();
             }}
             className={`w-full px-4 py-2 rounded flex items-center gap-2
-              ${
-                showText
-                  ? "justify-start bg-blue-600 text-white"
-                  : "justify-center bg-transparent hover:bg-blue-600/10 text-white"
+              ${showText
+                ? "justify-start bg-blue-600 text-white"
+                : "justify-center bg-transparent hover:bg-blue-600/10 text-white"
               }`}
           >
             <SquareArrowLeftIcon className={`h-5 w-5 shrink-0 ${showText ? "mr-2" : ""}`} />
-            {showText && <span className="truncate">Exit Institution</span>}
+            {showText && (
+              <span className="truncate">
+                {t("sidebar.exit")}
+              </span>
+            )}
           </button>
         </div>
       </aside>

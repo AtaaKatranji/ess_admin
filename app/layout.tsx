@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import { Tajawal } from "next/font/google";
 import "./globals.css";
 import { SSEProvider  } from '@/app/context/SSEContext';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { AuthProvider } from '@/app/context/AuthContext';
+import { I18nProvider } from "@/app/context/I18nContext";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -15,6 +17,12 @@ const geistMono = localFont({
   src: "./fonts/GeistMonoVF.woff",
   variable: "--font-geist-mono",
   weight: "100 900",
+});
+
+const tajawal = Tajawal({
+  subsets: ["arabic", "latin"],
+  weight: ["300", "400", "500", "700"],
+  variable: "--font-arabic",
 });
 
 
@@ -32,14 +40,16 @@ export default function RootLayout({
     <html lang="en">
 
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${tajawal.variable} antialiased`}
       >
-        <AuthProvider>
-          <SSEProvider>
-            {children}
-            <ToastContainer />
-          </SSEProvider>
-        </AuthProvider>
+        <I18nProvider>
+          <AuthProvider>
+            <SSEProvider>
+              {children}
+              <ToastContainer />
+            </SSEProvider>
+          </AuthProvider>
+        </I18nProvider>
       </body>
     </html>
   );

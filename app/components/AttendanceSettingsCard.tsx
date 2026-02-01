@@ -10,6 +10,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 // import { Label } from "@/components/ui/label";
 // import { toast } from "sonner";
 import { Edit, Save, X } from "lucide-react";
+import { useI18n } from "@/app/context/I18nContext";
 
 const AttendanceSchema = z.object({
   graceLateMin: z.coerce.number().int().min(0).max(1440),
@@ -40,9 +41,10 @@ type Props = {
 };
 
 export default function AttendanceSettingsCard({ initialValues, onSave }: Props) {
+  const { t } = useI18n();
   const [isSaving, setIsSaving] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
- 
+
   const form = useForm<AttendanceValues>({
     resolver: zodResolver(AttendanceSchema),
     defaultValues: initialValues,
@@ -85,7 +87,7 @@ export default function AttendanceSettingsCard({ initialValues, onSave }: Props)
     hint,
     min = 0,
     max = 1440,
-    unit = "minutes",
+    unit = t("common.minutes"),
     showLabel = true, // استخدم false عند وضعه داخل البطاقة
   }: {
     label: string;
@@ -97,7 +99,7 @@ export default function AttendanceSettingsCard({ initialValues, onSave }: Props)
     showLabel?: boolean;
   }) => {
     const error = form.formState.errors[name]?.message?.toString();
-  
+
     const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
       const raw = e.target.value;
       const n = Number(raw);
@@ -112,7 +114,7 @@ export default function AttendanceSettingsCard({ initialValues, onSave }: Props)
         {showLabel && (
           <label className="block text-sm font-medium text-gray-700">{label}</label>
         )}
-  
+
         {isEditing ? (
           <div className="flex items-start gap-3">
             <div className="relative w-44">
@@ -140,89 +142,89 @@ export default function AttendanceSettingsCard({ initialValues, onSave }: Props)
             <span className="ml-1 text-xs text-gray-600">{unit}</span>
           </p>
         )}
-  
+
         {/* عند استخدام داخل البطاقة، خليه فاضي وخلي الوصف بالبطاقة */}
         {hint && showLabel && <p className="text-xs text-gray-500">{hint}</p>}
         {error && <p className="text-xs text-red-600">{error}</p>}
       </div>
     );
   };
-  
+
 
   return (
     <div className="m-6 p-6 bg-white rounded-xl shadow-md space-y-6">
-    {/* Header */}
-    <div className="flex items-center justify-between">
-      <h2 className="text-2xl font-bold text-gray-800">Attendance Settings</h2>
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold text-gray-800">{t("attendance.settings")}</h2>
 
-      <button
-        onClick={() => {
-          if (isEditing) {
-            form.reset();
-          }
-          setIsEditing((p) => !p);
-        }}
-        className="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition"
-      >
-        {isEditing ? <X className="w-4 h-4 mr-2" /> : <Edit className="w-4 h-4 mr-2" />}
-        {isEditing ? "Cancel" : "Edit"}
-      </button>
-    </div>
+        <button
+          onClick={() => {
+            if (isEditing) {
+              form.reset();
+            }
+            setIsEditing((p) => !p);
+          }}
+          className="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition"
+        >
+          {isEditing ? <X className="w-4 h-4 mr-2" /> : <Edit className="w-4 h-4 mr-2" />}
+          {isEditing ? t("common.cancel") : t("common.edit")}
+        </button>
+      </div>
 
-    <form className="space-y-6" onSubmit={form.handleSubmit(submit)}>
-  <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-    <SettingTile
-      title="Late Grace Period"
-      description="After this, the employee is marked as late."
-    >
-      <Row name="graceLateMin" label="Late Grace Period" showLabel={false} />
-    </SettingTile>
+      <form className="space-y-6" onSubmit={form.handleSubmit(submit)}>
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <SettingTile
+            title={t("attendance.graceLateMin")}
+            description={t("attendance.graceLateMinDesc")}
+          >
+            <Row name="graceLateMin" label={t("attendance.graceLateMin")} showLabel={false} />
+          </SettingTile>
 
-    <SettingTile
-      title="Absent After"
-      description="If no check-in within this time after shift start, the employee is absent."
-    >
-      <Row name="absentAfterMin" label="Absent After" showLabel={false} />
-    </SettingTile>
+          <SettingTile
+            title={t("attendance.absentAfterMin")}
+            description={t("attendance.absentAfterMinDesc")}
+          >
+            <Row name="absentAfterMin" label={t("attendance.absentAfterMin")} showLabel={false} />
+          </SettingTile>
 
-    <SettingTile
-      title="Early Leave Grace"
-      description="Allowed minutes before shift end without counting as early leave."
-    >
-      <Row name="earlyLeaveGraceMin" label="Early Leave Grace" showLabel={false} />
-    </SettingTile>
+          <SettingTile
+            title={t("attendance.earlyLeaveGraceMin")}
+            description={t("attendance.earlyLeaveGraceMinDesc")}
+          >
+            <Row name="earlyLeaveGraceMin" label={t("attendance.earlyLeaveGraceMin")} showLabel={false} />
+          </SettingTile>
 
-    <SettingTile
-      title="Check-in Window (Before)"
-      description="Minutes allowed before shift start to check in."
-    >
-      <Row name="checkInWindowBeforeMin" label="Check-in Window (Before)" showLabel={false} />
-    </SettingTile>
+          <SettingTile
+            title={t("attendance.checkInWindowBeforeMin")}
+            description={t("attendance.checkInWindowBeforeMinDesc")}
+          >
+            <Row name="checkInWindowBeforeMin" label={t("attendance.checkInWindowBeforeMin")} showLabel={false} />
+          </SettingTile>
 
-    <SettingTile
-      title="Check-in Window (After)"
-      description="Minutes allowed after shift start to check in."
-    >
-      <Row name="checkInWindowAfterMin" label="Check-in Window (After)" showLabel={false} />
-    </SettingTile>
-  </div>
-
-  {isEditing && (
-    <div className="pt-2">
-      <button
-        type="submit"
-        disabled={isSaving}
-        className="w-full sm:w-auto px-6 py-3 bg-green-600 text-white text-sm font-medium rounded-md hover:bg-green-700 disabled:opacity-70"
-      >
-        <div className="flex items-center justify-center">
-          <Save className="w-4 h-4 mr-2" />
-          {isSaving ? "Saving..." : "Save Changes"}
+          <SettingTile
+            title={t("attendance.checkInWindowAfterMin")}
+            description={t("attendance.checkInWindowAfterMinDesc")}
+          >
+            <Row name="checkInWindowAfterMin" label={t("attendance.checkInWindowAfterMin")} showLabel={false} />
+          </SettingTile>
         </div>
-      </button>
-    </div>
-  )}
-</form>
 
-  </div>
+        {isEditing && (
+          <div className="pt-2">
+            <button
+              type="submit"
+              disabled={isSaving}
+              className="w-full sm:w-auto px-6 py-3 bg-green-600 text-white text-sm font-medium rounded-md hover:bg-green-700 disabled:opacity-70"
+            >
+              <div className="flex items-center justify-center">
+                <Save className="w-4 h-4 mr-2" />
+                {isSaving ? t("settings.info.saving") : t("settings.info.save")}
+              </div>
+            </button>
+          </div>
+        )}
+      </form>
+
+    </div>
   );
 }

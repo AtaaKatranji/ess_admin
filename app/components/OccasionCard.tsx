@@ -23,7 +23,7 @@ const HolidayHoursCard: React.FC<HolidayHoursCardProps> = ({ holidays, shiftType
   function hoursBetween(start: string, end: string) {
     const [startH, startM] = start.split(':').map(Number);
     const [endH, endM] = end.split(':').map(Number);
-    return (endH + endM/60) - (startH + startM/60);
+    return (endH + endM / 60) - (startH + startM / 60);
   }
 
   function getDatesBetween(start: string, end: string) {
@@ -66,13 +66,13 @@ const HolidayHoursCard: React.FC<HolidayHoursCardProps> = ({ holidays, shiftType
   }
 
   return (
-    <Card>
+    <Card className="overflow-hidden">
       <CardHeader>
         <CardTitle>Holiday Work Hours</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="text-2xl font-bold mb-2">
-         +{totalHours} <span className="text-base font-medium">hours</span>
+          +{totalHours} <span className="text-base font-medium">hours</span>
         </div>
         <div className="text-sm text-muted-foreground mb-2">
           ({totalHolidayDays} day{totalHolidayDays !== 1 ? "s" : ""}, <span className="font-mono">{shiftType!.mode}</span> mode)

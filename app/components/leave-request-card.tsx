@@ -8,6 +8,7 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { useI18n } from "@/app/context/I18nContext"
 
 // Type definitions
 interface LeaveRequest {
@@ -63,6 +64,7 @@ const getDayNamesInRange = (startDate: string, endDate: string) => {
 }
 
 export function LeaveRequestCard({ request, onApprove, onReject, onTypeChange, canEditType }: LeaveRequestCardProps) {
+  const { t } = useI18n()
   const [isExpanded, setIsExpanded] = useState(false)
 
   const handleTypeChange = (value: string) => {
@@ -82,21 +84,21 @@ export function LeaveRequestCard({ request, onApprove, onReject, onTypeChange, c
               request.status === "Approved" ? "approve" : request.status === "Rejected" ? "destructive" : "outline"
             }
           >
-            {request.status}
+            {t(`requests.status.${request.status.toLowerCase()}`)}
           </Badge>
         </div>
-  
+
         <div className="flex items-center gap-2">
           {canEditType && (
-          <Select defaultValue={request.type} onValueChange={handleTypeChange}>
-            <SelectTrigger className="w-[100px] h-8">
-              <SelectValue placeholder="Type" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Paid">Paid</SelectItem>
-              <SelectItem value="Unpaid">Unpaid</SelectItem>
-            </SelectContent>
-          </Select>
+            <Select defaultValue={request.type} onValueChange={handleTypeChange}>
+              <SelectTrigger className="w-[100px] h-8">
+                <SelectValue placeholder="Type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Paid">Paid</SelectItem>
+                <SelectItem value="Unpaid">Unpaid</SelectItem>
+              </SelectContent>
+            </Select>
           )}
           <TooltipProvider>
             <Tooltip>
@@ -106,33 +108,33 @@ export function LeaveRequestCard({ request, onApprove, onReject, onTypeChange, c
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <p>{isExpanded ? "Show less" : "Show more"}</p>
+                <p>{isExpanded ? t("common.previous") : t("common.next")}</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
         </div>
       </CardHeader>
-  
+
       <CardContent className="px-4 py-3 grid grid-cols-2 gap-x-4 gap-y-2">
         <div className="flex items-center gap-2">
           <Calendar className="h-4 w-4 text-muted-foreground" />
           <span className="text-sm">
-            <span className="font-medium">Start:</span> {formattedDate(request.startDate)}
+            <span className="font-medium">{t("attendance.checkIn")}:</span> {formattedDate(request.startDate)}
           </span>
         </div>
-  
+
         <div className="flex items-center gap-2">
           <Calendar className="h-4 w-4 text-muted-foreground" />
           <span className="text-sm">
-            <span className="font-medium">End:</span> {formattedDate(request.endDate)}
+            <span className="font-medium">{t("attendance.checkOut")}:</span> {formattedDate(request.endDate)}
           </span>
         </div>
-  
+
         <div className="flex items-center gap-2 col-span-2">
           <Clock className="h-4 w-4 text-muted-foreground" />
           <span className="text-sm">
             <span className="font-medium">
-            <span className=" font-bold">{dayCount}</span> day{dayCount !== 1 ? "s" : ""}:
+              <span className=" font-bold">{dayCount}</span> day{dayCount !== 1 ? "s" : ""}:
             </span>{" "}
             {dayNames}
           </span>
@@ -148,7 +150,7 @@ export function LeaveRequestCard({ request, onApprove, onReject, onTypeChange, c
           </div>
         )}
       </CardContent>
-  
+
       <Collapsible open={isExpanded}>
         <CollapsibleContent>
           {request.reason && (
@@ -156,7 +158,7 @@ export function LeaveRequestCard({ request, onApprove, onReject, onTypeChange, c
               <div className="flex items-start gap-2">
                 <FileText className="h-4 w-4 text-muted-foreground mt-0.5" />
                 <div>
-                  <div className="text-sm font-medium">Reason:</div>
+                  <div className="text-sm font-medium">{t("common.notes")}:</div>
                   <p className="text-sm">{request.reason}</p>
                 </div>
               </div>
@@ -164,7 +166,7 @@ export function LeaveRequestCard({ request, onApprove, onReject, onTypeChange, c
           )}
         </CollapsibleContent>
       </Collapsible>
-  
+
       {request.status === "Pending" && (
         <CardFooter className="px-4 py-3 border-t flex justify-end gap-2 bg-muted/20">
           <Button
@@ -173,10 +175,10 @@ export function LeaveRequestCard({ request, onApprove, onReject, onTypeChange, c
             className="text-destructive border-destructive hover:bg-destructive/10"
             onClick={() => onReject(request.id)}
           >
-            <X className="mr-1 h-4 w-4" /> Reject
+            <X className="mr-1 h-4 w-4" /> {t("requests.status.rejected")}
           </Button>
           <Button variant="default" size="sm" onClick={() => onApprove(request.id)}>
-            <Check className="mr-1 h-4 w-4" /> Approve
+            <Check className="mr-1 h-4 w-4" /> {t("requests.status.approved")}
           </Button>
         </CardFooter>
       )}

@@ -6,7 +6,8 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { toast } from "sonner"
-import {  Check, X } from "lucide-react"
+import { Check, X } from "lucide-react"
+import { useI18n } from "@/app/context/I18nContext"
 const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
 type Resignation = {
   id: number
@@ -21,6 +22,7 @@ interface Props {
 }
 
 export default function ResignationTable({ orgSlug }: Props) {
+  const { t } = useI18n()
   const [resignations, setResignations] = useState<Resignation[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -81,7 +83,7 @@ export default function ResignationTable({ orgSlug }: Props) {
     }
   }
 
-  if (loading) return <p>Loading...</p>
+  if (loading) return <p>{t("common.loading")}</p>
 
   const pending = resignations.filter((r) => r.status === "Pending")
   const approved = resignations.filter((r) => r.status === "Approved")
@@ -89,32 +91,32 @@ export default function ResignationTable({ orgSlug }: Props) {
 
   return (
     <div className="space-y-6">
-     
+
 
       <Tabs defaultValue="pending" className="w-full">
         <TabsList className="grid grid-cols-3 w-full mb-4">
           <TabsTrigger value="pending">
-            Pending {pending.length > 0 && <span className="ml-1">({pending.length})</span>}
+            {t("requests.status.pending")} {pending.length > 0 && <span className="ml-1">({pending.length})</span>}
           </TabsTrigger>
           <TabsTrigger value="approved">
-            Approved {approved.length > 0 && <span className="ml-1">({approved.length})</span>}
+            {t("requests.status.approved")} {approved.length > 0 && <span className="ml-1">({approved.length})</span>}
           </TabsTrigger>
           <TabsTrigger value="rejected">
-            Rejected {rejected.length > 0 && <span className="ml-1">({rejected.length})</span>}
+            {t("requests.status.rejected")} {rejected.length > 0 && <span className="ml-1">({rejected.length})</span>}
           </TabsTrigger>
         </TabsList>
 
         {/* Pending */}
         <TabsContent value="pending" className="space-y-4">
           {pending.length === 0 ? (
-            <div className="text-center py-6 text-muted-foreground">No pending resignations</div>
+            <div className="text-center py-6 text-muted-foreground">{t("requests.empty.pending")}</div>
           ) : (
             pending.map((r) => (
               <Card key={r.id} className="overflow-hidden">
                 <CardHeader className="flex justify-between items-center bg-muted/30 px-4 py-3">
                   <div className="flex items-center gap-2">
                     <span className="font-semibold text-lg">{r.employeeName}</span>
-                    <Badge variant="outline">{r.status}</Badge>
+                    <Badge variant="outline">{t(`requests.status.${r.status.toLowerCase()}`)}</Badge>
                   </div>
                   <span className="text-sm text-muted-foreground">
                     {new Date(r.resignationDate).toLocaleDateString()}
@@ -132,13 +134,13 @@ export default function ResignationTable({ orgSlug }: Props) {
                     className="text-destructive border-destructive hover:bg-destructive/10"
                     onClick={() => handleAction(r.id, "reject")}
                   >
-                    <X className="mr-1 h-4 w-4" /> Reject
+                    <X className="mr-1 h-4 w-4" /> {t("requests.status.rejected")}
                   </Button>
                   <Button size="sm" onClick={() => handleAction(r.id, "approve")}>
-                    <Check className="mr-1 h-4 w-4" /> Approve
+                    <Check className="mr-1 h-4 w-4" /> {t("requests.status.approved")}
                   </Button>
                   <Button size="sm" variant="ghost" onClick={() => handleDelete(r.id)}>
-                    Delete
+                    {t("settings.wifi.delete")}
                   </Button>
                 </CardFooter>
               </Card>
@@ -149,14 +151,14 @@ export default function ResignationTable({ orgSlug }: Props) {
         {/* Approved */}
         <TabsContent value="approved" className="space-y-4">
           {approved.length === 0 ? (
-            <div className="text-center py-6 text-muted-foreground">No approved resignations</div>
+            <div className="text-center py-6 text-muted-foreground">{t("requests.empty.approved")}</div>
           ) : (
             approved.map((r) => (
               <Card key={r.id} className="overflow-hidden">
                 <CardHeader className="flex justify-between items-center bg-muted/30 px-4 py-3">
                   <div className="flex items-center gap-2">
                     <span className="font-semibold text-lg">{r.employeeName}</span>
-                    <Badge variant="secondary">{r.status}</Badge>
+                    <Badge variant="secondary">{t(`requests.status.${r.status.toLowerCase()}`)}</Badge>
                   </div>
                   <span className="text-sm text-muted-foreground">
                     {new Date(r.resignationDate).toLocaleDateString()}
@@ -180,14 +182,14 @@ export default function ResignationTable({ orgSlug }: Props) {
         {/* Rejected */}
         <TabsContent value="rejected" className="space-y-4">
           {rejected.length === 0 ? (
-            <div className="text-center py-6 text-muted-foreground">No rejected resignations</div>
+            <div className="text-center py-6 text-muted-foreground">{t("requests.empty.rejected")}</div>
           ) : (
             rejected.map((r) => (
               <Card key={r.id} className="overflow-hidden">
                 <CardHeader className="flex justify-between items-center bg-muted/30 px-4 py-3">
                   <div className="flex items-center gap-2">
                     <span className="font-semibold text-lg">{r.employeeName}</span>
-                    <Badge variant="destructive">{r.status}</Badge>
+                    <Badge variant="destructive">{t(`requests.status.${r.status.toLowerCase()}`)}</Badge>
                   </div>
                   <span className="text-sm text-muted-foreground">
                     {new Date(r.resignationDate).toLocaleDateString()}
