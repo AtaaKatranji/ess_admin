@@ -529,7 +529,7 @@ const DICT: Record<AppLang, Record<string, string>> = {
     "attendance.dialog.checkOutTime": "وقت الخروج",
     "attendance.dialog.noteRequired": "الملاحظة مطلوبة",
     "attendance.alert.invalidShiftDay": "التاريخ المختار ليس ضمن أيام الدوام.",
-    "attendance.settings": "إعدادات الدوام",
+    "attendance.settings": "إعدادات  سياسة الدوام",
     "attendance.checkInWindowBeforeMin": "نافذة الحضور قبل بدء الدوام",
     "attendance.checkInWindowBeforeMinDesc": "أقصى عدد دقائق يُسمح فيها بتسجيل الحضور قبل بداية الدوام.",
     "attendance.earlyLeaveGraceMin": "فترة السماح للخروج المبكر",

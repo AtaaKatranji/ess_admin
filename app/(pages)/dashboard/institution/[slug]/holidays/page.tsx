@@ -48,7 +48,11 @@ export default function InstitutionHolidaysPage() {
   };
 
   const fetchHolidays = async () => {
-    if (slug) return;
+    if (!slug || !BaseUrl) {
+      console.log("Effect: missing slug or BaseUrl", { slug, BaseUrl });
+      return;
+    }
+
     setLoading(true);
     try {
       const res = await fetch(`${BaseUrl}/institutions/${slug}/holidays/`, {
