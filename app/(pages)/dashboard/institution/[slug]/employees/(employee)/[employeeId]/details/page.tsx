@@ -445,7 +445,7 @@ const EmployeeDetails = () => {
 
   return (
     <AnnualLeaveProvider employeeId={employeeId}>
-      <div className="container px-4 space-y-4" dir={dir}>
+      <div className="container px-4 space-y-4 overflow-hidden max-w-full" dir={dir}>
         <ToastContainer />
         <Tabs defaultValue={data.employee?.status === "active" ? "attendance" : "general"} dir={dir}>
           <TabsList>
@@ -461,7 +461,7 @@ const EmployeeDetails = () => {
 
           {/* Attendance Tab */}
           {data.employee?.status === "active" && (
-            <TabsContent value="attendance">
+            <TabsContent value="attendance" className="overflow-hidden">
 
               <div className="flex justify-between items-center mb-4 gap-4">
                 <h1 className="hidden md:block lg:hidden xl:block text-xl md:text-2xl font-bold">
@@ -700,7 +700,7 @@ const EmployeeDetails = () => {
 
 
                   </div>
-                  <section className="mx-auto max-w-6xl min-w-0">
+                  <section className="mx-auto max-w-6xl w-full overflow-x-hidden">
                     <Tabs defaultValue="attendance" className="space-y-6 w-full" dir={dir}>
                       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                         <TabsList>
@@ -715,7 +715,7 @@ const EmployeeDetails = () => {
                         </TabsList>
                       </div>
 
-                      <TabsContent value="attendance" className="space-y-4">
+                      <TabsContent value="attendance" className="space-y-4 overflow-hidden">
                         <AttendanceTab employeeId={employeeId} selectedMonth={selectedMonth} ourSlug={slug!} />
                       </TabsContent>
                       <TabsContent value="hourlyLeaves" className="space-y-4">

@@ -2,11 +2,12 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { Tajawal } from "next/font/google";
 import "./globals.css";
-import { SSEProvider  } from '@/app/context/SSEContext';
+import { SSEProvider } from '@/app/context/SSEContext';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { AuthProvider } from '@/app/context/AuthContext';
 import { I18nProvider } from "@/app/context/I18nContext";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -37,15 +38,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="overflow-hidden">
 
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${tajawal.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${tajawal.variable} antialiased overflow-hidden`}
       >
         <I18nProvider>
           <AuthProvider>
             <SSEProvider>
               {children}
+              <SpeedInsights />
               <ToastContainer />
             </SSEProvider>
           </AuthProvider>

@@ -136,7 +136,7 @@ const SidebarIns: React.FC<SidebarProps> = ({
           flex flex-col
         `}
       >
-        <nav className="p-4 space-y-4 flex-1 overflow-y-auto overscroll-contain">
+        <nav className="p-4 space-y-4 flex-1 overflow-y-auto overscroll-contain no-scrollbar">
           <div className="flex items-center justify-between mb-6">
             <h1 className="text-xl font-bold hidden lg:block truncate">
               {t("sidebar.title")}

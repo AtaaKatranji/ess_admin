@@ -49,7 +49,7 @@ export default function InstitutionHolidaysPage() {
 
   const fetchHolidays = async () => {
     if (!slug || !BaseUrl) {
-      console.log("Effect: missing slug or BaseUrl", { slug, BaseUrl });
+      console.log("Effect: missing slug or BaseUrl");
       return;
     }
 

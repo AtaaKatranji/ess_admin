@@ -306,7 +306,7 @@ const AttendanceTab = ({ employeeId, selectedMonth, ourSlug }: { employeeId: str
   if (isLoading) return <p>{t("common.loading")}</p>;
 
   return (
-    <div className="space-y-4 min-w-0" dir={dir}>
+    <div className="space-y-4 w-full overflow-x-hidden" dir={dir}>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="text-xl sm:text-2xl font-semibold text-primary">
           {t("attendance.title")}
