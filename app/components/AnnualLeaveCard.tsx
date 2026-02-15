@@ -5,6 +5,7 @@ import { Edit2 } from "lucide-react";
 import LeaveUpdateDialog from "./AnnualLeaveUpdateDialog";
 import { useState } from "react";
 import { useAnnualLeave } from "@/app/context/AnnualLeaveContext";
+import { useI18n } from "@/app/context/I18nContext";
 
 interface LeaveUpdate {
   days: number;
@@ -19,6 +20,7 @@ interface LeaveCardProps {
 export default function LeaveCard({ employeeId }: LeaveCardProps) {
   const { annualPaidLeaves, refreshAnnualLeave } = useAnnualLeave(); // ✅ أخذ البيانات والدالة من السياق
   const [history, setHistory] = useState<LeaveUpdate[]>([]);
+  const { t, dir } = useI18n();
   const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
 
   // ✅ تحديث الإجازات على السيرفر
@@ -62,18 +64,18 @@ export default function LeaveCard({ employeeId }: LeaveCardProps) {
   };
 
   return (
-    <Card className="overflow-hidden">
+    <Card className="overflow-hidden" dir={dir}>
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         {/* ممكن تضيف عنوان أو أي شيء */}
       </CardHeader>
 
       <CardContent className="flex flex-row items-center justify-between">
-        <div className="flex flex-row items-center space-x-10">
-          <h2 className="text-lg font-bold">Annual Paid Leave</h2>
+        <div className="flex flex-row items-center space-x-10 rtl:space-x-reverse">
+          <h2 className="text-lg font-bold">{t("annualLeave.title")}</h2>
           <p className="text-lg font-bold text-blue-700">
             {annualPaidLeaves !== null ? annualPaidLeaves : "—"}
           </p>
-          <p className="text-xs text-muted-foreground">Days</p>
+          <p className="text-xs text-muted-foreground">{t("annualLeave.days")}</p>
         </div>
 
         {/* زر تعديل */}

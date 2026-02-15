@@ -1,6 +1,7 @@
 'use client';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Holiday } from "@/app/types/Employee";
+import { useI18n } from "@/app/context/I18nContext";
 
 type ShiftType = {
   mode: 'standard' | 'advanced';
@@ -16,6 +17,7 @@ type HolidayHoursCardProps = {
 };
 
 const HolidayHoursCard: React.FC<HolidayHoursCardProps> = ({ holidays, shiftType }) => {
+  const { t, dir } = useI18n();
   const dayNamesFull = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   console.log("shiftType in holiday hours card", shiftType);
   console.log("holidays in holiday hours card", holidays);
@@ -66,16 +68,16 @@ const HolidayHoursCard: React.FC<HolidayHoursCardProps> = ({ holidays, shiftType
   }
 
   return (
-    <Card className="overflow-hidden">
+    <Card className="overflow-hidden" dir={dir}>
       <CardHeader>
-        <CardTitle>Holiday Work Hours</CardTitle>
+        <CardTitle>{t("holidayHours.title")}</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="text-2xl font-bold mb-2">
-          +{totalHours} <span className="text-base font-medium">hours</span>
+          +{totalHours} <span className="text-base font-medium">{t("holidayHours.hours")}</span>
         </div>
         <div className="text-sm text-muted-foreground mb-2">
-          ({totalHolidayDays} day{totalHolidayDays !== 1 ? "s" : ""}, <span className="font-mono">{shiftType!.mode}</span> mode)
+          ({totalHolidayDays} {t("common.days")}, <span className="font-mono">{shiftType!.mode}</span>)
         </div>
       </CardContent>
     </Card>

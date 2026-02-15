@@ -38,10 +38,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="overflow-hidden">
+    <html lang="en">
 
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${tajawal.variable} antialiased overflow-hidden`}
+        className={`${geistSans.variable} ${geistMono.variable} ${tajawal.variable} antialiased`}
       >
         <I18nProvider>
           <AuthProvider>

@@ -7,16 +7,17 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { User, CalendarX2, Loader2 } from "lucide-react"
 import { Employee } from "@/app/types/Employee";
 import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogFooter,
-  } from "@/components/ui/dialog"
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
 import { toast } from "react-toastify";
 import ResignDialog from "./resignDialog";
+import { useI18n } from "@/app/context/I18nContext";
 
 const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
 interface EmployeeCardProps {
@@ -24,459 +25,431 @@ interface EmployeeCardProps {
   slug: string
 }
 
-export function EmployeeCard({ employee, slug  }: EmployeeCardProps) {
+export function EmployeeCard({ employee, slug }: EmployeeCardProps) {
+  const { t, dir, lang } = useI18n();
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isResignOpen, setIsResignOpen] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [employeeData, setEmployeeData] = useState(employee);
 
-const [isEditOpen, setIsEditOpen] = useState(false);
-const [isResignOpen, setIsResignOpen] = useState(false);
-const [isRefreshing, setIsRefreshing] = useState(false);
-const [employeeData, setEmployeeData] = useState(employee); 
+  const [form, setForm] = useState({
+    name: employee.name || "",
+    phoneNumber: employee.phoneNumber || "",
+    email: employee.email || "",
+    address: employee.address || "",
+    role: employee.role || "",
+    gender: employee.gender || "",
+    hireDate: employee.hireDate ? employee.hireDate.split("T")[0] : "",
+    maritalStatus: employee.maritalStatus || "",
+    birthDate: employee.birthDate ? employee.birthDate.split("T")[0] : "",
+    emergencyContactName: employee.emergencyContactName || "",
+    emergencyContactRelation: employee.emergencyContactRelation || "",
+    emergencyContactPhone: employee.emergencyContactPhone || "",
+    contractType: employee.contractType || "",
+    status: employee.status || "active",
+    resignationDate: employee.resignationDate || null,
+  });
 
-const [form, setForm] = useState({
-  name: employee.name || "",
-  phoneNumber: employee.phoneNumber || "",
-  email: employee.email || "",
-  address: employee.address || "",
-  role: employee.role || "",
-  gender: employee.gender || "",
-  hireDate: employee.hireDate ? employee.hireDate.split("T")[0] : "",
-  maritalStatus: employee.maritalStatus || "",
-  birthDate: employee.birthDate ? employee.birthDate.split("T")[0] : "",
-  emergencyContactName: employee.emergencyContactName || "",
-  emergencyContactRelation: employee.emergencyContactRelation || "",
-  emergencyContactPhone: employee.emergencyContactPhone || "",
-  contractType: employee.contractType || "",
-  status: employee.status || "active",
-  resignationDate: employee.resignationDate || null,
-});
+  const fetchEmployee = async () => {
+    try {
+      setIsRefreshing(true);
+      const res = await fetch(`${BaseUrl}/api/users/personal?employeeId=${employee.id}`, {
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error("Failed to fetch employee");
+      const data = await res.json();
+      setEmployeeData(data.user || data); // adjust depending on API structure
+    } catch (err) {
+      console.error("Error fetching employee:", err);
+      toast.error(t("employeeCard.toast.fetchError"));
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const payload = {
+        name: form.name,
+        phoneNumber: form.phoneNumber,
+        email: form.email,
+        address: form.address,
+        role: form.role,
+        gender: form.gender,
+        hireDate: form.hireDate,
+        maritalStatus: form.maritalStatus,
+        birthDate: form.birthDate,
+        emergencyContactName: form.emergencyContactName,
+        emergencyContactRelation: form.emergencyContactRelation,
+        emergencyContactPhone: form.emergencyContactPhone,
+        contractType: form.contractType,
+        status: form.status,
+        resignationDate: form.status === "resigned" ? form.resignationDate : null,
+      };
 
-const fetchEmployee = async () => {
-  try {
-    setIsRefreshing(true);
-    const res = await fetch(`${BaseUrl}/api/users/personal?employeeId=${employee.id}`, {
-      credentials: "include",
-    });
-    if (!res.ok) throw new Error("Failed to fetch employee");
-    const data = await res.json();
-    setEmployeeData(data.user || data); // adjust depending on API structure
-  } catch (err) {
-    console.error("Error fetching employee:", err);
-    toast.error("Could not refresh employee data");
-  } finally {
-    setIsRefreshing(false);
+      const res = await fetch(`${BaseUrl}/api/users/${employee.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) throw new Error("Failed to update");
+
+      toast.success(t("employeeCard.toast.updateSuccess"));
+      setIsEditOpen(false);
+
+      // ✅ Refresh data from backend
+      await fetchEmployee();
+
+    } catch (error) {
+      console.error("Error updating employee:", error);
+      toast.error(t("employeeCard.toast.updateError"));
+    }
+  };
+  const getStatusVariant = (status: string) => {
+    switch (status) {
+      case "active":
+        return "default"
+      case "resigned":
+        return "destructive"
+      case "suspended":
+        return "secondary"
+      default:
+        return "outline"
+    }
   }
-};
-const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  try {
-    const payload = {
-      name: form.name,
-      phoneNumber: form.phoneNumber,
-      email: form.email,
-      address: form.address,
-      role: form.role,
-      gender: form.gender,
-      hireDate: form.hireDate,
-      maritalStatus: form.maritalStatus,
-      birthDate: form.birthDate,
-      emergencyContactName: form.emergencyContactName,
-      emergencyContactRelation: form.emergencyContactRelation,
-      emergencyContactPhone: form.emergencyContactPhone,
-      contractType: form.contractType,
-      status: form.status,
-      resignationDate: form.status === "resigned" ? form.resignationDate : null,
-    };
 
-    const res = await fetch(`${BaseUrl}/api/users/${employee.id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify(payload),
-    });
-
-    if (!res.ok) throw new Error("Failed to update");
-
-    toast.success("Employee updated!");
-    setIsEditOpen(false);
-
-    // ✅ Refresh data from backend
-    await fetchEmployee();
-
-  } catch (error) {
-    console.error("Error updating employee:", error);
-    toast.error("Error updating employee");
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "active":
+        return "bg-success/10 text-success border-success/20"
+      case "resigned":
+        return "bg-destructive/10 text-destructive border-destructive/20"
+      case "suspended":
+        return "bg-warning/10 text-warning border-warning/20"
+      default:
+        return "bg-muted text-muted-foreground"
+    }
   }
-};       
-const getStatusVariant = (status: string) => {
-switch (status) {
-    case "active":
-    return "default"
-    case "resigned":
-    return "destructive"
-    case "suspended":
-    return "secondary"
-    default:
-    return "outline"
-}
-}
 
-const getStatusColor = (status: string) => {
-switch (status) {
-    case "active":
-    return "bg-success/10 text-success border-success/20"
-    case "resigned":
-    return "bg-destructive/10 text-destructive border-destructive/20"
-    case "suspended":
-    return "bg-warning/10 text-warning border-warning/20"
-    default:
-    return "bg-muted text-muted-foreground"
-}
-}
-
-const getInitials = (name: string) => {
-return name
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2)
-}
-const handleResign = async ( resignReason: string) => {
-  try {
-    const payload = {
-      userId: employeeData.id,
-      status: "resigned",
-      resignationDate: new Date().toISOString().split("T")[0], // today’s date
-      shiftId: null, // unassign shift
-      reason: resignReason || null,
-    };
-
-    const res = await fetch(`${BaseUrl}/institutions/${slug}/resignations/force`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify(payload),
-    });
-
-    if (!res.ok) throw new Error("Failed to resign employee");
-
-    toast.success("Employee resigned successfully!");
-    setIsResignOpen(false);
-
-    await fetchEmployee();
-
-  } catch {
-    toast.error("Error while resigning employee");
+  const getInitials = (name: string) => {
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2)
   }
-};
+  const handleResign = async (resignReason: string) => {
+    try {
+      const payload = {
+        userId: employeeData.id,
+        status: "resigned",
+        resignationDate: new Date().toISOString().split("T")[0], // today's date
+        shiftId: null, // unassign shift
+        reason: resignReason || null,
+      };
+
+      const res = await fetch(`${BaseUrl}/institutions/${slug}/resignations/force`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) throw new Error("Failed to resign employee");
+
+      toast.success(t("employeeCard.toast.resignSuccess"));
+      setIsResignOpen(false);
+
+      await fetchEmployee();
+
+    } catch {
+      toast.error(t("employeeCard.toast.resignError"));
+    }
+  };
   return (
-    <div className="container mx-auto px-4">
-  <Card className="w-full border-none shadow-md bg-gradient-to-br from-background to-muted/40 rounded-2xl overflow-hidden">
-  {isRefreshing && (
+    <div className="container mx-auto px-4" dir={dir}>
+      <Card className="w-full border-none shadow-md bg-gradient-to-br from-background to-muted/40 rounded-2xl overflow-hidden">
+        {isRefreshing && (
           <div className="absolute inset-0 bg-background/60 flex items-center justify-center z-20 backdrop-blur-sm rounded-2xl">
             <Loader2 className="h-6 w-6 animate-spin text-primary" />
-            <span className="ml-2 text-sm text-muted-foreground">Refreshing...</span>
+            <span className="ml-2 rtl:ml-0 rtl:mr-2 text-sm text-muted-foreground">{t("employeeCard.refreshing")}</span>
           </div>
         )}
-  {/* HEADER */}
-  <CardHeader className="bg-gradient-to-r from-primary/10 to-blue-100/30 dark:from-primary/5 dark:to-muted py-6 px-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-    <div className="flex items-center gap-4">
-      <Avatar className="h-20 w-20 ring-2 ring-primary/20">
-        <AvatarImage src={employeeData.avatar || "/placeholder.svg"} alt={employeeData.name} />
-        <AvatarFallback className="bg-primary/10 text-primary font-semibold text-xl">
-          {getInitials(employeeData.name)}
-        </AvatarFallback>
-      </Avatar>
-      <div>
-        <h2 className="text-xl font-semibold text-foreground">{employeeData.name}</h2>
-        <p className="text-sm text-muted-foreground">
-          {employeeData.role || "Employee"}  —  {employeeData.shiftName || "Unassigned"}
-        </p>
-        <div className="mt-2">
-          <Badge variant={getStatusVariant(employeeData.status)} className={`${getStatusColor(employeeData.status)} capitalize`}>
-            {employeeData.status}
-          </Badge>
-        </div>
-      </div>
-    </div>
+        {/* HEADER */}
+        <CardHeader className="bg-gradient-to-r from-primary/10 to-blue-100/30 dark:from-primary/5 dark:to-muted py-6 px-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <Avatar className="h-20 w-20 ring-2 ring-primary/20">
+              <AvatarImage src={employeeData.avatar || "/placeholder.svg"} alt={employeeData.name} />
+              <AvatarFallback className="bg-primary/10 text-primary font-semibold text-xl">
+                {getInitials(employeeData.name)}
+              </AvatarFallback>
+            </Avatar>
+            <div>
+              <h2 className="text-xl font-semibold text-foreground">{employeeData.name}</h2>
+              <p className="text-sm text-muted-foreground">
+                {employeeData.role || "Employee"}  —  {employeeData.shiftName || "Unassigned"}
+              </p>
+              <div className="mt-2">
+                <Badge variant={getStatusVariant(employeeData.status)} className={`${getStatusColor(employeeData.status)} capitalize`}>
+                  {employeeData.status}
+                </Badge>
+              </div>
+            </div>
+          </div>
 
-    <div className="flex gap-3">
-      <Button onClick={() => setIsEditOpen(true)} size="sm"  disabled={isRefreshing} className="shadow-sm">
-        <User className="mr-2 h-4 w-4" /> Edit
-      </Button>
-      <Button
-        variant="destructive"
-        onClick={() => setIsResignOpen(true)}
-        size="sm"
-        className="shadow-sm"
-        disabled={isRefreshing}
-      >
-        <CalendarX2 className="mr-2 h-4 w-4" /> Resign
-      </Button>
-    </div>
-  </CardHeader>
+          <div className="flex gap-3">
+            <Button onClick={() => setIsEditOpen(true)} size="sm" disabled={isRefreshing} className="shadow-sm">
+              <User className="mr-2 rtl:mr-0 rtl:ml-2 h-4 w-4" /> {t("employeeCard.edit")}
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => setIsResignOpen(true)}
+              size="sm"
+              className="shadow-sm"
+              disabled={isRefreshing}
+            >
+              <CalendarX2 className="mr-2 rtl:mr-0 rtl:ml-2 h-4 w-4" /> {t("employeeCard.resign")}
+            </Button>
+          </div>
+        </CardHeader>
 
-  {/* BODY */}
-  <CardContent className="p-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-    {/* Basic Info */}
-    <div className="rounded-xl bg-muted/40 p-5 border border-border/40 hover:shadow-md transition duration-300">
-      <h3 className="font-semibold mb-4 text-foreground flex items-center gap-2 text-base">
-        Basic Information
-      </h3>
+        {/* BODY */}
+        <CardContent className="p-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {/* Basic Info */}
+          <div className="rounded-xl bg-muted/40 p-5 border border-border/40 hover:shadow-md transition duration-300">
+            <h3 className="font-semibold mb-4 text-foreground flex items-center gap-2 text-base">
+              {t("employeeCard.basicInfo")}
+            </h3>
 
-      <div className="grid grid-cols-1 sm:grid-cols-1 gap-3 text-sm">
-        <div className="flex items-center gap-2 p-2 bg-white rounded-md">
-          <span className="text-muted-foreground font-bold">Gender:</span>
-          <span className="font-medium">{employeeData.gender || "—"}</span>
-        </div>
+            <div className="grid grid-cols-1 sm:grid-cols-1 gap-3 text-sm">
+              <div className="flex items-center gap-2 p-2 bg-white rounded-md">
+                <span className="text-muted-foreground font-bold">{t("employeeCard.gender")}:</span>
+                <span className="font-medium">{employeeData.gender || "—"}</span>
+              </div>
 
-        <div className="flex items-center gap-2 p-2 bg-white rounded-md">
-          <span className="text-muted-foreground font-bold">Marital Status:</span>
-          <span className="font-medium capitalize">{employeeData.maritalStatus || "—"}</span>
-        </div>
+              <div className="flex items-center gap-2 p-2 bg-white rounded-md">
+                <span className="text-muted-foreground font-bold">{t("employeeCard.maritalStatus")}:</span>
+                <span className="font-medium capitalize">{employeeData.maritalStatus || "—"}</span>
+              </div>
 
-        <div className="flex items-center gap-2 p-2 bg-white rounded-md">
-          <span className="text-muted-foreground font-bold">Birth Date:</span>
-          <span className="font-medium">
-            {employeeData.birthDate
-              ? new Date(employeeData.birthDate).toLocaleDateString()
-              : "—"}
-          </span>
-        </div>
+              <div className="flex items-center gap-2 p-2 bg-white rounded-md">
+                <span className="text-muted-foreground font-bold">{t("employeeCard.birthDate")}:</span>
+                <span className="font-medium">
+                  {employeeData.birthDate
+                    ? new Date(employeeData.birthDate).toLocaleDateString(lang === "ar" ? "ar-EG" : "en-US")
+                    : "—"}
+                </span>
+              </div>
 
-        <div className="flex items-center gap-2 p-2 bg-white rounded-md">
-          <span className="text-muted-foreground font-bold">Address:</span>
-          <span className="font-medium">{employeeData.address || "—"}</span>
-        </div>
-      </div>
-    </div>
+              <div className="flex items-center gap-2 p-2 bg-white rounded-md">
+                <span className="text-muted-foreground font-bold">{t("employeeCard.address")}:</span>
+                <span className="font-medium">{employeeData.address || "—"}</span>
+              </div>
+            </div>
+          </div>
 
-    {/* Employment Details */}
-    <div className="rounded-xl bg-muted/40 p-5 border border-border/40 hover:shadow-md transition duration-300">
-      <h3 className="font-semibold mb-4 text-foreground flex items-center gap-2 text-base">
-      Employment Details
-      </h3>
+          {/* Employment Details */}
+          <div className="rounded-xl bg-muted/40 p-5 border border-border/40 hover:shadow-md transition duration-300">
+            <h3 className="font-semibold mb-4 text-foreground flex items-center gap-2 text-base">
+              {t("employeeCard.employmentDetails")}
+            </h3>
 
-      <div className="grid grid-cols-1 sm:grid-cols-1 gap-3 text-sm">
-      
-        <div className="flex items-center gap-2 p-2 bg-white rounded-md">
-          <span className="text-muted-foreground font-bold"> Contract Type:</span>
-          <span className="font-medium capitalize">{employeeData.contractType || "—"}</span>
-        </div>
+            <div className="grid grid-cols-1 sm:grid-cols-1 gap-3 text-sm">
 
-        <div className="flex items-center gap-2 p-2 bg-white rounded-md">
-          <span className="text-muted-foreground font-bold"> Hire Date:</span>
-          <span className="font-medium">
-            {employeeData.hireDate
-              ? new Date(employeeData.hireDate).toLocaleDateString()
-              : "—"}
-          </span>
-        </div>
-      </div>
-    </div>
+              <div className="flex items-center gap-2 p-2 bg-white rounded-md">
+                <span className="text-muted-foreground font-bold"> {t("employeeCard.contractType")}:</span>
+                <span className="font-medium capitalize">{employeeData.contractType || "—"}</span>
+              </div>
 
-    {/* Emergency Contact */}
-    <div className="rounded-xl bg-muted/40 p-5 border border-border/40 hover:shadow-md transition duration-300">
-      <h3 className="font-semibold mb-4 text-foreground flex items-center gap-2 text-base">
-        Emergency Contact
-      </h3>
+              <div className="flex items-center gap-2 p-2 bg-white rounded-md">
+                <span className="text-muted-foreground font-bold"> {t("employeeCard.hireDate")}:</span>
+                <span className="font-medium">
+                  {employeeData.hireDate
+                    ? new Date(employeeData.hireDate).toLocaleDateString(lang === "ar" ? "ar-EG" : "en-US")
+                    : "—"}
+                </span>
+              </div>
+            </div>
+          </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-1 gap-3 text-sm">
-        <div className="flex items-center gap-2 p-2 bg-white rounded-md">
-          <span className="text-muted-foreground font-bold">Name:</span>
-          <span className="font-medium">{employeeData.emergencyContactName || "—"}</span>
-        </div>
+          {/* Emergency Contact */}
+          <div className="rounded-xl bg-muted/40 p-5 border border-border/40 hover:shadow-md transition duration-300">
+            <h3 className="font-semibold mb-4 text-foreground flex items-center gap-2 text-base">
+              {t("employeeCard.emergencyContact")}
+            </h3>
 
-        <div className="flex items-center gap-2 p-2 bg-white rounded-md">
-          <span className="text-muted-foreground font-bold">Relation:</span>
-          <span className="font-medium">{employeeData.emergencyContactRelation || "—"}</span>
-        </div>
+            <div className="grid grid-cols-1 sm:grid-cols-1 gap-3 text-sm">
+              <div className="flex items-center gap-2 p-2 bg-white rounded-md">
+                <span className="text-muted-foreground font-bold">{t("employeeCard.name")}:</span>
+                <span className="font-medium">{employeeData.emergencyContactName || "—"}</span>
+              </div>
 
-        <div className="flex items-center gap-2 p-2 bg-white rounded-md">
-          <span className="text-muted-foreground font-bold">Phone:</span>
-          <span className="font-medium">{employeeData.emergencyContactPhone || "—"}</span>
-        </div>
-      </div>
-    </div>
-    {/* Financial Info */}
-    {/* <div className="rounded-xl bg-muted/40 p-5 border border-border/40 hover:shadow-md transition duration-300 md:col-span-2 lg:col-span-3">
-      <h3 className="font-semibold mb-4 text-foreground flex items-center gap-2 text-base">
-        Financial & Clearance
-      </h3>
+              <div className="flex items-center gap-2 p-2 bg-white rounded-md">
+                <span className="text-muted-foreground font-bold">{t("employeeCard.relation")}:</span>
+                <span className="font-medium">{employeeData.emergencyContactRelation || "—"}</span>
+              </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-1 gap-3 text-sm">
-        <div className="flex items-center gap-2 p-2 bg-white rounded-md">
-          <span className="text-muted-foreground font-bold">Paid Leave Balance:</span>
-          <span className="font-medium">—</span>
-        </div>
+              <div className="flex items-center gap-2 p-2 bg-white rounded-md">
+                <span className="text-muted-foreground font-bold">{t("employeeCard.phone")}:</span>
+                <span className="font-medium">{employeeData.emergencyContactPhone || "—"}</span>
+              </div>
+            </div>
+          </div>
 
-        <div className="flex items-center gap-2 p-2 bg-white rounded-md">
-          <span className="text-muted-foreground font-bold">Unpaid Leave Balance:</span>
-          <span className="font-medium">—</span>
-        </div>
+          {/* Resignation */}
+          {employeeData.status === "resigned" && (
+            <div className="rounded-xl bg-destructive/5 p-5 border border-destructive/30 hover:shadow-md transition duration-300 md:col-span-2 lg:col-span-3">
+              <h3 className="font-semibold mb-4 text-destructive flex items-center gap-2 text-base">
+                {t("employeeCard.resignationDetails")}
+              </h3>
 
-        <div className="flex items-center gap-2 p-2 bg-white rounded-md">
-          <span className="text-muted-foreground font-bold">Assets Cleared:</span>
-          <span className="font-medium text-green-600">✅ Cleared</span>
-        </div>
+              <div className="grid grid-cols-1 sm:grid-cols-1 gap-3 text-sm">
+                <div className="flex items-center gap-2 p-2 bg-white rounded-md">
+                  <span className="text-destructive font-bold">{t("employeeCard.date")}:</span>
+                  <span className="font-medium">
+                    {employeeData.resignationDate
+                      ? new Date(employeeData.resignationDate).toLocaleDateString(lang === "ar" ? "ar-EG" : "en-US")
+                      : "—"}
+                  </span>
+                </div>
 
-        <div className="flex items-center gap-2 p-2 bg-white rounded-md">
-          <span className="text-muted-foreground font-bold">Final Settlement:</span>
-          <span className="font-medium">$—</span>
-        </div>
-      </div>
-    </div> */}
+                <div className="flex items-center gap-2 p-2 bg-white rounded-md">
+                  <span className="text-destructive font-bold">{t("employeeCard.reason")}:</span>
+                  <span className="font-medium">{employeeData.resignationReason || "—"}</span>
+                </div>
 
-    {/* Resignation */}
-    {employeeData.status === "resigned" && (
-      <div className="rounded-xl bg-destructive/5 p-5 border border-destructive/30 hover:shadow-md transition duration-300 md:col-span-2 lg:col-span-3">
-      <h3 className="font-semibold mb-4 text-destructive flex items-center gap-2 text-base">
-        Resignation Details
-      </h3>
-    
-      <div className="grid grid-cols-1 sm:grid-cols-1 gap-3 text-sm">
-        <div className="flex items-center gap-2 p-2 bg-white rounded-md">
-          <span className="text-destructive font-bold">Date:</span>
-          <span className="font-medium">
-            {employeeData.resignationDate
-              ? new Date(employeeData.resignationDate).toLocaleDateString()
-              : "—"}
-          </span>
-        </div>
-    
-        <div className="flex items-center gap-2 p-2 bg-white rounded-md">
-          <span className="text-destructive font-bold">Reason:</span>
-          <span className="font-medium">{employeeData.resignationReason || "—"}</span>
-        </div>
-    
-        <div className="flex items-center gap-2 p-2 bg-white rounded-md">
-          <span className="text-destructive font-bold">Notes:</span>
-          <span className="font-medium">{employeeData.resignationNotes || "—"}</span>
-        </div>
-      </div>
-    </div>
-    
-    )}
-  </CardContent>
-</Card>
+                <div className="flex items-center gap-2 p-2 bg-white rounded-md">
+                  <span className="text-destructive font-bold">{t("employeeCard.notes")}:</span>
+                  <span className="font-medium">{employeeData.resignationNotes || "—"}</span>
+                </div>
+              </div>
+            </div>
 
-    <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-  <DialogContent className="max-w-lg">
-    <DialogHeader>
-      <DialogTitle>Edit General Information</DialogTitle>
-    </DialogHeader>
+          )}
+        </CardContent>
+      </Card>
 
-    <form onSubmit={handleSubmit} className="space-y-3">
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <label className="text-sm font-medium">Name</label>
-          <Input
-            value={form.name}
-            onChange={(e) => setForm({ ...form, name: e.target.value })}
-          />
-        </div>
+      <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+        <DialogContent className="max-w-lg" dir={dir}>
+          <DialogHeader>
+            <DialogTitle>{t("employeeCard.dialog.title")}</DialogTitle>
+          </DialogHeader>
 
-        <div>
-          <label className="text-sm font-medium">Phone</label>
-          <Input
-            value={form.phoneNumber}
-            onChange={(e) => setForm({ ...form, phoneNumber: e.target.value })}
-          />
-        </div>
+          <form onSubmit={handleSubmit} className="space-y-3">
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-sm font-medium">{t("employeeCard.dialog.name")}</label>
+                <Input
+                  value={form.name}
+                  onChange={(e) => setForm({ ...form, name: e.target.value })}
+                />
+              </div>
 
-        <div className="col-span-2">
-          <label className="text-sm font-medium">Address</label>
-          <Input
-            value={form.address}
-            onChange={(e) => setForm({ ...form, address: e.target.value })}
-          />
-        </div>
+              <div>
+                <label className="text-sm font-medium">{t("employeeCard.dialog.phone")}</label>
+                <Input
+                  value={form.phoneNumber}
+                  onChange={(e) => setForm({ ...form, phoneNumber: e.target.value })}
+                />
+              </div>
 
-        <div>
-          <label className="text-sm font-medium">Gender</label>
-          <Select
-            value={form.gender}
-            onValueChange={(val) => setForm({ ...form, gender: val })}
-          >
-            <SelectTrigger><SelectValue placeholder="Select gender" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="male">Male</SelectItem>
-              <SelectItem value="female">Female</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+              <div className="col-span-2">
+                <label className="text-sm font-medium">{t("employeeCard.dialog.address")}</label>
+                <Input
+                  value={form.address}
+                  onChange={(e) => setForm({ ...form, address: e.target.value })}
+                />
+              </div>
 
-        <div>
-          <label className="text-sm font-medium">Marital Status</label>
-          <Select
-            value={form.maritalStatus}
-            onValueChange={(val) => setForm({ ...form, maritalStatus: val })}
-          >
-            <SelectTrigger><SelectValue placeholder="Select status" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="single">Single</SelectItem>
-              <SelectItem value="married">Married</SelectItem>
-              <SelectItem value="divorced">Divorced</SelectItem>
-              <SelectItem value="widowed">Widowed</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+              <div>
+                <label className="text-sm font-medium">{t("employeeCard.dialog.gender")}</label>
+                <Select
+                  value={form.gender}
+                  onValueChange={(val) => setForm({ ...form, gender: val })}
+                >
+                  <SelectTrigger><SelectValue placeholder={t("employeeCard.dialog.selectGender")} /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="male">{t("employeeCard.gender.male")}</SelectItem>
+                    <SelectItem value="female">{t("employeeCard.gender.female")}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
-        <div>
-          <label className="text-sm font-medium">Birth Date</label>
-          <Input
-            type="date"
-            value={form.birthDate}
-            onChange={(e) => setForm({ ...form, birthDate: e.target.value })}
-          />
-        </div>
+              <div>
+                <label className="text-sm font-medium">{t("employeeCard.dialog.maritalStatus")}</label>
+                <Select
+                  value={form.maritalStatus}
+                  onValueChange={(val) => setForm({ ...form, maritalStatus: val })}
+                >
+                  <SelectTrigger><SelectValue placeholder={t("employeeCard.dialog.selectStatus")} /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="single">{t("employeeCard.marital.single")}</SelectItem>
+                    <SelectItem value="married">{t("employeeCard.marital.married")}</SelectItem>
+                    <SelectItem value="divorced">{t("employeeCard.marital.divorced")}</SelectItem>
+                    <SelectItem value="widowed">{t("employeeCard.marital.widowed")}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
-        <div>
-          <label className="text-sm font-medium">Hire Date</label>
-          <Input
-            type="date"
-            value={form.hireDate}
-            onChange={(e) => setForm({ ...form, hireDate: e.target.value })}
-          />
-        </div>
+              <div>
+                <label className="text-sm font-medium">{t("employeeCard.dialog.birthDate")}</label>
+                <Input
+                  type="date"
+                  value={form.birthDate}
+                  onChange={(e) => setForm({ ...form, birthDate: e.target.value })}
+                />
+              </div>
 
-        <div className="col-span-2">
-          <label className="text-sm font-medium">Emergency Contact Name</label>
-          <Input
-            value={form.emergencyContactName}
-            onChange={(e) => setForm({ ...form, emergencyContactName: e.target.value })}
-          />
-        </div>
+              <div>
+                <label className="text-sm font-medium">{t("employeeCard.dialog.hireDate")}</label>
+                <Input
+                  type="date"
+                  value={form.hireDate}
+                  onChange={(e) => setForm({ ...form, hireDate: e.target.value })}
+                />
+              </div>
 
-        <div>
-          <label className="text-sm font-medium">Relation</label>
-          <Input
-            value={form.emergencyContactRelation}
-            onChange={(e) => setForm({ ...form, emergencyContactRelation: e.target.value })}
-          />
-        </div>
+              <div className="col-span-2">
+                <label className="text-sm font-medium">{t("employeeCard.dialog.emergencyContactName")}</label>
+                <Input
+                  value={form.emergencyContactName}
+                  onChange={(e) => setForm({ ...form, emergencyContactName: e.target.value })}
+                />
+              </div>
 
-        <div>
-          <label className="text-sm font-medium">Contact Phone</label>
-          <Input
-            value={form.emergencyContactPhone}
-            onChange={(e) => setForm({ ...form, emergencyContactPhone: e.target.value })}
-          />
-        </div>
-      </div>
+              <div>
+                <label className="text-sm font-medium">{t("employeeCard.dialog.relation")}</label>
+                <Input
+                  value={form.emergencyContactRelation}
+                  onChange={(e) => setForm({ ...form, emergencyContactRelation: e.target.value })}
+                />
+              </div>
 
-      <DialogFooter>
-        <Button type="submit">Save Changes</Button>
-      </DialogFooter>
-    </form>
-  </DialogContent>
-</Dialog>
+              <div>
+                <label className="text-sm font-medium">{t("employeeCard.dialog.contactPhone")}</label>
+                <Input
+                  value={form.emergencyContactPhone}
+                  onChange={(e) => setForm({ ...form, emergencyContactPhone: e.target.value })}
+                />
+              </div>
+            </div>
 
-<ResignDialog
-  employeeName={employeeData.name}
-  open={isResignOpen}
-  onOpenChange={setIsResignOpen}
-  onConfirm={(resignReason) => handleResign(resignReason)}
-/>
+            <DialogFooter>
+              <Button type="submit">{t("employeeCard.dialog.saveChanges")}</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      <ResignDialog
+        employeeName={employeeData.name}
+        open={isResignOpen}
+        onOpenChange={setIsResignOpen}
+        onConfirm={(resignReason) => handleResign(resignReason)}
+      />
     </div>
   )
 
