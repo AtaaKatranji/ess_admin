@@ -83,6 +83,7 @@ const EmployeeList: React.FC = () => {
     e.preventDefault()
     try {
       const payload = { ...form }
+      console.log("Payload: ", payload)
       const res = await fetch(`${BaseUrl}/api/users/create`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -92,6 +93,10 @@ const EmployeeList: React.FC = () => {
       if (!res.ok) throw new Error("Failed to add employee")
       toast.success(t("employees.toast.addSuccess"))
       setOpen(false)
+
+      await fetchData()
+
+      
       setForm({
         name: "",
         phoneNumber: "",
