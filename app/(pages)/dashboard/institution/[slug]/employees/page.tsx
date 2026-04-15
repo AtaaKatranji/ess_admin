@@ -29,6 +29,7 @@ interface Employee {
   name: string
   role: string
   department?: string
+
   email?: string
   totalHours?: number
   shift: {
@@ -58,10 +59,10 @@ const EmployeeList: React.FC = () => {
   const [open, setOpen] = useState(false)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [employeeToDelete, setEmployeeToDelete] = useState<string | null>(null)
-  
+
   const router = useRouter()
   //const params = useParams()
-  const { setEmployeeId } = useEmployee(); 
+  const { setEmployeeId } = useEmployee();
   // const slug = Array.isArray(params?.slug) ? params.slug[0] : params?.slug
   const { slug } = useInstitution();
   const { t } = useI18n();
@@ -81,7 +82,7 @@ const EmployeeList: React.FC = () => {
     contractType: "",
   })
 
-    const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
       const payload = { ...form }
@@ -134,11 +135,11 @@ const EmployeeList: React.FC = () => {
       })
 
       if (!res.ok) throw new Error("Failed to delete employee")
-      
+
       toast.success(t("employees.toast.deleteSuccess"))
       setDeleteDialogOpen(false)
       setEmployeeToDelete(null)
-      
+
       // تحديث القائمة بعد الحذف
       await fetchData()
     } catch (err) {
@@ -147,7 +148,7 @@ const EmployeeList: React.FC = () => {
     }
   }
 
-  const fetchData = async () => {     
+  const fetchData = async () => {
     try {
       setLoading(true);
       if (!slug) {
@@ -159,12 +160,12 @@ const EmployeeList: React.FC = () => {
       const insRes = await fetchInstitution(slug as string);
       if (!insRes.ok) {
         toast.error(insRes.data?.message ?? `Failed to load institution (HTTP ${insRes.status})`);
-           // صفّر المفتاح حتى ما تمرّره للتبويبات
+        // صفّر المفتاح حتى ما تمرّره للتبويبات
         return;                        // finally رح يشتغل ويطفي اللودينغ
       }
-      
+
       //const uniqueKey = insRes.data.uniqueKey;
-      
+
 
       const data = await fetchEmployees(slug)
       const dataShifts = await fetchShifts(slug)
@@ -180,7 +181,7 @@ const EmployeeList: React.FC = () => {
         // Create a new array with total hours for each employee
         const employeesWithHours = await Promise.all(
           data.map(async (employee: Employee) => {
-            console.log("Employees: ", data.length , employee.id)
+            console.log("Employees: ", data.length, employee.id)
             const totalHours = await fetchTotalHours(employee.id, new Date())
             return { ...employee, totalHours }
           }),
@@ -244,7 +245,7 @@ const EmployeeList: React.FC = () => {
             {t("employees.add.button")}
           </Button>
         </div>
-        
+
       </div>
 
       {loading ? (
@@ -259,12 +260,12 @@ const EmployeeList: React.FC = () => {
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredEmployees.map((employee) => (
-              <Card key={employee.id} className="overflow-hidden transition-all hover:shadow-md">
-                  {/* زر الحذف في الزاوية */}
+              <Card key={employee.id} className="overflow-hidden transition-all hover:shadow-md relative">
+                {/* زر الحذف في الزاوية */}
                 <div className="absolute top-4 left-4 z-10">
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
+                  <Button
+                    variant="ghost"
+                    size="icon"
                     className="h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-100"
                     onClick={() => confirmDelete(employee.id)}
                     title={t("employees.delete")}
@@ -272,15 +273,15 @@ const EmployeeList: React.FC = () => {
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
-                
+
                 <CardHeader className="pb-2">
                   <CardTitle className="text-xl">{employee.name}</CardTitle>
-                  <Badge 
+                  <Badge
                     variant={
                       employee.status === "active" ? "secondary" :
-                      employee.status === "resigned" ? "destructive" :
-                      employee.status === "suspended" ? "outline" :
-                      "default"
+                        employee.status === "resigned" ? "destructive" :
+                          employee.status === "suspended" ? "outline" :
+                            "default"
                     }
                     className="w-fit"
                   >
@@ -539,27 +540,27 @@ const EmployeeList: React.FC = () => {
         </DialogContent>
       </Dialog>
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-          <DialogContent className="max-w-md">
-            <DialogHeader>
-              <DialogTitle className="text-red-600">
-                {t("employees.dialog.deleteTitle")}
-              </DialogTitle>
-            </DialogHeader>
-            <div className="py-4">
-              <p className="text-muted-foreground">
-                {t("employees.dialog.deleteConfirm")}
-              </p>
-            </div>
-            <DialogFooter className="flex gap-2 sm:gap-0">
-              <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
-                {t("common.cancel")}
-              </Button>
-              <Button variant="destructive" onClick={executeDelete}>
-                {t("common.confirm")}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-red-600">
+              {t("employees.dialog.deleteTitle")}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <p className="text-muted-foreground">
+              {t("employees.dialog.deleteConfirm")}
+            </p>
+          </div>
+          <DialogFooter className="flex gap-2 sm:gap-0">
+            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
+              {t("common.cancel")}
+            </Button>
+            <Button variant="destructive" onClick={executeDelete}>
+              {t("common.confirm")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
