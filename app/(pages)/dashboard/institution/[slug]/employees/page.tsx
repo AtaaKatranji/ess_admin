@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation"
 import { fetchEmployees, fetchTotalHours } from "@/app/api/employees/employeeId"
 import { fetchInstitution } from "@/app/api/institutions/institutions"
 import { fetchShifts } from "@/app/api/shifts/shifts"
-import { Clock, Users, Briefcase, Mail, Building } from "lucide-react"
+import { Clock, Users, Briefcase, Mail, Building, Trash2 } from "lucide-react"
 
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -56,6 +56,8 @@ const EmployeeList: React.FC = () => {
   const [selectedShift, setSelectedShift] = useState("all")
   const [shiftOptions, setShiftOptions] = useState<Shift[]>([])
   const [open, setOpen] = useState(false)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [employeeToDelete, setEmployeeToDelete] = useState<string | null>(null)
   
   const router = useRouter()
   //const params = useParams()
@@ -96,7 +98,7 @@ const EmployeeList: React.FC = () => {
 
       await fetchData()
 
-      
+
       setForm({
         name: "",
         phoneNumber: "",
@@ -116,6 +118,35 @@ const EmployeeList: React.FC = () => {
       toast.error(t("employees.toast.addError"))
     }
   }
+  const executeDelete = async () => {
+    if (!employeeToDelete) return;
+    try {
+      const token = localStorage.getItem('token'); // Get token for Auth
+
+      // تنويه: تأكد من أن مسار الـ API أدناه يطابق مسار الحذف في الباك اند لديك
+      // مثلاً قد يكون: /api/users/delete/${employeeToDelete}
+      const res = await fetch(`${BaseUrl}/api/users/${employeeToDelete}`, {
+        method: "DELETE",
+        headers: {
+          "Authorization": `Bearer ${token}`
+        },
+        credentials: "include",
+      })
+
+      if (!res.ok) throw new Error("Failed to delete employee")
+      
+      toast.success(t("employees.toast.deleteSuccess"))
+      setDeleteDialogOpen(false)
+      setEmployeeToDelete(null)
+      
+      // تحديث القائمة بعد الحذف
+      await fetchData()
+    } catch (err) {
+      console.error(err)
+      toast.error(t("employees.toast.deleteError"))
+    }
+  }
+
   const fetchData = async () => {     
     try {
       setLoading(true);
@@ -181,6 +212,11 @@ const EmployeeList: React.FC = () => {
     router.push(`/dashboard/institution/${slug}/employees/${employeeId}/details`)
   }
 
+  const confirmDelete = (employeeId: string) => {
+    setEmployeeToDelete(employeeId);
+    setDeleteDialogOpen(true);
+  }
+
   return (
     <div className="container mx-auto p-4 space-y-6 w-full">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -224,6 +260,19 @@ const EmployeeList: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredEmployees.map((employee) => (
               <Card key={employee.id} className="overflow-hidden transition-all hover:shadow-md">
+                  {/* زر الحذف في الزاوية */}
+                <div className="absolute top-4 left-4 z-10">
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-100"
+                    onClick={() => confirmDelete(employee.id)}
+                    title={t("employees.delete")}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+                
                 <CardHeader className="pb-2">
                   <CardTitle className="text-xl">{employee.name}</CardTitle>
                   <Badge 
@@ -489,6 +538,28 @@ const EmployeeList: React.FC = () => {
           </form>
         </DialogContent>
       </Dialog>
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle className="text-red-600">
+                {t("employees.dialog.deleteTitle")}
+              </DialogTitle>
+            </DialogHeader>
+            <div className="py-4">
+              <p className="text-muted-foreground">
+                {t("employees.dialog.deleteConfirm")}
+              </p>
+            </div>
+            <DialogFooter className="flex gap-2 sm:gap-0">
+              <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
+                {t("common.cancel")}
+              </Button>
+              <Button variant="destructive" onClick={executeDelete}>
+                {t("common.confirm")}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
     </div>
   )
 }
