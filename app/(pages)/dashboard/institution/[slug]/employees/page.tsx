@@ -122,14 +122,13 @@ const EmployeeList: React.FC = () => {
   const executeDelete = async () => {
     if (!employeeToDelete) return;
     try {
-      const token = localStorage.getItem('token'); // Get token for Auth
 
       // تنويه: تأكد من أن مسار الـ API أدناه يطابق مسار الحذف في الباك اند لديك
       // مثلاً قد يكون: /api/users/delete/${employeeToDelete}
       const res = await fetch(`${BaseUrl}/api/users/${employeeToDelete}`, {
         method: "DELETE",
         headers: {
-          "Authorization": `Bearer ${token}`
+          "Content-Type": "application/json"
         },
         credentials: "include",
       })
