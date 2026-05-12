@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { toast } from "sonner"
-import { Send, MessageSquare, Loader2, CheckCircle, AlertCircle, Bell, User, Users, RefreshCw, Reply } from "lucide-react"
+import { Send, MessageSquare, Loader2, AlertCircle, Bell, User, Users, RefreshCw, Reply } from "lucide-react"
 import { fetchShifts } from "@/app/api/shifts/shifts"
 import { fetchEmployees } from "@/app/api/employees/employeeId"
 import type { Shift } from "@/app/types/Shift"
@@ -16,7 +16,7 @@ import { sendNotifiy, sendNotifiyUser, fetchNotifications } from "@/app/api/noti
 import { useInstitution } from "@/app/context/InstitutionContext"
 import { useI18n } from "@/app/context/I18nContext"
 import { Input } from "@/components/ui/input"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { format } from "date-fns"
 
@@ -25,7 +25,11 @@ interface AppNotification {
   title: string;
   body: string;
   type: string;
-  data: any;
+  data: {
+    userId?: number | string;
+    shiftId?: number | string;
+    [key: string]: unknown;
+  };
   createdAt: string;
   seen: boolean;
 }
@@ -34,7 +38,7 @@ export default function NotificationsPage() {
   const { t } = useI18n()
   const { slug } = useInstitution();
   const [shifts, setShifts] = useState<Shift[]>([])
-  const [employees, setEmployees] = useState<any[]>([])
+  const [employees, setEmployees] = useState<Array<{ id: number | string; name: string }>>([])
   const [incomingNotifications, setIncomingNotifications] = useState<AppNotification[]>([])
   
   const [recipientType, setRecipientType] = useState<"shift" | "employee">("shift")
@@ -57,7 +61,7 @@ export default function NotificationsPage() {
       const [shiftsData, empsData, notifsData] = await Promise.all([
         fetchShifts(slug),
         fetchEmployees(slug),
-        fetchNotifications(slug)
+        fetchNotifications<AppNotification>(slug)
       ])
       setShifts(shiftsData)
       setEmployees(empsData)
@@ -74,7 +78,7 @@ export default function NotificationsPage() {
     loadData();
     // Auto-refresh notifications every 30 seconds
     const interval = setInterval(() => {
-      if (slug) fetchNotifications(slug).then(setIncomingNotifications);
+      if (slug) fetchNotifications<AppNotification>(slug).then(setIncomingNotifications);
     }, 30000);
     return () => clearInterval(interval);
   }, [slug]);
@@ -167,7 +171,7 @@ export default function NotificationsPage() {
               <CardContent className="pt-6 space-y-5">
                 <div className="space-y-3">
                   <Label className="text-slate-700 font-medium">{t("notifications.recipientType") || "Recipient Type"}</Label>
-                  <Tabs value={recipientType} onValueChange={(v) => setRecipientType(v as any)} className="w-full">
+                  <Tabs value={recipientType} onValueChange={(v) => setRecipientType(v as "shift" | "employee")} className="w-full">
                     <TabsList className="grid w-full grid-cols-2">
                       <TabsTrigger value="shift" className="flex items-center gap-2">
                         <Users className="w-4 h-4" /> {t("notifications.shift") || "By Shift"}

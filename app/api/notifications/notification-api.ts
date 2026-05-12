@@ -28,13 +28,13 @@ export const sendNotifiy = async (shiftId: string, title: string, message: strin
     const data = await res.json().catch(() => ({}));
     return !!data.allowed;
   }
-export async function fetchNotifications(orgSlug: string): Promise<any[]> {
+export async function fetchNotifications<T = unknown>(orgSlug: string): Promise<T[]> {
   try {
     const res = await fetch(`${BaseUrl}/institutions/${orgSlug}/api/notifications`, {
       credentials: 'include',
     });
     if (!res.ok) return [];
-    return await res.json();
+    return (await res.json()) as T[];
   } catch (error) {
     console.error('Error fetching notifications:', error);
     return [];
