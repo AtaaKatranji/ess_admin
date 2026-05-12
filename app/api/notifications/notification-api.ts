@@ -28,4 +28,30 @@ export const sendNotifiy = async (shiftId: string, title: string, message: strin
     const data = await res.json().catch(() => ({}));
     return !!data.allowed;
   }
+export async function fetchNotifications(orgSlug: string): Promise<any[]> {
+  try {
+    const res = await fetch(`${BaseUrl}/institutions/${orgSlug}/api/notifications`, {
+      credentials: 'include',
+    });
+    if (!res.ok) return [];
+    return await res.json();
+  } catch (error) {
+    console.error('Error fetching notifications:', error);
+    return [];
+  }
+}
 
+export const sendNotifiyUser = async (userId: string, title: string, message: string, orgSlug: string) => {
+  try {
+    return await fetch(`${BaseUrl}/institutions/${orgSlug}/api/send-push-user`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ userId, title, message, data: {} }),
+    });
+  } catch (error) {
+    console.error('Error:', error);
+  }
+};
