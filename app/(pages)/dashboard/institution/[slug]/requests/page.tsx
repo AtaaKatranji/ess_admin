@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
+import { useSearchParams } from "next/navigation"
 import { LeaveRequestCard } from "@/app/components/leave-request-card"
 import { HourlyLeaveCard } from "@/app/components/hourly-leave-card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -73,6 +74,14 @@ export default function LeaveRequestsPage() {
   // const [expandedHourlyLeave, setExpandedHourlyLeave] = useState<string | null>(null);
   const { notificationsHourly, notificationsLeave } = useSSE();
   const [allowed, setAllowed] = useState<boolean | null>(null);
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const type = searchParams.get('type');
+    if (type === 'daily' || type === 'hourly' || type === 'resignation') {
+      setLeaveType(type);
+    }
+  }, [searchParams]);
 
   const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
   const orgApi = useMemo(() => {

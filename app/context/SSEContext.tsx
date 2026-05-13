@@ -7,10 +7,11 @@ import { toast } from 'react-toastify';
 interface SSEContextType {
   notificationsHourly: { requestId: string }[];
   notificationsLeave: { requestId: string }[];
+  notificationsResignation: { requestId: string }[];
 }
 
 // Create the context with a default value
-const SSEContext = createContext<SSEContextType>({ notificationsHourly: [], notificationsLeave: []  });
+const SSEContext = createContext<SSEContextType>({ notificationsHourly: [], notificationsLeave: [], notificationsResignation: []  });
 
 // Define the props for the SSEProvider component
 interface SSEProviderProps {
@@ -20,6 +21,7 @@ interface SSEProviderProps {
 export const SSEProvider: React.FC<SSEProviderProps> = ({ children }) => {
   const [notificationsHourly, setNotifications] = useState<{ requestId: string }[]>([]);
   const [notificationsLeave, setNotificationsLeave] = useState<{ requestId: string }[]>([]);
+  const [notificationsResignation, setNotificationsResignation] = useState<{ requestId: string }[]>([]);
   const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
   // Request notification permission on mount
   useEffect(() => {
@@ -59,30 +61,55 @@ export const SSEProvider: React.FC<SSEProviderProps> = ({ children }) => {
     const connectToSSE = () => {
       eventSource = new EventSource(`${BaseUrl}/sse`);
 
-      // Listen for the 'new-request-leaves' event
+      // Listen for the 'new-request-leaves' (Hourly) event
       eventSource.addEventListener('new-request-leaves', (event) => {
-        const data = JSON.parse(event.data) as { requestId: string };
-        console.log(data.requestId);
-        setNotifications((prevNotifications) => [...prevNotifications, data]);
+        const data = JSON.parse(event.data) as { requestId: string; employeeName?: string; orgSlug?: string };
+        console.log('Hourly Request:', data);
+        setNotifications((prev) => [...prev, data]);
 
-        // Display a toast message
-        toast.info(`New Hourly Leave Request: ${data.requestId}`, {
-          position: 'top-right',
-          autoClose: 5000, // Close after 5 seconds
+        const message = data.employeeName ? `New Hourly Leave Request from ${data.employeeName}` : `New Hourly Leave Request: ${data.requestId}`;
+        toast.info(message, { 
+          position: 'top-right', 
+          autoClose: 5000,
+          onClick: () => {
+            if (data.orgSlug) window.location.href = `/dashboard/institution/${data.orgSlug}/requests?type=hourly`;
+          }
         });
-        showDesktopNotification('New Hourly Leave Request', `Request ID: ${data.requestId}`);
+        showDesktopNotification('New Hourly Leave Request', message);
       });
-      eventSource.addEventListener('new-leave-request', (event) => {
-        const data = JSON.parse(event.data) as { requestId: string };
-        console.log(`New Leave Request: ${data.requestId}`);
-        setNotificationsLeave((prevNotifications) => [...prevNotifications, data]);
 
-        // Display a toast message
-        toast.info(`New Leave Request for employee: ${data.requestId}`, {
-          position: 'top-right',
-          autoClose: 5000, // Close after 5 seconds
+      // Listen for the 'new-leave-request' (Daily) event
+      eventSource.addEventListener('new-leave-request', (event) => {
+        const data = JSON.parse(event.data) as { requestId: string; employeeName?: string; orgSlug?: string };
+        console.log('Leave Request:', data);
+        setNotificationsLeave((prev) => [...prev, data]);
+
+        const message = data.employeeName ? `New Leave Request from ${data.employeeName}` : `New Leave Request: ${data.requestId}`;
+        toast.info(message, { 
+          position: 'top-right', 
+          autoClose: 5000,
+          onClick: () => {
+            if (data.orgSlug) window.location.href = `/dashboard/institution/${data.orgSlug}/requests?type=daily`;
+          }
         });
-        showDesktopNotification('New Leave Request', `Request ID: ${data.requestId}`);
+        showDesktopNotification('New Leave Request', message);
+      });
+
+      // Listen for the 'new-resignation-request' event
+      eventSource.addEventListener('new-resignation-request', (event) => {
+        const data = JSON.parse(event.data) as { requestId: string; employeeName?: string; orgSlug?: string };
+        console.log('Resignation Request:', data);
+        setNotificationsResignation((prev) => [...prev, data]);
+
+        const message = data.employeeName ? `New Resignation Request from ${data.employeeName}` : `New Resignation Request`;
+        toast.warning(message, { 
+          position: 'top-right', 
+          autoClose: 7000,
+          onClick: () => {
+            if (data.orgSlug) window.location.href = `/dashboard/institution/${data.orgSlug}/requests?type=resignation`;
+          }
+        });
+        showDesktopNotification('New Resignation Request', message);
       });
     // Handle errors
     eventSource.onerror = () => {
@@ -113,7 +140,7 @@ export const SSEProvider: React.FC<SSEProviderProps> = ({ children }) => {
   }, [BaseUrl]);
 
   return (
-    <SSEContext.Provider value={{ notificationsHourly, notificationsLeave }}>
+    <SSEContext.Provider value={{ notificationsHourly, notificationsLeave, notificationsResignation }}>
       {children}
     </SSEContext.Provider>
   );

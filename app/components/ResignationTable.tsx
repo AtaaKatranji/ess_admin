@@ -5,9 +5,10 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
-import { toast } from "sonner"
+import { toast } from "react-toastify"
 import { Check, X } from "lucide-react"
 import { useI18n } from "@/app/context/I18nContext"
+import { useSSE } from "@/app/context/SSEContext"
 const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
 type Resignation = {
   id: number
@@ -23,6 +24,7 @@ interface Props {
 
 export default function ResignationTable({ orgSlug }: Props) {
   const { t } = useI18n()
+  const { notificationsResignation } = useSSE()
   const [resignations, setResignations] = useState<Resignation[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -48,6 +50,12 @@ export default function ResignationTable({ orgSlug }: Props) {
   useEffect(() => {
     fetchResignations()
   }, [orgSlug])
+
+  useEffect(() => {
+    if (notificationsResignation.length > 0) {
+      fetchResignations()
+    }
+  }, [notificationsResignation])
 
   const handleAction = async (id: number, action: "approve" | "reject") => {
     try {
