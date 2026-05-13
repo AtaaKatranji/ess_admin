@@ -5,6 +5,13 @@ import { toast } from 'react-toastify';
 import { useRouter } from 'next/navigation';
 
 // Define the type for the SSE context
+interface RequestData {
+  id?: string | number;
+  _id?: string | number;
+  employeeName?: string;
+  user?: { name: string };
+}
+
 interface RequestNotification {
   requestId: unknown;
   employeeName?: string;
@@ -75,14 +82,14 @@ export const SSEProvider: React.FC<SSEProviderProps> = ({ children }) => {
         let employeeName = data.employeeName || '';
 
         if (Array.isArray(data.requestId)) {
-          const first = (data.requestId as any[])[0];
+          const first = (data.requestId as RequestData[])[0];
           if (first) {
-            requestId = first.id || first._id || 'Multiple';
+            requestId = String(first.id || first._id || 'Multiple');
             if (!employeeName) employeeName = first.employeeName || first.user?.name || '';
           }
         } else if (typeof data.requestId === 'object' && data.requestId !== null) {
-          const rid = data.requestId as any;
-          requestId = rid.id || rid._id || 'New';
+          const rid = data.requestId as RequestData;
+          requestId = String(rid.id || rid._id || 'New');
           if (!employeeName) employeeName = rid.employeeName || rid.user?.name || '';
         } else {
           requestId = String(data.requestId || 'New');
