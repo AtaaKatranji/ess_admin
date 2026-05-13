@@ -8,11 +8,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { toast } from "sonner"
-import { Send, MessageSquare, Loader2, AlertCircle, Bell, User, Users, RefreshCw, Reply } from "lucide-react"
+import { Send, MessageSquare, Loader2, AlertCircle, Bell, User, Users, RefreshCw, Reply, Trash2 } from "lucide-react"
 import { fetchShifts } from "@/app/api/shifts/shifts"
 import { fetchEmployees } from "@/app/api/employees/employeeId"
 import type { Shift } from "@/app/types/Shift"
-import { sendNotifiy, sendNotifiyUser, fetchNotifications } from "@/app/api/notifications/notification-api"
+import { sendNotifiy, sendNotifiyUser, fetchNotifications, deleteNotification } from "@/app/api/notifications/notification-api"
 import { useInstitution } from "@/app/context/InstitutionContext"
 import { useI18n } from "@/app/context/I18nContext"
 import { Input } from "@/components/ui/input"
@@ -138,6 +138,22 @@ export default function NotificationsPage() {
     setMessage(`Hi ${notif.body.split(' ')[1] || ''}, regarding the alert: "${notif.title}". Please let us know...`)
     // Scroll to form
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  const handleDelete = async (id: number) => {
+    if (!slug) return;
+    try {
+      const res = await deleteNotification(id, slug);
+      if (res?.ok) {
+        setIncomingNotifications(prev => prev.filter(n => n.id !== id));
+        toast.success(t("notifications.toast.deleted") || "Notification deleted");
+      } else {
+        throw new Error("Failed to delete notification");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error(t("notifications.toast.deleteFailed") || "Failed to delete notification");
+    }
   }
 
   return (
@@ -299,10 +315,16 @@ export default function NotificationsPage() {
                                   {notif.type === 'admin_missed_checkin' && <Badge variant="destructive" className="text-[9px] uppercase tracking-tighter">Urgent</Badge>}
                                   <Badge variant="outline" className="text-[9px] uppercase tracking-tighter bg-white">{notif.type}</Badge>
                                 </div>
-                                <Button size="sm" variant="ghost" className="h-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50 text-xs" onClick={() => handleFollowUp(notif)}>
-                                  <Reply className="w-3 h-3 mr-1.5" />
-                                  {t("notifications.followUp") || "Follow up"}
-                                </Button>
+                                <div className="flex gap-2">
+                                  <Button size="sm" variant="ghost" className="h-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50 text-xs" onClick={() => handleFollowUp(notif)}>
+                                    <Reply className="w-3 h-3 mr-1.5" />
+                                    {t("notifications.followUp") || "Follow up"}
+                                  </Button>
+                                  <Button size="sm" variant="ghost" className="h-8 text-red-500 hover:text-red-600 hover:bg-red-50 text-xs" onClick={() => handleDelete(notif.id)}>
+                                    <Trash2 className="w-3 h-3 mr-1.5" />
+                                    {t("common.delete") || "Delete"}
+                                  </Button>
+                                </div>
                               </div>
                             </div>
                           </div>

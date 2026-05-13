@@ -55,3 +55,14 @@ export const sendNotifiyUser = async (userId: string, title: string, message: st
     console.error('Error:', error);
   }
 };
+
+export const deleteNotification = async (id: number, orgSlug: string) => {
+  try {
+    return await fetch(`${BaseUrl}/institutions/${orgSlug}/api/notifications/${id}`, {
+      method: 'DELETE',
+      credentials: 'include',
+    });
+  } catch (error) {
+    console.error('Error deleting notification:', error);
+  }
+};
