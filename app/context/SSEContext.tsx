@@ -5,10 +5,16 @@ import { toast } from 'react-toastify';
 import { useRouter } from 'next/navigation';
 
 // Define the type for the SSE context
+interface RequestNotification {
+  requestId: unknown;
+  employeeName?: string;
+  orgSlug?: string;
+}
+
 interface SSEContextType {
-  notificationsHourly: { requestId: string }[];
-  notificationsLeave: { requestId: string }[];
-  notificationsResignation: { requestId: string }[];
+  notificationsHourly: RequestNotification[];
+  notificationsLeave: RequestNotification[];
+  notificationsResignation: RequestNotification[];
 }
 
 // Create the context with a default value
@@ -21,9 +27,9 @@ interface SSEProviderProps {
 
 export const SSEProvider: React.FC<SSEProviderProps> = ({ children }) => {
   const router = useRouter();
-  const [notificationsHourly, setNotifications] = useState<{ requestId: any }[]>([]);
-  const [notificationsLeave, setNotificationsLeave] = useState<{ requestId: any }[]>([]);
-  const [notificationsResignation, setNotificationsResignation] = useState<{ requestId: any }[]>([]);
+  const [notificationsHourly, setNotifications] = useState<RequestNotification[]>([]);
+  const [notificationsLeave, setNotificationsLeave] = useState<RequestNotification[]>([]);
+  const [notificationsResignation, setNotificationsResignation] = useState<RequestNotification[]>([]);
   const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
   // Request notification permission on mount
   useEffect(() => {
@@ -64,30 +70,30 @@ export const SSEProvider: React.FC<SSEProviderProps> = ({ children }) => {
       eventSource = new EventSource(`${BaseUrl}/sse`);
 
       // Helper to extract a displayable ID or name
-      const getDisplayInfo = (data: any) => {
+      const getDisplayInfo = (data: RequestNotification) => {
         let requestId = 'New';
         let employeeName = data.employeeName || '';
 
         if (Array.isArray(data.requestId)) {
-          const first = data.requestId[0];
+          const first = (data.requestId as any[])[0];
           if (first) {
             requestId = first.id || first._id || 'Multiple';
             if (!employeeName) employeeName = first.employeeName || first.user?.name || '';
           }
         } else if (typeof data.requestId === 'object' && data.requestId !== null) {
-          requestId = data.requestId.id || data.requestId._id || 'New';
-          if (!employeeName) employeeName = data.requestId.employeeName || data.requestId.user?.name || '';
+          const rid = data.requestId as any;
+          requestId = rid.id || rid._id || 'New';
+          if (!employeeName) employeeName = rid.employeeName || rid.user?.name || '';
         } else {
-          requestId = data.requestId;
+          requestId = String(data.requestId || 'New');
         }
 
         return { requestId, employeeName };
       };
 
-      // Listen for the 'new-request-leaves' (Hourly) event
       eventSource.addEventListener('new-request-leaves', (event) => {
-        const rawData = JSON.parse(event.data);
-        const { requestId, employeeName } = getDisplayInfo(rawData);
+        const rawData = JSON.parse(event.data) as RequestNotification;
+        const { employeeName } = getDisplayInfo(rawData);
         const orgSlug = rawData.orgSlug;
         
         console.log('Hourly Request:', rawData);
@@ -104,10 +110,9 @@ export const SSEProvider: React.FC<SSEProviderProps> = ({ children }) => {
         showDesktopNotification('New Hourly Leave Request', message);
       });
 
-      // Listen for the 'new-leave-request' (Daily) event
       eventSource.addEventListener('new-leave-request', (event) => {
-        const rawData = JSON.parse(event.data);
-        const { requestId, employeeName } = getDisplayInfo(rawData);
+        const rawData = JSON.parse(event.data) as RequestNotification;
+        const { employeeName } = getDisplayInfo(rawData);
         const orgSlug = rawData.orgSlug;
 
         console.log('Leave Request:', rawData);
@@ -124,10 +129,9 @@ export const SSEProvider: React.FC<SSEProviderProps> = ({ children }) => {
         showDesktopNotification('New Leave Request', message);
       });
 
-      // Listen for the 'new-resignation-request' event
       eventSource.addEventListener('new-resignation-request', (event) => {
-        const rawData = JSON.parse(event.data);
-        const { requestId, employeeName } = getDisplayInfo(rawData);
+        const rawData = JSON.parse(event.data) as RequestNotification;
+        const { employeeName } = getDisplayInfo(rawData);
         const orgSlug = rawData.orgSlug;
 
         console.log('Resignation Request:', rawData);
