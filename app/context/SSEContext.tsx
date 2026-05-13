@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, ReactNode, useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
+import { useRouter } from 'next/navigation';
 
 // Define the type for the SSE context
 interface SSEContextType {
@@ -19,9 +20,10 @@ interface SSEProviderProps {
 }
 
 export const SSEProvider: React.FC<SSEProviderProps> = ({ children }) => {
-  const [notificationsHourly, setNotifications] = useState<{ requestId: string }[]>([]);
-  const [notificationsLeave, setNotificationsLeave] = useState<{ requestId: string }[]>([]);
-  const [notificationsResignation, setNotificationsResignation] = useState<{ requestId: string }[]>([]);
+  const router = useRouter();
+  const [notificationsHourly, setNotifications] = useState<{ requestId: any }[]>([]);
+  const [notificationsLeave, setNotificationsLeave] = useState<{ requestId: any }[]>([]);
+  const [notificationsResignation, setNotificationsResignation] = useState<{ requestId: any }[]>([]);
   const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
   // Request notification permission on mount
   useEffect(() => {
@@ -61,18 +63,42 @@ export const SSEProvider: React.FC<SSEProviderProps> = ({ children }) => {
     const connectToSSE = () => {
       eventSource = new EventSource(`${BaseUrl}/sse`);
 
+      // Helper to extract a displayable ID or name
+      const getDisplayInfo = (data: any) => {
+        let requestId = 'New';
+        let employeeName = data.employeeName || '';
+
+        if (Array.isArray(data.requestId)) {
+          const first = data.requestId[0];
+          if (first) {
+            requestId = first.id || first._id || 'Multiple';
+            if (!employeeName) employeeName = first.employeeName || first.user?.name || '';
+          }
+        } else if (typeof data.requestId === 'object' && data.requestId !== null) {
+          requestId = data.requestId.id || data.requestId._id || 'New';
+          if (!employeeName) employeeName = data.requestId.employeeName || data.requestId.user?.name || '';
+        } else {
+          requestId = data.requestId;
+        }
+
+        return { requestId, employeeName };
+      };
+
       // Listen for the 'new-request-leaves' (Hourly) event
       eventSource.addEventListener('new-request-leaves', (event) => {
-        const data = JSON.parse(event.data) as { requestId: string; employeeName?: string; orgSlug?: string };
-        console.log('Hourly Request:', data);
-        setNotifications((prev) => [...prev, data]);
+        const rawData = JSON.parse(event.data);
+        const { requestId, employeeName } = getDisplayInfo(rawData);
+        const orgSlug = rawData.orgSlug;
+        
+        console.log('Hourly Request:', rawData);
+        setNotifications((prev) => [...prev, rawData]);
 
-        const message = data.employeeName ? `New Hourly Leave Request from ${data.employeeName}` : `New Hourly Leave Request: ${data.requestId}`;
+        const message = employeeName ? `New Hourly Leave Request from ${employeeName}` : `New Hourly Leave Request`;
         toast.info(message, { 
           position: 'top-right', 
           autoClose: 5000,
           onClick: () => {
-            if (data.orgSlug) window.location.href = `/dashboard/institution/${data.orgSlug}/requests?type=hourly`;
+            if (orgSlug) router.push(`/dashboard/institution/${orgSlug}/requests?type=hourly`);
           }
         });
         showDesktopNotification('New Hourly Leave Request', message);
@@ -80,16 +106,19 @@ export const SSEProvider: React.FC<SSEProviderProps> = ({ children }) => {
 
       // Listen for the 'new-leave-request' (Daily) event
       eventSource.addEventListener('new-leave-request', (event) => {
-        const data = JSON.parse(event.data) as { requestId: string; employeeName?: string; orgSlug?: string };
-        console.log('Leave Request:', data);
-        setNotificationsLeave((prev) => [...prev, data]);
+        const rawData = JSON.parse(event.data);
+        const { requestId, employeeName } = getDisplayInfo(rawData);
+        const orgSlug = rawData.orgSlug;
 
-        const message = data.employeeName ? `New Leave Request from ${data.employeeName}` : `New Leave Request: ${data.requestId}`;
+        console.log('Leave Request:', rawData);
+        setNotificationsLeave((prev) => [...prev, rawData]);
+
+        const message = employeeName ? `New Leave Request from ${employeeName}` : `New Leave Request`;
         toast.info(message, { 
           position: 'top-right', 
           autoClose: 5000,
           onClick: () => {
-            if (data.orgSlug) window.location.href = `/dashboard/institution/${data.orgSlug}/requests?type=daily`;
+            if (orgSlug) router.push(`/dashboard/institution/${orgSlug}/requests?type=daily`);
           }
         });
         showDesktopNotification('New Leave Request', message);
@@ -97,16 +126,19 @@ export const SSEProvider: React.FC<SSEProviderProps> = ({ children }) => {
 
       // Listen for the 'new-resignation-request' event
       eventSource.addEventListener('new-resignation-request', (event) => {
-        const data = JSON.parse(event.data) as { requestId: string; employeeName?: string; orgSlug?: string };
-        console.log('Resignation Request:', data);
-        setNotificationsResignation((prev) => [...prev, data]);
+        const rawData = JSON.parse(event.data);
+        const { requestId, employeeName } = getDisplayInfo(rawData);
+        const orgSlug = rawData.orgSlug;
 
-        const message = data.employeeName ? `New Resignation Request from ${data.employeeName}` : `New Resignation Request`;
+        console.log('Resignation Request:', rawData);
+        setNotificationsResignation((prev) => [...prev, rawData]);
+
+        const message = employeeName ? `New Resignation Request from ${employeeName}` : `New Resignation Request`;
         toast.warning(message, { 
           position: 'top-right', 
           autoClose: 7000,
           onClick: () => {
-            if (data.orgSlug) window.location.href = `/dashboard/institution/${data.orgSlug}/requests?type=resignation`;
+            if (orgSlug) router.push(`/dashboard/institution/${orgSlug}/requests?type=resignation`);
           }
         });
         showDesktopNotification('New Resignation Request', message);
